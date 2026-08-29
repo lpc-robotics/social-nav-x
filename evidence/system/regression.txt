@@ -1,0 +1,33 @@
+Final default launch:
+  GPU_ID=3 ./scripts/run_six_behaviors.sh
+  run: logs/runs/20260828_160829_six_behaviors_gpu3
+  Ideal D6 chassis: true (physics_dt=0.016666666666666666)
+
+SMOKE_NAVIGATION_OK start=(3.000,3.000) end=(4.811,3.003) moved=1.811m lidar_messages=84
+SIX_BEHAVIORS_VERIFY_OK types=1,2,3,4,5,6 active=3,5 responses=3,4,5,6 robot_distance=0.891 robot_states=87
+
+Rates:
+  /odom                    about 21.2 Hz
+  /lidar                   about 3.45 Hz
+  /lidar/points            about 20.7 Hz
+  /isaac/joint_states      about 21.4 Hz
+  /tf aggregate            about 123 Hz
+
+Transforms:
+  odom -> base_link        z about 0.0645 m, roll/pitch effectively zero
+  base_link -> lidar_link  [0, 0, 0.142]
+  base_link -> imu_link    identity
+
+Endpoints:
+  WebRTC TCP 49100 listening
+  Foxglove TCP 8765 listening
+  webrtc_frame.png 560585 bytes and visually inspected
+
+Long run:
+  final instance ran about 5 h 46 min (16:08--21:55 CST)
+  HuNav remained near 14 Hz compute and 4.9 Hz display
+  Ctrl-C cleanly stopped all children; ports/services were released
+
+The first six-behavior verifier invocation after Nav2 missed only the periodic
+Curious (type 5) transient. Repeating the verifier in the same unmodified run
+observed active=3,5 and responses=3,4,5,6 as recorded above.

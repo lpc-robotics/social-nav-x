@@ -1,0 +1,9 @@
+archive_candidate=AUDITED_AND_RESTORED
+recovery=PRE_D6_AND_FINAL_SNAPSHOTS_READY
+retest_07m06 rows=1 bad=0
+matrix rows=22 invalid=0 holdouts=4 max_v_pct=0.086510765 max_w_pct=0.313367917
+collision rows=3 labels=3 invalid=0
+system_regression=NAV2_HUNAV_WEBRTC_FOXGLOVE_ODOM_TF_SENSORS_LONGRUN_OK
+deployment=D6_DEFAULT_OFFICIAL_ODOM_INSTALLED
+documentation=COMPLETE
+D6_COMPLETION_AUDIT_OK

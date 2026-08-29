@@ -1,0 +1,112 @@
+from collections.abc import Collection
+import itertools
+import typing
+
+from arena_rclpy_mixins.shared import Namespace
+
+from task_generator import NodeInterface
+from task_generator.constants import Constants
+from task_generator.shared import Entity, ModelType, Pose, Wall
+from task_generator.utils.registry import Registry
+
+
+class BaseSim(NodeInterface):
+
+    _namespace: Namespace
+
+    _spawn_model: dict[ModelType, typing.Callable]
+
+    __counter: itertools.count
+
+    def __init__(self, namespace: Namespace):
+        NodeInterface.__init__(self)
+
+        self._namespace = namespace
+        self._spawn_model = dict()
+
+        self.__counter = itertools.count()
+
+    def generate_random_name(self) -> str:
+        return f"random_name_{next(self.__counter)}"
+
+    @property
+    def MODEL_TYPES(self) -> Collection[ModelType]:
+        return self._spawn_model.keys()
+
+    def spawn_model(self, model_type: ModelType, *args, **kwargs):
+        if model_type in self._spawn_model:
+            return self._spawn_model[model_type](*args, **kwargs)
+
+        raise NotImplementedError(
+            f"{type(self).__name__} does not implement spawn_model[{model_type}]")
+
+    def before_reset_task(self):
+        """
+        Is executed each time before the task is reset. This is useful in
+        order to pause the simulation.
+        """
+        raise NotImplementedError()
+
+    def after_reset_task(self):
+        """
+        Is executed after the task is reset. This is useful to unpause the
+        simulation.
+        """
+        raise NotImplementedError()
+
+    def spawn_entity(self, entity: Entity) -> bool:
+        raise NotImplementedError()
+
+    def move_entity(self, name: str, pose: Pose) -> bool:
+        """
+        Move entity to the given position.
+        """
+        raise NotImplementedError()
+
+    def delete_entity(self, name: str) -> bool:
+        raise NotImplementedError()
+
+    def spawn_walls(self, walls: list[Wall]) -> bool:
+        """
+        Add a list of walls to the simulator.
+        """
+        raise NotImplementedError()
+
+    def remove_walls(self) -> bool:
+        """
+        Remove every spawned wall from the simulator.
+        """
+        raise NotImplementedError()
+
+
+SimulatorRegistry = Registry[Constants.SimSimulator, BaseSim]()
+
+
+@SimulatorRegistry.register(Constants.SimSimulator.DUMMY)
+def lazy_dummy():
+    from .dummy_simulator import DummySimulator
+    return DummySimulator
+
+
+@SimulatorRegistry.register(Constants.SimSimulator.FLATLAND)
+def lazy_flatland():
+    from .flatland_simulator import FlatlandSimulator
+    return FlatlandSimulator
+
+
+@SimulatorRegistry.register(Constants.SimSimulator.GAZEBO)
+def lazy_gazebo():
+    from .gazebo_simulator import GazeboSimulator
+    return GazeboSimulator
+
+
+@SimulatorRegistry.register(Constants.SimSimulator.UNITY)
+def lazy_unity():
+    from .unity_simulator import UnitySimulator
+    return UnitySimulator
+
+
+@SimulatorRegistry.register(Constants.SimSimulator.ISAAC)
+def lazy_isaac():
+    from .isaac_simulator import IsaacSimulator
+    return IsaacSimulator

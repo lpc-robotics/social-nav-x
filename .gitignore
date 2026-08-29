@@ -1,0 +1,22 @@
+# Workspace-local environments and generated products
+/.cache/
+/.conda/
+/build/
+/install/
+/log/
+/logs/
+/backups/
+/NvStreamer-*.etli
+
+# Upstream repositories recreated by scripts/fetch_upstreams.sh
+/src/arena/evaluation/
+/src/arena/simulation-setup/
+/src/arena/tools/
+/src/deps/
+
+# Python/editor noise
+**/__pycache__/
+**/.pytest_cache/
+*.py[cod]
+*.swp
+*~

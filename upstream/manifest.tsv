@@ -1,0 +1,12 @@
+path	origin	commit	branch	storage	patch
+src/arena-isaac	https://github.com/Arena-Rosnav/arena-isaac.git	16b8e3416517d8c3dc1b5038df4fe11b9a6df46c	arena5-isaac5.1.0	vendored	patches/arena-isaac.patch
+src/arena-rosnav	https://github.com/Arena-Rosnav/arena-rosnav.git	c2ff4a87e8686013b53f1e9cd8b01b3ab04fbce4	humble	vendored	patches/arena-rosnav.patch
+src/arena/evaluation	https://github.com/voshch/arena-evaluation.git	94762429bea19b84cab50a3d0910a736184738a0	humble	fetched	-
+src/arena/simulation-setup	https://github.com/voshch/arena-simulation-setup.git	3f142b25d88ce962c803b57cf20f38985d376dea	humble-fix	fetched	patches/simulation-setup.patch
+src/arena/tools	https://github.com/voshch/arena-tools.git	cbf1d05abd436cdb820da9fd0c35847b06a39ae0	detached	fetched	-
+src/deps/foxglove-sdk	https://github.com/foxglove/foxglove-sdk.git	05f27efc7e535d9c30c6b0cb4f6aa89de7243870	detached	fetched	patches/foxglove-sdk.patch
+src/deps/hunav/hunav_sim	https://github.com/voshch/hunav_sim.git	a69cf96d98b0d40e247f819d7aebab661ac68b3b	detached	fetched	patches/hunav-sim.patch
+src/deps/hunav/lightsfm	https://github.com/robotics-upo/lightsfm.git	b30327cca189af2fb90443a5d0040cceb46d7195	master	fetched	-
+src/deps/hunav/people_msgs	https://github.com/wg-perception/people.git	0ae47f6e0208cedd84d19d066743fdc1d05fcafa	detached	fetched	-
+src/deps/nav2/navigation2	https://github.com/voshch/navigation2.git	8e34dcf5790671085a893dc58d2a0940ec80dd1e	humble	fetched	-
+src/deps/robots/jackal	https://github.com/jackal/jackal.git	017b8b581a90873047f7d6fe438bd87513be4a76	foxy-devel	fetched	-
