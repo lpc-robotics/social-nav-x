@@ -5,6 +5,12 @@ import time
 
 import rclpy
 import yaml
+from arena_humble_compat.bridge_validation import (
+    STRICT_SIX_BEHAVIOR_TYPES,
+    character_model_mapping,
+    format_ready_status,
+    validate_agent_definitions,
+)
 from arena_people_msgs.msg import Pedestrian, SpawnPedestrian
 from arena_people_msgs.srv import SpawnPedestrians, UpdatePedestrians
 from geometry_msgs.msg import Pose, Twist
@@ -89,15 +95,29 @@ class ArenaHuNavIsaacBridge(Node):
         self.declare_parameter("angular_static_compensation", 0.46)
         self.declare_parameter("angular_compensation_transition", 0.1)
         self.declare_parameter("character_models", DEFAULT_CHARACTER_MODELS)
+        self.declare_parameter("strict_six_behavior_demo", True)
+        self.declare_parameter("status_topic", "/arena5/six_behaviors/status")
+        self.declare_parameter(
+            "agent_debug_topic", "/arena5/six_behaviors/agents"
+        )
+        self.declare_parameter("ready_marker", "SIX_BEHAVIORS_READY")
+
+        self._strict_six_behavior_demo = bool(
+            self.get_parameter("strict_six_behavior_demo").value
+        )
+        self._ready_marker = str(self.get_parameter("ready_marker").value)
+        if not self._ready_marker:
+            raise RuntimeError("ready_marker must be non-empty")
 
         self._agents, self._agent_templates = self._load_agents()
+        self._agent_count = len(self._agents.agents)
         self._models = self._load_character_models()
 
         self._status_pub = self.create_publisher(
-            String, "/arena5/six_behaviors/status", 10
+            String, str(self.get_parameter("status_topic").value), 10
         )
         self._agent_debug_pub = self.create_publisher(
-            Agents, "/arena5/six_behaviors/agents", 10
+            Agents, str(self.get_parameter("agent_debug_topic").value), 10
         )
         self._joint_pub = self.create_publisher(
             JointState, "/isaac/joint_commands_velocity", 10
@@ -247,23 +267,24 @@ class ArenaHuNavIsaacBridge(Node):
             container.agents.append(agent)
             templates[agent.name] = copy.deepcopy(agent)
 
-        actual_types = sorted(agent.behavior.type for agent in container.agents)
-        if actual_types != [1, 2, 3, 4, 5, 6]:
-            raise RuntimeError(
-                f"six-behavior config must contain types 1..6, got {actual_types}"
-            )
-        if any(agent.behavior.configuration != 1 for agent in container.agents):
-            raise RuntimeError("all six demo agents must use deterministic custom config")
+        validate_agent_definitions(
+            (
+                (
+                    agent.id,
+                    agent.name,
+                    agent.behavior.type,
+                    agent.behavior.configuration,
+                )
+                for agent in container.agents
+            ),
+            self._strict_six_behavior_demo,
+        )
         return container, templates
 
     def _load_character_models(self):
         model_names = list(self.get_parameter("character_models").value)
         agent_names = [agent.name for agent in self._agents.agents]
-        if len(model_names) != len(agent_names):
-            raise RuntimeError(
-                "character_models must have exactly one entry per HuNav agent"
-            )
-        return dict(zip(agent_names, model_names))
+        return character_model_mapping(agent_names, model_names)
 
     def _status(self, text: str):
         self.get_logger().info(text)
@@ -319,16 +340,20 @@ class ArenaHuNavIsaacBridge(Node):
             "/isaac/SpawnPedestrians",
             timeout=300.0,
         )
-        if not result or list(result.results) != [0] * 6:
-            raise RuntimeError(f"six-pedestrian spawn failed: {result}")
+        if not result or list(result.results) != [0] * self._agent_count:
+            if self._strict_six_behavior_demo:
+                raise RuntimeError(f"six-pedestrian spawn failed: {result}")
+            raise RuntimeError(f"pedestrian spawn failed: {result}")
         mapping = ",".join(
             f"{agent.name}:{agent.behavior.type}"
             for agent in self._agents.agents
         )
-        self._status(f"SIX_BEHAVIORS_SPAWN_OK count=6 types={mapping}")
+        self._status(
+            f"SIX_BEHAVIORS_SPAWN_OK count={self._agent_count} types={mapping}"
+        )
 
         # SpawnUrdf performs the one World.reset() needed after stage edits.
-        # Keep it last so all six Character prims survive that reset.
+        # Keep it last so all Character prims survive that reset.
         urdf_path = str(self.get_parameter("urdf_path").value)
         if not urdf_path:
             raise RuntimeError("urdf_path parameter is required")
@@ -467,7 +492,7 @@ class ArenaHuNavIsaacBridge(Node):
             self._needs_isaac_update = True
         else:
             result = self._update_future.result()
-            if result and list(result.results) == [0] * 6:
+            if result and list(result.results) == [0] * self._agent_count:
                 self._update_count += 1
             else:
                 self.get_logger().error(
@@ -490,7 +515,12 @@ class ArenaHuNavIsaacBridge(Node):
             return
 
         response = self._compute_future.result()
-        if response is None or len(response.updated_agents.agents) != 6:
+        invalid_response = response is None
+        if response is not None:
+            invalid_response = (
+                len(response.updated_agents.agents) != self._agent_count
+            )
+        if invalid_response:
             self.get_logger().error(
                 f"HuNav compute returned an invalid response: {response}"
             )
@@ -633,13 +663,19 @@ class ArenaHuNavIsaacBridge(Node):
 
         if not self._ready_reported and self._update_count >= 10:
             types = sorted(agent.behavior.type for agent in self._agents.agents)
-            if types == [1, 2, 3, 4, 5, 6]:
+            ready_types = not self._strict_six_behavior_demo
+            if self._strict_six_behavior_demo:
+                ready_types = types == STRICT_SIX_BEHAVIOR_TYPES
+            if ready_types:
                 self._ready_reported = True
                 self._status(
-                    "SIX_BEHAVIORS_READY pedestrians=6 behavior_types=1,2,3,4,5,6 "
-                    f"compute_rate={self._compute_rate:.1f} max_dt="
-                    f"{self._max_integration_step_seen:.3f} robot_state=odom "
-                    "hunav=/compute_agents isaac=/isaac/UpdatePedestrians"
+                    format_ready_status(
+                        self._ready_marker,
+                        self._agent_count,
+                        types,
+                        self._compute_rate,
+                        self._max_integration_step_seen,
+                    )
                 )
 
 
