@@ -33,6 +33,8 @@ setup(
         "console_scripts": [
             "formal_social_behavior_proxy = "
             "formal_social_behavior.proxy_node:main",
+            "verify_formal_social_scenario = "
+            "formal_social_behavior.scenario_verifier:main",
         ],
     },
 )

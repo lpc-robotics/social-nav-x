@@ -38,13 +38,23 @@ class BehaviorProfile:
     other_force_factor: float = 20.0
 
     def __post_init__(self) -> None:
-        object.__setattr__(self, "behavior_type", BehaviorType(self.behavior_type))
+        if isinstance(self.behavior_type, bool) or not isinstance(
+            self.behavior_type, int
+        ):
+            raise TypeError("behavior_type must be an integer")
+        object.__setattr__(
+            self, "behavior_type", BehaviorType(self.behavior_type)
+        )
         if not isinstance(self.state, int) or isinstance(self.state, bool):
             raise TypeError("state must be an integer")
+        if self.state != 0:
+            raise ValueError("state must be the HuNav reset seed 0")
         if not isinstance(self.configuration, int) or isinstance(
             self.configuration, bool
         ):
             raise TypeError("configuration must be an integer")
+        if self.configuration != 1:
+            raise ValueError("configuration must be HuNav custom mode 1")
         if not isinstance(self.once, bool):
             raise TypeError("once must be a boolean")
         for name in (
@@ -56,11 +66,17 @@ class BehaviorProfile:
             "social_force_factor",
             "other_force_factor",
         ):
-            value = float(getattr(self, name))
+            raw_value = getattr(self, name)
+            if isinstance(raw_value, bool) or not isinstance(
+                raw_value, (int, float)
+            ):
+                raise TypeError(f"{name} must be an int or float")
+            value = float(raw_value)
             if not math.isfinite(value):
                 raise ValueError(f"{name} must be finite")
             if value < 0.0:
                 raise ValueError(f"{name} must be non-negative")
+            object.__setattr__(self, name, value)
 
     @property
     def type(self) -> int:
@@ -107,6 +123,11 @@ class BehaviorProfile:
         *,
         base: "BehaviorProfile | None" = None,
     ) -> "BehaviorProfile":
+        if "type" in values and "behavior_type" in values:
+            raise ValueError(
+                "behavior profile cannot define both 'type' and "
+                "'behavior_type'"
+            )
         merged: MutableMapping[str, Any] = {}
         if base is not None:
             merged.update(base.as_dict())
@@ -114,7 +135,7 @@ class BehaviorProfile:
         if "behavior_type" in merged:
             merged["type"] = merged.pop("behavior_type")
         try:
-            behavior_type = BehaviorType(int(merged.pop("type")))
+            behavior_type = merged.pop("type")
         except KeyError as exc:
             raise ValueError("behavior profile requires 'type'") from exc
         return cls(behavior_type=behavior_type, **merged)

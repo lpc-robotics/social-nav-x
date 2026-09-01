@@ -1,8 +1,12 @@
 import pytest
 
 from arena_humble_compat.bridge_validation import (
+    RuntimeRates,
+    calculate_runtime_rates,
     character_model_mapping,
     format_ready_status,
+    format_runtime_status,
+    require_plain_integer,
     validate_agent_definitions,
 )
 
@@ -71,3 +75,88 @@ def test_dynamic_ready_status_uses_configured_marker_and_count():
     assert status.startswith(
         "FORMAL_SOCIAL_BRIDGE_READY pedestrians=1 behavior_types=5 "
     )
+
+
+def test_runtime_rates_use_latest_monotonic_report_interval():
+    rates = calculate_runtime_rates(
+        now_monotonic=112.0,
+        metrics_start_monotonic=100.0,
+        compute_count=120,
+        update_count=60,
+        previous_report_monotonic=108.0,
+        previous_compute_count=72,
+        previous_update_count=40,
+    )
+
+    assert rates == RuntimeRates(
+        compute_hz=10.0,
+        display_hz=5.0,
+        steady_compute=12.0,
+        steady_display=5.0,
+    )
+
+
+@pytest.mark.parametrize(
+    "overrides, message",
+    [
+        ({"now_monotonic": 108.0}, "intervals must be positive"),
+        ({"compute_count": 71}, "counters must not decrease"),
+        ({"update_count": 39}, "counters must not decrease"),
+    ],
+)
+def test_runtime_rates_reject_invalid_intervals_and_counters(
+    overrides, message
+):
+    arguments = {
+        "now_monotonic": 112.0,
+        "metrics_start_monotonic": 100.0,
+        "compute_count": 120,
+        "update_count": 60,
+        "previous_report_monotonic": 108.0,
+        "previous_compute_count": 72,
+        "previous_update_count": 40,
+    }
+    arguments.update(overrides)
+
+    with pytest.raises(ValueError, match=message):
+        calculate_runtime_rates(**arguments)
+
+
+def test_runtime_status_preserves_old_fields_and_adds_steady_rates():
+    status = format_runtime_status(
+        compute_count=240,
+        update_count=30,
+        rates=RuntimeRates(20.0, 2.5, 18.125, 4.625),
+        max_integration_step=0.025,
+        lag=0.004,
+        substep_count=7,
+        states="person:5/0",
+    )
+
+    assert status == (
+        "SIX_BEHAVIORS_RUNNING compute=240 updates=30 "
+        "compute_hz=20.0 display_hz=2.5 "
+        "steady_compute=18.125 steady_display=4.625 "
+        "max_dt=0.025 lag=0.004 substeps=7 states=person:5/0"
+    )
+    assert status.count("compute_hz=") == 1
+    assert status.count("display_hz=") == 1
+
+
+def test_plain_integer_accepts_only_non_bool_int():
+    assert require_plain_integer(5, "agent.id") == 5
+
+
+@pytest.mark.parametrize(
+    "value, field_name",
+    [
+        (5.7, "person.id"),
+        (True, "person.behavior.type"),
+        ("1", "person.behavior.configuration"),
+    ],
+)
+def test_plain_integer_rejects_lossy_bool_and_string_values(
+    value, field_name
+):
+    with pytest.raises(RuntimeError, match=f"{field_name} must be an integer"):
+        require_plain_integer(value, field_name)

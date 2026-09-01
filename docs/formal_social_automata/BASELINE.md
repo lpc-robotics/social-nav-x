@@ -16,14 +16,17 @@ Agent 必须先读本文和仓库根目录的
 - 隔离 worktree：`/home/lpc/workspace/social-nav-x-formal-v1`
 
 开发说明的原始附件已经逐字保存为
-`docs/formal_social_automata/source_spec_20260830.md`。它及外部原稿
-`/home/lpc/social-nav-x_formal_social_automata_development_spec.md` 的 SHA-256 均为：
+`docs/formal_social_automata/source_spec_20260830.md`。该不可变快照的 SHA-256 如下；
+开发开始时，外部原稿
+`/home/lpc/social-nav-x_formal_social_automata_development_spec.md` 也具有相同哈希：
 
 ```text
 e033334817f3a6096845765969c5af57444644d32d6df618b34de16b9f12a268
 ```
 
-原稿用于追溯研究意图，不是实现接口的最终依据。发生冲突时，优先级如下：
+外部路径已按最终交付流程同步为根目录权威计划，因此交付后不再以该原始哈希校验；
+原始内容始终由上述仓库内快照追溯。原稿用于追溯研究意图，不是实现接口的最终依据。
+发生冲突时，优先级如下：
 
 1. 用户确认的 V1 要求；
 2. 根目录 `FORMAL_SOCIAL_AUTOMATA_DEVELOPMENT_PLAN.md`；

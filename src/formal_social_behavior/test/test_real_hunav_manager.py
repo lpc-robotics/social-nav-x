@@ -143,7 +143,16 @@ class RealHuNavManagerServiceTest(unittest.TestCase):
         human.desired_velocity = 0.6
         human.radius = 0.4
         human.behavior.type = AgentBehavior.BEH_REGULAR
+        human.behavior.state = 0
         human.behavior.configuration = AgentBehavior.BEH_CONF_CUSTOM
+        human.behavior.duration = 40.0
+        human.behavior.once = True
+        human.behavior.vel = 0.6
+        human.behavior.dist = 0.0
+        human.behavior.goal_force_factor = 2.0
+        human.behavior.obstacle_force_factor = 10.0
+        human.behavior.social_force_factor = 5.0
+        human.behavior.other_force_factor = 20.0
         human.goals = [Pose()]
         human.goals[0].position.x = 6.0
         human.goals[0].position.y = 9.0
@@ -196,6 +205,15 @@ class RealHuNavManagerServiceTest(unittest.TestCase):
 
         self.assertEqual(returned_types, [1, 5, 5, 4, 4, 1, 1, 3, 1])
         self.assertEqual(self.proxy._reset_count, 5)
+        self.manager_log.flush()
+        manager_log = self.manager_log_path.read_text(
+            encoding="utf-8", errors="replace"
+        )
+        self.assertEqual(
+            manager_log.count("=== RESET AGENTS SERVICE CALLED ==="),
+            5,
+            manager_log,
+        )
         self.assertIsNone(self.manager.poll(), self._log())
 
 

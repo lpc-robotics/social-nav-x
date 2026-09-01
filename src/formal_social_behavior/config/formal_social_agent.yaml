@@ -22,18 +22,23 @@ hunav_loader:
         obstacle_force_factor: 10.0
         social_force_factor: 5.0
         other_force_factor: 20.0
-      # Face the robot initially. The north-south lane stays clear of its spawn.
-      init_pose: {x: 6.0, y: 3.0, z: 0.0, h: 3.1415926536}
+      # Remain at the initial goal while Regular and keep the robot inside the
+      # visible FOV without facing it exactly.  This makes the formal acceptance
+      # velocities the only source of approach motion while allowing the
+      # Surprised response to prove a real yaw change toward the robot.
+      init_pose: {x: 6.0, y: 3.0, z: 0.0, h: 2.4}
       goal_radius: 0.3
       cyclic_goals: true
-      goals: [g0, g1]
-      g0: {x: 6.0, y: 9.0, h: 0.0}
-      g1: {x: 6.0, y: 3.0, h: 0.0}
+      goals: [g0]
+      g0: {x: 6.0, y: 3.0, h: 2.4}
 
 arena_hunav_isaac_bridge:
   ros__parameters:
     update_rate: 40.0
-    display_rate: 5.0
+    # Keep headroom above the 4.5 Hz acceptance floor.  The original six-human
+    # YAML remains untouched at 5 Hz; this setting applies only to the isolated
+    # one-human formal demo.
+    display_rate: 6.0
     max_integration_step: 0.025
     scheduler_rate: 100.0
     character_models:

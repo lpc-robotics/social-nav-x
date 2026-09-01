@@ -14,6 +14,17 @@ from .behavior_adapter import (
 from .model import FormalState
 
 
+def _finite_number(name: str, value: Any) -> float:
+    """Validate an uncoerced YAML value and return its canonical float."""
+
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise TypeError(f"{name} must be an int or float")
+    normalized = float(value)
+    if not math.isfinite(normalized):
+        raise ValueError(f"{name} must be finite")
+    return normalized
+
+
 @dataclass(frozen=True)
 class EventThresholds:
     """Enter/exit thresholds for all Schmitt-trigger event latches."""
@@ -37,9 +48,8 @@ class EventThresholds:
 
     def __post_init__(self) -> None:
         for item in fields(self):
-            value = float(getattr(self, item.name))
-            if not math.isfinite(value):
-                raise ValueError(f"{item.name} must be finite")
+            value = _finite_number(item.name, getattr(self, item.name))
+            object.__setattr__(self, item.name, value)
 
         self._validate_band(
             "visible distance",
@@ -101,8 +111,11 @@ class EventThresholds:
     @classmethod
     def from_mapping(cls, values: Mapping[str, Any]) -> "EventThresholds":
         known = {item.name for item in fields(cls)}
-        selected = {key: value for key, value in values.items() if key in known}
-        return cls(**selected)
+        unknown = set(values) - known
+        if unknown:
+            names = ", ".join(sorted(str(key) for key in unknown))
+            raise ValueError(f"unknown event threshold keys: {names}")
+        return cls(**dict(values))
 
 
 @dataclass(frozen=True)
@@ -113,9 +126,10 @@ class AutomatonTiming:
 
     def __post_init__(self) -> None:
         for item in fields(self):
-            value = float(getattr(self, item.name))
-            if not math.isfinite(value) or value < 0.0:
-                raise ValueError(f"{item.name} must be finite and non-negative")
+            value = _finite_number(item.name, getattr(self, item.name))
+            if value < 0.0:
+                raise ValueError(f"{item.name} must be non-negative")
+            object.__setattr__(self, item.name, value)
 
     @staticmethod
     def _seconds_to_ns(value: float) -> int:
@@ -136,8 +150,11 @@ class AutomatonTiming:
     @classmethod
     def from_mapping(cls, values: Mapping[str, Any]) -> "AutomatonTiming":
         known = {item.name for item in fields(cls)}
-        selected = {key: value for key, value in values.items() if key in known}
-        return cls(**selected)
+        unknown = set(values) - known
+        if unknown:
+            names = ", ".join(sorted(str(key) for key in unknown))
+            raise ValueError(f"unknown automaton timing keys: {names}")
+        return cls(**dict(values))
 
 
 @dataclass(frozen=True)
@@ -190,25 +207,98 @@ class FormalSocialConfig:
         """
 
         root: Mapping[str, Any] = document
-        named_root = root.get("formal_social_behavior")
-        if isinstance(named_root, Mapping):
+        if "formal_social_behavior" in root:
+            named_root = root["formal_social_behavior"]
+            if not isinstance(named_root, Mapping):
+                raise TypeError("formal_social_behavior must be a mapping")
+            wrapper_siblings = set(root) - {"formal_social_behavior"}
+            if wrapper_siblings:
+                names = ", ".join(
+                    sorted(str(key) for key in wrapper_siblings)
+                )
+                raise ValueError(
+                    "unknown keys beside formal_social_behavior wrapper: "
+                    f"{names}"
+                )
             root = named_root
-        ros_parameters = root.get("ros__parameters")
-        if isinstance(ros_parameters, Mapping):
+        if "ros__parameters" in root:
+            ros_parameters = root["ros__parameters"]
+            if not isinstance(ros_parameters, Mapping):
+                raise TypeError("ros__parameters must be a mapping")
+            wrapper_siblings = set(root) - {"ros__parameters"}
+            if wrapper_siblings:
+                names = ", ".join(
+                    sorted(str(key) for key in wrapper_siblings)
+                )
+                raise ValueError(
+                    "unknown keys beside ros__parameters wrapper: "
+                    f"{names}"
+                )
             root = ros_parameters
 
-        threshold_values = root.get("thresholds", root)
-        timing_values = root.get("timing", root)
+        threshold_keys = {item.name for item in fields(EventThresholds)}
+        timing_keys = {item.name for item in fields(AutomatonTiming)}
+        section_keys = {
+            "target_agent_id",
+            "thresholds",
+            "timing",
+            "behavior_profiles",
+        }
+        unknown_root = set(root) - section_keys - threshold_keys - timing_keys
+        if unknown_root:
+            names = ", ".join(sorted(str(key) for key in unknown_root))
+            raise ValueError(f"unknown formal social config keys: {names}")
+
+        flat_thresholds = threshold_keys.intersection(root)
+        if "thresholds" in root and flat_thresholds:
+            raise ValueError("thresholds cannot mix nested and flat keys")
+        threshold_values = root.get(
+            "thresholds",
+            {key: root[key] for key in flat_thresholds},
+        )
+
+        flat_timing = timing_keys.intersection(root)
+        if "timing" in root and flat_timing:
+            raise ValueError("timing cannot mix nested and flat keys")
+        timing_values = root.get(
+            "timing",
+            {key: root[key] for key in flat_timing},
+        )
         if not isinstance(threshold_values, Mapping):
             raise TypeError("thresholds must be a mapping")
         if not isinstance(timing_values, Mapping):
             raise TypeError("timing must be a mapping")
 
         defaults = default_behavior_profiles()
+        profile_values = root.get("behavior_profiles")
         profiles = dict(defaults)
-        profile_values = root.get("behavior_profiles", {})
+        if profile_values is None:
+            profile_values = {}
         if not isinstance(profile_values, Mapping):
             raise TypeError("behavior_profiles must be a mapping")
+        if "behavior_profiles" in root:
+            normalized_profile_states = set()
+            for raw_state in profile_values:
+                try:
+                    normalized_state = FormalState(str(raw_state).upper())
+                except ValueError as exc:
+                    raise ValueError(
+                        f"unknown formal state {raw_state!r}"
+                    ) from exc
+                if normalized_state in normalized_profile_states:
+                    raise ValueError(
+                        "duplicate behavior profile state after "
+                        f"normalization: {normalized_state.value}"
+                    )
+                normalized_profile_states.add(normalized_state)
+            missing_states = set(FormalState) - normalized_profile_states
+            if missing_states:
+                names = ", ".join(
+                    sorted(state.value for state in missing_states)
+                )
+                raise ValueError(
+                    f"behavior_profiles missing states: {names}"
+                )
         for raw_state, raw_profile in profile_values.items():
             try:
                 state = FormalState(str(raw_state).upper())
@@ -221,7 +311,7 @@ class FormalSocialConfig:
             )
 
         return cls(
-            target_agent_id=int(root.get("target_agent_id", 1)),
+            target_agent_id=root.get("target_agent_id", 1),
             thresholds=EventThresholds.from_mapping(threshold_values),
             timing=AutomatonTiming.from_mapping(timing_values),
             behavior_profiles=profiles,

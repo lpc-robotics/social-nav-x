@@ -13,10 +13,20 @@ fi
 
 export GPU_ID="${GPU_ID:-3}"
 export NAVIGATION="${NAVIGATION:-false}"
+export ARENA_IDEAL_CHASSIS="${ARENA_IDEAL_CHASSIS:-true}"
+export ARENA_PHYSICS_DT="${ARENA_PHYSICS_DT:-0.016666666666666666}"
+export ARENA_IDEAL_COMMAND_TIMEOUT="${ARENA_IDEAL_COMMAND_TIMEOUT:-0.5}"
 case "$NAVIGATION" in
     true|false) ;;
     *)
         echo "NAVIGATION must be true or false, got: $NAVIGATION" >&2
+        exit 1
+        ;;
+esac
+case "$ARENA_IDEAL_CHASSIS" in
+    true|false) ;;
+    *)
+        echo "ARENA_IDEAL_CHASSIS must be true or false, got: $ARENA_IDEAL_CHASSIS" >&2
         exit 1
         ;;
 esac
@@ -50,10 +60,16 @@ AGENT_SHA256="$(sha256sum "$AGENT_CONFIG" | awk '{print $1}')"
     printf 'agent_sha256=%s\n' "$AGENT_SHA256"
     printf 'gpu_id=%s\n' "$GPU_ID"
     printf 'navigation=%s\n' "$NAVIGATION"
+    printf 'ideal_chassis=%s\n' "$ARENA_IDEAL_CHASSIS"
+    printf 'physics_dt=%s\n' "$ARENA_PHYSICS_DT"
+    printf 'ideal_linear_acceleration=%s\n' "${ARENA_IDEAL_LINEAR_ACCELERATION:-2.0}"
+    printf 'ideal_command_timeout=%s\n' "$ARENA_IDEAL_COMMAND_TIMEOUT"
 } > "$RUN_DIR/run_manifest.txt"
 
+exec > >(tee "$RUN_DIR/console.log") 2>&1
 echo "Formal social run directory: $RUN_DIR"
 echo "Navigation: $NAVIGATION"
+echo "Ideal D6 chassis: $ARENA_IDEAL_CHASSIS (physics_dt=$ARENA_PHYSICS_DT, command_timeout=$ARENA_IDEAL_COMMAND_TIMEOUT)"
 echo "Automata config SHA-256: $AUTOMATA_SHA256"
 echo "Agent config SHA-256: $AGENT_SHA256"
 exec ros2 launch formal_social_behavior formal_social_demo.launch.py \

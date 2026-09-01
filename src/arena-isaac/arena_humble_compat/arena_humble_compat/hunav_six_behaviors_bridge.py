@@ -7,8 +7,11 @@ import rclpy
 import yaml
 from arena_humble_compat.bridge_validation import (
     STRICT_SIX_BEHAVIOR_TYPES,
+    calculate_runtime_rates,
     character_model_mapping,
     format_ready_status,
+    format_runtime_status,
+    require_plain_integer,
     validate_agent_definitions,
 )
 from arena_people_msgs.msg import Pedestrian, SpawnPedestrian
@@ -158,7 +161,9 @@ class ArenaHuNavIsaacBridge(Node):
         self._substep_count = 0
         self._max_integration_step_seen = 0.0
         self._metrics_start_monotonic = None
+        self._last_report_monotonic = None
         self._last_reported_compute_count = 0
+        self._last_reported_update_count = 0
         self._ready_reported = False
         self._ideal_chassis = str(
             os.environ.get("ARENA_IDEAL_CHASSIS", "false")
@@ -219,8 +224,17 @@ class ArenaHuNavIsaacBridge(Node):
             behavior_spec = spec["behavior"]
             init_pose = spec["init_pose"]
 
+            agent_id = require_plain_integer(spec["id"], f"{name}.id")
+            behavior_type = require_plain_integer(
+                behavior_spec["type"], f"{name}.behavior.type"
+            )
+            behavior_configuration = require_plain_integer(
+                behavior_spec["configuration"],
+                f"{name}.behavior.configuration",
+            )
+
             agent = Agent()
-            agent.id = int(spec["id"])
+            agent.id = agent_id
             agent.type = Agent.PERSON
             agent.skin = int(spec["skin"])
             agent.name = str(name)
@@ -233,9 +247,9 @@ class ArenaHuNavIsaacBridge(Node):
             agent.desired_velocity = float(spec["max_vel"])
             agent.radius = float(spec["radius"])
 
-            agent.behavior.type = int(behavior_spec["type"])
+            agent.behavior.type = behavior_type
             agent.behavior.state = 0
-            agent.behavior.configuration = int(behavior_spec["configuration"])
+            agent.behavior.configuration = behavior_configuration
             agent.behavior.duration = float(behavior_spec["duration"])
             agent.behavior.once = bool(behavior_spec["once"])
             agent.behavior.vel = float(behavior_spec["vel"])
@@ -591,7 +605,11 @@ class ArenaHuNavIsaacBridge(Node):
         self._compute_stamp_ns = stamp_ns
         self._compute_future = self._compute.call_async(request)
         if self._metrics_start_monotonic is None:
-            self._metrics_start_monotonic = time.monotonic()
+            started_at = time.monotonic()
+            self._metrics_start_monotonic = started_at
+            self._last_report_monotonic = started_at
+            self._last_reported_compute_count = self._compute_count
+            self._last_reported_update_count = self._update_count
 
     def _start_isaac_update(self):
         if (
@@ -624,18 +642,26 @@ class ArenaHuNavIsaacBridge(Node):
 
     def _report_runtime(self):
         if (
-            self._compute_count < self._status_interval
+            self._metrics_start_monotonic is None
+            or self._last_report_monotonic is None
+            or self._compute_count < self._status_interval
             or self._compute_count - self._last_reported_compute_count
             < self._status_interval
         ):
             return
 
-        self._last_reported_compute_count = self._compute_count
-        elapsed = max(
-            1e-6, time.monotonic() - self._metrics_start_monotonic
+        now_monotonic = time.monotonic()
+        compute_count = self._compute_count
+        update_count = self._update_count
+        rates = calculate_runtime_rates(
+            now_monotonic=now_monotonic,
+            metrics_start_monotonic=self._metrics_start_monotonic,
+            compute_count=compute_count,
+            update_count=update_count,
+            previous_report_monotonic=self._last_report_monotonic,
+            previous_compute_count=self._last_reported_compute_count,
+            previous_update_count=self._last_reported_update_count,
         )
-        compute_hz = self._compute_count / elapsed
-        display_hz = self._update_count / elapsed
         now_ns = self.get_clock().now().nanoseconds
         lag = max(0.0, (now_ns - self._last_integrated_stamp_ns) * 1e-9)
         states = ",".join(
@@ -643,11 +669,19 @@ class ArenaHuNavIsaacBridge(Node):
             for agent in sorted(self._agents.agents, key=lambda item: item.id)
         )
         self._status(
-            f"SIX_BEHAVIORS_RUNNING compute={self._compute_count} "
-            f"updates={self._update_count} compute_hz={compute_hz:.1f} "
-            f"display_hz={display_hz:.1f} max_dt={self._max_integration_step_seen:.3f} "
-            f"lag={lag:.3f} substeps={self._substep_count} states={states}"
+            format_runtime_status(
+                compute_count=compute_count,
+                update_count=update_count,
+                rates=rates,
+                max_integration_step=self._max_integration_step_seen,
+                lag=lag,
+                substep_count=self._substep_count,
+                states=states,
+            )
         )
+        self._last_report_monotonic = now_monotonic
+        self._last_reported_compute_count = compute_count
+        self._last_reported_update_count = update_count
 
     def _tick(self):
         if self._odom is None:

@@ -119,6 +119,32 @@ class HysteresisTests(unittest.TestCase):
         self.assertNotIn(SocialEvent.ROBOT_VISIBLE, still_out.event_snapshot.events)
         self.assertIn(SocialEvent.ROBOT_VISIBLE, at_enter.event_snapshot.events)
 
+    def test_visibility_uses_enter_exit_fov_hysteresis(self):
+        def at_angle(memory, stamp_ns, angle_deg):
+            angle = math.radians(angle_deg)
+            return self.evaluate(
+                memory,
+                stamp_ns,
+                robot_x=5.0 * math.cos(angle),
+                robot_y=5.0 * math.sin(angle),
+                human_yaw=0.0,
+            )
+
+        entered = at_angle(None, 0, 99.9)
+        held = at_angle(entered.memory, 1, 105.0)
+        exited = at_angle(held.memory, 2, 110.1)
+        still_out = at_angle(exited.memory, 3, 105.0)
+        reentered = at_angle(still_out.memory, 4, 99.9)
+
+        self.assertIn(SocialEvent.ROBOT_VISIBLE, entered.event_snapshot.events)
+        self.assertIn(SocialEvent.ROBOT_VISIBLE, held.event_snapshot.events)
+        self.assertEqual(
+            exited.event_snapshot.events,
+            frozenset({SocialEvent.ROBOT_LOST}),
+        )
+        self.assertNotIn(SocialEvent.ROBOT_VISIBLE, still_out.event_snapshot.events)
+        self.assertIn(SocialEvent.ROBOT_VISIBLE, reentered.event_snapshot.events)
+
     def test_near_and_personal_space_distance_hysteresis(self):
         near = self.evaluate(None, 0, robot_x=2.5)
         near_band = self.evaluate(near.memory, 1, robot_x=2.7)

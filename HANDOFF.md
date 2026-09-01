@@ -1,9 +1,138 @@
 # Arena 5 / Isaac Sim 5.1 handoff
 
-Updated: 2026-08-28 21:55 CST. Workspace:
+Original deployment handoff updated: 2026-08-28 21:55 CST. Formal-social
+delivery addendum updated: 2026-09-01. Workspace:
 `/home/lpc/workspace/arena5_ws`.
 
-## Current task
+## Formal social automata V1 delivery (2026-09-01)
+
+This section is the current handoff for the isolated formal-social feature. The
+rest of this file remains the deployment/D6 history for the read-only runtime
+workspace.
+
+- Feature worktree: `/home/lpc/workspace/social-nav-x-formal-v1`
+- Branch: `feature/formal-social-automata-v1`
+- Canonical base: `51ab117dedf6a8173c1704f0edd8d01c7938fb8e`
+- Base tag: `arena5-isaac5.1-archive-20260829`
+- Implementation commits: `ec95e8c`, `eaa84c7`, `e33dd6d`; the delivery/docs
+  commit is the feature `HEAD` (`git rev-parse HEAD`).
+- Authoritative specification:
+  `FORMAL_SOCIAL_AUTOMATA_DEVELOPMENT_PLAN.md`
+- Immutable source request:
+  `docs/formal_social_automata/source_spec_20260830.md`, SHA-256
+  `e033334817f3a6096845765969c5af57444644d32d6df618b34de16b9f12a268`.
+
+The delivered V1 is a deterministic `1 Robot + 1 Human` pipeline with
+`NORMAL/ATTENTION/CURIOUS/SURPRISED/SCARED`, Schmitt-trigger events, simulation
+time dwell/recovery/cooldown, full HuNav profiles, transactional reset/compute,
+stable JSON topics/JSONL traces, a one-human launch, and a repeatable GPU
+acceptance driver. `THREATENING` remains only in the original six-behavior demo;
+multi-human/shared events, `SOCIAL`, RL, probability, YAML guard DSL and UPPAAL
+remain out of scope.
+
+Build and test only the isolated overlay:
+
+```bash
+cd /home/lpc/workspace/social-nav-x-formal-v1
+scripts/build_formal_overlay.sh
+scripts/test_formal_overlay.sh
+```
+
+The final test summary is:
+
+```text
+arena_humble_compat: 20 passed
+formal_social_behavior: 64 passed
+Summary: 258 tests, 0 errors, 0 failures, 0 skipped
+```
+
+pytest collected 84 top-level cases; colcon/xUnit expands unittest subtests in
+its final count. Raw logs are under
+`.colcon/test-log/test_2026-08-31_22-39-52/`; the only warnings are two
+dependency-side Lark deprecations.
+
+Run one formal demo (the script sources the activity underlay and feature
+overlay itself):
+
+```bash
+cd /home/lpc/workspace/social-nav-x-formal-v1
+env DRL_VO_GUI=false GPU_ID=3 NAVIGATION=false \
+  scripts/run_formal_social_demo.sh \
+  headless:=true livestream:=false foxglove:=false
+```
+
+Run the required two-round GPU matrix:
+
+```bash
+env DRL_VO_GUI=false GPU_ID=3 FORMAL_ACCEPTANCE_DOMAIN_BASE=181 \
+  scripts/test_formal_simulation_matrix.sh
+```
+
+The authoritative matrix is:
+
+```text
+/home/lpc/workspace/social-nav-x-formal-v1/logs/formal_acceptance/20260831_224034_245993732_pid1453319
+FORMAL_SOCIAL_ACCEPTANCE_MATRIX_OK cases=6 rounds=2 scenarios=safe,sudden,fast
+```
+
+Its `matrix.log` SHA-256 is
+`5292b9bea73f3936e27752059071aa32d946be6d91cb00087672fbab11776e14`.
+Safe reproduced `ATTENTION->CURIOUS->NORMAL` twice; sudden reproduced
+`ATTENTION->SURPRISED->NORMAL` twice; fast reproduced
+`ATTENTION->SCARED->NORMAL` twice. Across 12 distinct pre/post-action intervals,
+steady HuNav compute was `11.786--22.102 Hz`, Character display was
+`5.746--5.931 Hz`, maximum integration step was `0.025 s`, and lag was
+`0.005--0.008 s`.
+
+Effective configuration hashes:
+
+```text
+formal_social_automata.yaml  5a8be544cabfc0d7f6546c496d22f4ec521fc366d578578f36267b4d53857693
+formal_social_agent.yaml     a3f03ea3ea74178377e06aea86e764f47225e3daeb90abd219080257f78b47b6
+```
+
+The final matrix deliberately gives every case its own ROS domain. The fast
+case uses odometry-gated `0.8 m/s` pulses with test-process-only
+`physics_dt=0.01 s`, `100 m/s^2` acceleration and `0.012 s` command watchdog;
+production defaults stay `1/60 s`, `2.0 m/s^2` and `0.5 s`. The verifier
+requires type 4, a measured distance increase, negative closing speed and
+positive human-outward speed reconstructed from matching odom/state stamps if
+the display frame is missed. The two runs increased distance by
+`0.008965/0.016964 m`, with exit closing speeds
+`-0.038580/-0.838583 m/s` and human-outward speeds
+`0.038580/0.038584 m/s`. No automaton guard is delayed or masked.
+
+Regression evidence:
+
+```text
+logs/regression/original_no_overlay_20260831_unsandboxed/
+  SMOKE_NAVIGATION_OK ... moved=1.885m lidar_messages=96
+  SIX_BEHAVIORS_VERIFY_OK types=1,2,3,4,5,6
+logs/regression/original_with_overlay_final_20260831/
+  overlay prefix: /home/lpc/workspace/social-nav-x-formal-v1/.colcon/install/arena_humble_compat
+  SIX_BEHAVIORS_VERIFY_OK types=1,2,3,4,5,6 active=3,5 responses=3,4,5,6 robot_distance=0.952 robot_states=341
+```
+
+`patches/arena-isaac.patch` has SHA-256
+`eea9dfef26f51efd4f0ab3f027f0c80107886cb7607af6411f989167f9087994`.
+Forward apply, applied-tree reverse and all 29 file comparisons pass against
+fixed upstream `16b8e3416517d8c3dc1b5038df4fe11b9a6df46c`; verification tree:
+`/tmp/social-nav-x-arena-isaac-verify-final.CDhlhD`. No merge to `main` and no
+remote push were performed.
+
+Rollback is immediate: stop the formal launch and open a new shell that sources
+only `/home/lpc/workspace/arena5_ws/scripts/env.sh`. Do not remove or rewrite the
+activity workspace. Disaster recovery is only via
+`/home/lpc/workspace/arena5_ws_archives/20260829_164103_full_workspace_pre_log_cleanup/RESTORE.md`;
+rename the current workspace before extraction and never overlay-extract it.
+
+Known V1 constraints: HuNav reset affects all agents and creates at most one
+visible compute-beat switch delay, which is acceptable only for the fixed
+single-human scenario. Before adding people, redesign per-agent dynamic tree
+switching and re-evaluate transaction/reset semantics. Visibility is only
+distance plus human yaw/FOV, with no occlusion or ray tracing.
+
+## Prior deployment task (historical)
 
 The latest task restored and completed the archived ideal-D6 chassis candidate.
 That task is complete: the D6 controller is now the default in both normal and
@@ -205,28 +334,24 @@ responses=3,4,5,6 robot_distance=0.891 robot_states=87
 ```
 
 The final evidence directory is
-`logs/runs/20260828_160829_six_behaviors_gpu3`. It contains a 560585-byte
+`/home/lpc/workspace/arena5_ws/logs/runs/20260828_160829_six_behaviors_gpu3`.
+It contains a 560585-byte
 WebRTC frame, ROS logs, a Nav2 goal success, the six-behavior marker, and
 odom/TF/sensor evidence. It continued running for approximately 5 h 46 min at
 about 14 Hz HuNav compute and 4.9 Hz display before a clean shutdown. A separate
 approximately ten-minute run is
-`logs/runs/20260828_155530_six_behaviors_gpu3`.
+`logs/runs/20260828_155530_six_behaviors_gpu3`; that shorter run was removed by
+the later log cleanup and is now recoverable only from the full workspace
+archive named in the formal-social section above.
 
 ## Build and verification commands
 
-Full workspace rebuild:
-
-```bash
-cd /home/lpc/workspace/arena5_ws
-source scripts/env.sh
-./scripts/build.sh
-```
-
-The final chassis/odom/HuNav bridge changes were also rebuilt successfully with:
-
-```bash
-colcon build --packages-select arena_isaac arena_humble_compat
-```
+The legacy deployment was once built with full-workspace and in-place colcon
+commands. Those commands are intentionally not repeated as executable
+instructions here: **do not rebuild in `/home/lpc/workspace/arena5_ws` for the
+formal-social feature**. Use only the isolated overlay commands at the top of
+this document; consult Git history or the disaster-recovery archive solely when
+maintaining the legacy deployment as a separate task.
 
 Runtime verification, after the scene reports `SIX_BEHAVIORS_READY`:
 

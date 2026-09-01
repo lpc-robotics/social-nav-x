@@ -1,5 +1,6 @@
 import copy
 import json
+import math
 from pathlib import Path
 import tempfile
 import threading
@@ -16,7 +17,10 @@ from rclpy.node import Node
 from rclpy.parameter import Parameter
 
 from formal_social_behavior.model import FormalState
-from formal_social_behavior.proxy_node import FormalSocialBehaviorProxy
+from formal_social_behavior.proxy_node import (
+    FormalSocialBehaviorProxy,
+    _service_timeout_seconds,
+)
 
 
 def _wait_for_future(future, timeout=5.0):
@@ -35,6 +39,9 @@ class FakeRawHuNav(Node):
         self.reset_types = []
         self.reset_ok = True
         self.fail_compute_once = False
+        self.compute_delay_seconds = 0.0
+        self.reset_delay_seconds = 0.0
+        self.operation_events = []
         self.create_service(
             ComputeAgents, compute_service, self._compute
         )
@@ -42,6 +49,9 @@ class FakeRawHuNav(Node):
 
     def _compute(self, request, response):
         behavior_type = int(request.current_agents.agents[0].behavior.type)
+        self.operation_events.append(f"compute:{behavior_type}")
+        if self.compute_delay_seconds > 0.0:
+            time.sleep(self.compute_delay_seconds)
         self.compute_types.append(behavior_type)
         if self.fail_compute_once:
             self.fail_compute_once = False
@@ -50,11 +60,31 @@ class FakeRawHuNav(Node):
         return response
 
     def _reset(self, request, response):
-        self.reset_types.append(
-            int(request.current_agents.agents[0].behavior.type)
-        )
+        behavior_type = int(request.current_agents.agents[0].behavior.type)
+        self.operation_events.append(f"reset:{behavior_type}")
+        if self.reset_delay_seconds > 0.0:
+            time.sleep(self.reset_delay_seconds)
+        self.reset_types.append(behavior_type)
         response.ok = self.reset_ok
         return response
+
+
+class ProxyParameterValidationTests(unittest.TestCase):
+    def test_service_timeout_requires_positive_finite_real_number(self):
+        self.assertEqual(_service_timeout_seconds(2), 2.0)
+        self.assertEqual(_service_timeout_seconds(0.25), 0.25)
+        for invalid_value in (
+            True,
+            "1.0",
+            0,
+            -1,
+            math.nan,
+            math.inf,
+            -math.inf,
+        ):
+            with self.subTest(value=invalid_value):
+                with self.assertRaises(RuntimeError):
+                    _service_timeout_seconds(invalid_value)
 
 
 class ProxyServiceTests(unittest.TestCase):
@@ -96,7 +126,7 @@ class ProxyServiceTests(unittest.TestCase):
         self.client = self.client_node.create_client(
             ComputeAgents, self.compute_service
         )
-        self.executor = MultiThreadedExecutor(num_threads=6)
+        self.executor = MultiThreadedExecutor(num_threads=4)
         for node in (self.raw, self.proxy, self.client_node):
             self.executor.add_node(node)
         self.spin_thread = threading.Thread(
@@ -132,7 +162,16 @@ class ProxyServiceTests(unittest.TestCase):
         human.desired_velocity = 0.6
         human.radius = 0.4
         human.behavior.type = AgentBehavior.BEH_REGULAR
+        human.behavior.state = 0
         human.behavior.configuration = AgentBehavior.BEH_CONF_CUSTOM
+        human.behavior.duration = 40.0
+        human.behavior.once = True
+        human.behavior.vel = 0.6
+        human.behavior.dist = 0.0
+        human.behavior.goal_force_factor = 2.0
+        human.behavior.obstacle_force_factor = 10.0
+        human.behavior.social_force_factor = 5.0
+        human.behavior.other_force_factor = 20.0
         human.goals = [Pose()]
         human.goals[0].orientation.w = 1.0
         request.current_agents.agents = [human]
@@ -179,6 +218,17 @@ class ProxyServiceTests(unittest.TestCase):
         self.assertEqual(self.raw.compute_types, returned_types)
         self.assertEqual(self.raw.reset_types, [5, 4, 1, 3, 1])
         self.assertEqual(self.proxy._reset_count, 5)
+
+    def test_first_non_regular_profile_resets_from_request_profile(self):
+        response = self._compute(0.0, 2.5, -0.30)
+
+        self.assertEqual(len(response.updated_agents.agents), 1)
+        self.assertEqual(
+            self.proxy._automaton_context.state, FormalState.SURPRISED
+        )
+        self.assertEqual(self.raw.reset_types, [3])
+        self.assertEqual(self.raw.compute_types, [3])
+        self.assertEqual(self.proxy._reset_count, 1)
 
     def test_reset_and_compute_failures_do_not_commit_candidates(self):
         initial = self._compute(0.0, 5.0)
@@ -255,6 +305,107 @@ class ProxyServiceTests(unittest.TestCase):
             self.proxy._automaton_context.state, FormalState.NORMAL
         )
         self.assertEqual(self.proxy._reset_count, 0)
+
+    def test_concurrent_requests_keep_each_reset_compute_pair_serial(self):
+        initial = self._compute(0.0, 5.0)
+        self.assertEqual(len(initial.updated_agents.agents), 1)
+        self.raw.operation_events.clear()
+        self.raw.reset_delay_seconds = 0.05
+
+        first = self.client.call_async(self._request(0.5, 2.5, -0.15))
+        second = self.client.call_async(self._request(1.0, 2.0, -0.8))
+        responses = (_wait_for_future(first), _wait_for_future(second))
+
+        self.assertTrue(
+            all(len(response.updated_agents.agents) == 1 for response in responses)
+        )
+        self.assertEqual(len(self.raw.operation_events), 4)
+        self.assertTrue(self.raw.operation_events[0].startswith("reset:"))
+        self.assertTrue(self.raw.operation_events[1].startswith("compute:"))
+        self.assertTrue(self.raw.operation_events[2].startswith("reset:"))
+        self.assertTrue(self.raw.operation_events[3].startswith("compute:"))
+
+    def test_four_concurrent_requests_do_not_starve_raw_future_callbacks(self):
+        initial = self._compute(0.0, 5.0)
+        self.assertEqual(len(initial.updated_agents.agents), 1)
+        self.raw.compute_types.clear()
+        self.raw.compute_delay_seconds = 0.05
+
+        futures = [
+            self.client.call_async(self._request(0.1, 5.0))
+            for _ in range(4)
+        ]
+        responses = [_wait_for_future(future) for future in futures]
+
+        self.assertTrue(
+            all(len(response.updated_agents.agents) == 1 for response in responses)
+        )
+        self.assertEqual(self.raw.compute_types, [1, 1, 1, 1])
+        self.assertEqual(self.raw.reset_types, [])
+
+    def test_compute_timeout_does_not_commit_candidate(self):
+        initial = self._compute(0.0, 5.0)
+        self.assertEqual(len(initial.updated_agents.agents), 1)
+        self.assertEqual(
+            self.proxy._automaton_context.state, FormalState.ATTENTION
+        )
+
+        self.proxy._timeout = 0.05
+        self.raw.compute_delay_seconds = 0.20
+        response = self._compute(0.5, 5.0)
+        self.assertEqual(len(response.updated_agents.agents), 0)
+        self.assertEqual(
+            self.proxy._automaton_context.state, FormalState.ATTENTION
+        )
+        self.assertEqual(self.proxy._reset_count, 0)
+        time.sleep(0.20)
+
+    def test_telemetry_failure_does_not_retry_successful_raw_compute(self):
+        def fail_telemetry(*_args, **_kwargs):
+            raise RuntimeError("injected telemetry failure")
+
+        self.proxy._publish_observation = fail_telemetry
+        response = self._compute(0.0, 5.0)
+
+        self.assertEqual(len(response.updated_agents.agents), 1)
+        self.assertEqual(self.raw.compute_types, [1])
+        self.assertEqual(self.raw.reset_types, [])
+        self.assertEqual(
+            self.proxy._automaton_context.state, FormalState.ATTENTION
+        )
+
+    def test_clock_rollback_regular_to_regular_does_not_reset(self):
+        initial = self._compute(1.0, 5.0)
+        self.assertEqual(len(initial.updated_agents.agents), 1)
+        self.assertEqual(
+            self.proxy._automaton_context.state, FormalState.ATTENTION
+        )
+
+        rollback = self._compute(0.5, 5.0)
+        self.assertEqual(len(rollback.updated_agents.agents), 1)
+        self.assertEqual(
+            self.proxy._automaton_context.state, FormalState.NORMAL
+        )
+        self.assertEqual(self.raw.compute_types, [1, 1])
+        self.assertEqual(self.raw.reset_types, [])
+        self.assertEqual(self.proxy._reset_count, 0)
+
+    def test_clock_rollback_resets_when_profile_tuple_changes(self):
+        self.assertEqual(len(self._compute(1.0, 5.0).updated_agents.agents), 1)
+        curious = self._compute(1.5, 2.5, -0.15)
+        self.assertEqual(len(curious.updated_agents.agents), 1)
+        self.assertEqual(
+            self.proxy._automaton_context.state, FormalState.CURIOUS
+        )
+
+        rollback = self._compute(1.25, 2.5, -0.15)
+        self.assertEqual(len(rollback.updated_agents.agents), 1)
+        self.assertEqual(
+            self.proxy._automaton_context.state, FormalState.NORMAL
+        )
+        self.assertEqual(self.raw.compute_types, [1, 5, 1])
+        self.assertEqual(self.raw.reset_types, [5, 1])
+        self.assertEqual(self.proxy._reset_count, 2)
 
 
 if __name__ == "__main__":

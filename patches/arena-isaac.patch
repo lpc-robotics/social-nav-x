@@ -5,12 +5,167 @@ index 0000000..8b13789
 +++ b/arena_humble_compat/arena_humble_compat/__init__.py
 @@ -0,0 +1 @@
 +
+diff --git a/arena_humble_compat/arena_humble_compat/bridge_validation.py b/arena_humble_compat/arena_humble_compat/bridge_validation.py
+new file mode 100644
+index 0000000..3e63548
+--- /dev/null
++++ b/arena_humble_compat/arena_humble_compat/bridge_validation.py
+@@ -0,0 +1,149 @@
++from typing import NamedTuple
++
++
++VALID_BEHAVIOR_TYPES = frozenset(range(1, 7))
++STRICT_SIX_BEHAVIOR_TYPES = [1, 2, 3, 4, 5, 6]
++
++
++class RuntimeRates(NamedTuple):
++    """Cumulative and latest-report-interval wall-clock rates."""
++
++    compute_hz: float
++    display_hz: float
++    steady_compute: float
++    steady_display: float
++
++
++def require_plain_integer(value, field_name):
++    """Return a YAML integer without accepting bools or lossy coercions."""
++
++    if type(value) is not int:
++        raise RuntimeError(
++            f"{field_name} must be an integer, got {value!r}"
++        )
++    return value
++
++
++def calculate_runtime_rates(
++    *,
++    now_monotonic,
++    metrics_start_monotonic,
++    compute_count,
++    update_count,
++    previous_report_monotonic,
++    previous_compute_count,
++    previous_update_count,
++):
++    """Calculate cumulative and exact latest-interval steady-clock rates."""
++
++    total_elapsed = now_monotonic - metrics_start_monotonic
++    interval_elapsed = now_monotonic - previous_report_monotonic
++    if total_elapsed <= 0.0 or interval_elapsed <= 0.0:
++        raise ValueError("runtime metric intervals must be positive")
++    if (
++        compute_count < previous_compute_count
++        or update_count < previous_update_count
++    ):
++        raise ValueError("runtime counters must not decrease")
++
++    return RuntimeRates(
++        compute_hz=compute_count / total_elapsed,
++        display_hz=update_count / total_elapsed,
++        steady_compute=(compute_count - previous_compute_count)
++        / interval_elapsed,
++        steady_display=(update_count - previous_update_count)
++        / interval_elapsed,
++    )
++
++
++def format_runtime_status(
++    *,
++    compute_count,
++    update_count,
++    rates,
++    max_integration_step,
++    lag,
++    substep_count,
++    states,
++):
++    """Format a compatible RUNNING line with per-interval rate fields."""
++
++    return (
++        f"SIX_BEHAVIORS_RUNNING compute={compute_count} "
++        f"updates={update_count} compute_hz={rates.compute_hz:.1f} "
++        f"display_hz={rates.display_hz:.1f} "
++        f"steady_compute={rates.steady_compute:.3f} "
++        f"steady_display={rates.steady_display:.3f} "
++        f"max_dt={max_integration_step:.3f} lag={lag:.3f} "
++        f"substeps={substep_count} states={states}"
++    )
++
++
++def validate_agent_definitions(agent_definitions, strict_six_behavior_demo):
++    """Validate the ROS-independent fields used to construct HuNav agents."""
++
++    definitions = list(agent_definitions)
++    actual_types = sorted(item[2] for item in definitions)
++    if strict_six_behavior_demo:
++        if actual_types != STRICT_SIX_BEHAVIOR_TYPES:
++            raise RuntimeError(
++                "six-behavior config must contain types 1..6, "
++                f"got {actual_types}"
++            )
++        if any(item[3] != 1 for item in definitions):
++            raise RuntimeError(
++                "all six demo agents must use deterministic custom config"
++            )
++        return
++
++    if not definitions:
++        raise RuntimeError(
++            "HuNav agent config must contain at least one agent"
++        )
++
++    agent_ids = [item[0] for item in definitions]
++    if len(set(agent_ids)) != len(agent_ids):
++        raise RuntimeError(f"HuNav agent ids must be unique, got {agent_ids}")
++
++    agent_names = [item[1] for item in definitions]
++    if any(not name for name in agent_names):
++        raise RuntimeError("HuNav agent names must be non-empty")
++    if len(set(agent_names)) != len(agent_names):
++        raise RuntimeError(
++            f"HuNav agent names must be unique, got {agent_names}"
++        )
++
++    invalid_types = sorted(
++        set(actual_types).difference(VALID_BEHAVIOR_TYPES)
++    )
++    if invalid_types:
++        raise RuntimeError(
++            "HuNav behavior types must be in 1..6, "
++            f"got invalid types {invalid_types}"
++        )
++
++
++def character_model_mapping(agent_names, model_names):
++    """Return the one-to-one agent/model mapping after checking its size."""
++
++    names = list(agent_names)
++    models = list(model_names)
++    if len(models) != len(names):
++        raise RuntimeError(
++            "character_models must have exactly one entry per HuNav agent"
++        )
++    return dict(zip(names, models))
++
++
++def format_ready_status(
++    marker, agent_count, behavior_types, compute_rate, max_integration_step
++):
++    """Format the bridge READY line, including its compatibility marker."""
++
++    type_list = ",".join(str(value) for value in sorted(behavior_types))
++    return (
++        f"{marker} pedestrians={agent_count} behavior_types={type_list} "
++        f"compute_rate={compute_rate:.1f} max_dt={max_integration_step:.3f} "
++        "robot_state=odom hunav=/compute_agents "
++        "isaac=/isaac/UpdatePedestrians"
++    )
 diff --git a/arena_humble_compat/arena_humble_compat/hunav_six_behaviors_bridge.py b/arena_humble_compat/arena_humble_compat/hunav_six_behaviors_bridge.py
 new file mode 100644
-index 0000000..1b3ceb2
+index 0000000..efac4fa
 --- /dev/null
 +++ b/arena_humble_compat/arena_humble_compat/hunav_six_behaviors_bridge.py
-@@ -0,0 +1,667 @@
+@@ -0,0 +1,737 @@
 +import copy
 +import math
 +import os
@@ -18,6 +173,15 @@ index 0000000..1b3ceb2
 +
 +import rclpy
 +import yaml
++from arena_humble_compat.bridge_validation import (
++    STRICT_SIX_BEHAVIOR_TYPES,
++    calculate_runtime_rates,
++    character_model_mapping,
++    format_ready_status,
++    format_runtime_status,
++    require_plain_integer,
++    validate_agent_definitions,
++)
 +from arena_people_msgs.msg import Pedestrian, SpawnPedestrian
 +from arena_people_msgs.srv import SpawnPedestrians, UpdatePedestrians
 +from geometry_msgs.msg import Pose, Twist
@@ -102,15 +266,29 @@ index 0000000..1b3ceb2
 +        self.declare_parameter("angular_static_compensation", 0.46)
 +        self.declare_parameter("angular_compensation_transition", 0.1)
 +        self.declare_parameter("character_models", DEFAULT_CHARACTER_MODELS)
++        self.declare_parameter("strict_six_behavior_demo", True)
++        self.declare_parameter("status_topic", "/arena5/six_behaviors/status")
++        self.declare_parameter(
++            "agent_debug_topic", "/arena5/six_behaviors/agents"
++        )
++        self.declare_parameter("ready_marker", "SIX_BEHAVIORS_READY")
++
++        self._strict_six_behavior_demo = bool(
++            self.get_parameter("strict_six_behavior_demo").value
++        )
++        self._ready_marker = str(self.get_parameter("ready_marker").value)
++        if not self._ready_marker:
++            raise RuntimeError("ready_marker must be non-empty")
 +
 +        self._agents, self._agent_templates = self._load_agents()
++        self._agent_count = len(self._agents.agents)
 +        self._models = self._load_character_models()
 +
 +        self._status_pub = self.create_publisher(
-+            String, "/arena5/six_behaviors/status", 10
++            String, str(self.get_parameter("status_topic").value), 10
 +        )
 +        self._agent_debug_pub = self.create_publisher(
-+            Agents, "/arena5/six_behaviors/agents", 10
++            Agents, str(self.get_parameter("agent_debug_topic").value), 10
 +        )
 +        self._joint_pub = self.create_publisher(
 +            JointState, "/isaac/joint_commands_velocity", 10
@@ -151,7 +329,9 @@ index 0000000..1b3ceb2
 +        self._substep_count = 0
 +        self._max_integration_step_seen = 0.0
 +        self._metrics_start_monotonic = None
++        self._last_report_monotonic = None
 +        self._last_reported_compute_count = 0
++        self._last_reported_update_count = 0
 +        self._ready_reported = False
 +        self._ideal_chassis = str(
 +            os.environ.get("ARENA_IDEAL_CHASSIS", "false")
@@ -212,8 +392,17 @@ index 0000000..1b3ceb2
 +            behavior_spec = spec["behavior"]
 +            init_pose = spec["init_pose"]
 +
++            agent_id = require_plain_integer(spec["id"], f"{name}.id")
++            behavior_type = require_plain_integer(
++                behavior_spec["type"], f"{name}.behavior.type"
++            )
++            behavior_configuration = require_plain_integer(
++                behavior_spec["configuration"],
++                f"{name}.behavior.configuration",
++            )
++
 +            agent = Agent()
-+            agent.id = int(spec["id"])
++            agent.id = agent_id
 +            agent.type = Agent.PERSON
 +            agent.skin = int(spec["skin"])
 +            agent.name = str(name)
@@ -226,9 +415,9 @@ index 0000000..1b3ceb2
 +            agent.desired_velocity = float(spec["max_vel"])
 +            agent.radius = float(spec["radius"])
 +
-+            agent.behavior.type = int(behavior_spec["type"])
++            agent.behavior.type = behavior_type
 +            agent.behavior.state = 0
-+            agent.behavior.configuration = int(behavior_spec["configuration"])
++            agent.behavior.configuration = behavior_configuration
 +            agent.behavior.duration = float(behavior_spec["duration"])
 +            agent.behavior.once = bool(behavior_spec["once"])
 +            agent.behavior.vel = float(behavior_spec["vel"])
@@ -260,23 +449,24 @@ index 0000000..1b3ceb2
 +            container.agents.append(agent)
 +            templates[agent.name] = copy.deepcopy(agent)
 +
-+        actual_types = sorted(agent.behavior.type for agent in container.agents)
-+        if actual_types != [1, 2, 3, 4, 5, 6]:
-+            raise RuntimeError(
-+                f"six-behavior config must contain types 1..6, got {actual_types}"
-+            )
-+        if any(agent.behavior.configuration != 1 for agent in container.agents):
-+            raise RuntimeError("all six demo agents must use deterministic custom config")
++        validate_agent_definitions(
++            (
++                (
++                    agent.id,
++                    agent.name,
++                    agent.behavior.type,
++                    agent.behavior.configuration,
++                )
++                for agent in container.agents
++            ),
++            self._strict_six_behavior_demo,
++        )
 +        return container, templates
 +
 +    def _load_character_models(self):
 +        model_names = list(self.get_parameter("character_models").value)
 +        agent_names = [agent.name for agent in self._agents.agents]
-+        if len(model_names) != len(agent_names):
-+            raise RuntimeError(
-+                "character_models must have exactly one entry per HuNav agent"
-+            )
-+        return dict(zip(agent_names, model_names))
++        return character_model_mapping(agent_names, model_names)
 +
 +    def _status(self, text: str):
 +        self.get_logger().info(text)
@@ -332,16 +522,20 @@ index 0000000..1b3ceb2
 +            "/isaac/SpawnPedestrians",
 +            timeout=300.0,
 +        )
-+        if not result or list(result.results) != [0] * 6:
-+            raise RuntimeError(f"six-pedestrian spawn failed: {result}")
++        if not result or list(result.results) != [0] * self._agent_count:
++            if self._strict_six_behavior_demo:
++                raise RuntimeError(f"six-pedestrian spawn failed: {result}")
++            raise RuntimeError(f"pedestrian spawn failed: {result}")
 +        mapping = ",".join(
 +            f"{agent.name}:{agent.behavior.type}"
 +            for agent in self._agents.agents
 +        )
-+        self._status(f"SIX_BEHAVIORS_SPAWN_OK count=6 types={mapping}")
++        self._status(
++            f"SIX_BEHAVIORS_SPAWN_OK count={self._agent_count} types={mapping}"
++        )
 +
 +        # SpawnUrdf performs the one World.reset() needed after stage edits.
-+        # Keep it last so all six Character prims survive that reset.
++        # Keep it last so all Character prims survive that reset.
 +        urdf_path = str(self.get_parameter("urdf_path").value)
 +        if not urdf_path:
 +            raise RuntimeError("urdf_path parameter is required")
@@ -480,7 +674,7 @@ index 0000000..1b3ceb2
 +            self._needs_isaac_update = True
 +        else:
 +            result = self._update_future.result()
-+            if result and list(result.results) == [0] * 6:
++            if result and list(result.results) == [0] * self._agent_count:
 +                self._update_count += 1
 +            else:
 +                self.get_logger().error(
@@ -503,7 +697,12 @@ index 0000000..1b3ceb2
 +            return
 +
 +        response = self._compute_future.result()
-+        if response is None or len(response.updated_agents.agents) != 6:
++        invalid_response = response is None
++        if response is not None:
++            invalid_response = (
++                len(response.updated_agents.agents) != self._agent_count
++            )
++        if invalid_response:
 +            self.get_logger().error(
 +                f"HuNav compute returned an invalid response: {response}"
 +            )
@@ -574,7 +773,11 @@ index 0000000..1b3ceb2
 +        self._compute_stamp_ns = stamp_ns
 +        self._compute_future = self._compute.call_async(request)
 +        if self._metrics_start_monotonic is None:
-+            self._metrics_start_monotonic = time.monotonic()
++            started_at = time.monotonic()
++            self._metrics_start_monotonic = started_at
++            self._last_report_monotonic = started_at
++            self._last_reported_compute_count = self._compute_count
++            self._last_reported_update_count = self._update_count
 +
 +    def _start_isaac_update(self):
 +        if (
@@ -607,18 +810,26 @@ index 0000000..1b3ceb2
 +
 +    def _report_runtime(self):
 +        if (
-+            self._compute_count < self._status_interval
++            self._metrics_start_monotonic is None
++            or self._last_report_monotonic is None
++            or self._compute_count < self._status_interval
 +            or self._compute_count - self._last_reported_compute_count
 +            < self._status_interval
 +        ):
 +            return
 +
-+        self._last_reported_compute_count = self._compute_count
-+        elapsed = max(
-+            1e-6, time.monotonic() - self._metrics_start_monotonic
++        now_monotonic = time.monotonic()
++        compute_count = self._compute_count
++        update_count = self._update_count
++        rates = calculate_runtime_rates(
++            now_monotonic=now_monotonic,
++            metrics_start_monotonic=self._metrics_start_monotonic,
++            compute_count=compute_count,
++            update_count=update_count,
++            previous_report_monotonic=self._last_report_monotonic,
++            previous_compute_count=self._last_reported_compute_count,
++            previous_update_count=self._last_reported_update_count,
 +        )
-+        compute_hz = self._compute_count / elapsed
-+        display_hz = self._update_count / elapsed
 +        now_ns = self.get_clock().now().nanoseconds
 +        lag = max(0.0, (now_ns - self._last_integrated_stamp_ns) * 1e-9)
 +        states = ",".join(
@@ -626,11 +837,19 @@ index 0000000..1b3ceb2
 +            for agent in sorted(self._agents.agents, key=lambda item: item.id)
 +        )
 +        self._status(
-+            f"SIX_BEHAVIORS_RUNNING compute={self._compute_count} "
-+            f"updates={self._update_count} compute_hz={compute_hz:.1f} "
-+            f"display_hz={display_hz:.1f} max_dt={self._max_integration_step_seen:.3f} "
-+            f"lag={lag:.3f} substeps={self._substep_count} states={states}"
++            format_runtime_status(
++                compute_count=compute_count,
++                update_count=update_count,
++                rates=rates,
++                max_integration_step=self._max_integration_step_seen,
++                lag=lag,
++                substep_count=self._substep_count,
++                states=states,
++            )
 +        )
++        self._last_report_monotonic = now_monotonic
++        self._last_reported_compute_count = compute_count
++        self._last_reported_update_count = update_count
 +
 +    def _tick(self):
 +        if self._odom is None:
@@ -646,13 +865,19 @@ index 0000000..1b3ceb2
 +
 +        if not self._ready_reported and self._update_count >= 10:
 +            types = sorted(agent.behavior.type for agent in self._agents.agents)
-+            if types == [1, 2, 3, 4, 5, 6]:
++            ready_types = not self._strict_six_behavior_demo
++            if self._strict_six_behavior_demo:
++                ready_types = types == STRICT_SIX_BEHAVIOR_TYPES
++            if ready_types:
 +                self._ready_reported = True
 +                self._status(
-+                    "SIX_BEHAVIORS_READY pedestrians=6 behavior_types=1,2,3,4,5,6 "
-+                    f"compute_rate={self._compute_rate:.1f} max_dt="
-+                    f"{self._max_integration_step_seen:.3f} robot_state=odom "
-+                    "hunav=/compute_agents isaac=/isaac/UpdatePedestrians"
++                    format_ready_status(
++                        self._ready_marker,
++                        self._agent_count,
++                        types,
++                        self._compute_rate,
++                        self._max_integration_step_seen,
++                    )
 +                )
 +
 +
@@ -1161,10 +1386,10 @@ index 0000000..27364f9
 +        rclpy.shutdown()
 diff --git a/arena_humble_compat/package.xml b/arena_humble_compat/package.xml
 new file mode 100644
-index 0000000..dc8d5c4
+index 0000000..f1c58dc
 --- /dev/null
 +++ b/arena_humble_compat/package.xml
-@@ -0,0 +1,24 @@
+@@ -0,0 +1,26 @@
 +<?xml version="1.0"?>
 +<package format="3">
 +  <name>arena_humble_compat</name>
@@ -1184,6 +1409,8 @@ index 0000000..dc8d5c4
 +  <depend>isaacsim_msgs</depend>
 +  <depend>arena_people_msgs</depend>
 +  <exec_depend>python3-yaml</exec_depend>
++
++  <test_depend>python3-pytest</test_depend>
 +
 +  <export>
 +    <build_type>ament_python</build_type>
@@ -1208,10 +1435,10 @@ index 0000000..bf62b8a
 +install_scripts=$base/lib/arena_humble_compat
 diff --git a/arena_humble_compat/setup.py b/arena_humble_compat/setup.py
 new file mode 100644
-index 0000000..083b7cd
+index 0000000..b115671
 --- /dev/null
 +++ b/arena_humble_compat/setup.py
-@@ -0,0 +1,28 @@
+@@ -0,0 +1,29 @@
 +from setuptools import setup
 +
 +
@@ -1226,6 +1453,7 @@ index 0000000..083b7cd
 +        ("share/" + package_name, ["package.xml"]),
 +    ],
 +    install_requires=["setuptools"],
++    extras_require={"test": ["pytest"]},
 +    zip_safe=True,
 +    maintainer="Arena local deployment",
 +    maintainer_email="noreply@example.com",
@@ -1240,6 +1468,174 @@ index 0000000..083b7cd
 +        ],
 +    },
 +)
+diff --git a/arena_humble_compat/test/test_bridge_validation.py b/arena_humble_compat/test/test_bridge_validation.py
+new file mode 100644
+index 0000000..71a894f
+--- /dev/null
++++ b/arena_humble_compat/test/test_bridge_validation.py
+@@ -0,0 +1,162 @@
++import pytest
++
++from arena_humble_compat.bridge_validation import (
++    RuntimeRates,
++    calculate_runtime_rates,
++    character_model_mapping,
++    format_ready_status,
++    format_runtime_status,
++    require_plain_integer,
++    validate_agent_definitions,
++)
++
++
++STRICT_DEFINITIONS = [
++    (behavior_type, f"agent{behavior_type}", behavior_type, 1)
++    for behavior_type in range(1, 7)
++]
++
++
++def test_strict_six_behavior_definitions_are_accepted():
++    validate_agent_definitions(STRICT_DEFINITIONS, True)
++
++
++def test_strict_mode_preserves_types_error():
++    with pytest.raises(
++        RuntimeError,
++        match=r"six-behavior config must contain types 1\.\.6",
++    ):
++        validate_agent_definitions(STRICT_DEFINITIONS[:-1], True)
++
++
++def test_dynamic_mode_accepts_one_agent_and_repeated_behavior_types():
++    validate_agent_definitions([(1, "person", 1, 1)], False)
++    validate_agent_definitions(
++        [(1, "person_a", 5, 1), (2, "person_b", 5, 1)], False
++    )
++
++
++@pytest.mark.parametrize(
++    "definitions, message",
++    [
++        ([], "at least one agent"),
++        ([(1, "a", 1, 1), (1, "b", 2, 1)], "ids must be unique"),
++        ([(1, "a", 1, 1), (2, "a", 2, 1)], "names must be unique"),
++        ([(1, "", 1, 1)], "names must be non-empty"),
++        ([(1, "a", 7, 1)], "types must be in 1..6"),
++    ],
++)
++def test_dynamic_mode_rejects_invalid_definitions(definitions, message):
++    with pytest.raises(RuntimeError, match=message):
++        validate_agent_definitions(definitions, False)
++
++
++def test_character_models_must_match_agent_count():
++    assert character_model_mapping(["a"], ["model_a"]) == {"a": "model_a"}
++    with pytest.raises(RuntimeError, match="exactly one entry"):
++        character_model_mapping(["a", "b"], ["model_a"])
++
++
++def test_default_ready_status_is_byte_for_byte_compatible():
++    status = format_ready_status(
++        "SIX_BEHAVIORS_READY", 6, [1, 2, 3, 4, 5, 6], 40.0, 0.025
++    )
++    assert status == (
++        "SIX_BEHAVIORS_READY pedestrians=6 behavior_types=1,2,3,4,5,6 "
++        "compute_rate=40.0 max_dt=0.025 robot_state=odom "
++        "hunav=/compute_agents isaac=/isaac/UpdatePedestrians"
++    )
++
++
++def test_dynamic_ready_status_uses_configured_marker_and_count():
++    status = format_ready_status(
++        "FORMAL_SOCIAL_BRIDGE_READY", 1, [5], 40.0, 0.025
++    )
++    assert status.startswith(
++        "FORMAL_SOCIAL_BRIDGE_READY pedestrians=1 behavior_types=5 "
++    )
++
++
++def test_runtime_rates_use_latest_monotonic_report_interval():
++    rates = calculate_runtime_rates(
++        now_monotonic=112.0,
++        metrics_start_monotonic=100.0,
++        compute_count=120,
++        update_count=60,
++        previous_report_monotonic=108.0,
++        previous_compute_count=72,
++        previous_update_count=40,
++    )
++
++    assert rates == RuntimeRates(
++        compute_hz=10.0,
++        display_hz=5.0,
++        steady_compute=12.0,
++        steady_display=5.0,
++    )
++
++
++@pytest.mark.parametrize(
++    "overrides, message",
++    [
++        ({"now_monotonic": 108.0}, "intervals must be positive"),
++        ({"compute_count": 71}, "counters must not decrease"),
++        ({"update_count": 39}, "counters must not decrease"),
++    ],
++)
++def test_runtime_rates_reject_invalid_intervals_and_counters(
++    overrides, message
++):
++    arguments = {
++        "now_monotonic": 112.0,
++        "metrics_start_monotonic": 100.0,
++        "compute_count": 120,
++        "update_count": 60,
++        "previous_report_monotonic": 108.0,
++        "previous_compute_count": 72,
++        "previous_update_count": 40,
++    }
++    arguments.update(overrides)
++
++    with pytest.raises(ValueError, match=message):
++        calculate_runtime_rates(**arguments)
++
++
++def test_runtime_status_preserves_old_fields_and_adds_steady_rates():
++    status = format_runtime_status(
++        compute_count=240,
++        update_count=30,
++        rates=RuntimeRates(20.0, 2.5, 18.125, 4.625),
++        max_integration_step=0.025,
++        lag=0.004,
++        substep_count=7,
++        states="person:5/0",
++    )
++
++    assert status == (
++        "SIX_BEHAVIORS_RUNNING compute=240 updates=30 "
++        "compute_hz=20.0 display_hz=2.5 "
++        "steady_compute=18.125 steady_display=4.625 "
++        "max_dt=0.025 lag=0.004 substeps=7 states=person:5/0"
++    )
++    assert status.count("compute_hz=") == 1
++    assert status.count("display_hz=") == 1
++
++
++def test_plain_integer_accepts_only_non_bool_int():
++    assert require_plain_integer(5, "agent.id") == 5
++
++
++@pytest.mark.parametrize(
++    "value, field_name",
++    [
++        (5.7, "person.id"),
++        (True, "person.behavior.type"),
++        ("1", "person.behavior.configuration"),
++    ],
++)
++def test_plain_integer_rejects_lossy_bool_and_string_values(
++    value, field_name
++):
++    with pytest.raises(RuntimeError, match=f"{field_name} must be an integer"):
++        require_plain_integer(value, field_name)
 diff --git a/arena_isaac/arena_isaac/run_isaacsim.py b/arena_isaac/arena_isaac/run_isaacsim.py
 index 0a10249..3d89e37 100644
 --- a/arena_isaac/arena_isaac/run_isaacsim.py

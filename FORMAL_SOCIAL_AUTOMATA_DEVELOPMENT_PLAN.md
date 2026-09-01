@@ -1,0 +1,809 @@
+# social-nav-x 形式化社交自动机 V1：已实现交付与后续开发规范
+
+> 适用分支：`feature/formal-social-automata-v1`
+> 唯一源码基线：`51ab117dedf6a8173c1704f0edd8d01c7938fb8e`
+> 基线标签：`arena5-isaac5.1-archive-20260829`
+> 开发目录：`/home/lpc/workspace/social-nav-x-formal-v1`
+> 运行基线：`/home/lpc/workspace/arena5_ws`（只读 underlay，不在其中开发）
+
+本文是 V1 的实现记录、验收合同和后续 Codex Agent 的权威开发文档。原始需求快照位于
+`docs/formal_social_automata/source_spec_20260830.md`，经项目实况校正后的接口、范围、
+阈值、测试和恢复规则以本文为准。不可变事实和风险边界另见
+`docs/formal_social_automata/BASELINE.md`。
+
+## 0. 当前交付状态（2026-09-01）
+
+V1 代码闭环和计划内自动化、真实 HuNav、GPU 仿真及基线回归均已完成。实现阶段提交为：
+
+```text
+ec95e8c  docs: record formal automata baseline
+eaa84c7  feat: add deterministic social automaton core
+e33dd6d  feat: add formal social proxy and demo overlay
+第四提交  本文、HANDOFF、验收驱动器、最终补丁与证据（以 feature HEAD 为准）
+```
+
+已取得的权威结果：
+
+- 独立 overlay 构建成功；pytest 实际收集 `arena_humble_compat` 20 项、
+  `formal_social_behavior` 64 项并全部通过，最终 `colcon test-result --verbose` 为
+  `258 tests, 0 errors, 0 failures, 0 skipped`（unittest subtests 会展开计数）。其中包含
+  真实 `hunav_agent_manager`、代理 failure/rollback、disabled passthrough、四请求并发和
+  bridge 兼容测试。
+- 完整 GPU 矩阵位于
+  `/home/lpc/workspace/social-nav-x-formal-v1/logs/formal_acceptance/20260831_224034_245993732_pid1453319`；
+  `matrix.log` SHA-256 为
+  `5292b9bea73f3936e27752059071aa32d946be6d91cb00087672fbab11776e14`，取得
+  `FORMAL_SOCIAL_ACCEPTANCE_MATRIX_OK cases=6 rounds=2 scenarios=safe,sudden,fast`。
+- safe 两轮均为 `ATTENTION -> CURIOUS -> NORMAL`；sudden 两轮均为
+  `ATTENTION -> SURPRISED -> NORMAL`；fast 两轮均为
+  `ATTENTION -> SCARED -> NORMAL`。三类 HuNav type `5/3/4` 和各自运动响应均由验收器核对。
+- 12 个互不复用的动作前/后稳态窗口中，HuNav compute 为 `11.786--22.102 Hz`，Isaac
+  display 为 `5.746--5.931 Hz`，最大积分步长 `0.025 s`，integration lag 为
+  `0.005--0.008 s`，均通过门槛。
+- 未 source overlay 的原工作区取得 `SMOKE_NAVIGATION_OK` 和
+  `SIX_BEHAVIORS_VERIFY_OK types=1,2,3,4,5,6`；source overlay 后原六行为再次取得同一
+  marker。对应日志见 `logs/regression/`。
+- 最终 overlay strict 回归位于
+  `logs/regression/original_with_overlay_final_20260831/`，实际 package prefix 是 feature
+  overlay，并取得 `SIX_BEHAVIORS_VERIFY_OK types=1,2,3,4,5,6`。
+- `patches/arena-isaac.patch` SHA-256 为
+  `eea9dfef26f51efd4f0ab3f027f0c80107886cb7607af6411f989167f9087994`；在固定上游
+  `16b8e3416517d8c3dc1b5038df4fe11b9a6df46c` 上正向和应用后反向
+  `git apply --check` 均成功，并逐一比对 29 个应用后文件。
+
+fast 验收采用 `NAVIGATION=false`、唯一 `/cmd_vel` 发布者和 odometry 同步的 `0.8 m/s`
+短脉冲。只在 fast 子进程中设置 `physics_dt=0.01 s`、线加速度 `100 m/s²` 和命令看门狗
+`0.012 s`；生产 demo 仍为 `1/60 s`、`2.0 m/s²`、`0.5 s`。Scared BT 转身后可在下一拍
+通过 `ROBOT_LOST`，验收器因此同时核对 type 4、实际距离上升、负 closing speed 与按相同
+simulation stamp 的 odom/transition 重建的行人向外速度。两轮距离分别上升
+`0.008965/0.016964 m`，退出 closing speed 为 `-0.038580/-0.838583 m/s`，没有延长或
+屏蔽任何自动机 guard。
+
+## 1. 交付目标与成功定义
+
+V1 在不改变现有六行为、D6、Nav2 和 Isaac Character 链路的前提下，交付一个
+`1 Robot + 1 Human` 闭环：
+
+```text
+robot/human map-plane kinematics + simulation stamp
+                    |
+                    v
+       deterministic event extractor
+                    |
+                    v
+ NORMAL / ATTENTION / CURIOUS / SURPRISED / SCARED
+                    |
+                    v
+        full HuNav behavior profile
+                    |
+                    v
+   ResetAgents on profile change -> ComputeAgents
+                    |
+                    v
+          HuNav/SFM continuous motion
+                    |
+                    v
+             Isaac Character
+```
+
+完成标准：
+
+1. 相同初始上下文、配置及带仿真时间戳的输入序列，始终产生相同事件、状态和
+   transition trace。
+2. 五状态自动机按本文唯一转移优先级运行，阈值抖动由 Schmitt hysteresis、dwell、
+   timeout 和 cooldown 抑制。
+3. 自动机只选择 HuNav profile；人物轨迹仍由 HuNav/SFM 计算，代码不直接写人物 pose。
+4. HuNav profile 改变时恰好执行必要的 reset/recompute；同 profile 的状态变化不 reset。
+5. 独立 formal demo、JSON topic、JSONL transition trace 和测试可用。
+6. 原六行为入口和 marker 不变，feature overlay 启用前后都能回归。
+7. 活动工作区、依赖环境和受保护文件没有被修改；停止 overlay 后可立即回到基线。
+
+## 2. 范围、非目标与项目事实修正
+
+### 2.1 V1 范围
+
+- 一个机器人和一个固定目标行人，目标 `agent_id=1`。
+- 状态：`NORMAL`、`ATTENTION`、`CURIOUS`、`SURPRISED`、`SCARED`。
+- 二维事件提取、确定性自动机、HuNav behavior adapter、reset 服务代理。
+- 可靠的 `std_msgs/String` JSON 调试 topic、逐行 transition trace。
+- 一人 YAML、独立 launch/run script、纯单元测试、服务级测试和仿真验收。
+- 对现有六行为 bridge 做默认向后兼容的通用化，原 demo 行为不变。
+
+### 2.2 明确非目标
+
+- `THREATENING` 只保留在既有六行为 demo，不进入 V1 自动机。
+- `SOCIAL`、peer/shared events、双人组合自动机、group formation 不实现。
+- 不处理动态 spawn/despawn、agent ID 复用或多人 reset 一致性。
+- 不实现概率自动机、RL observation/reward、Isaac RL wrapper 或 PPO 修改。
+- 不导出 UPPAAL，也不实现任意 YAML guard DSL。
+- 不新增自定义 ROS 消息，不升级 HuNavSim，不引入新的 Behavior Tree 或状态机库。
+- 不提供基于地图的遮挡、ray tracing、摄像机或 Isaac vision 可见性。
+
+### 2.3 对原始说明的关键修正
+
+- 实际运行工作区不是可直接提交的单仓库，而是包含 11 个独立嵌套仓库及有意未提交
+  改动的部署环境。本次只在归档仓库的隔离 worktree 开发。
+- HuNav v1 已经内部使用 BehaviorTree.CPP；问题不是“缺少 BT”，而是树只在初始化时
+  按 `behavior.type` 创建，后续 `/compute_agents` 中直接改 type 不会动态换树。
+- V1 因而采用现有 `/reset_agents` 代理，不修改 HuNav 核心。单人场景接受最多一个
+  bridge compute 响应拍的可见切换延迟。
+- 当前 DWB `max_vel_x=max_speed_xy=0.26 m/s`；`0.8 m/s` 快速接近场景必须关闭
+  Nav2 后用受控 `/cmd_vel`，不能声称由默认 Nav2 复现。
+- “可见”仅为距离和行人朝向/FOV；不存在遮挡语义。
+- 个人空间进入阈值为项目约定的中心距 `1.0 m`，不是 collider 边缘距离。
+
+## 3. 版本、工作区和依赖保护
+
+开始或续接开发时必须核验：
+
+```bash
+cd /home/lpc/workspace/social-nav-x-formal-v1
+git rev-parse HEAD
+git rev-parse arena5-isaac5.1-archive-20260829^{}
+git merge-base HEAD arena5-isaac5.1-archive-20260829
+git status --short --branch
+sha256sum docs/formal_social_automata/source_spec_20260830.md
+```
+
+标签 `arena5-isaac5.1-archive-20260829` 必须解析到
+`51ab117dedf6a8173c1704f0edd8d01c7938fb8e`，feature HEAD 必须以它为祖先；形成 feature
+提交后，HEAD 本身不再等于基线 commit。来源快照 SHA-256 必须为
+`e033334817f3a6096845765969c5af57444644d32d6df618b34de16b9f12a268`。
+
+完整恢复包 SHA-256 为
+`69bc5468d9f3e4674fd61eb637242e3744cf8c741a31e1b243892997af2160e0`。灾难恢复只能按
+`/home/lpc/workspace/arena5_ws_archives/20260829_164103_full_workspace_pre_log_cleanup/RESTORE.md`
+执行，并用同目录的 `KEY_SHA256SUMS` 复核。禁止向现有运行工作区覆盖解压。
+
+保护规则：
+
+- 不编辑 `/home/lpc/workspace/arena5_ws`；不得在其嵌套仓库运行
+  `reset/clean/checkout/pull/rebase`。
+- 不运行会写活动工作区或改变 intent-to-add 的原全量 `scripts/build.sh`。
+- 不执行 `sudo`、`apt`、`rosdep`、`pip`、`conda`、`mamba` 安装。
+- 不改 Isaac 环境、Conda 元数据、lockfile、`.repos`、`upstream/manifest.tsv`。
+- `/home/lpc/workspace/arena5_ws/.conda/arena_ros` 和其 `install/` 仅作为只读
+  underlay；worktree 自己持有 `build/install/log` overlay。
+- 只构建 `formal_social_behavior` 与确有改动的 `arena_humble_compat`。
+- 不自动 merge `main`，不 push 远端；每阶段通过后再形成独立 commit。
+
+受保护链路包括原 `scripts/run_six_behaviors.sh`、六行为 YAML/launch、`Person.py`、D6、
+odom、碰撞、Nav2 和 Isaac Character。常规回退是停止 formal 进程并在新 shell 中只
+source 原 `arena5_ws`；不需要恢复快照。
+
+## 4. 代码布局与职责
+
+新增 ROS 2 Python 包位于：
+
+```text
+src/formal_social_behavior/
+├── formal_social_behavior/
+│   ├── model.py
+│   ├── config.py
+│   ├── event_extractor.py
+│   ├── automaton.py
+│   ├── behavior_adapter.py
+│   ├── proxy_validation.py
+│   ├── trace_serialization.py
+│   ├── proxy_node.py
+│   └── scenario_verifier.py
+├── config/
+│   ├── formal_social_agent.yaml
+│   └── formal_social_automata.yaml
+├── launch/formal_social_demo.launch.py
+├── test/test_*.py
+├── package.xml
+└── setup.py
+```
+
+包的 console entry point 为：
+
+```text
+formal_social_behavior_proxy = formal_social_behavior.proxy_node:main
+verify_formal_social_scenario = formal_social_behavior.scenario_verifier:main
+```
+
+职责边界：
+
+- `model.py`：Enum/dataclass 值对象，不导入 `rclpy`。
+- `config.py`：从 YAML 构造并验证不可变配置，不包含转移逻辑。
+- `event_extractor.py`：连续运动快照到指标、latch 和离散事件；不读取 ROS topic。
+- `automaton.py`：集中保存可枚举、有顺序的转移拓扑和计时上下文。
+- `behavior_adapter.py`：状态到完整 HuNav profile 的纯映射，以及 ROS 消息深拷贝应用。
+  纯映射部分不导入 `rclpy`。
+- `proxy_validation.py`：在提交前检查 raw response 的数量、顺序、ID/name、type、goal 数量
+  和全部有限运动值，不导入 `rclpy`。
+- `trace_serialization.py`：稳定 key JSON、无穷 TTC 到 `null`、观察与转移 schema。
+- `proxy_node.py`：ROS service、callback 串行化、candidate/commit、topic 和 trace I/O。
+- `scenario_verifier.py`：完整仿真的唯一 `/cmd_vel` 验收驱动器；不参与生产闭环。
+- `formal_social_demo.launch.py` 与包内 YAML：只服务一人 formal 场景，不修改
+  `arena-rosnav` 原 launch/YAML。
+- 根目录 `scripts/run_formal_social_demo.sh`：独立运行入口和每次运行日志目录。
+- 根目录 `scripts/test_formal_simulation_matrix.sh`：每轮使用独立 ROS domain 的两轮三场景验收。
+- `arena_humble_compat/hunav_six_behaviors_bridge.py`：只加入默认兼容的 strict/generic
+  选择，不承载自动机。
+
+YAML 只配置阈值、计时、目标 agent 和状态到 profile 的映射；转移拓扑固定在代码中，
+禁止用字符串表达式、`eval` 或通用 guard DSL。
+
+## 5. 纯核心数据模型
+
+实现使用以下强类型概念：
+
+- `FormalState`：五个状态的 Enum，初态 `NORMAL`。
+- `SocialEvent`：`ROBOT_VISIBLE`、`ROBOT_LOST`、`ROBOT_NEAR`、
+  `PERSONAL_SPACE_VIOLATION`、`ROBOT_FAST_APPROACH`、`TTC_LOW`、
+  `ROBOT_LEAVING`、`SUDDEN_NEAR`、`ROBOT_SAFE_APPROACH`。
+- `PlanarKinematics` 与 `MotionSnapshot`：stamp 和 robot/human 二维位置、速度、yaw、半径；
+  目标 agent ID 位于 `FormalSocialConfig` 和 ROS 消息，而不重复放进运动值对象。
+- `InteractionMetrics`：distance、robot bearing、relative/FOV bearing、closing speed、TTC。
+- `EventMemory`：六个 Schmitt latch 与最后 stamp；与自动机计时上下文分开提交。
+- `EventSnapshot` / `EventEvaluation`：本拍事件指标以及 candidate memory。
+- `AutomatonContext`：状态、进入/安全/cooldown 时间、最后 stamp 与最后转移 stamp。
+- `Transition`：stamp、old/new state、cause；agent ID/name 在序列化 ROS 层注入。
+- `BehaviorProfile`：type、初始化 seed `state=0`、configuration、duration、once、vel、dist
+  和四个 force factor 的完整 tuple。
+- `AutomatonStep`：candidate context、事件快照、可选 transition 与 clock-reset 标记；ROS
+  代理另行选择目标 profile，只有 raw compute 成功后才同时提交 event memory/context/profile。
+
+核心对象不得依赖 ROS executor、wall clock 或全局可变单例。配置在启动时一次性解析并
+验证：未知 wrapper/root/threshold/timing/profile key 直接失败，目标 ID 和 behavior type
+必须是未经有损转换的整数，bool、数值字符串和小数均不能冒充。除有符号的 leaving
+阈值外，距离/速度/TTC 阈值非负；enter/exit 关系正确，half-FOV 在 `(0,180]`，计时
+非负。profile state 名不区分大小写，但归一化后重复也必须失败；mapping 必须恰好覆盖
+五状态，且 HuNav seed 固定为 `state=0/configuration=1`、behavior type 合法。运动输入
+包含 NaN/Inf、半径为负或目标 ID 缺失时，该次服务失败且上下文不提交，不允许把非法值
+写入 HuNav。
+
+形式化状态绝不能存入或读取 `AgentBehavior.state`。profile 中的 `state=0` 只是在 reset
+重建 HuNav tree 时使用的初始化 seed；adapter 每拍应用完整 profile，但当前 HuNav
+`updateAgents()` 不会把请求 state 回写到内部 BT 运行态。只有 `AutomatonContext.state`
+是离散模型 authority。
+
+## 6. 事件提取规范
+
+### 6.1 几何和 TTC
+
+所有量在 `map` 的二维平面计算。定义：
+
+\[
+r=p_{robot}-p_{human},\qquad
+v_{rel}=v_{robot}-v_{human},\qquad
+d=\lVert r\rVert
+\]
+
+当 `d>0` 时，闭合速度：
+
+\[
+c=-\frac{r\cdot v_{rel}}{d}
+\]
+
+`c>0` 表示机器人接近，`c<0` 表示离开；`d=0` 时使用安全的有限约定计算闭合速度，
+同时 TTC 必为 `0`。
+
+碰撞时间使用机器人与行人圆盘半径之和
+`R=radius_robot+radius_human`，求：
+
+\[
+\lVert r+v_{rel}t\rVert=R
+\]
+
+展开为 `a*t^2+b*t+c0=0`，其中 `a=v_rel·v_rel`、`b=2*r·v_rel`、
+`c0=r·r-R^2`。若已重叠则 TTC 为 `0`；否则只有在正在闭合、判别式非负且存在非负根
+时取最小非负根，静止、远离或不相交时为数学无穷。写 JSON 时无穷 TTC 编码为
+`null`，不得输出非标准 `Infinity`。
+
+行人朝向向量为 `(cos(human_yaw), sin(human_yaw))`。FOV angle 是该向量与 `r` 的最小
+夹角，正确处理 `-pi/pi` 环绕。可见性不检查墙体或场景遮挡。
+
+### 6.2 Schmitt hysteresis 默认配置
+
+| Latch | 进入条件 | 退出条件 |
+| --- | --- | --- |
+| visible | `d <= 6.0 m` 且 FOV angle `<= 100°` | `d >= 6.5 m` 或 angle `>= 110°` |
+| near | `d <= 2.5 m` | `d >= 2.8 m` |
+| personal space | `d <= 1.0 m` | `d >= 1.2 m` |
+| fast approach | `c >= 0.50 m/s` | `c <= 0.35 m/s` |
+| low TTC | `TTC <= 1.5 s` | `TTC >= 2.0 s` 或 TTC 无穷 |
+| leaving | `c <= -0.10 m/s` | `c >= 0 m/s` |
+
+进入/退出边界使用表中的包含关系；位于 enter/exit 之间时保持上一已提交 latch。初始
+latch 全为 false，第一帧直接按进入条件计算。
+
+离散事件语义：
+
+- `ROBOT_VISIBLE`、`ROBOT_NEAR`、`PERSONAL_SPACE_VIOLATION`、
+  `ROBOT_FAST_APPROACH`、`TTC_LOW`、`ROBOT_LEAVING` 是对应 latch 为 true 时的
+  level event。
+- `ROBOT_LOST` 只在 visible 从 true 变为 false 的一帧出现。
+- `SUDDEN_NEAR` 只在 near 从 false 变为 true 的一帧出现，并且
+  `0.25 <= c < 0.50 m/s`，同时 personal-space、low-TTC、fast-approach 全为 false。
+- `ROBOT_SAFE_APPROACH` 是派生 level event：near 为 true、
+  `0 <= c < 0.25 m/s` 且三类危险均为 false。
+
+“危险”定义为 personal-space、low-TTC、fast-approach 三者任一为 true。“安全闭合”
+用于 `ATTENTION -> CURIOUS`，等价于 `ROBOT_SAFE_APPROACH`。
+“连续安全”只在 `SURPRISED`/`SCARED` 的当前驻留期内累计：进入这两个状态时先清空旧
+recovery timer；若进入 `SURPRISED` 的样本已经安全，则从状态进入 stamp 开始；进入
+`SCARED` 后从危险全部退出的首个已提交 stamp 开始。任何后续危险样本都会再次清除
+该计时。不得沿用进入状态前已经累积的安全时长。
+
+## 7. 确定性自动机
+
+默认计时：
+
+```text
+attention_dwell = 0.5 s
+recovery_timeout = 3.0 s
+reentry_cooldown = 0.5 s
+```
+
+每个状态严格按下表从上到下匹配，第一个 true guard 胜出，同一请求最多产生一次状态
+变化：
+
+| 当前状态 | 顺序 | Guard | 下一状态 / Cause |
+| --- | ---: | --- | --- |
+| NORMAL | 1 | 任一危险事件 | SCARED / 最高优先级的危险 cause |
+| NORMAL | 2 | `SUDDEN_NEAR` | SURPRISED / SUDDEN_NEAR |
+| NORMAL | 3 | cooldown 已结束且 `ROBOT_VISIBLE` | ATTENTION / ROBOT_VISIBLE |
+| ATTENTION | 1 | 任一危险事件 | SCARED / 危险 cause |
+| ATTENTION | 2 | `ROBOT_LOST` | NORMAL / ROBOT_LOST |
+| ATTENTION | 3 | `SUDDEN_NEAR` | SURPRISED / SUDDEN_NEAR |
+| ATTENTION | 4 | 已驻留 `0.5 s` 且 `ROBOT_SAFE_APPROACH` | CURIOUS / ATTENTION_DWELL |
+| CURIOUS | 1 | 任一危险事件 | SCARED / 危险 cause |
+| CURIOUS | 2 | `ROBOT_LOST` | NORMAL / ROBOT_LOST |
+| CURIOUS | 3 | `ROBOT_LEAVING` 且 near 已退出 | NORMAL / ROBOT_LEAVING |
+| SURPRISED | 1 | 任一危险事件 | SCARED / 危险 cause |
+| SURPRISED | 2 | `ROBOT_LOST` | NORMAL / ROBOT_LOST |
+| SURPRISED | 3 | 连续安全满 `3.0 s` | NORMAL / RECOVERY_TIMEOUT |
+| SCARED | 1 | `ROBOT_LOST` | NORMAL / ROBOT_LOST |
+| SCARED | 2 | `ROBOT_LEAVING`、near 已退出且连续安全满 `3.0 s` | NORMAL / RECOVERY_TIMEOUT |
+
+同一时刻多个危险事件的 cause 优先级固定为：
+
+```text
+PERSONAL_SPACE_VIOLATION > TTC_LOW > ROBOT_FAST_APPROACH
+```
+
+状态进入和计时规则：
+
+- 首次有效输入从 `NORMAL` 开始评估；`NORMAL -> ATTENTION` 不需要先等待 dwell。
+- attention dwell 从进入 `ATTENTION` 的已提交 stamp 起算。
+- recovery 只按连续安全时长计算，不能把状态总驻留时长当作安全时长。
+- 每次进入 `NORMAL` 都从该 stamp 启动 reentry cooldown；危险升级不受 dwell/cooldown
+  限制。
+- 重复 stamp 不推进 timer；一个 stamp 已提交过 transition 后，同 stamp 后续请求不能
+  再提交第二个 transition。
+- 仿真 stamp 小于上次已提交 stamp 时视为 time rollback：清除所有 latch/timer（包括
+  cooldown），恢复 `NORMAL/Regular`，必要时通过同一 reset transaction 重建 HuNav；
+  若旧状态不是 `NORMAL`，transition cause 为 `TIME_RESET`。rollback 后第一份
+  非回拨样本可立即重新进入 `ATTENTION`；检测到回拨的那一拍本身只负责恢复
+  `NORMAL/Regular`，不会同拍再做第二次转移。
+
+转移拓扑必须集中为可枚举表，并提供检查：所有 state/cause 有定义、同一有序事件输入
+只取一个 guard、无意外 dead end。V1 不要求生成形式化工具模型。
+
+## 8. HuNav behavior profile 映射
+
+全部 profile 使用 custom configuration `1` 和 force factors
+`goal=2.0`、`obstacle=10.0`、`social=5.0`、`other=20.0`：
+
+| Social state | HuNav type | duration | once | vel | dist |
+| --- | --- | ---: | --- | ---: | ---: |
+| NORMAL | Regular (`1`) | `40.0` | `true` | `0.6` | `0.0` |
+| ATTENTION | Regular (`1`) | `40.0` | `true` | `0.6` | `0.0` |
+| CURIOUS | Curious (`5`) | `30.0` | `false` | `0.8` | `1.5` |
+| SURPRISED | Surprised (`3`) | `30.0` | `false` | `0.6` | `4.0` |
+| SCARED | Scared (`4`) | `40.0` | `false` | `0.6` | `3.0` |
+
+`NORMAL` 和 `ATTENTION` 的 profile tuple 完全相同，所以二者转移不得 reset。profile
+比较必须覆盖表中全部字段和四个 force factors，不能只比 type。
+
+adapter 深拷贝 `ComputeAgents.Request.current_agents`，按 ID 精确找到唯一目标，保留
+pose、velocity、yaw、goals、半径及其他 agent 字段，只覆盖完整 behavior profile。
+输入消息不被原地修改。配置的 `behavior.state` 固定为 `0` 并属于完整 profile
+signature；HuNav 在 reset 后以它初始化内部 agent，随后由内部 BT 维护自己的 state。
+形式化层从不以该字段推导 `FormalState`。
+
+配置模型采用：
+
+- `EventThresholds`：所有 `*_enter/*_exit` 距离/FOV/speed/TTC 及 sudden-near 上下界；
+- `AutomatonTiming`：`attention_dwell_seconds`、`recovery_timeout_seconds`、
+  `reentry_cooldown_seconds`；
+- `FormalSocialConfig`：`target_agent_id`、thresholds、timing、behavior profiles。
+
+配置文件支持 `formal_social_behavior.ros__parameters` 下的 `thresholds`、`timing`、
+`behavior_profiles`，profile key 必须是五个大写状态名；纯测试也可直接传同结构 mapping。
+
+## 9. ROS 服务代理与事务语义
+
+### 9.1 服务拓扑
+
+formal launch 中，bridge 仍调用原类型和名称：
+
+```text
+bridge --hunav_msgs/srv/ComputeAgents--> /compute_agents (proxy)
+```
+
+HuNav manager 的服务 remap 为：
+
+```text
+/compute_agents -> /formal_social_behavior/compute_agents_raw
+/reset_agents   -> /formal_social_behavior/reset_agents_raw
+```
+
+proxy 创建对应 raw client。`enabled` 默认 `false`；formal launch 显式设为 `true`。关闭
+时只把 compute 请求转发给 raw compute，不提取/提交事件、不发布自动机 JSON、不调用
+reset。
+
+### 9.2 单请求 candidate/commit
+
+启用时 `/compute_agents` server 使用 `MutuallyExclusiveCallbackGroup` 串行执行；raw
+clients 使用独立 `ReentrantCallbackGroup`：
+
+1. 验证 stamp、目标 ID 和有限运动数据，从上次已提交 event memory/context 生成
+   `EventEvaluation` 与 `AutomatonStep` candidate。
+2. 深拷贝请求，并把 candidate state 的完整 profile 应用于目标 agent。
+3. 若 candidate profile tuple 与上次已提交 profile 不同：
+   - 构造 `ResetAgents.Request`，携带修改后的当前 agents 和原 robot；
+   - 调用 raw reset 并要求非空响应且 `ok=true`；
+   - reset 成功后再进入第 4 步。
+4. 调用 raw compute，参数为同一份修改后当前 agents、原 robot 和原 simulation stamp。
+5. 只有 raw compute 返回数量、顺序、ID/name、behavior type、goal 数和有限值全部合法的
+   `updated_agents` 后，提交 candidate event memory/context/profile。
+6. 把 raw compute 的原类型 response 返回给 bridge，不改变 service wire type。
+7. commit 后 best-effort 发布 state/events/transition 并 append/flush JSONL；telemetry
+   异常只记录错误，不能把已经成功的 raw compute 变成 bridge 重试而造成重复计算。
+
+reset 或 compute 超时、future exception、reset `ok=false`、返回 agent 数量/ID 非法时，不
+提交 candidate，不发布成功事件/状态/transition，不写 transition trace，让 bridge 沿
+既有失败路径重试。reset 成功但 compute 失败时，下一请求从旧 formal context 重新求值
+并允许再次 reset；不能假装切换已经成功。
+
+node 使用四线程 `MultiThreadedExecutor`；从 service callback 同步等待 raw future 时，
+reentrant client callback 仍可被其他线程调度。mutually-exclusive service group 保证两个
+compute callback 不会并行进入；显式 `threading.Lock` 再对完整 candidate/reset/compute/
+commit transaction 做串行保护。四请求并发测试证明该锁不会阻塞独立 reentrant raw
+future callback，也不会出现 reset/compute 配对交错。
+
+首次请求用请求中实际 profile 与 candidate profile 比较：已经是 Regular 时不 reset，
+若第一拍直接进入非 Regular 则必须 reset。signature 使用 ROS `float32` wire 精度规范化，
+避免 `0.6` 与 `0.6000000238` 产生伪变化；`NORMAL -> ATTENTION` 因完整 tuple 相同不
+reset。仿真时间回拨会清除 latch/timer 并恢复 `NORMAL`，但只有当前 profile 不是
+Regular 时才需要 reset。
+
+## 10. 可观测性与 trace 契约
+
+使用 reliable、volatile、depth `10` 的 `std_msgs/msg/String`：
+
+```text
+/formal_social_behavior/states
+/formal_social_behavior/events
+/formal_social_behavior/transitions
+```
+
+JSON 使用 UTF-8、稳定 key、`allow_nan=false`，共同字段至少为：
+
+```json
+{
+  "schema_version": 1,
+  "sim_time_ns": 12300000000,
+  "agent_id": 1,
+  "agent_name": "formal_human",
+  "state": "ATTENTION",
+  "events": ["ROBOT_VISIBLE"],
+  "distance": 2.7,
+  "closing_speed": 0.15,
+  "ttc_seconds": null,
+  "behavior_type": 1,
+  "reset_count": 0,
+  "config_sha256": "..."
+}
+```
+
+`ttc_seconds=null` 表示数学无穷；有限 TTC 为 JSON number。transition JSON 另含
+`message_type`、`old_state`、`new_state`、`cause`。events 数组按事件字符串字典序稳定
+排序，不能依赖 set 的随机迭代次序；完整 payload 还包含两个 bearing。
+
+state/events 在每次成功提交的 compute 后发布；transition 仅在真实状态变化后发布。
+JSONL 文件每行与 transition topic 使用同一 schema 和值，写入后 flush。run script 为
+每次运行创建不重用的目录，例如：
+
+```text
+<worktree>/logs/formal_social/<timestamp_ns>_formal_social_gpu3_pid<PID>/
+```
+
+目录中记录 `console.log`、`transitions.jsonl`、`run_manifest.txt`，后者包含生效配置
+路径/SHA-256、commit、GPU、navigation、ideal chassis、physics dt、acceleration 和
+ideal-command timeout。大型运行日志不提交 Git；交付文档只记录其绝对位置、配置哈希
+和精简摘要。
+
+## 11. bridge 向后兼容与 formal demo
+
+`hunav_six_behaviors_bridge` 新增以下参数：
+
+| 参数 | 默认值 | formal demo |
+| --- | --- | --- |
+| `strict_six_behavior_demo` | `true` | `false` |
+| `status_topic` | `/arena5/six_behaviors/status` | `/formal_social_behavior/bridge_status` |
+| `agent_debug_topic` | `/arena5/six_behaviors/agents` | `/formal_social_behavior/hunav_agents` |
+| `ready_marker` | `SIX_BEHAVIORS_READY` | `FORMAL_SOCIAL_BRIDGE_READY` |
+
+strict 模式必须精确保留：六个 agent、唯一 types `1..6`、custom configuration、六个
+Character model、原 topic、原 marker 和原 verifier 行为。generic 模式使用 YAML 中
+实际 agent 数量，验证 ID/name 唯一、behavior type 在 `1..6`、每个 agent 恰有一个
+Character model；所有 spawn/update/result 数量检查使用实际计数。
+
+原 `SIX_BEHAVIORS_RUNNING` marker 的既有字段保持不变，并追加基于相邻报告区间的
+`steady_compute`/`steady_display`。验收只接受动作前和动作后两个不同、计数严格递增的
+报告，不能重复使用累计平均值掩盖服务停滞；strict 默认行为与 20 Hz wheel command timer
+均未改变。
+
+formal demo 的一人 YAML 和 launch 全部安装在 `formal_social_behavior` 包中；不修改
+`arena-rosnav` 的原 YAML/launch。launch 启动原 HuNav loader/manager、proxy 和通用模式
+bridge，并只在该 launch 内做 raw service remap。Regular 的唯一 goal 等于出生点，使
+人物在受控场景开始前保持静止；Curious/Surprised/Scared 仍由 HuNav 特殊 BT 驱动。
+
+根脚本 `scripts/run_formal_social_demo.sh` 使用独立日志目录，默认：
+
+```text
+GPU_ID=3
+NAVIGATION=false
+ARENA_IDEAL_CHASSIS=true
+```
+
+只有显式请求时才启用 Nav2。任何受控 `/cmd_vel` 场景必须确认没有第二个 publisher；
+脚本不得改写原 `scripts/run_six_behaviors.sh` 或复用其 marker 伪装 formal 成功。生产
+入口默认 physics dt/ideal linear acceleration/command timeout 仍是
+`1/60 s`、`2.0 m/s²`、`0.5 s`；只有仿真矩阵 fast 短脉冲在子进程设置
+`0.01 s`、`100.0 m/s²`、`0.012 s`，且写入每次 run manifest。
+
+## 12. 测试与验收结果
+
+### 12.1 纯 Python 单元测试
+
+不 source ROS 即可测试的核心覆盖已经实现：
+
+- 距离、yaw 环绕/FOV、闭合速度的 approaching/stationary/leaving。
+- 圆盘 TTC：正碰、掠过不相交、静止、远离、已重叠、不同半径。
+- visible/near/personal-space/fast/TTC/leaving 的全部 enter、hold、exit 边界。
+- `SUDDEN_NEAR` 仅为 near 进入边沿，速度上下界和危险抑制正确。
+- 安全接近：`NORMAL -> ATTENTION -> CURIOUS -> NORMAL`。
+- 突发近距：`NORMAL/ATTENTION -> SURPRISED -> NORMAL`。
+- 危险：各非 SCARED 状态优先升级，多个危险 cause 顺序确定。
+- dwell、连续安全 recovery、cooldown、重复 stamp、时间回拨。
+- 每 stamp 最多一次 transition，转移表无未知 state/cause 和非确定性。
+- behavior adapter 深拷贝，不修改原请求；完整 profile 比较和 state 字段规则正确。
+- 同一录制输入离线重放两次产生字节级稳定的 transition JSONL。
+- 配置缺键、关系反转、未知 state、NaN/Inf 和重复 agent ID 失败明确。
+- 配置拼写错误、分数/字符串/bool agent ID、缺状态 profile 及非零 HuNav seed 均被拒绝，
+  不允许静默回落为默认值。
+
+### 12.2 服务级测试
+
+使用真实 HuNav manager、但不启动 Isaac：
+
+- 初始 `NORMAL/Regular`，第一次安全可见只到 `ATTENTION` 且不 reset。
+- `ATTENTION -> CURIOUS`、`-> SURPRISED`、`-> SCARED` 以及恢复 Regular 时，每次
+  profile 变化恰好一个成功 reset。
+- `NORMAL <-> ATTENTION` 及同状态重复 compute 不 reset。
+- reset 返回 `ok=false` 或 compute 返回空/非法 response 时，formal
+  state/profile/trace 均不提交；代理本身另有有界 service wait，超时走同一不提交路径。
+- raw response service type 不变，agent 数量、ID、pose、velocity、goals 全部有限且保持。
+- `enabled=false` 完全透传且不产生 formal side effect。
+- 两个同时到达的 compute 请求保持 `reset(A)-compute(A)-reset(B)-compute(B)` 配对，
+  不会交错；延迟 raw compute 超时后 candidate 仍不提交。
+
+串行性由 `/compute_agents` 的 `MutuallyExclusiveCallbackGroup` 直接保证，raw future 则由
+独立 `ReentrantCallbackGroup` 和多线程 executor 完成；服务测试显式覆盖并发配对和
+超时 rollback，完整 GPU 运行再核对没有持续 future 积压。
+
+最终结果：纯核心、adapter/trace/config/validation、mock proxy 与真实 HuNav 测试共同由
+colcon 收集；详细总数见 12.3。
+
+### 12.3 独立 overlay 构建
+
+在 activity underlay 之上、worktree 内执行选择性 build/test；命令必须显式指定独立
+base paths，不能写共享 install。最低结果：
+
+```text
+colcon build: formal_social_behavior + arena_humble_compat 成功
+colcon test: 两包相关测试无失败
+colcon test-result --verbose: 0 failures
+```
+
+实际使用 `scripts/build_formal_overlay.sh` 和 `scripts/test_formal_overlay.sh` 完成；只构建
+`arena_humble_compat` 与 `formal_social_behavior`，结果：
+
+```text
+arena_humble_compat: 20 passed
+formal_social_behavior: 64 passed
+colcon test-result: 258 tests, 0 errors, 0 failures, 0 skipped
+```
+
+pytest 收集数为 84；colcon/xUnit 对 unittest subtests 展开后报告 258。最终原始测试日志在
+`/home/lpc/workspace/social-nav-x-formal-v1/.colcon/test-log/test_2026-08-31_22-39-52/`，
+仅有两条依赖侧 Lark deprecation warning。构建生成物未提交，也未安装或升级依赖。
+
+### 12.4 完整一人仿真
+
+以下场景均由 `scripts/test_formal_simulation_matrix.sh` 从干净 formal run 开始并重复两轮：
+
+矩阵不是只打印观测值：每个 case 在动作前等待真实 `SIX_BEHAVIORS_RUNNING`，硬性解析并
+检查 compute/display/max-dt/integration-lag；动作驱动器检查唯一 `/cmd_vel` publisher、
+有限 ROS 数据、目标/恢复 reset count 和重复 transition；每次 cleanup 前后扫描
+Traceback、异常进程退出和明确的 proxy/bridge service error。矩阵开始和结束还分别校验
+归档 `KEY_SHA256SUMS` 与 10 个 Person/D6/碰撞/六行为/Nav2 守护文件哈希。
+
+| 场景 | 控制 | 期望 |
+| --- | --- | --- |
+| 安全接近 | `0.15 m/s` | `NORMAL -> ATTENTION -> CURIOUS` |
+| 突发近距 | 以 `0.30 m/s` 首次进入 near，且 TTC/个人空间安全 | 进入 `SURPRISED` |
+| 快速接近 | `NAVIGATION=false`、单一控制器 `0.8 m/s` | 进入 `SCARED` |
+| 离开/恢复 | 机器人离开并满足各状态 guard | 回到 `NORMAL/Regular` |
+
+最终矩阵的六个 marker、路径和关键数值：
+
+| 场景 | 两轮结果 |
+| --- | --- |
+| safe | target `2.499/2.499 m`，recovery `2.812/2.805 m`；两轮均 `ATTENTION->CURIOUS->NORMAL` |
+| sudden | target `2.496/2.495 m`，recovery `4.362/4.349 m`；两轮均 `ATTENTION->SURPRISED->NORMAL` |
+| fast | target `2.992/2.984 m`，recovery `3.001/3.001 m`；两轮均 `ATTENTION->SCARED->NORMAL` |
+
+fast 的 Scared 状态可因 HuNav flee yaw 在下一拍产生本文定义的 `ROBOT_LOST`，也可持续
+若干拍后按安全恢复。验收器同时处理这两种合法时序：要求 type 4、SCARED 区间实际
+distance 上升、closing speed `< -0.01 m/s`，并从 `/human_states` 或按相同 simulation
+stamp 匹配的 `/odom` 与 state/transition 重建
+`human_outward = robot_toward_human - closing_speed`。最终两轮实际 distance 上升
+`0.008965/0.016964 m`，退出 closing speed 为 `-0.038580/-0.838583 m/s`，重建的行人向外
+速度为 `0.038580/0.038584 m/s`。没有延长/屏蔽 `ROBOT_LOST`，也没有直接写机器人或人物
+pose。
+
+权威矩阵目录与哈希：
+
+```text
+/home/lpc/workspace/social-nav-x-formal-v1/logs/formal_acceptance/20260831_224034_245993732_pid1453319
+matrix.log SHA-256: 5292b9bea73f3936e27752059071aa32d946be6d91cb00087672fbab11776e14
+```
+
+六个 case 各有独立 domain、launch/verifier log、run manifest 和 transition JSONL；对应
+formal run 目录按 safe1/safe2/sudden1/sudden2/fast1/fast2 为：
+
+```text
+/home/lpc/workspace/social-nav-x-formal-v1/logs/formal_social/20260831_224035_264951895_formal_social_gpu3_pid1453439
+/home/lpc/workspace/social-nav-x-formal-v1/logs/formal_social/20260831_224138_724457771_formal_social_gpu3_pid1457521
+/home/lpc/workspace/social-nav-x-formal-v1/logs/formal_social/20260831_224241_057782934_formal_social_gpu3_pid1461587
+/home/lpc/workspace/social-nav-x-formal-v1/logs/formal_social/20260831_224343_707010760_formal_social_gpu3_pid1465643
+/home/lpc/workspace/social-nav-x-formal-v1/logs/formal_social/20260831_224446_451700118_formal_social_gpu3_pid1469623
+/home/lpc/workspace/social-nav-x-formal-v1/logs/formal_social/20260831_224602_606668475_formal_social_gpu3_pid1474505
+```
+
+运行验收：
+
+- steady-state wall-clock HuNav compute `>=10 Hz`；
+- Isaac display `>=4.5 Hz`；最大 integration step `<=0.026 s`；
+- 无持续 future 积压、service error、NaN/Inf 或同 profile 重复 reset；
+- Curious 时人机距离下降；Scared 产生向外径向速度/负闭合速度；Surprised 速度归零且
+  yaw 转向机器人；
+- 人物 pose 仍由 HuNav 结果驱动，`Person.py`、D6 和 Nav2 守护文件哈希未变。
+
+最终 12 个互不复用的动作前/后窗口实测 compute `11.786--22.102 Hz`、display
+`5.746--5.931 Hz`、max step `0.025 s`、lag `0.005--0.008 s`；每个 case 均有且仅有
+3 条转移、2 条真实 manager reset log 和 1 条成功 marker。
+
+### 12.5 基线回归
+
+最终已完成两组：
+
+1. 新 shell 不 source feature overlay，运行原活动工作区入口，取得
+   `SIX_BEHAVIORS_VERIFY_OK types=1,2,3,4,5,6` 和 `SMOKE_NAVIGATION_OK`。
+2. source feature overlay 后运行原六行为入口，再次取得相同六行为 marker，证明 bridge
+   参数默认值完全兼容。
+
+实际原工作区 marker：
+
+```text
+SMOKE_NAVIGATION_OK start=(3.000,3.000) end=(4.881,2.884) moved=1.885m lidar_messages=96
+SIX_BEHAVIORS_VERIFY_OK types=1,2,3,4,5,6 active=3,5 responses=3,4,5,6
+```
+
+overlay 后最终回归目录为
+`/home/lpc/workspace/social-nav-x-formal-v1/logs/regression/original_with_overlay_final_20260831/`；
+`overlay_prefix.txt` 证明实际解析到 feature overlay，marker 为：
+
+```text
+SIX_BEHAVIORS_VERIFY_OK types=1,2,3,4,5,6 active=3,5 responses=3,4,5,6 robot_distance=0.952 robot_states=341
+```
+
+该 strict run 连续运行约 10 小时 36 分钟后再验收，末段累计 compute/display 为
+`17.4/4.9 Hz`，独立窗口为 `14.333/4.873 Hz`，`max_dt=0.025 s`；验收前运行日志没有
+compute/update service error、NaN 或 traceback。原工作区既有 no-overlay 稳定段约
+`16.0--16.5 Hz` compute / `4.8--4.9 Hz` display。
+
+22/22 底盘矩阵和 3/3 碰撞套件未重跑，因为 D6、碰撞、Isaac Character 与 Nav2
+守护文件哈希没有变化；沿用基线证据符合本计划“仅在守护文件变化时重跑”的条件门槛。
+除这个明确的条件跳过外，计划内 build、单元/服务、两轮 GPU 矩阵和两组基线回归均已
+执行；最终测试只有两条依赖侧 Lark deprecation warning，无失败或未执行的必需门槛。
+
+## 13. 实施顺序、提交与补丁维护
+
+实际按四个可审查提交交付；第四提交完成后以 feature HEAD 为交付点：
+
+1. `ec95e8c` **文档基线**：原稿快照与 `BASELINE.md`。
+2. `eaa84c7` **纯自动机**：model/config/event extractor/automaton/adapter/trace 及纯测试。
+3. `e33dd6d` **ROS 代理与 demo**：proxy、validation、YAML、launch/run script、bridge
+   通用模式、mock/真实 HuNav 服务测试。
+4. **测试与交付**：受控矩阵驱动器、final run logging、patch、回归记录、HANDOFF、本文及
+   外部文档同步；其 commit 无法自引用，使用 `git rev-parse HEAD` 获取。
+
+bridge 变化后，基于 `upstream/manifest.tsv` 中固定 arena-isaac commit
+`16b8e3416517d8c3dc1b5038df4fe11b9a6df46c` 重新生成二进制安全
+`patches/arena-isaac.patch`。在干净临时上游树验证：
+
+- 正向 `git apply --check` 成功；
+- 应用后反向 `git apply --reverse --check` 成功；
+- patch 包含原归档改动和本次 bridge 改动，没有活动工作区杂项。
+
+补丁 SHA-256 为
+`eea9dfef26f51efd4f0ab3f027f0c80107886cb7607af6411f989167f9087994`。它已经在
+`/tmp/social-nav-x-arena-isaac-verify-final.CDhlhD` 正向检查、实际应用、应用后反向检查，
+并把 29 个 patch 文件逐一与 feature tree 比对一致。补丁生成树为
+`/tmp/social-nav-x-arena-isaac-patch-20260830`。不要把 feature 自动合并到 `main` 或推送
+远端。
+
+## 14. 最终交付与复现命令
+
+`HANDOFF.md` 已新增独立 formal automata 章节，记录 feature/baseline、命令、哈希、证据、
+回退和单人限制。最小复现命令：
+
+```bash
+cd /home/lpc/workspace/social-nav-x-formal-v1
+scripts/build_formal_overlay.sh
+scripts/test_formal_overlay.sh
+
+# 单次 production-style demo（默认 GPU 3、NAVIGATION=false、ideal chassis）
+env DRL_VO_GUI=false scripts/run_formal_social_demo.sh \
+  headless:=true livestream:=false foxglove:=false
+
+# 两轮三场景完整验收；domain base 可在无冲突的 [0,226] 中选择
+env DRL_VO_GUI=false GPU_ID=3 FORMAL_ACCEPTANCE_DOMAIN_BASE=181 \
+  scripts/test_formal_simulation_matrix.sh
+```
+
+生效配置 SHA-256：
+
+```text
+formal_social_automata.yaml  5a8be544cabfc0d7f6546c496d22f4ec521fc366d578578f36267b4d53857693
+formal_social_agent.yaml     a3f03ea3ea74178377e06aea86e764f47225e3daeb90abd219080257f78b47b6
+```
+
+交付内容包括：
+
+- feature 分支最终 commit 和基线 commit/tag；
+- overlay 的准确 build/source 命令和 formal demo 启动命令；
+- 生效配置文件及 SHA-256、运行日志/transition trace 的绝对位置；
+- 单元、服务、仿真、原六行为/Nav2 回归的精简结果和 marker；
+- 未运行或失败项目及复现信息；
+- 快速回退与完整恢复链接；
+- HuNav reset 带来的最多一拍可见切换延迟；
+- V1 只支持单人、多人前必须重新设计按-agent 动态换树的限制。
+
+本文完成后通过字节级 `cmp` 同步到用户指定的外部路径
+`/home/lpc/social-nav-x_formal_social_automata_development_spec.md`。仓库中的原始快照始终
+保持不变，并继续以 `e0333348...a268` 追溯最初附件。
+
+## 15. 后续 Codex Agent 执行检查单
+
+1. 先读 `BASELINE.md`、本文、`HANDOFF.md` 和恢复说明，确认只在 feature worktree。
+2. 检查 `git status`，区分其他 Agent/用户已有改动，禁止覆盖或清理。
+3. 修改前保存相关文件哈希；只在当前阶段范围内编辑。
+4. 核心先纯测试，再接 ROS；所有状态变更遵循 candidate/commit。
+5. 选择性构建独立 overlay，不安装依赖，不运行活动工作区全量 build。
+6. formal demo 使用独立入口；快速接近关闭 Nav2 并确认单一 `/cmd_vel` publisher。
+7. 记录真实测试证据，刷新 arena-isaac patch 并验证正反 apply。
+8. 对照守护哈希和原 marker 回归；任何基线变化先停止交付并调查。
+9. 更新 HANDOFF 和本文，仅把已取得的结果写成“通过”。
+
+这份规范有意将自动机、HuNav profile、ROS transaction 和 Isaac 显示分层。V1 的研究
+增量是可重放、可检查的离散社会状态；现有 HuNav/SFM、D6、Nav2 和 Character 仍保持
+各自 authority，不因引入形式化层而被替换。
