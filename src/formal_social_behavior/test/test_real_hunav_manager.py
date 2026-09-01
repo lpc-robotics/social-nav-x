@@ -216,6 +216,52 @@ class RealHuNavManagerServiceTest(unittest.TestCase):
         )
         self.assertIsNone(self.manager.poll(), self._log())
 
+    def test_real_manager_regular_goal_recovery_has_no_stale_velocity(self):
+        self.assertEqual(len(self._compute(0.0, 5.0).updated_agents.agents), 1)
+        curious = self._compute(0.5, 2.5, -0.15)
+        self.assertEqual(len(curious.updated_agents.agents), 1)
+        self.assertEqual(int(curious.updated_agents.agents[0].behavior.type), 5)
+        self.assertEqual(
+            self.proxy._automaton_context.state, FormalState.CURIOUS
+        )
+
+        recovery_request = self._request(1.0, 12.5)
+        human = recovery_request.current_agents.agents[0]
+        human.position.position.x = 5.85
+        human.position.position.y = 9.0
+        human.behavior.type = AgentBehavior.BEH_CURIOUS
+        human.velocity.linear.x = -0.21
+        human.velocity.linear.y = 0.04
+        human.velocity.angular.z = 0.03
+        human.linear_vel = ((-0.21) ** 2 + 0.04**2) ** 0.5
+        human.angular_vel = 0.03
+        recovery = _wait_for_future(
+            self.client.call_async(recovery_request)
+        )
+
+        if len(recovery.updated_agents.agents) != 1:
+            self.fail("real HuNav returned an invalid response: " + self._log())
+        returned = recovery.updated_agents.agents[0]
+        self.assertEqual(self.proxy._automaton_context.state, FormalState.NORMAL)
+        self.assertEqual(int(returned.behavior.type), 1)
+        self.assertAlmostEqual(returned.position.position.x, 5.85, places=5)
+        self.assertAlmostEqual(returned.position.position.y, 9.0, places=5)
+        self.assertEqual(float(returned.velocity.linear.x), 0.0)
+        self.assertEqual(float(returned.velocity.linear.y), 0.0)
+        self.assertEqual(float(returned.velocity.angular.z), 0.0)
+        self.assertEqual(float(returned.linear_vel), 0.0)
+        self.assertEqual(float(returned.angular_vel), 0.0)
+        self.manager_log.flush()
+        manager_log = self.manager_log_path.read_text(
+            encoding="utf-8", errors="replace"
+        )
+        self.assertEqual(
+            manager_log.count("=== RESET AGENTS SERVICE CALLED ==="),
+            2,
+            manager_log,
+        )
+        self.assertIsNone(self.manager.poll(), self._log())
+
 
 if __name__ == "__main__":
     unittest.main()

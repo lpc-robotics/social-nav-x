@@ -9,6 +9,8 @@ from formal_social_behavior.behavior_adapter import (
     default_behavior_profiles,
     profile_for_state,
     profile_signature,
+    regular_goal_reached,
+    stop_agent_motion,
 )
 from formal_social_behavior.config import (
     AutomatonTiming,
@@ -19,6 +21,27 @@ from formal_social_behavior.model import FormalState
 
 
 class BehaviorProfileTests(unittest.TestCase):
+    @staticmethod
+    def _kinematic_agent(*, x=5.85, goal_x=6.0, goal_radius=0.3):
+        def point(x_value=0.0):
+            return types.SimpleNamespace(
+                x=x_value,
+                y=0.0,
+                z=0.0,
+            )
+
+        return types.SimpleNamespace(
+            position=types.SimpleNamespace(position=point(x)),
+            velocity=types.SimpleNamespace(
+                linear=point(-0.21),
+                angular=point(0.03),
+            ),
+            linear_vel=0.21,
+            angular_vel=0.03,
+            goal_radius=goal_radius,
+            goals=[types.SimpleNamespace(position=point(goal_x))],
+        )
+
     def test_verified_default_state_mapping(self):
         profiles = default_behavior_profiles()
         self.assertEqual(profiles[FormalState.NORMAL].type, 1)
@@ -83,6 +106,36 @@ class BehaviorProfileTests(unittest.TestCase):
             apply_profile_to_agent(
                 agent, profile_for_state(FormalState.NORMAL)
             )
+
+    def test_regular_goal_reached_matches_hunav_extra_tolerance(self):
+        self.assertTrue(regular_goal_reached(self._kinematic_agent(x=5.61)))
+        self.assertFalse(regular_goal_reached(self._kinematic_agent(x=5.59)))
+        no_goals = self._kinematic_agent()
+        no_goals.goals = []
+        self.assertFalse(regular_goal_reached(no_goals))
+
+    def test_stop_agent_motion_is_a_complete_deep_copy(self):
+        agent = self._kinematic_agent()
+        stopped = stop_agent_motion(agent)
+
+        self.assertIsNot(stopped, agent)
+        self.assertIsNot(stopped.velocity, agent.velocity)
+        self.assertEqual(agent.velocity.linear.x, -0.21)
+        self.assertEqual(agent.velocity.angular.x, 0.03)
+        self.assertEqual(agent.linear_vel, 0.21)
+        self.assertEqual(
+            (
+                stopped.velocity.linear.x,
+                stopped.velocity.linear.y,
+                stopped.velocity.linear.z,
+                stopped.velocity.angular.x,
+                stopped.velocity.angular.y,
+                stopped.velocity.angular.z,
+                stopped.linear_vel,
+                stopped.angular_vel,
+            ),
+            (0.0,) * 8,
+        )
 
     def test_profile_validation(self):
         with self.assertRaises(ValueError):

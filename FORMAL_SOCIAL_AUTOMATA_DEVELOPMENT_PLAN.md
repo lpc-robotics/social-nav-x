@@ -19,26 +19,30 @@ V1 代码闭环和计划内自动化、真实 HuNav、GPU 仿真及基线回归�
 ec95e8c  docs: record formal automata baseline
 eaa84c7  feat: add deterministic social automaton core
 e33dd6d  feat: add formal social proxy and demo overlay
-第四提交  本文、HANDOFF、验收驱动器、最终补丁与证据（以 feature HEAD 为准）
+a048bfd  test: deliver formal social automata v1
+后续修复  Regular 目标处残留运动、可视化模式和 Surprised 渲染朝向验收（以 feature HEAD 为准）
 ```
 
 已取得的权威结果：
 
 - 独立 overlay 构建成功；pytest 实际收集 `arena_humble_compat` 20 项、
-  `formal_social_behavior` 64 项并全部通过，最终 `colcon test-result --verbose` 为
-  `258 tests, 0 errors, 0 failures, 0 skipped`（unittest subtests 会展开计数）。其中包含
+  `formal_social_behavior` 75 项并全部通过，最终 `colcon test-result --verbose` 为
+  `280 tests, 0 errors, 0 failures, 0 skipped`（unittest subtests 会展开计数）。其中包含
   真实 `hunav_agent_manager`、代理 failure/rollback、disabled passthrough、四请求并发和
-  bridge 兼容测试。
+  bridge 兼容测试，以及目标处 Regular 残留速度和渲染姿态检查。
 - 完整 GPU 矩阵位于
-  `/home/lpc/workspace/social-nav-x-formal-v1/logs/formal_acceptance/20260831_224034_245993732_pid1453319`；
+  `/home/lpc/workspace/social-nav-x-formal-v1/logs/formal_acceptance/20260901_173536_764353999_pid127944`；
   `matrix.log` SHA-256 为
-  `5292b9bea73f3936e27752059071aa32d946be6d91cb00087672fbab11776e14`，取得
+  `169b55b0c739a36227b7b761314655984262092eaeff0b0e53cd97424db0aecb`，取得
   `FORMAL_SOCIAL_ACCEPTANCE_MATRIX_OK cases=6 rounds=2 scenarios=safe,sudden,fast`。
 - safe 两轮均为 `ATTENTION -> CURIOUS -> NORMAL`；sudden 两轮均为
   `ATTENTION -> SURPRISED -> NORMAL`；fast 两轮均为
-  `ATTENTION -> SCARED -> NORMAL`。三类 HuNav type `5/3/4` 和各自运动响应均由验收器核对。
-- 12 个互不复用的动作前/后稳态窗口中，HuNav compute 为 `11.786--22.102 Hz`，Isaac
-  display 为 `5.746--5.931 Hz`，最大积分步长 `0.025 s`，integration lag 为
+  `ATTENTION -> SCARED -> NORMAL`。三类 HuNav type `5/3/4` 和各自运动响应均由验收器核对；
+  六轮恢复后的单目标 Regular 均为 `regular_motion=stopped`，不再携带特殊行为残留速度。
+- 两轮 Surprised 的实际 Character 姿态四元数朝向机器人误差为 `2.883°/2.841°`，停止
+  速度均为 `0.000 m/s`，`agent.yaw` 与四元数 yaw 误差均为 `0°`。
+- 12 个互不复用的动作前/后稳态窗口中，HuNav compute 为 `10.882--22.375 Hz`，Isaac
+  display 为 `4.678--5.929 Hz`，最大积分步长 `0.025 s`，integration lag 为
   `0.005--0.008 s`，均通过门槛。
 - 未 source overlay 的原工作区取得 `SMOKE_NAVIGATION_OK` 和
   `SIX_BEHAVIORS_VERIFY_OK types=1,2,3,4,5,6`；source overlay 后原六行为再次取得同一
@@ -56,7 +60,7 @@ fast 验收采用 `NAVIGATION=false`、唯一 `/cmd_vel` 发布者和 odometry �
 `0.012 s`；生产 demo 仍为 `1/60 s`、`2.0 m/s²`、`0.5 s`。Scared BT 转身后可在下一拍
 通过 `ROBOT_LOST`，验收器因此同时核对 type 4、实际距离上升、负 closing speed 与按相同
 simulation stamp 的 odom/transition 重建的行人向外速度。两轮距离分别上升
-`0.008965/0.016964 m`，退出 closing speed 为 `-0.038580/-0.838583 m/s`，没有延长或
+`1.064276/0.000962 m`，退出 closing speed 为 `-0.799999/-0.038465 m/s`，没有延长或
 屏蔽任何自动机 guard。
 
 ## 1. 交付目标与成功定义
@@ -400,8 +404,10 @@ PERSONAL_SPACE_VIOLATION > TTC_LOW > ROBOT_FAST_APPROACH
 比较必须覆盖表中全部字段和四个 force factors，不能只比 type。
 
 adapter 深拷贝 `ComputeAgents.Request.current_agents`，按 ID 精确找到唯一目标，保留
-pose、velocity、yaw、goals、半径及其他 agent 字段，只覆盖完整 behavior profile。
-输入消息不被原地修改。配置的 `behavior.state` 固定为 `0` 并属于完整 profile
+pose、yaw、goals、半径及其他 agent 字段，只覆盖完整 behavior profile。唯一运动字段
+例外见 9.2：目标 profile 为 Regular、首目标已进入 HuNav 的 `goal_radius + 0.1 m` 判定
+范围且消息仍带非零速度时，只在深拷贝中把全部 linear/angular motion 清零。输入消息不被
+原地修改。配置的 `behavior.state` 固定为 `0` 并属于完整 profile
 signature；HuNav 在 reset 后以它初始化内部 agent，随后由内部 BT 维护自己的 state。
 形式化层从不以该字段推导 `FormalState`。
 
@@ -443,15 +449,18 @@ clients 使用独立 `ReentrantCallbackGroup`：
 
 1. 验证 stamp、目标 ID 和有限运动数据，从上次已提交 event memory/context 生成
    `EventEvaluation` 与 `AutomatonStep` candidate。
-2. 深拷贝请求，并把 candidate state 的完整 profile 应用于目标 agent。
+2. 深拷贝请求，并把 candidate state 的完整 profile 应用于目标 agent；若 candidate 为
+   Regular 且首目标已在 `goal_radius + 0.1 m` 内，把副本的全部线/角运动字段清零。
 3. 若 candidate profile tuple 与上次已提交 profile 不同：
    - 构造 `ResetAgents.Request`，携带修改后的当前 agents 和原 robot；
    - 调用 raw reset 并要求非空响应且 `ok=true`；
    - reset 成功后再进入第 4 步。
 4. 调用 raw compute，参数为同一份修改后当前 agents、原 robot 和原 simulation stamp。
 5. 只有 raw compute 返回数量、顺序、ID/name、behavior type、goal 数和有限值全部合法的
-   `updated_agents` 后，提交 candidate event memory/context/profile。
-6. 把 raw compute 的原类型 response 返回给 bridge，不改变 service wire type。
+   `updated_agents` 后，才生成返回副本；若这一拍 Regular 首次进入同一目标判定范围且
+   raw response 仍有非零运动，也在返回副本中清零，再提交 candidate context/profile。
+6. 把同一 ROS service 类型的 response 返回给 bridge，不改变 pose、yaw、goal 或 wire
+   type；上述严格目标边界内的运动归零是唯一修正。
 7. commit 后 best-effort 发布 state/events/transition 并 append/flush JSONL；telemetry
    异常只记录错误，不能把已经成功的 raw compute 变成 bridge 重试而造成重复计算。
 
@@ -471,6 +480,13 @@ future callback，也不会出现 reset/compute 配对交错。
 避免 `0.6` 与 `0.6000000238` 产生伪变化；`NORMAL -> ATTENTION` 因完整 tuple 相同不
 reset。仿真时间回拨会清除 latch/timer 并恢复 `NORMAL`，但只有当前 profile 不是
 Regular 时才需要 reset。
+
+该归零用于修复 HuNav v1 单一 cyclic goal 的确定性边界缺陷：`BTRegularNav` 在
+`IsGoalReached` 成功后只执行 `UpdateGoal`；单个 goal 会被旋转回自身，`RegularNav` 不再
+tick，也不会清除 Curious/Surprised/Scared 留下的 velocity。旧实现因此可同时报告固定
+pose 与非零 velocity，Isaac 每个 display tick 被重新锚定到同一 pose，却继续播放 walk
+animation。代理不改 HuNav 依赖、不直接移动人物，只把“已到目标”的运动报告恢复为一致
+的零速度；非目标范围的 Regular 运动完全透传。
 
 ## 10. 可观测性与 trace 契约
 
@@ -558,6 +574,14 @@ ARENA_IDEAL_CHASSIS=true
 `1/60 s`、`2.0 m/s²`、`0.5 s`；只有仿真矩阵 fast 短脉冲在子进程设置
 `0.01 s`、`100.0 m/s²`、`0.012 s`，且写入每次 run manifest。
 
+新增 `scripts/run_formal_social_visual_scenario.sh` 作为第二终端的可视化驱动入口。它不
+另启 Isaac、不改变自动机 guard，只连接已经运行的 formal demo，确保自己是唯一
+`/cmd_vel` publisher，并开启 verifier 的 `visual_mode`。每次状态/转移和每 `0.5 s` 的
+观察样本会打印 state、behavior type、distance、speed、Character 姿态四元数换算的
+`human_yaw_deg`、机器人方向 `target_yaw_deg` 与 `facing_error_deg`；输出和 manifest 写入
+独立 `logs/formal_visual/<timestamp>_<scenario>_pid<PID>/`。可选 hold 只在目标状态期间
+持续发布零机器人速度，最长 `60 s`；自动机自身发生恢复时会提前结束，不冻结仿真时间。
+
 ## 12. 测试与验收结果
 
 ### 12.1 纯 Python 单元测试
@@ -574,6 +598,8 @@ ARENA_IDEAL_CHASSIS=true
 - dwell、连续安全 recovery、cooldown、重复 stamp、时间回拨。
 - 每 stamp 最多一次 transition，转移表无未知 state/cause 和非确定性。
 - behavior adapter 深拷贝，不修改原请求；完整 profile 比较和 state 字段规则正确。
+- HuNav 单目标 Regular 的 `goal_radius + 0.1 m` 边界、完整运动归零深拷贝，以及非目标
+  Regular 不受影响。
 - 同一录制输入离线重放两次产生字节级稳定的 transition JSONL。
 - 配置缺键、关系反转、未知 state、NaN/Inf 和重复 agent ID 失败明确。
 - 配置拼写错误、分数/字符串/bool agent ID、缺状态 profile 及非零 HuNav seed 均被拒绝，
@@ -590,6 +616,8 @@ ARENA_IDEAL_CHASSIS=true
 - reset 返回 `ok=false` 或 compute 返回空/非法 response 时，formal
   state/profile/trace 均不提交；代理本身另有有界 service wait，超时走同一不提交路径。
 - raw response service type 不变，agent 数量、ID、pose、velocity、goals 全部有限且保持。
+- 特殊行为恢复 Regular 时，进入 reset/compute 的副本及最终 response 在已到目标时全部
+  motion 字段为零；raw compute 首次进入目标半径时也清除最后一拍运动，调用者请求不变。
 - `enabled=false` 完全透传且不产生 formal side effect。
 - 两个同时到达的 compute 请求保持 `reset(A)-compute(A)-reset(B)-compute(B)` 配对，
   不会交错；延迟 raw compute 超时后 candidate 仍不提交。
@@ -617,13 +645,18 @@ colcon test-result --verbose: 0 failures
 
 ```text
 arena_humble_compat: 20 passed
-formal_social_behavior: 64 passed
-colcon test-result: 258 tests, 0 errors, 0 failures, 0 skipped
+formal_social_behavior: 75 passed
+colcon test-result: 280 tests, 0 errors, 0 failures, 0 skipped
 ```
 
-pytest 收集数为 84；colcon/xUnit 对 unittest subtests 展开后报告 258。最终原始测试日志在
-`/home/lpc/workspace/social-nav-x-formal-v1/.colcon/test-log/test_2026-08-31_22-39-52/`，
-仅有两条依赖侧 Lark deprecation warning。构建生成物未提交，也未安装或升级依赖。
+pytest 收集数为 95；colcon/xUnit 对 unittest subtests 展开后报告 280。修复使用独立于
+既有运行 overlay 的 `.colcon-visual-fix` 构建，最终原始测试日志在
+`/home/lpc/workspace/social-nav-x-formal-v1/.colcon-visual-fix/test-log/test_2026-09-01_17-34-54/`，
+仅有两条依赖侧 Lark deprecation warning。GPU 验收完成并停止所有隔离进程后，又把同一
+源码构建到用户入口默认读取的 `.colcon`，再次得到 `280/0/0/0`；日志为
+`.colcon/test-log/test_2026-09-01_17-51-19/`，`ros2 pkg prefix formal_social_behavior`
+解析到 feature `.colcon/install/formal_social_behavior`。构建生成物未提交，也未安装或
+升级依赖。
 
 ### 12.4 完整一人仿真
 
@@ -631,7 +664,9 @@ pytest 收集数为 84；colcon/xUnit 对 unittest subtests 展开后报告 258�
 
 矩阵不是只打印观测值：每个 case 在动作前等待真实 `SIX_BEHAVIORS_RUNNING`，硬性解析并
 检查 compute/display/max-dt/integration-lag；动作驱动器检查唯一 `/cmd_vel` publisher、
-有限 ROS 数据、目标/恢复 reset count 和重复 transition；每次 cleanup 前后扫描
+有限 ROS 数据、目标/恢复 reset count、重复 transition 和恢复后 pose/velocity 一致性；
+单目标 demo 必须得到 `regular_motion=stopped`，不能再接受固定 pose 加非零速度。每次
+cleanup 前后扫描
 Traceback、异常进程退出和明确的 proxy/bridge service error。矩阵开始和结束还分别校验
 归档 `KEY_SHA256SUMS` 与 10 个 Person/D6/碰撞/六行为/Nav2 守护文件哈希。
 
@@ -646,36 +681,42 @@ Traceback、异常进程退出和明确的 proxy/bridge service error。矩阵�
 
 | 场景 | 两轮结果 |
 | --- | --- |
-| safe | target `2.499/2.499 m`，recovery `2.812/2.805 m`；两轮均 `ATTENTION->CURIOUS->NORMAL` |
-| sudden | target `2.496/2.495 m`，recovery `4.362/4.349 m`；两轮均 `ATTENTION->SURPRISED->NORMAL` |
-| fast | target `2.992/2.984 m`，recovery `3.001/3.001 m`；两轮均 `ATTENTION->SCARED->NORMAL` |
+| safe | target `2.497/2.499 m`，recovery `2.818/2.805 m`，`regular_motion=stopped`；两轮均 `ATTENTION->CURIOUS->NORMAL` |
+| sudden | target `2.490/2.491 m`，recovery `4.175/4.156 m`，朝向误差 `2.883°/2.841°`；两轮均 `ATTENTION->SURPRISED->NORMAL` |
+| fast | target `3.016/3.008 m`，recovery `4.080/3.009 m`，`regular_motion=stopped`；两轮均 `ATTENTION->SCARED->NORMAL` |
 
 fast 的 Scared 状态可因 HuNav flee yaw 在下一拍产生本文定义的 `ROBOT_LOST`，也可持续
 若干拍后按安全恢复。验收器同时处理这两种合法时序：要求 type 4、SCARED 区间实际
 distance 上升、closing speed `< -0.01 m/s`，并从 `/human_states` 或按相同 simulation
 stamp 匹配的 `/odom` 与 state/transition 重建
 `human_outward = robot_toward_human - closing_speed`。最终两轮实际 distance 上升
-`0.008965/0.016964 m`，退出 closing speed 为 `-0.038580/-0.838583 m/s`，重建的行人向外
-速度为 `0.038580/0.038584 m/s`。没有延长/屏蔽 `ROBOT_LOST`，也没有直接写机器人或人物
+`1.064276/0.000962 m`，退出 closing speed 为 `-0.799999/-0.038465 m/s`，重建的行人向外
+速度均为 `0.799999 m/s`。没有延长/屏蔽 `ROBOT_LOST`，也没有直接写机器人或人物
 pose。
+
+Surprised 验收使用 `/human_states.position.orientation` 的 ROS `x,y,z,w` 四元数换算 yaw，
+该字段就是 bridge 传给 Isaac Character 的姿态；不再把可能滞后的 `Agent.yaw` 当作渲染
+朝向。通过条件是速度 `<=0.02 m/s`、朝向机器人误差 `<=3°`、`Agent.yaw` 与四元数 yaw
+误差 `<=0.25°`，并且相对初始 yaw 至少变化 `0.20 rad`。两轮速度均为 `0`，姿态误差
+`2.883°/2.841°`，两个 yaw 表示完全一致。
 
 权威矩阵目录与哈希：
 
 ```text
-/home/lpc/workspace/social-nav-x-formal-v1/logs/formal_acceptance/20260831_224034_245993732_pid1453319
-matrix.log SHA-256: 5292b9bea73f3936e27752059071aa32d946be6d91cb00087672fbab11776e14
+/home/lpc/workspace/social-nav-x-formal-v1/logs/formal_acceptance/20260901_173536_764353999_pid127944
+matrix.log SHA-256: 169b55b0c739a36227b7b761314655984262092eaeff0b0e53cd97424db0aecb
 ```
 
 六个 case 各有独立 domain、launch/verifier log、run manifest 和 transition JSONL；对应
 formal run 目录按 safe1/safe2/sudden1/sudden2/fast1/fast2 为：
 
 ```text
-/home/lpc/workspace/social-nav-x-formal-v1/logs/formal_social/20260831_224035_264951895_formal_social_gpu3_pid1453439
-/home/lpc/workspace/social-nav-x-formal-v1/logs/formal_social/20260831_224138_724457771_formal_social_gpu3_pid1457521
-/home/lpc/workspace/social-nav-x-formal-v1/logs/formal_social/20260831_224241_057782934_formal_social_gpu3_pid1461587
-/home/lpc/workspace/social-nav-x-formal-v1/logs/formal_social/20260831_224343_707010760_formal_social_gpu3_pid1465643
-/home/lpc/workspace/social-nav-x-formal-v1/logs/formal_social/20260831_224446_451700118_formal_social_gpu3_pid1469623
-/home/lpc/workspace/social-nav-x-formal-v1/logs/formal_social/20260831_224602_606668475_formal_social_gpu3_pid1474505
+/home/lpc/workspace/social-nav-x-formal-v1/logs/formal_social/20260901_173537_801800213_formal_social_gpu1_pid128013
+/home/lpc/workspace/social-nav-x-formal-v1/logs/formal_social/20260901_173643_314239505_formal_social_gpu1_pid132618
+/home/lpc/workspace/social-nav-x-formal-v1/logs/formal_social/20260901_173744_897240554_formal_social_gpu1_pid137111
+/home/lpc/workspace/social-nav-x-formal-v1/logs/formal_social/20260901_173847_721796332_formal_social_gpu1_pid141604
+/home/lpc/workspace/social-nav-x-formal-v1/logs/formal_social/20260901_173954_591624466_formal_social_gpu1_pid146242
+/home/lpc/workspace/social-nav-x-formal-v1/logs/formal_social/20260901_174114_351433866_formal_social_gpu1_pid151697
 ```
 
 运行验收：
@@ -684,14 +725,38 @@ formal run 目录按 safe1/safe2/sudden1/sudden2/fast1/fast2 为：
 - Isaac display `>=4.5 Hz`；最大 integration step `<=0.026 s`；
 - 无持续 future 积压、service error、NaN/Inf 或同 profile 重复 reset；
 - Curious 时人机距离下降；Scared 产生向外径向速度/负闭合速度；Surprised 速度归零且
-  yaw 转向机器人；
+  Character 四元数 yaw 在 `3°` 内转向机器人；恢复 Regular 后速度/位移一致；
 - 人物 pose 仍由 HuNav 结果驱动，`Person.py`、D6 和 Nav2 守护文件哈希未变。
 
-最终 12 个互不复用的动作前/后窗口实测 compute `11.786--22.102 Hz`、display
-`5.746--5.931 Hz`、max step `0.025 s`、lag `0.005--0.008 s`；每个 case 均有且仅有
+最终 12 个互不复用的动作前/后窗口实测 compute `10.882--22.375 Hz`、display
+`4.678--5.929 Hz`、max step `0.025 s`、lag `0.005--0.008 s`；每个 case 均有且仅有
 3 条转移、2 条真实 manager reset log 和 1 条成功 marker。
 
-### 12.5 基线回归
+### 12.5 可视化模式验收
+
+启动 WebRTC formal demo 后，在第二终端运行：
+
+```bash
+cd /home/lpc/workspace/social-nav-x-formal-v1
+scripts/run_formal_social_visual_scenario.sh safe
+scripts/run_formal_social_visual_scenario.sh sudden 2.0
+scripts/run_formal_social_visual_scenario.sh fast 2.0
+```
+
+每次只运行一个驱动器；`safe` 默认最多观察 `8 s`，`sudden/fast` 默认 `2 s`，第二参数可
+覆盖为 `[0,60]` 秒。可视化模式仍执行完整自动验收并最终打印
+`FORMAL_SOCIAL_SCENARIO_OK ... visual_mode=true`，失败时非零退出，不能用画面主观判断
+代替数值 gate。
+
+2026-09-01 在隔离 domain 197 的真实 Isaac/HuNav 运行中，sudden 可视化输出先显示
+`human_yaw=177.11°`、target `179.99°`、误差 `2.88°`，随后稳定到
+`179.99°/179.99°/0.00°`，全过程 speed `0.000 m/s`。目标状态观察满 `2.00 s` 后自动机
+正常按 `RECOVERY_TIMEOUT` 恢复；最终 marker 同时通过四元数朝向、reset、恢复 Regular
+运动一致性和 transition path 检查。最终可复现原始输出位于
+`logs/formal_visual/20260901_174951_665115531_sudden_pid182032/`；`visual.log` SHA-256 为
+`979fc1015eabb8348fcab312be0ebf660979b7fb22242dfac9fc6dda376672c9`。
+
+### 12.6 基线回归
 
 最终已完成两组：
 
@@ -727,14 +792,18 @@ compute/update service error、NaN 或 traceback。原工作区既有 no-overlay
 
 ## 13. 实施顺序、提交与补丁维护
 
-实际按四个可审查提交交付；第四提交完成后以 feature HEAD 为交付点：
+初始 V1 按四个可审查提交交付；本次视觉问题修复作为第五个独立可回退提交，最终仍以
+feature HEAD 为交付点：
 
 1. `ec95e8c` **文档基线**：原稿快照与 `BASELINE.md`。
 2. `eaa84c7` **纯自动机**：model/config/event extractor/automaton/adapter/trace 及纯测试。
 3. `e33dd6d` **ROS 代理与 demo**：proxy、validation、YAML、launch/run script、bridge
    通用模式、mock/真实 HuNav 服务测试。
-4. **测试与交付**：受控矩阵驱动器、final run logging、patch、回归记录、HANDOFF、本文及
-   外部文档同步；其 commit 无法自引用，使用 `git rev-parse HEAD` 获取。
+4. `a048bfd` **测试与交付**：受控矩阵驱动器、final run logging、patch、回归记录、
+   HANDOFF、本文及外部文档同步。
+5. **视觉一致性修复**：Regular 单目标处残留运动归零、可视化驱动器、Character 四元数
+   Surprised 朝向 gate、相关单元/服务/GPU 回归；其 commit 无法自引用，使用
+   `git rev-parse HEAD` 获取。
 
 bridge 变化后，基于 `upstream/manifest.tsv` 中固定 arena-isaac commit
 `16b8e3416517d8c3dc1b5038df4fe11b9a6df46c` 重新生成二进制安全
@@ -762,6 +831,14 @@ scripts/build_formal_overlay.sh
 scripts/test_formal_overlay.sh
 
 # 单次 production-style demo（默认 GPU 3、NAVIGATION=false、ideal chassis）
+scripts/run_formal_social_demo.sh
+
+# 第二终端：通过 WebRTC 观察并同时获取定量状态/角度输出；三种场景每次选一个
+scripts/run_formal_social_visual_scenario.sh safe
+scripts/run_formal_social_visual_scenario.sh sudden 2.0
+scripts/run_formal_social_visual_scenario.sh fast 2.0
+
+# 无 WebRTC 的 production-style headless 运行
 env DRL_VO_GUI=false scripts/run_formal_social_demo.sh \
   headless:=true livestream:=false foxglove:=false
 

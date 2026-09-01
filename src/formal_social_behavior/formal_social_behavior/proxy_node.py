@@ -25,8 +25,11 @@ from std_msgs.msg import String
 
 from .automaton import SocialAutomaton
 from .behavior_adapter import (
+    BehaviorType,
     apply_profile_to_agent,
     profile_for_state,
+    regular_goal_reached,
+    stop_agent_motion,
 )
 from .config import FormalSocialConfig
 from .event_extractor import EventExtractor
@@ -245,6 +248,43 @@ class FormalSocialBehaviorProxy(Node):
             )
         return matches[0]
 
+    @staticmethod
+    def _motion_signature(agent: Any) -> tuple[float, ...]:
+        velocity = agent.velocity
+        return (
+            float(velocity.linear.x),
+            float(velocity.linear.y),
+            float(velocity.linear.z),
+            float(velocity.angular.x),
+            float(velocity.angular.y),
+            float(velocity.angular.z),
+            float(agent.linear_vel),
+            float(agent.angular_vel),
+        )
+
+    def _stop_reached_regular_goal(
+        self,
+        agents,
+        target_index: int,
+        *,
+        phase: str,
+    ) -> None:
+        """Remove stale special-behavior velocity at a reached Regular goal."""
+
+        target = agents[target_index]
+        if int(target.behavior.type) != int(BehaviorType.REGULAR):
+            return
+        if not regular_goal_reached(target):
+            return
+        motion = self._motion_signature(target)
+        if not any(abs(value) > 1.0e-9 for value in motion):
+            return
+        agents[target_index] = stop_agent_motion(target)
+        self.get_logger().info(
+            "FORMAL_SOCIAL_REGULAR_GOAL_STOP "
+            f"agent={target.name}/{target.id} phase={phase}"
+        )
+
     def _on_compute(self, request, response):
         with self._transaction_lock:
             return self._on_compute_locked(request, response)
@@ -303,6 +343,18 @@ class FormalSocialBehaviorProxy(Node):
                 # formal observation is immediately non-Regular.
                 current_signature = _agent_profile_signature(target)
             reset_needed = desired_signature != current_signature
+
+            # HuNav v1's one-goal Regular tree rotates an already-reached
+            # cyclic goal without ticking RegularNav.  If a special behavior
+            # left a non-zero velocity behind, the pose then stays fixed while
+            # Isaac keeps playing a walk animation.  Normalize only the copied
+            # formal request at the exact goal-reached boundary; pose, goals,
+            # desired velocity, and the caller's request remain untouched.
+            self._stop_reached_regular_goal(
+                candidate_request.current_agents.agents,
+                target_index,
+                phase="request",
+            )
             if reset_needed:
                 reset_request = ResetAgents.Request()
                 reset_request.current_agents = copy.deepcopy(
@@ -332,6 +384,14 @@ class FormalSocialBehaviorProxy(Node):
             # state.  A malformed/non-copyable raw response must follow the
             # same no-commit path as response validation failure.
             updated_agents = copy.deepcopy(raw_response.updated_agents)
+            # Also catch the compute tick that first enters the goal radius.
+            # This prevents a later Regular tick from feeding its final
+            # non-zero approach velocity back into HuNav and Isaac forever.
+            self._stop_reached_regular_goal(
+                updated_agents.agents,
+                target_index,
+                phase="response",
+            )
 
             # Commit only after every required HuNav operation succeeded.
             self._event_memory = event_evaluation.memory

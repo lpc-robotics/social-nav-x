@@ -27,9 +27,42 @@ SCENARIOS = {
     "fast": (0.80, "SCARED", 4),
 }
 
+SURPRISED_MAX_SPEED = 0.02
+SURPRISED_MAX_FACING_ERROR = math.radians(3.0)
+SURPRISED_MAX_YAW_FIELD_ERROR = math.radians(0.25)
+
 
 def _angle_error(first: float, second: float) -> float:
     return abs(math.atan2(math.sin(first - second), math.cos(first - second)))
+
+
+def _quaternion_yaw(quaternion) -> float:
+    """Return ROS Z-yaw from an ``x,y,z,w`` quaternion."""
+
+    return math.atan2(
+        2.0
+        * (
+            float(quaternion.w) * float(quaternion.z)
+            + float(quaternion.x) * float(quaternion.y)
+        ),
+        1.0
+        - 2.0
+        * (
+            float(quaternion.y) * float(quaternion.y)
+            + float(quaternion.z) * float(quaternion.z)
+        ),
+    )
+
+
+def _visual_hold_seconds(value) -> float:
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise RuntimeError("visual_hold_seconds must be an int or float")
+    seconds = float(value)
+    if not math.isfinite(seconds) or not 0.0 <= seconds <= 60.0:
+        raise RuntimeError(
+            "visual_hold_seconds must be finite and within [0, 60]"
+        )
+    return seconds
 
 
 class FormalScenarioVerifier(Node):
@@ -39,8 +72,17 @@ class FormalScenarioVerifier(Node):
         super().__init__("verify_formal_social_scenario")
         self.declare_parameter("scenario", "safe")
         self.declare_parameter("round", 1)
+        self.declare_parameter("visual_mode", False)
+        self.declare_parameter("visual_hold_seconds", 2.0)
         self.scenario = str(self.get_parameter("scenario").value)
         self.round_index = int(self.get_parameter("round").value)
+        visual_mode = self.get_parameter("visual_mode").value
+        if not isinstance(visual_mode, bool):
+            raise RuntimeError("visual_mode must be a boolean")
+        self.visual_mode = visual_mode
+        self.visual_hold_seconds = _visual_hold_seconds(
+            self.get_parameter("visual_hold_seconds").value
+        )
         if self.scenario not in SCENARIOS:
             raise RuntimeError(
                 f"scenario must be one of {sorted(SCENARIOS)}, got {self.scenario!r}"
@@ -76,6 +118,7 @@ class FormalScenarioVerifier(Node):
         self.transitions = []
         self.robot_xy = None
         self.odom_samples = deque(maxlen=400)
+        self.human_samples = deque(maxlen=400)
         self.human = None
         self.behavior_types = set()
         self.min_distance = math.inf
@@ -90,6 +133,11 @@ class FormalScenarioVerifier(Node):
         self.surprised_yaw_change = 0.0
         self.surprised_final_speed = math.inf
         self.surprised_facing_error = math.inf
+        self.surprised_yaw_field_error = math.inf
+        self.surprised_render_yaw = math.nan
+        self.surprised_target_yaw = math.nan
+        self.regular_motion_result = None
+        self._last_visual_state = None
         self.validation_errors = []
         self.reset_counts = set()
 
@@ -165,6 +213,16 @@ class FormalScenarioVerifier(Node):
             return
         self.state = str(payload["state"])
         self.latest_observation = payload
+        if self.visual_mode and self.state != self._last_visual_state:
+            self._last_visual_state = self.state
+            print(
+                "FORMAL_SOCIAL_VISUAL_STATE "
+                f"state={self.state} "
+                f"behavior_type={int(payload['behavior_type'])} "
+                f"distance={float(payload['distance']):.3f} "
+                f"closing_speed={float(payload['closing_speed']):.3f}",
+                flush=True,
+            )
         if self.state == "SCARED":
             self._record_scared_kinematics(payload)
         distance = float(payload["distance"])
@@ -192,6 +250,16 @@ class FormalScenarioVerifier(Node):
             )
             return
         self.transitions.append(payload)
+        if self.visual_mode:
+            print(
+                "FORMAL_SOCIAL_VISUAL_TRANSITION "
+                f"old={payload['old_state']} new={payload['new_state']} "
+                f"cause={payload['cause']} "
+                f"behavior_type={int(payload['behavior_type'])} "
+                f"distance={float(payload['distance']):.3f} "
+                f"closing_speed={float(payload['closing_speed']):.3f}",
+                flush=True,
+            )
         if payload.get("old_state") == "SCARED":
             self._record_scared_kinematics(payload)
 
@@ -252,6 +320,22 @@ class FormalScenarioVerifier(Node):
                     )
                     return
                 self.human = agent
+                stamp_ns = (
+                    int(msg.header.stamp.sec) * 1_000_000_000
+                    + int(msg.header.stamp.nanosec)
+                )
+                self.human_samples.append(
+                    (
+                        stamp_ns,
+                        float(agent.position.position.x),
+                        float(agent.position.position.y),
+                        math.hypot(
+                            float(agent.velocity.linear.x),
+                            float(agent.velocity.linear.y),
+                        ),
+                        int(agent.behavior.type),
+                    )
+                )
                 self.behavior_types.add(int(agent.behavior.type))
                 if int(agent.behavior.type) == 4 and self.robot_xy is not None:
                     dx = float(agent.position.position.x) - self.robot_xy[0]
@@ -298,19 +382,7 @@ class FormalScenarioVerifier(Node):
             float(msg.pose.pose.position.y),
         )
         quaternion = msg.pose.pose.orientation
-        yaw = math.atan2(
-            2.0
-            * (
-                float(quaternion.w) * float(quaternion.z)
-                + float(quaternion.x) * float(quaternion.y)
-            ),
-            1.0
-            - 2.0
-            * (
-                float(quaternion.y) * float(quaternion.y)
-                + float(quaternion.z) * float(quaternion.z)
-            ),
-        )
+        yaw = _quaternion_yaw(quaternion)
         body_vx = float(msg.twist.twist.linear.x)
         body_vy = float(msg.twist.twist.linear.y)
         map_vx = math.cos(yaw) * body_vx - math.sin(yaw) * body_vy
@@ -382,6 +454,92 @@ class FormalScenarioVerifier(Node):
             self.publish_velocity(0.0)
             rclpy.spin_once(self, timeout_sec=0.05)
 
+    def _visual_sample(self, label: str) -> None:
+        if self.human is None or self.robot_xy is None:
+            return
+        speed = math.hypot(
+            float(self.human.velocity.linear.x),
+            float(self.human.velocity.linear.y),
+        )
+        human_yaw = _quaternion_yaw(self.human.position.orientation)
+        dx = self.robot_xy[0] - float(self.human.position.position.x)
+        dy = self.robot_xy[1] - float(self.human.position.position.y)
+        target_yaw = math.atan2(dy, dx)
+        state = self.state or "UNKNOWN"
+        distance = math.hypot(dx, dy)
+        print(
+            "FORMAL_SOCIAL_VISUAL_SAMPLE "
+            f"label={label} state={state} "
+            f"behavior_type={int(self.human.behavior.type)} "
+            f"distance={distance:.3f} speed={speed:.3f} "
+            f"human_yaw_deg={math.degrees(human_yaw):.2f} "
+            f"target_yaw_deg={math.degrees(target_yaw):.2f} "
+            f"facing_error_deg={math.degrees(_angle_error(human_yaw, target_yaw)):.2f}",
+            flush=True,
+        )
+
+    def hold_target_for_visual(self, expected_state: str) -> None:
+        """Keep publishing zero cmd_vel while a human observes the target state."""
+
+        if not self.visual_mode or self.visual_hold_seconds <= 0.0:
+            return
+        if self.state != expected_state:
+            self._visual_sample("hold_skipped")
+            print(
+                "FORMAL_SOCIAL_VISUAL_HOLD_SKIPPED "
+                f"expected={expected_state} actual={self.state}",
+                flush=True,
+            )
+            return
+
+        started_at = time.monotonic()
+        deadline = started_at + self.visual_hold_seconds
+        next_sample = started_at
+        print(
+            "FORMAL_SOCIAL_VISUAL_HOLD_BEGIN "
+            f"state={expected_state} seconds={self.visual_hold_seconds:.1f}",
+            flush=True,
+        )
+        while rclpy.ok() and time.monotonic() < deadline:
+            self.publish_velocity(0.0)
+            rclpy.spin_once(self, timeout_sec=0.05)
+            now = time.monotonic()
+            if now >= next_sample:
+                self._visual_sample("hold")
+                next_sample = now + 0.5
+            if self.state != expected_state:
+                break
+        self._visual_sample("hold_end")
+        print(
+            "FORMAL_SOCIAL_VISUAL_HOLD_END "
+            f"expected={expected_state} actual={self.state} "
+            f"elapsed={time.monotonic() - started_at:.2f}",
+            flush=True,
+        )
+
+    def regular_recovery_motion(self, recovery_stamp_ns: int) -> str | None:
+        """Classify post-recovery Regular motion or reject walk-in-place."""
+
+        samples = [
+            sample
+            for sample in self.human_samples
+            if sample[0] >= recovery_stamp_ns and sample[4] == 1
+        ][-8:]
+        if len(samples) < 5:
+            return None
+        max_speed = max(sample[3] for sample in samples)
+        displacement = math.hypot(
+            samples[-1][1] - samples[0][1],
+            samples[-1][2] - samples[0][2],
+        )
+        if max_speed <= 0.03:
+            self.regular_motion_result = "stopped"
+            return self.regular_motion_result
+        if displacement >= 0.003:
+            self.regular_motion_result = "moving"
+            return self.regular_motion_result
+        return None
+
     def transition_to(self, state: str, *, after: int) -> dict | None:
         for transition in self.transitions[after:]:
             if transition.get("new_state") == state:
@@ -425,13 +583,21 @@ class FormalScenarioVerifier(Node):
         dx = self.robot_xy[0] - float(self.human.position.position.x)
         dy = self.robot_xy[1] - float(self.human.position.position.y)
         target_yaw = math.atan2(dy, dx)
-        current_yaw = float(self.human.yaw)
-        self.surprised_yaw_change = _angle_error(current_yaw, initial_yaw)
+        reported_yaw = float(self.human.yaw)
+        render_yaw = _quaternion_yaw(self.human.position.orientation)
+        self.surprised_yaw_change = _angle_error(render_yaw, initial_yaw)
         self.surprised_final_speed = speed
-        self.surprised_facing_error = _angle_error(current_yaw, target_yaw)
+        self.surprised_facing_error = _angle_error(render_yaw, target_yaw)
+        self.surprised_yaw_field_error = _angle_error(
+            reported_yaw, render_yaw
+        )
+        self.surprised_render_yaw = render_yaw
+        self.surprised_target_yaw = target_yaw
         return (
-            speed <= 0.08
-            and self.surprised_facing_error <= 0.35
+            speed <= SURPRISED_MAX_SPEED
+            and self.surprised_facing_error <= SURPRISED_MAX_FACING_ERROR
+            and self.surprised_yaw_field_error
+            <= SURPRISED_MAX_YAW_FIELD_ERROR
             and self.surprised_yaw_change >= 0.20
         )
 
@@ -467,8 +633,16 @@ def main(args=None) -> None:
             not node.validation_errors,
             f"invalid startup telemetry: {node.validation_errors}",
         )
+        if node.visual_mode:
+            node._visual_sample("ready")
+            print(
+                "FORMAL_SOCIAL_VISUAL_READY "
+                f"scenario={node.scenario} "
+                f"hold_seconds={node.visual_hold_seconds:.1f}",
+                flush=True,
+            )
         start_distance = float(node.latest_observation["distance"])
-        start_human_yaw = float(node.human.yaw)
+        start_human_yaw = _quaternion_yaw(node.human.position.orientation)
         transition_start = len(node.transitions)
         node.track_state_distance(target_state)
 
@@ -606,7 +780,8 @@ def main(args=None) -> None:
                 "Surprised did not stop, change yaw, and face the robot: "
                 f"yaw_change={node.surprised_yaw_change:.6f} "
                 f"speed={node.surprised_final_speed:.6f} "
-                f"facing_error={node.surprised_facing_error:.6f}",
+                f"facing_error={node.surprised_facing_error:.6f} "
+                f"yaw_field_error={node.surprised_yaw_field_error:.6f}",
             )
         else:
             distance_response = node.spin_until(
@@ -626,6 +801,8 @@ def main(args=None) -> None:
                 f"human_outward_speed={node.max_scared_outward_speed:.6f} "
                 f"transitions={node.transitions[transition_start:]}",
             )
+
+        node.hold_target_for_visual(target_state)
 
         # A front-facing Scared action turns away from the robot and may
         # legitimately recover through ROBOT_LOST before this point. Search
@@ -661,6 +838,22 @@ def main(args=None) -> None:
             f"unexpected or duplicate resets: {sorted(node.reset_counts)}",
         )
         recovery_distance = float(recovery_transition["distance"])
+        recovery_stamp_ns = int(recovery_transition["sim_time_ns"])
+        regular_motion = node.regular_recovery_motion(recovery_stamp_ns)
+        if regular_motion is None:
+            node.spin_until(
+                lambda: node.regular_recovery_motion(recovery_stamp_ns)
+                is not None,
+                0.4,
+                linear=0.0,
+            )
+            regular_motion = node.regular_motion_result
+        _require(
+            regular_motion is not None,
+            "Regular recovery reported non-zero velocity without position "
+            "progress (walk-in-place): "
+            f"samples={list(node.human_samples)[-8:]}",
+        )
         if node.scenario == "fast":
             # The sign must be a measured increase, not an inferred command.
             # A 0.1 mm floor only rejects floating-point equality/noise; the
@@ -697,6 +890,14 @@ def main(args=None) -> None:
                 f"{node.surprised_final_speed:.6f}"
                 " surprised_facing_error="
                 f"{node.surprised_facing_error:.6f}"
+                " surprised_facing_error_deg="
+                f"{math.degrees(node.surprised_facing_error):.3f}"
+                " surprised_yaw_field_error="
+                f"{node.surprised_yaw_field_error:.6f}"
+                " surprised_render_yaw="
+                f"{node.surprised_render_yaw:.6f}"
+                " surprised_target_yaw="
+                f"{node.surprised_target_yaw:.6f}"
             )
         elif node.scenario == "fast":
             response_details = (
@@ -717,6 +918,8 @@ def main(args=None) -> None:
             f"recovery_distance={recovery_distance:.3f} "
             f"resets={int(recovery_transition['reset_count'])} "
             f"cmd_vel_publishers={node.count_publishers('/cmd_vel')} "
+            f"regular_motion={regular_motion} "
+            f"visual_mode={str(node.visual_mode).lower()} "
             f"behavior_types={','.join(str(value) for value in sorted(node.behavior_types))} "
             f"path={'|'.join(path)}"
             f"{response_details}"

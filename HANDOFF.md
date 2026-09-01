@@ -14,8 +14,9 @@ workspace.
 - Branch: `feature/formal-social-automata-v1`
 - Canonical base: `51ab117dedf6a8173c1704f0edd8d01c7938fb8e`
 - Base tag: `arena5-isaac5.1-archive-20260829`
-- Implementation commits: `ec95e8c`, `eaa84c7`, `e33dd6d`; the delivery/docs
-  commit is the feature `HEAD` (`git rev-parse HEAD`).
+- Implementation commits: `ec95e8c`, `eaa84c7`, `e33dd6d`, `a048bfd`; the
+  Regular-motion/visual verification fix is the feature `HEAD`
+  (`git rev-parse HEAD`).
 - Authoritative specification:
   `FORMAL_SOCIAL_AUTOMATA_DEVELOPMENT_PLAN.md`
 - Immutable source request:
@@ -42,14 +43,16 @@ The final test summary is:
 
 ```text
 arena_humble_compat: 20 passed
-formal_social_behavior: 64 passed
-Summary: 258 tests, 0 errors, 0 failures, 0 skipped
+formal_social_behavior: 75 passed
+Summary: 280 tests, 0 errors, 0 failures, 0 skipped
 ```
 
-pytest collected 84 top-level cases; colcon/xUnit expands unittest subtests in
+pytest collected 95 top-level cases; colcon/xUnit expands unittest subtests in
 its final count. Raw logs are under
-`.colcon/test-log/test_2026-08-31_22-39-52/`; the only warnings are two
-dependency-side Lark deprecations.
+`.colcon-visual-fix/test-log/test_2026-09-01_17-34-54/`; the only warnings are two
+dependency-side Lark deprecations. After GPU acceptance, the default `.colcon`
+used by the normal run scripts was rebuilt from the same source and passed the
+same `280/0/0/0` result at `.colcon/test-log/test_2026-09-01_17-51-19/`.
 
 Run one formal demo (the script sources the activity underlay and feature
 overlay itself):
@@ -61,6 +64,26 @@ env DRL_VO_GUI=false GPU_ID=3 NAVIGATION=false \
   headless:=true livestream:=false foxglove:=false
 ```
 
+For human-visible validation, keep the default WebRTC launch running in the
+first terminal and run exactly one visual driver in a second terminal:
+
+```bash
+# terminal 1 (headless rendering with WebRTC enabled by default)
+GPU_ID=3 NAVIGATION=false scripts/run_formal_social_demo.sh
+
+# terminal 2: safe defaults to 8 s; sudden/fast default to 2 s
+scripts/run_formal_social_visual_scenario.sh safe
+scripts/run_formal_social_visual_scenario.sh sudden 2.0
+scripts/run_formal_social_visual_scenario.sh fast 2.0
+```
+
+The visual driver prints each formal state/transition plus half-second samples
+of behavior type, distance, speed, Character quaternion yaw, robot-target yaw
+and facing error. It writes `visual.log` and `run_manifest.txt` under
+`logs/formal_visual/`; it does not launch a second Isaac instance or freeze the
+automaton. Run only one scenario driver at a time so it remains the sole
+`/cmd_vel` publisher.
+
 Run the required two-round GPU matrix:
 
 ```bash
@@ -71,18 +94,41 @@ env DRL_VO_GUI=false GPU_ID=3 FORMAL_ACCEPTANCE_DOMAIN_BASE=181 \
 The authoritative matrix is:
 
 ```text
-/home/lpc/workspace/social-nav-x-formal-v1/logs/formal_acceptance/20260831_224034_245993732_pid1453319
+/home/lpc/workspace/social-nav-x-formal-v1/logs/formal_acceptance/20260901_173536_764353999_pid127944
 FORMAL_SOCIAL_ACCEPTANCE_MATRIX_OK cases=6 rounds=2 scenarios=safe,sudden,fast
 ```
 
 Its `matrix.log` SHA-256 is
-`5292b9bea73f3936e27752059071aa32d946be6d91cb00087672fbab11776e14`.
+`169b55b0c739a36227b7b761314655984262092eaeff0b0e53cd97424db0aecb`.
 Safe reproduced `ATTENTION->CURIOUS->NORMAL` twice; sudden reproduced
 `ATTENTION->SURPRISED->NORMAL` twice; fast reproduced
 `ATTENTION->SCARED->NORMAL` twice. Across 12 distinct pre/post-action intervals,
-steady HuNav compute was `11.786--22.102 Hz`, Character display was
-`5.746--5.931 Hz`, maximum integration step was `0.025 s`, and lag was
+all six one-goal recoveries reported `regular_motion=stopped`. Steady HuNav
+compute was `10.882--22.375 Hz`, Character display was
+`4.678--5.929 Hz`, maximum integration step was `0.025 s`, and lag was
 `0.005--0.008 s`.
+
+The fixed failure was not an automaton transition error. With the single cyclic
+goal at `(6,3)`, HuNav's Regular tree considers `goal_radius + 0.1 m` reached,
+then only rotates that same goal and does not tick RegularNav or clear the
+velocity left by Curious. Isaac was repeatedly re-anchored to the fixed pose
+while receiving a non-zero velocity, so its walk animation played in place.
+The proxy now zeroes all linear/angular motion only on copied Regular messages
+inside that exact reached-goal boundary, both before reset/compute and on the
+first raw response entering it. Pose, yaw, goal, caller request, HuNav source,
+Isaac Character, and the activity workspace are unchanged.
+
+Surprised validation now uses `position.orientation` (`x,y,z,w`), the pose sent
+to Isaac Character, rather than treating `Agent.yaw` as the render authority.
+The gates are speed `<=0.02 m/s`, robot-facing error `<=3 degrees`, yaw-field to
+quaternion error `<=0.25 degrees`, and yaw change `>=0.20 rad`. Two full GPU
+runs measured `2.883/2.841 degrees`, zero speed and zero field/quaternion error.
+One visual-mode run continued from `2.88 degrees` to `0.00 degrees` while held
+for observation, confirming the stop-and-face direction is correct. Its raw
+output and manifest are in
+`logs/formal_visual/20260901_174951_665115531_sudden_pid182032/`; the
+`visual.log` SHA-256 is
+`979fc1015eabb8348fcab312be0ebf660979b7fb22242dfac9fc6dda376672c9`.
 
 Effective configuration hashes:
 
@@ -98,9 +144,9 @@ production defaults stay `1/60 s`, `2.0 m/s^2` and `0.5 s`. The verifier
 requires type 4, a measured distance increase, negative closing speed and
 positive human-outward speed reconstructed from matching odom/state stamps if
 the display frame is missed. The two runs increased distance by
-`0.008965/0.016964 m`, with exit closing speeds
-`-0.038580/-0.838583 m/s` and human-outward speeds
-`0.038580/0.038584 m/s`. No automaton guard is delayed or masked.
+`1.064276/0.000962 m`, with exit closing speeds
+`-0.799999/-0.038465 m/s` and human-outward speeds
+`0.799999/0.799999 m/s`. No automaton guard is delayed or masked.
 
 Regression evidence:
 

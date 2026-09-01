@@ -37,10 +37,13 @@ class FakeRawHuNav(Node):
         super().__init__(f"fake_raw_hunav_{suffix}")
         self.compute_types = []
         self.reset_types = []
+        self.compute_motion = []
+        self.reset_motion = []
         self.reset_ok = True
         self.fail_compute_once = False
         self.compute_delay_seconds = 0.0
         self.reset_delay_seconds = 0.0
+        self.compute_mutator = None
         self.operation_events = []
         self.create_service(
             ComputeAgents, compute_service, self._compute
@@ -48,25 +51,44 @@ class FakeRawHuNav(Node):
         self.create_service(ResetAgents, reset_service, self._reset)
 
     def _compute(self, request, response):
-        behavior_type = int(request.current_agents.agents[0].behavior.type)
+        agent = request.current_agents.agents[0]
+        behavior_type = int(agent.behavior.type)
         self.operation_events.append(f"compute:{behavior_type}")
         if self.compute_delay_seconds > 0.0:
             time.sleep(self.compute_delay_seconds)
         self.compute_types.append(behavior_type)
+        self.compute_motion.append(self._motion(agent))
         if self.fail_compute_once:
             self.fail_compute_once = False
             return response
         response.updated_agents = copy.deepcopy(request.current_agents)
+        if self.compute_mutator is not None:
+            self.compute_mutator(response.updated_agents.agents[0])
         return response
 
     def _reset(self, request, response):
-        behavior_type = int(request.current_agents.agents[0].behavior.type)
+        agent = request.current_agents.agents[0]
+        behavior_type = int(agent.behavior.type)
         self.operation_events.append(f"reset:{behavior_type}")
         if self.reset_delay_seconds > 0.0:
             time.sleep(self.reset_delay_seconds)
         self.reset_types.append(behavior_type)
+        self.reset_motion.append(self._motion(agent))
         response.ok = self.reset_ok
         return response
+
+    @staticmethod
+    def _motion(agent):
+        return (
+            float(agent.velocity.linear.x),
+            float(agent.velocity.linear.y),
+            float(agent.velocity.linear.z),
+            float(agent.velocity.angular.x),
+            float(agent.velocity.angular.y),
+            float(agent.velocity.angular.z),
+            float(agent.linear_vel),
+            float(agent.angular_vel),
+        )
 
 
 class ProxyParameterValidationTests(unittest.TestCase):
@@ -229,6 +251,59 @@ class ProxyServiceTests(unittest.TestCase):
         self.assertEqual(self.raw.reset_types, [3])
         self.assertEqual(self.raw.compute_types, [3])
         self.assertEqual(self.proxy._reset_count, 1)
+
+    def test_regular_goal_recovery_clears_stale_special_motion(self):
+        self.assertEqual(len(self._compute(0.0, 5.0).updated_agents.agents), 1)
+        curious = self._compute(0.5, 2.5, -0.15)
+        self.assertEqual(len(curious.updated_agents.agents), 1)
+        self.assertEqual(
+            self.proxy._automaton_context.state, FormalState.CURIOUS
+        )
+
+        recovery_request = self._request(1.0, 7.0)
+        original = recovery_request.current_agents.agents[0]
+        original.behavior.type = AgentBehavior.BEH_CURIOUS
+        original.velocity.linear.x = -0.21
+        original.velocity.linear.y = 0.04
+        original.velocity.angular.z = 0.03
+        original.linear_vel = math.hypot(-0.21, 0.04)
+        original.angular_vel = 0.03
+        future = self.client.call_async(recovery_request)
+        recovery = _wait_for_future(future)
+
+        self.assertEqual(len(recovery.updated_agents.agents), 1)
+        self.assertEqual(self.proxy._automaton_context.state, FormalState.NORMAL)
+        self.assertEqual(int(recovery.updated_agents.agents[0].behavior.type), 1)
+        self.assertEqual(self.raw.reset_types, [5, 1])
+        self.assertEqual(self.raw.reset_motion[-1], (0.0,) * 8)
+        self.assertEqual(self.raw.compute_motion[-1], (0.0,) * 8)
+        self.assertEqual(
+            FakeRawHuNav._motion(recovery.updated_agents.agents[0]),
+            (0.0,) * 8,
+        )
+        # ROS service serialization and the proxy's deep copy leave the caller
+        # object untouched even though the reset seed is normalized.
+        self.assertEqual(original.velocity.linear.x, -0.21)
+        self.assertEqual(original.velocity.linear.y, 0.04)
+        self.assertEqual(original.velocity.angular.z, 0.03)
+
+    def test_regular_compute_entering_goal_radius_clears_final_motion(self):
+        def finish_at_goal(agent):
+            agent.position.position.x = 1.0
+            agent.velocity.linear.x = 0.18
+            agent.linear_vel = 0.18
+
+        self.raw.compute_mutator = finish_at_goal
+        request = self._request(0.0, 5.0)
+        request.current_agents.agents[0].goals[0].position.x = 1.0
+        response = _wait_for_future(self.client.call_async(request))
+
+        self.assertEqual(len(response.updated_agents.agents), 1)
+        returned = response.updated_agents.agents[0]
+        self.assertEqual(returned.position.position.x, 1.0)
+        self.assertEqual(FakeRawHuNav._motion(returned), (0.0,) * 8)
+        self.assertEqual(self.raw.compute_motion, [(0.0,) * 8])
+        self.assertEqual(self.raw.reset_types, [])
 
     def test_reset_and_compute_failures_do_not_commit_candidates(self):
         initial = self._compute(0.0, 5.0)

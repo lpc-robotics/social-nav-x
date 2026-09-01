@@ -7,6 +7,7 @@
 /logs/
 /backups/
 /.colcon/
+/.colcon-*/
 /NvStreamer-*.etli
 
 # Upstream repositories recreated by scripts/fetch_upstreams.sh

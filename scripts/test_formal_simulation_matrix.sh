@@ -223,6 +223,7 @@ validate_case_evidence() {
         "target=$target_state" \
         "resets=2" \
         "cmd_vel_publishers=1" \
+        "regular_motion=stopped" \
         "behavior_types=$behavior_types"; do
         if [[ "$marker" != *"$token"* ]]; then
             echo "Scenario marker is missing $token: $marker" >&2

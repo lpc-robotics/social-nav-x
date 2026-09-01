@@ -201,3 +201,58 @@ def apply_profile_to_agent(agent: Any, profile: BehaviorProfile) -> Any:
             raise TypeError(f"agent.behavior does not expose {name!r}")
         setattr(behavior, name, value)
     return candidate
+
+
+def regular_goal_reached(agent: Any, *, extra_tolerance: float = 0.1) -> bool:
+    """Mirror HuNav v1's RegularNav goal-reached predicate.
+
+    HuNav v1 stops ticking ``RegularNav`` once the first goal is within
+    ``goal_radius + 0.1``.  That branch rotates the goal queue but does not
+    clear the velocity left by the previous behavior.  Keeping this predicate
+    in the adapter lets the proxy repair the inconsistent reset/response seed
+    without changing HuNav, the agent pose, or its goals.
+    """
+
+    if isinstance(extra_tolerance, bool) or not isinstance(
+        extra_tolerance, (int, float)
+    ):
+        raise TypeError("extra_tolerance must be an int or float")
+    tolerance = float(extra_tolerance)
+    if not math.isfinite(tolerance) or tolerance < 0.0:
+        raise ValueError("extra_tolerance must be finite and non-negative")
+    if not hasattr(agent, "position") or not hasattr(agent, "goals"):
+        raise TypeError("agent must expose position and goals")
+    if not agent.goals:
+        return False
+
+    radius = float(agent.goal_radius)
+    if not math.isfinite(radius) or radius < 0.0:
+        raise ValueError("agent.goal_radius must be finite and non-negative")
+    dx = float(agent.goals[0].position.x) - float(agent.position.position.x)
+    dy = float(agent.goals[0].position.y) - float(agent.position.position.y)
+    if not math.isfinite(dx) or not math.isfinite(dy):
+        raise ValueError("agent pose and first goal must be finite")
+    return math.hypot(dx, dy) <= radius + tolerance
+
+
+def stop_agent_motion(agent: Any) -> Any:
+    """Return a deep copy with every reported motion component set to zero."""
+
+    candidate = copy.deepcopy(agent)
+    if not hasattr(candidate, "velocity"):
+        raise TypeError("agent must expose a velocity attribute")
+    for vector_name in ("linear", "angular"):
+        vector = getattr(candidate.velocity, vector_name, None)
+        if vector is None:
+            raise TypeError(f"agent.velocity must expose {vector_name!r}")
+        for axis in ("x", "y", "z"):
+            if not hasattr(vector, axis):
+                raise TypeError(
+                    f"agent.velocity.{vector_name} must expose {axis!r}"
+                )
+            setattr(vector, axis, 0.0)
+    for field_name in ("linear_vel", "angular_vel"):
+        if not hasattr(candidate, field_name):
+            raise TypeError(f"agent must expose {field_name!r}")
+        setattr(candidate, field_name, 0.0)
+    return candidate
