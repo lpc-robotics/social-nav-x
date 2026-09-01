@@ -15,8 +15,8 @@ workspace.
 - Canonical base: `51ab117dedf6a8173c1704f0edd8d01c7938fb8e`
 - Base tag: `arena5-isaac5.1-archive-20260829`
 - Implementation commits: `ec95e8c`, `eaa84c7`, `e33dd6d`, `a048bfd`; the
-  Regular-motion/visual verification fix is the feature `HEAD`
-  (`git rev-parse HEAD`).
+  later Regular-motion/visual and Character-frame fixes are identified by the
+  final feature `HEAD` (`git rev-parse HEAD`).
 - Authoritative specification:
   `FORMAL_SOCIAL_AUTOMATA_DEVELOPMENT_PLAN.md`
 - Immutable source request:
@@ -42,17 +42,19 @@ scripts/test_formal_overlay.sh
 The final test summary is:
 
 ```text
+character frame conversion: 17 passed
 arena_humble_compat: 20 passed
-formal_social_behavior: 75 passed
-Summary: 280 tests, 0 errors, 0 failures, 0 skipped
+formal_social_behavior: 76 passed
+colcon compat: 20 tests, 0 errors, 0 failures, 0 skipped
+colcon formal: 261 tests, 0 errors, 0 failures, 0 skipped
 ```
 
-pytest collected 95 top-level cases; colcon/xUnit expands unittest subtests in
-its final count. Raw logs are under
-`.colcon-visual-fix/test-log/test_2026-09-01_17-34-54/`; the only warnings are two
-dependency-side Lark deprecations. After GPU acceptance, the default `.colcon`
-used by the normal run scripts was rebuilt from the same source and passed the
-same `280/0/0/0` result at `.colcon/test-log/test_2026-09-01_17-51-19/`.
+The three pytest runs collect 113 top-level cases; colcon/xUnit expands the
+formal unittest subtests to 261. Raw colcon logs are under
+`.colcon/test-log/test_2026-09-01_21-12-30/`; the only warnings are two
+dependency-side Lark deprecations. The build selects `arena_isaac`,
+`arena_humble_compat` and `formal_social_behavior`; `arena_isaac` resolves to
+the feature overlay rather than the read-only activity install.
 
 Run one formal demo (the script sources the activity underlay and feature
 overlay itself):
@@ -78,8 +80,9 @@ scripts/run_formal_social_visual_scenario.sh fast 2.0
 ```
 
 The visual driver prints each formal state/transition plus half-second samples
-of behavior type, distance, speed, Character quaternion yaw, robot-target yaw
-and facing error. It writes `visual.log` and `run_manifest.txt` under
+of behavior type, distance, speed, ROS-logical quaternion yaw, robot-target yaw
+and facing error. The Character boundary applies the asset-axis conversion
+described below. It writes `visual.log` and `run_manifest.txt` under
 `logs/formal_visual/`; it does not launch a second Isaac instance or freeze the
 automaton. Run only one scenario driver at a time so it remains the sole
 `/cmd_vel` publisher.
@@ -118,17 +121,25 @@ inside that exact reached-goal boundary, both before reset/compute and on the
 first raw response entering it. Pose, yaw, goal, caller request, HuNav source,
 Isaac Character, and the activity workspace are unchanged.
 
-Surprised validation now uses `position.orientation` (`x,y,z,w`), the pose sent
-to Isaac Character, rather than treating `Agent.yaw` as the render authority.
-The gates are speed `<=0.02 m/s`, robot-facing error `<=3 degrees`, yaw-field to
-quaternion error `<=0.25 degrees`, and yaw change `>=0.20 rad`. Two full GPU
-runs measured `2.883/2.841 degrees`, zero speed and zero field/quaternion error.
-One visual-mode run continued from `2.88 degrees` to `0.00 degrees` while held
-for observation, confirming the stop-and-face direction is correct. Its raw
-output and manifest are in
-`logs/formal_visual/20260901_174951_665115531_sudden_pid182032/`; the
-`visual.log` SHA-256 is
-`979fc1015eabb8348fcab312be0ebf660979b7fb22242dfac9fc6dda376672c9`.
+Isaac People characters use local `-Y` as their visual forward axis, whereas
+ROS planar poses use local `+X`. The feature `Person.py` now converts only at
+the Character Graph boundary:
+`q_character = q_ros * qz(+pi/2)`, with the inverse
+`q_ros = q_character * qz(-pi/2)` on feedback. `/human_states` therefore
+retains ROS semantics, while the rendered native `-Y` front points along the
+same world heading. The pure conversion tests pass 17 cases over wraparound,
+round trip and invalid input.
+
+Production-style visual retests on GPU 3 passed all modes. Sudden stopped at
+zero speed and `2.862 degrees` robot-facing error; safe Curious reduced distance
+from `2.480 m` to `2.333 m`; fast Scared increased distance by `1.146181 m`
+with exit closing speed `-0.839761 m/s`. The relevant raw logs are:
+
+```text
+logs/formal_visual/20260901_194912_743233044_sudden_pid548382/visual.log  a10f4a3a60f58a438b75416cc455e40ed6e91cc63bf57ee738d9842585b6a694
+logs/formal_visual/20260901_195144_636426696_safe_pid557741/visual.log    45f211e5ffa60707d7994c0adc8e6cad568542025e6be6017becf4215738e13f
+logs/formal_visual/20260901_210908_750275095_fast_pid795427/visual.log    2bd9cb5bc96c1df699e22370eb719ee5f392fe07eaa3a93ff86dd38d19ed13a1
+```
 
 Effective configuration hashes:
 
@@ -146,7 +157,10 @@ positive human-outward speed reconstructed from matching odom/state stamps if
 the display frame is missed. The two runs increased distance by
 `1.064276/0.000962 m`, with exit closing speeds
 `-0.799999/-0.038465 m/s` and human-outward speeds
-`0.799999/0.799999 m/s`. No automaton guard is delayed or masked.
+`0.799999/0.799999 m/s`. After the frame fix exposed a real FOV loss when
+Scared turns away, `ROBOT_LOST` recovers Scared only when no danger event is
+active. A danger+lost sample stays Scared and clears safe timing, preventing a
+Regular/Scared reset storm; a later safe lost still recovers immediately.
 
 Regression evidence:
 
@@ -157,14 +171,17 @@ logs/regression/original_no_overlay_20260831_unsandboxed/
 logs/regression/original_with_overlay_final_20260831/
   overlay prefix: /home/lpc/workspace/social-nav-x-formal-v1/.colcon/install/arena_humble_compat
   SIX_BEHAVIORS_VERIFY_OK types=1,2,3,4,5,6 active=3,5 responses=3,4,5,6 robot_distance=0.952 robot_states=341
+logs/regression/original_with_character_frame_fix_20260901/
+  arena_isaac + compat prefixes: /home/lpc/workspace/social-nav-x-formal-v1/.colcon/install/...
+  SIX_BEHAVIORS_VERIFY_OK types=1,2,3,4,5,6 active=3,5 responses=3,4,5,6 robot_distance=1.035 robot_states=302
 ```
 
 `patches/arena-isaac.patch` has SHA-256
-`eea9dfef26f51efd4f0ab3f027f0c80107886cb7607af6411f989167f9087994`.
-Forward apply, applied-tree reverse and all 29 file comparisons pass against
+`1d404fca247c81a6dfbfaa470cfd35a7ca8005d0b2cd2be056fd9bf141875b23`.
+Forward apply, applied-tree reverse and all 31 file comparisons pass against
 fixed upstream `16b8e3416517d8c3dc1b5038df4fe11b9a6df46c`; verification tree:
-`/tmp/social-nav-x-arena-isaac-verify-final.CDhlhD`. No merge to `main` and no
-remote push were performed.
+`/tmp/social-nav-x-arena-isaac-verify-character-frame.7Xjf7m`. No merge to
+`main` and no remote push were performed.
 
 Rollback is immediate: stop the formal launch and open a new shell that sources
 only `/home/lpc/workspace/arena5_ws/scripts/env.sh`. Do not remove or rewrite the

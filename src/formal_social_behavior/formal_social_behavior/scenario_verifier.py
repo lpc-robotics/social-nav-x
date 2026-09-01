@@ -656,10 +656,11 @@ def main(args=None) -> None:
             # Observe the commanded velocity in real odometry, then pre-brake
             # while the corresponding HuNav request is in flight. Waiting for
             # the transition topic before braking leaves one additional
-            # physics step of forward travel: Scared turns away in that same
-            # compute beat and ROBOT_LOST is valid on the next beat. Bounded
-            # retries remove scheduler-phase dependence while the transition
-            # still has to record a genuine >=0.5 m/s closing sample below.
+            # physics step of forward travel. Scared turns away in that same
+            # compute beat; the automaton deliberately ignores the resulting
+            # ROBOT_LOST edge while a danger event is still active. Bounded
+            # retries remove scheduler-phase dependence, while the transition
+            # must still record a genuine >=0.5 m/s closing sample below.
             reached = False
             for _ in range(8):
                 sampled_or_reached = node.spin_until(
@@ -804,10 +805,10 @@ def main(args=None) -> None:
 
         node.hold_target_for_visual(target_state)
 
-        # A front-facing Scared action turns away from the robot and may
-        # legitimately recover through ROBOT_LOST before this point. Search
-        # from the target transition, while still driving a leaving command
-        # for scenarios whose recovery has not happened yet.
+        # A front-facing Scared action turns away from the robot. ROBOT_LOST
+        # may recover it only after danger has cleared; otherwise the leaving
+        # and safe-time guards perform recovery. Search from the target
+        # transition while continuing the scenario's leaving command.
         recovery_start = transition_start
         _require(
             node.count_publishers("/cmd_vel") == 1,

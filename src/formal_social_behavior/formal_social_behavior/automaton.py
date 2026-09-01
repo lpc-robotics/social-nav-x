@@ -27,6 +27,7 @@ class GuardName(str, Enum):
     SUDDEN_NEAR = "SUDDEN_NEAR"
     ROBOT_VISIBLE_AFTER_COOLDOWN = "ROBOT_VISIBLE_AFTER_COOLDOWN"
     ROBOT_LOST = "ROBOT_LOST"
+    SCARED_ROBOT_LOST_WHEN_SAFE = "SCARED_ROBOT_LOST_WHEN_SAFE"
     ATTENTION_DWELL_NEAR_SAFE_CLOSING = "ATTENTION_DWELL_NEAR_SAFE_CLOSING"
     LEAVING_OUTSIDE_NEAR = "LEAVING_OUTSIDE_NEAR"
     SAFE_RECOVERY_TIMEOUT = "SAFE_RECOVERY_TIMEOUT"
@@ -132,7 +133,7 @@ TRANSITION_RULES: Tuple[TransitionRule, ...] = (
     ),
     TransitionRule(
         frozenset({FormalState.SCARED}),
-        GuardName.ROBOT_LOST,
+        GuardName.SCARED_ROBOT_LOST_WHEN_SAFE,
         FormalState.NORMAL,
         TransitionCause.ROBOT_LOST,
     ),
@@ -305,6 +306,13 @@ class SocialAutomaton:
             )
         if guard is GuardName.ROBOT_LOST:
             return SocialEvent.ROBOT_LOST in active
+        if guard is GuardName.SCARED_ROBOT_LOST_WHEN_SAFE:
+            # Scared turns the body away from the robot as part of its escape
+            # response. That can create ROBOT_LOST on the first post-reset
+            # observation even while the dangerous approach is still active.
+            # Safety has priority: remain Scared on that beat instead of
+            # rebuilding Regular and immediately escalating again.
+            return SocialEvent.ROBOT_LOST in active and not danger_active
         if guard is GuardName.ATTENTION_DWELL_NEAR_SAFE_CLOSING:
             dwell_elapsed = (
                 context.state_entered_ns is not None

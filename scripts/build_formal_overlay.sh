@@ -16,10 +16,11 @@ cd "$FEATURE_ROOT"
 
 colcon --log-base "$OVERLAY_ROOT/log" build \
     --base-paths \
+        "$FEATURE_ROOT/src/arena-isaac/arena_isaac" \
         "$FEATURE_ROOT/src/arena-isaac/arena_humble_compat" \
         "$FEATURE_ROOT/src/formal_social_behavior" \
     --build-base "$OVERLAY_ROOT/build" \
     --install-base "$OVERLAY_ROOT/install" \
-    --packages-select arena_humble_compat formal_social_behavior
+    --packages-select arena_isaac arena_humble_compat formal_social_behavior
 
 echo "Formal social overlay: $OVERLAY_ROOT/install"

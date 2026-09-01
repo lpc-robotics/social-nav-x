@@ -1,13 +1,13 @@
 diff --git a/arena_humble_compat/arena_humble_compat/__init__.py b/arena_humble_compat/arena_humble_compat/__init__.py
 new file mode 100644
-index 0000000..8b13789
+index 0000000000000000000000000000000000000000..8b137891791fe96927ad78e64b0aad7bded08bdc
 --- /dev/null
 +++ b/arena_humble_compat/arena_humble_compat/__init__.py
 @@ -0,0 +1 @@
 +
 diff --git a/arena_humble_compat/arena_humble_compat/bridge_validation.py b/arena_humble_compat/arena_humble_compat/bridge_validation.py
 new file mode 100644
-index 0000000..3e63548
+index 0000000000000000000000000000000000000000..3e63548b2eca0952521342336d556d4aeea28ef3
 --- /dev/null
 +++ b/arena_humble_compat/arena_humble_compat/bridge_validation.py
 @@ -0,0 +1,149 @@
@@ -162,7 +162,7 @@ index 0000000..3e63548
 +    )
 diff --git a/arena_humble_compat/arena_humble_compat/hunav_six_behaviors_bridge.py b/arena_humble_compat/arena_humble_compat/hunav_six_behaviors_bridge.py
 new file mode 100644
-index 0000000..efac4fa
+index 0000000000000000000000000000000000000000..efac4faedb979ea37d97728fbd1ccbb2b01ad32d
 --- /dev/null
 +++ b/arena_humble_compat/arena_humble_compat/hunav_six_behaviors_bridge.py
 @@ -0,0 +1,737 @@
@@ -905,7 +905,7 @@ index 0000000..efac4fa
 +                rclpy.shutdown()
 diff --git a/arena_humble_compat/arena_humble_compat/scene_bridge.py b/arena_humble_compat/arena_humble_compat/scene_bridge.py
 new file mode 100644
-index 0000000..381c2b5
+index 0000000000000000000000000000000000000000..381c2b579fb821846886e6e7d81c797e081a8663
 --- /dev/null
 +++ b/arena_humble_compat/arena_humble_compat/scene_bridge.py
 @@ -0,0 +1,215 @@
@@ -1126,7 +1126,7 @@ index 0000000..381c2b5
 +        rclpy.shutdown()
 diff --git a/arena_humble_compat/arena_humble_compat/verify_runtime.py b/arena_humble_compat/arena_humble_compat/verify_runtime.py
 new file mode 100644
-index 0000000..4efcd22
+index 0000000000000000000000000000000000000000..4efcd2287cd4d629c7097cf8ef5139e9192075e3
 --- /dev/null
 +++ b/arena_humble_compat/arena_humble_compat/verify_runtime.py
 @@ -0,0 +1,92 @@
@@ -1224,7 +1224,7 @@ index 0000000..4efcd22
 +    raise SystemExit(status)
 diff --git a/arena_humble_compat/arena_humble_compat/verify_six_behaviors.py b/arena_humble_compat/arena_humble_compat/verify_six_behaviors.py
 new file mode 100644
-index 0000000..27364f9
+index 0000000000000000000000000000000000000000..27364f9d89464625c29063a739b348744b7c3ce4
 --- /dev/null
 +++ b/arena_humble_compat/arena_humble_compat/verify_six_behaviors.py
 @@ -0,0 +1,156 @@
@@ -1386,7 +1386,7 @@ index 0000000..27364f9
 +        rclpy.shutdown()
 diff --git a/arena_humble_compat/package.xml b/arena_humble_compat/package.xml
 new file mode 100644
-index 0000000..f1c58dc
+index 0000000000000000000000000000000000000000..f1c58dc4fcee128fee9a68b564cd58d0776169ea
 --- /dev/null
 +++ b/arena_humble_compat/package.xml
 @@ -0,0 +1,26 @@
@@ -1418,14 +1418,14 @@ index 0000000..f1c58dc
 +</package>
 diff --git a/arena_humble_compat/resource/arena_humble_compat b/arena_humble_compat/resource/arena_humble_compat
 new file mode 100644
-index 0000000..8b13789
+index 0000000000000000000000000000000000000000..8b137891791fe96927ad78e64b0aad7bded08bdc
 --- /dev/null
 +++ b/arena_humble_compat/resource/arena_humble_compat
 @@ -0,0 +1 @@
 +
 diff --git a/arena_humble_compat/setup.cfg b/arena_humble_compat/setup.cfg
 new file mode 100644
-index 0000000..bf62b8a
+index 0000000000000000000000000000000000000000..bf62b8a6b3bdf1e6a26aadd0a253c0e6967fb1ac
 --- /dev/null
 +++ b/arena_humble_compat/setup.cfg
 @@ -0,0 +1,4 @@
@@ -1435,7 +1435,7 @@ index 0000000..bf62b8a
 +install_scripts=$base/lib/arena_humble_compat
 diff --git a/arena_humble_compat/setup.py b/arena_humble_compat/setup.py
 new file mode 100644
-index 0000000..b115671
+index 0000000000000000000000000000000000000000..b11567111aed897746b2244e71f0fe3c1e3347fa
 --- /dev/null
 +++ b/arena_humble_compat/setup.py
 @@ -0,0 +1,29 @@
@@ -1470,7 +1470,7 @@ index 0000000..b115671
 +)
 diff --git a/arena_humble_compat/test/test_bridge_validation.py b/arena_humble_compat/test/test_bridge_validation.py
 new file mode 100644
-index 0000000..71a894f
+index 0000000000000000000000000000000000000000..71a894f4e540506bebc4d17e79e042170bbb44c1
 --- /dev/null
 +++ b/arena_humble_compat/test/test_bridge_validation.py
 @@ -0,0 +1,162 @@
@@ -1637,7 +1637,7 @@ index 0000000..71a894f
 +    with pytest.raises(RuntimeError, match=f"{field_name} must be an integer"):
 +        require_plain_integer(value, field_name)
 diff --git a/arena_isaac/arena_isaac/run_isaacsim.py b/arena_isaac/arena_isaac/run_isaacsim.py
-index 0a10249..3d89e37 100644
+index 0a10249347c7c88956a24b1c49ba53373b4884b7..3d89e3783364c92860ce1d7167cdb72584e69c54 100644
 --- a/arena_isaac/arena_isaac/run_isaacsim.py
 +++ b/arena_isaac/arena_isaac/run_isaacsim.py
 @@ -5,25 +5,60 @@
@@ -1992,7 +1992,7 @@ index 0a10249..3d89e37 100644
                  for _ in range(pending_actions):
                      try:
 diff --git a/arena_isaac/arena_isaac/services/SpawnUrdf.py b/arena_isaac/arena_isaac/services/SpawnUrdf.py
-index f1b80d0..7de8d79 100644
+index f1b80d08856be6cc207bb1cf8a3833240bbf025b..7de8d79010ac8f810336f542eaed663ba4f911c1 100644
 --- a/arena_isaac/arena_isaac/services/SpawnUrdf.py
 +++ b/arena_isaac/arena_isaac/services/SpawnUrdf.py
 @@ -17,7 +17,8 @@ from isaac_utils.utils import geom
@@ -2130,7 +2130,7 @@ index f1b80d0..7de8d79 100644
      return prim_path
  
 diff --git a/arena_isaac/arena_isaac/services/UpdatePedestrians.py b/arena_isaac/arena_isaac/services/UpdatePedestrians.py
-index f898936..1ab995e 100644
+index f8989360c542ca3850630af844541710f347e02b..1ab995e025bacee2dcf60511c89b91d17698e66a 100644
 --- a/arena_isaac/arena_isaac/services/UpdatePedestrians.py
 +++ b/arena_isaac/arena_isaac/services/UpdatePedestrians.py
 @@ -19,7 +19,13 @@ def update_pedestrian(pedestrian: Pedestrian, stamp_sec: float) -> int:
@@ -2150,13 +2150,13 @@ index f898936..1ab995e 100644
  
 diff --git a/arena_isaac/isaac_utils/config/__init__.py b/arena_isaac/isaac_utils/config/__init__.py
 new file mode 100644
-index 0000000..83a1951
+index 0000000000000000000000000000000000000000..83a19514ed85321f995290075b19a6db450c3ae4
 --- /dev/null
 +++ b/arena_isaac/isaac_utils/config/__init__.py
 @@ -0,0 +1 @@
 +"""Renderer configuration helpers."""
 diff --git a/arena_isaac/isaac_utils/graphs/odom.py b/arena_isaac/isaac_utils/graphs/odom.py
-index 0ed7bd3..c96e64a 100644
+index 0ed7bd3bd522d8f3341326d23a86449f093d0059..c96e64af43171a73695d7dc1d250f6854ff9f839 100644
 --- a/arena_isaac/isaac_utils/graphs/odom.py
 +++ b/arena_isaac/isaac_utils/graphs/odom.py
 @@ -1,4 +1,5 @@
@@ -2191,20 +2191,20 @@ index 0ed7bd3..c96e64a 100644
      return graph.execute(controller)
 diff --git a/arena_isaac/isaac_utils/managers/__init__.py b/arena_isaac/isaac_utils/managers/__init__.py
 new file mode 100644
-index 0000000..0ae488e
+index 0000000000000000000000000000000000000000..0ae488e04b237637cdfd62cf3501e5e70b5e2e6c
 --- /dev/null
 +++ b/arena_isaac/isaac_utils/managers/__init__.py
 @@ -0,0 +1 @@
 +"""Isaac entity lifecycle managers."""
 diff --git a/arena_isaac/isaac_utils/utils/__init__.py b/arena_isaac/isaac_utils/utils/__init__.py
 new file mode 100644
-index 0000000..f5c146c
+index 0000000000000000000000000000000000000000..f5c146cf0e36a0f147bab7ae746b8d7b2277ed29
 --- /dev/null
 +++ b/arena_isaac/isaac_utils/utils/__init__.py
 @@ -0,0 +1 @@
 +"""Shared Isaac utility modules."""
 diff --git a/arena_isaac/launch/run_isaacsim.launch.py b/arena_isaac/launch/run_isaacsim.launch.py
-index 5d16890..02f210f 100644
+index 5d168901e71477837f05b64e18d61abba2ebb5ba..02f210faf53d9da9afb94d0d21c1483879e14070 100644
 --- a/arena_isaac/launch/run_isaacsim.launch.py
 +++ b/arena_isaac/launch/run_isaacsim.launch.py
 @@ -21,6 +21,26 @@ def generate_launch_description():
@@ -2253,11 +2253,97 @@ index 5d16890..02f210f 100644
              ],
              output='screen',
          ),
+diff --git a/arena_isaac/pedestrian/simulator/logic/people/character_frames.py b/arena_isaac/pedestrian/simulator/logic/people/character_frames.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..1434ad9fa38ca47558e685e4352dff381efb30f0
+--- /dev/null
++++ b/arena_isaac/pedestrian/simulator/logic/people/character_frames.py
+@@ -0,0 +1,69 @@
++"""Quaternion conversion between ROS and Isaac People character frames.
++
++ROS planar poses use local ``+X`` as the body-forward axis.  Isaac People
++characters use local ``-Y`` as their visual forward axis.  The character root
++therefore needs a positive 90 degree yaw offset when a ROS orientation is
++rendered, and the inverse offset when the graph transform is reported to ROS.
++"""
++
++import math
++from collections.abc import Sequence
++
++
++ROS_FORWARD_AXIS = (1.0, 0.0, 0.0)
++CHARACTER_FORWARD_AXIS = (0.0, -1.0, 0.0)
++
++_HALF_SQRT_TWO = math.sqrt(0.5)
++_ROS_TO_CHARACTER_OFFSET = (0.0, 0.0, _HALF_SQRT_TWO, _HALF_SQRT_TWO)
++_CHARACTER_TO_ROS_OFFSET = (0.0, 0.0, -_HALF_SQRT_TWO, _HALF_SQRT_TWO)
++
++
++def normalize_quaternion(quaternion: Sequence[float]) -> tuple[float, ...]:
++    """Return a finite unit quaternion in ``(x, y, z, w)`` order."""
++
++    if len(quaternion) != 4:
++        raise ValueError("a quaternion must have exactly four components")
++    values = tuple(float(value) for value in quaternion)
++    if not all(math.isfinite(value) for value in values):
++        raise ValueError("quaternion components must be finite")
++    norm = math.sqrt(sum(value * value for value in values))
++    if norm <= 1.0e-12:
++        raise ValueError("a quaternion must have non-zero norm")
++    return tuple(value / norm for value in values)
++
++
++def _multiply_quaternions(
++    left: Sequence[float], right: Sequence[float]
++) -> tuple[float, float, float, float]:
++    """Compose two normalized ``(x, y, z, w)`` quaternions."""
++
++    lx, ly, lz, lw = left
++    rx, ry, rz, rw = right
++    return (
++        lw * rx + lx * rw + ly * rz - lz * ry,
++        lw * ry - lx * rz + ly * rw + lz * rx,
++        lw * rz + lx * ry - ly * rx + lz * rw,
++        lw * rw - lx * rx - ly * ry - lz * rz,
++    )
++
++
++def ros_to_character_quaternion(
++    quaternion: Sequence[float],
++) -> tuple[float, ...]:
++    """Convert a ROS ``+X``-forward orientation to Isaac's ``-Y`` asset frame."""
++
++    logical = normalize_quaternion(quaternion)
++    return normalize_quaternion(
++        _multiply_quaternions(logical, _ROS_TO_CHARACTER_OFFSET)
++    )
++
++
++def character_to_ros_quaternion(
++    quaternion: Sequence[float],
++) -> tuple[float, ...]:
++    """Convert an Isaac ``-Y``-forward graph orientation back to ROS semantics."""
++
++    rendered = normalize_quaternion(quaternion)
++    return normalize_quaternion(
++        _multiply_quaternions(rendered, _CHARACTER_TO_ROS_OFFSET)
++    )
 diff --git a/arena_isaac/pedestrian/simulator/logic/people/person.py b/arena_isaac/pedestrian/simulator/logic/people/person.py
-index 6a9927c..4134ab4 100644
+index 6a9927c9b138e1765029463edd17be79049ceee8..4e41c1a46d1f9e858bfbefad31fa180586a01169 100644
 --- a/arena_isaac/pedestrian/simulator/logic/people/person.py
 +++ b/arena_isaac/pedestrian/simulator/logic/people/person.py
-@@ -75,6 +75,7 @@ class Person:
+@@ -15,6 +15,10 @@ from pxr import Gf, Sdf
+ from scipy.spatial.transform import Rotation
+ 
+ from pedestrian.simulator.logic.people.person_controller import PersonController
++from pedestrian.simulator.logic.people.character_frames import (
++    character_to_ros_quaternion,
++    ros_to_character_quaternion,
++)
+ from pedestrian.simulator.logic.people_manager import PeopleManager
+ 
+ # Extension APIs
+@@ -75,6 +79,7 @@ class Person:
          # Commanded kinematic state of the character
          self._command_position: np.ndarray | None = None
          self._command_velocity = np.zeros(3)
@@ -2265,7 +2351,7 @@ index 6a9927c..4134ab4 100644
          self._command_age = 0.0
  
          # Currently seeded locomotion path, refreshed only on heading change
-@@ -121,6 +122,7 @@ class Person:
+@@ -121,6 +126,7 @@ class Person:
              self._world.add_timeline_callback(cb_path, self.sim_start_stop)
  
          self._character_graph = None
@@ -2273,7 +2359,7 @@ index 6a9927c..4134ab4 100644
  
      @property
      def character_graph(self):
-@@ -130,8 +132,19 @@ class Person:
+@@ -130,8 +136,19 @@ class Person:
              CharacterGraph: The animation graph of the person.
          """
          if self._character_graph is None:
@@ -2294,19 +2380,25 @@ index 6a9927c..4134ab4 100644
          return self._character_graph
  
      @property
-@@ -231,6 +244,11 @@ class Person:
+@@ -230,7 +247,16 @@ class Person:
+                 self.character_graph.set_variable("Walk", 0.0)
                  self.character_graph.set_variable("Action", "Idle")
  
-             rot = self._state.orientation
+-            rot = self._state.orientation
++            logical_rot = self._state.orientation
 +            # A stationary HuNav behavior can still command a changing yaw
 +            # (Surprised turns to look at the robot). Locomotion owns heading
 +            # while walking; only apply the explicit pose orientation at rest.
 +            if speed <= 0.05 and self._command_orientation is not None:
-+                rot = self._command_orientation
++                logical_rot = self._command_orientation
++            # ROS poses use local +X as forward, while Isaac People assets use
++            # local -Y. Keep _state in ROS semantics and offset only at the
++            # Character Graph boundary.
++            rot = ros_to_character_quaternion(logical_rot)
              self.character_graph.set_world_transform(
                  carb.Float3(float(desired[0]), float(desired[1]), float(desired[2])),
                  carb.Float4(float(rot[0]), float(rot[1]), float(rot[2]), float(rot[3])),
-@@ -243,7 +261,7 @@ class Person:
+@@ -243,7 +269,7 @@ class Person:
          # if self.character_skel_root_stage_path is not None:
          #     PeopleManager.get_people_manager().add_person(self.character_skel_root_stage_path, self)
  
@@ -2315,7 +2407,7 @@ index 6a9927c..4134ab4 100644
          """
          Set the commanded planar pose and velocity. The position is tracked exactly,
          the velocity dead-reckons the character between command updates.
-@@ -252,9 +270,17 @@ class Person:
+@@ -252,9 +278,17 @@ class Person:
              position: (x, y, z) commanded world position, z is ignored.
              velocity: (x, y) commanded world velocity.
              stamp_sec: sim time the command was computed at, zero = unstamped.
@@ -2333,7 +2425,38 @@ index 6a9927c..4134ab4 100644
          # seed the dead-reckoning age with the pipeline latency, otherwise every
          # arrival rewinds the character by velocity times the transport delay
          self._command_age = max(0.0, self._world.current_time - stamp_sec) if stamp_sec > 0.0 else 0.0
-@@ -287,6 +313,7 @@ class Person:
+@@ -267,10 +301,18 @@ class Person:
+             position: (x, y, z) world-space position.
+             orientation: (x, y, z, w) quaternion (ROS convention).
+         """
++        character_orientation = ros_to_character_quaternion(orientation)
++        logical_orientation = character_to_ros_quaternion(character_orientation)
++
+         self.prim.GetAttribute("xformOp:translate").Set(
+             Gf.Vec3d(float(position[0]), float(position[1]), float(position[2]))
+         )
+-        quat = Gf.Quatd(float(orientation[3]), float(orientation[0]), float(orientation[1]), float(orientation[2]))
++        quat = Gf.Quatd(
++            float(character_orientation[3]),
++            float(character_orientation[0]),
++            float(character_orientation[1]),
++            float(character_orientation[2]),
++        )
+         orient_attr = self.prim.GetAttribute("xformOp:orient")
+         if type(orient_attr.Get()) == Gf.Quatf:
+             orient_attr.Set(Gf.Quatf(quat))
+@@ -282,15 +324,21 @@ class Person:
+         if self._character_graph:
+             self._character_graph.set_world_transform(
+                 carb.Float3(float(position[0]), float(position[1]), float(position[2])),
+-                carb.Float4(float(orientation[0]), float(orientation[1]), float(orientation[2]), float(orientation[3])),
++                carb.Float4(
++                    float(character_orientation[0]),
++                    float(character_orientation[1]),
++                    float(character_orientation[2]),
++                    float(character_orientation[3]),
++                ),
+             )
  
          self._command_position = None
          self._command_velocity = np.zeros(3)
@@ -2341,7 +2464,46 @@ index 6a9927c..4134ab4 100644
          self._command_age = 0.0
          self._path_look = None
          self._state.position = np.array(position)
-@@ -354,13 +381,28 @@ class Person:
+-        self._state.orientation = np.array(orientation)
++        self._state.orientation = np.array(logical_orientation)
+ 
+     def update_state(self, dt: float):
+         """
+@@ -312,7 +360,9 @@ class Person:
+ 
+         # Update the current state of the person
+         self._state.position = np.array([pos[0], pos[1], pos[2]])
+-        self._state.orientation = np.array([rot.x, rot.y, rot.z, rot.w])
++        self._state.orientation = np.array(
++            character_to_ros_quaternion([rot.x, rot.y, rot.z, rot.w])
++        )
+ 
+         # Signal the controller the updated state
+         if self._controller:
+@@ -335,10 +385,20 @@ class Person:
+         # Set the initial position and orientation of the person
+         self.prim.GetAttribute("xformOp:translate").Set(Gf.Vec3d(float(init_pos[0]), float(init_pos[1]), float(init_pos[2])))
+ 
++        logical_orientation = Rotation.from_euler(
++            'z', init_yaw, degrees=False
++        ).as_quat()
++        character_orientation = ros_to_character_quaternion(logical_orientation)
++        character_quat = Gf.Quatd(
++            float(character_orientation[3]),
++            float(character_orientation[0]),
++            float(character_orientation[1]),
++            float(character_orientation[2]),
++        )
+         if type(self.prim.GetAttribute("xformOp:orient").Get()) == Gf.Quatf:
+-            self.prim.GetAttribute("xformOp:orient").Set(Gf.Quatf(Gf.Rotation(Gf.Vec3d(0, 0, 1), float(init_yaw)).GetQuat()))
++            self.prim.GetAttribute("xformOp:orient").Set(Gf.Quatf(character_quat))
+         else:
+-            self.prim.GetAttribute("xformOp:orient").Set(Gf.Rotation(Gf.Vec3d(0, 0, 1), float(init_yaw)).GetQuat())
++            self.prim.GetAttribute("xformOp:orient").Set(character_quat)
+ 
+         # Get the Skeleton root of the character
+         self.character_skel_root, root_path = Person._transverse_prim(self._current_stage, self._stage_prefix)
+@@ -354,13 +414,28 @@ class Person:
          # Get the animation graph that we are going to add to the person
          animation_graph = self._current_stage.GetPrimAtPath(Person.character_root_prim_path + "/Biped_Setup/CharacterAnimation/AnimationGraph")
  
@@ -2372,9 +2534,89 @@ index 6a9927c..4134ab4 100644
  
      @staticmethod
      def _transverse_prim(stage, stage_prefix):
+diff --git a/arena_isaac/test/test_character_frames.py b/arena_isaac/test/test_character_frames.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..efd7192fea048085d601297b6ffb868f954103f7
+--- /dev/null
++++ b/arena_isaac/test/test_character_frames.py
+@@ -0,0 +1,74 @@
++import math
++
++import pytest
++
++from pedestrian.simulator.logic.people.character_frames import (
++    CHARACTER_FORWARD_AXIS,
++    character_to_ros_quaternion,
++    ros_to_character_quaternion,
++)
++
++
++def _yaw_quaternion(yaw):
++    return (0.0, 0.0, math.sin(yaw / 2.0), math.cos(yaw / 2.0))
++
++
++def _yaw(quaternion):
++    x, y, z, w = quaternion
++    return math.atan2(2.0 * (w * z + x * y), 1.0 - 2.0 * (y * y + z * z))
++
++
++def _angle_error(left, right):
++    return abs(math.atan2(math.sin(left - right), math.cos(left - right)))
++
++
++def _rotate(quaternion, vector):
++    x, y, z, w = quaternion
++    vx, vy, vz = vector
++    # Unit-quaternion vector rotation without requiring NumPy or Isaac Sim.
++    tx = 2.0 * (y * vz - z * vy)
++    ty = 2.0 * (z * vx - x * vz)
++    tz = 2.0 * (x * vy - y * vx)
++    return (
++        vx + w * tx + y * tz - z * ty,
++        vy + w * ty + z * tx - x * tz,
++        vz + w * tz + x * ty - y * tx,
++    )
++
++
++@pytest.mark.parametrize(
++    "yaw",
++    (-math.pi, -2.3, -math.pi / 2.0, 0.0, math.pi / 2.0, 2.3, math.pi),
++)
++def test_character_native_minus_y_points_along_ros_heading(yaw):
++    rendered = ros_to_character_quaternion(_yaw_quaternion(yaw))
++    visual_forward = _rotate(rendered, CHARACTER_FORWARD_AXIS)
++
++    assert visual_forward[0] == pytest.approx(math.cos(yaw), abs=1.0e-12)
++    assert visual_forward[1] == pytest.approx(math.sin(yaw), abs=1.0e-12)
++    assert visual_forward[2] == pytest.approx(0.0, abs=1.0e-12)
++
++
++@pytest.mark.parametrize("yaw", (-math.pi, -1.7, 0.0, 0.8, math.pi))
++def test_ros_character_round_trip_preserves_logical_yaw(yaw):
++    logical = _yaw_quaternion(yaw)
++    recovered = character_to_ros_quaternion(
++        ros_to_character_quaternion(logical)
++    )
++
++    assert _angle_error(_yaw(recovered), yaw) <= 1.0e-12
++
++
++def test_character_yaw_has_positive_ninety_degree_asset_offset():
++    rendered = ros_to_character_quaternion(_yaw_quaternion(0.0))
++
++    assert _angle_error(_yaw(rendered), math.pi / 2.0) <= 1.0e-12
++
++
++@pytest.mark.parametrize(
++    "invalid",
++    ((), (0.0, 0.0, 1.0), (0.0, 0.0, 0.0, 0.0), (0.0, 0.0, math.nan, 1.0)),
++)
++def test_invalid_quaternion_is_rejected(invalid):
++    with pytest.raises(ValueError):
++        ros_to_character_quaternion(invalid)
 diff --git a/arena_people_msgs/CMakeLists.txt b/arena_people_msgs/CMakeLists.txt
 new file mode 100644
-index 0000000..9ff8dea
+index 0000000000000000000000000000000000000000..9ff8deafed961ca6537648f6dcd891364e6829e0
 --- /dev/null
 +++ b/arena_people_msgs/CMakeLists.txt
 @@ -0,0 +1,21 @@
@@ -2401,7 +2643,7 @@ index 0000000..9ff8dea
 +ament_package()
 diff --git a/arena_people_msgs/msg/Pedestrian.msg b/arena_people_msgs/msg/Pedestrian.msg
 new file mode 100644
-index 0000000..3ddd1e7
+index 0000000000000000000000000000000000000000..3ddd1e7a4d2fb94506a26921e004b48d8564f4d4
 --- /dev/null
 +++ b/arena_people_msgs/msg/Pedestrian.msg
 @@ -0,0 +1,4 @@
@@ -2411,7 +2653,7 @@ index 0000000..3ddd1e7
 +string model_uri
 diff --git a/arena_people_msgs/msg/Pedestrians.msg b/arena_people_msgs/msg/Pedestrians.msg
 new file mode 100644
-index 0000000..0e5f96b
+index 0000000000000000000000000000000000000000..0e5f96be115423f2048cf0158e8c6442d706ef35
 --- /dev/null
 +++ b/arena_people_msgs/msg/Pedestrians.msg
 @@ -0,0 +1,2 @@
@@ -2419,7 +2661,7 @@ index 0000000..0e5f96b
 +Pedestrian[] pedestrians
 diff --git a/arena_people_msgs/msg/SpawnPedestrian.msg b/arena_people_msgs/msg/SpawnPedestrian.msg
 new file mode 100644
-index 0000000..ccae71f
+index 0000000000000000000000000000000000000000..ccae71ff1ac2fdaaf4936123460d3af481cf0084
 --- /dev/null
 +++ b/arena_people_msgs/msg/SpawnPedestrian.msg
 @@ -0,0 +1,2 @@
@@ -2427,7 +2669,7 @@ index 0000000..ccae71f
 +string model_ref
 diff --git a/arena_people_msgs/package.xml b/arena_people_msgs/package.xml
 new file mode 100644
-index 0000000..4a6a068
+index 0000000000000000000000000000000000000000..4a6a068b377ce739adefad22b0c0b2f23ef07f62
 --- /dev/null
 +++ b/arena_people_msgs/package.xml
 @@ -0,0 +1,20 @@
@@ -2453,7 +2695,7 @@ index 0000000..4a6a068
 +</package>
 diff --git a/arena_people_msgs/srv/DeletePedestrians.srv b/arena_people_msgs/srv/DeletePedestrians.srv
 new file mode 100644
-index 0000000..5452e51
+index 0000000000000000000000000000000000000000..5452e51bf87625eac43c1a445d0c123c96279a6f
 --- /dev/null
 +++ b/arena_people_msgs/srv/DeletePedestrians.srv
 @@ -0,0 +1,5 @@
@@ -2464,7 +2706,7 @@ index 0000000..5452e51
 +int8[] results
 diff --git a/arena_people_msgs/srv/MovePedestrians.srv b/arena_people_msgs/srv/MovePedestrians.srv
 new file mode 100644
-index 0000000..d9dccce
+index 0000000000000000000000000000000000000000..d9dccce1c88d3b1b09ef63cade15a296b5347a14
 --- /dev/null
 +++ b/arena_people_msgs/srv/MovePedestrians.srv
 @@ -0,0 +1,5 @@
@@ -2475,7 +2717,7 @@ index 0000000..d9dccce
 +int8[] results
 diff --git a/arena_people_msgs/srv/SpawnPedestrians.srv b/arena_people_msgs/srv/SpawnPedestrians.srv
 new file mode 100644
-index 0000000..b6d9493
+index 0000000000000000000000000000000000000000..b6d94936ca726ac3ae9413a1037efb22ee487a5a
 --- /dev/null
 +++ b/arena_people_msgs/srv/SpawnPedestrians.srv
 @@ -0,0 +1,5 @@
@@ -2486,7 +2728,7 @@ index 0000000..b6d9493
 +int8[] results
 diff --git a/arena_people_msgs/srv/UpdatePedestrians.srv b/arena_people_msgs/srv/UpdatePedestrians.srv
 new file mode 100644
-index 0000000..082318c
+index 0000000000000000000000000000000000000000..082318cb2bd98b42e6943b61ac7f2f1e12cc1e45
 --- /dev/null
 +++ b/arena_people_msgs/srv/UpdatePedestrians.srv
 @@ -0,0 +1,6 @@

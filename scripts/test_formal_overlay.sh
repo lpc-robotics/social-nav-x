@@ -23,6 +23,15 @@ cd "$FEATURE_ROOT"
 # plugins, so disable discovery rather than altering the shared environment.
 export PYTEST_DISABLE_PLUGIN_AUTOLOAD=1
 
+# arena_isaac's full test suite imports Isaac Kit's `omni` modules and cannot
+# run in the plain ROS Python process.  The frame conversion module is pure
+# Python, so exercise its focused regression test explicitly without loading
+# the Kit-dependent package tests.
+ROS_PYTHON="$BASE_WS/.conda/arena_ros/bin/python"
+PYTHONPATH="$FEATURE_ROOT/src/arena-isaac/arena_isaac${PYTHONPATH:+:$PYTHONPATH}" \
+    "$ROS_PYTHON" -m pytest -q \
+    "$FEATURE_ROOT/src/arena-isaac/arena_isaac/test/test_character_frames.py"
+
 colcon --log-base "$OVERLAY_ROOT/test-log" test \
     --build-base "$OVERLAY_ROOT/build" \
     --install-base "$OVERLAY_ROOT/install" \
@@ -30,5 +39,9 @@ colcon --log-base "$OVERLAY_ROOT/test-log" test \
     --event-handlers console_cohesion+
 
 colcon test-result \
-    --test-result-base "$OVERLAY_ROOT/build" \
+    --test-result-base "$OVERLAY_ROOT/build/arena_humble_compat" \
+    --verbose
+
+colcon test-result \
+    --test-result-base "$OVERLAY_ROOT/build/formal_social_behavior" \
     --verbose

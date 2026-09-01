@@ -15,6 +15,10 @@ from pxr import Gf, Sdf
 from scipy.spatial.transform import Rotation
 
 from pedestrian.simulator.logic.people.person_controller import PersonController
+from pedestrian.simulator.logic.people.character_frames import (
+    character_to_ros_quaternion,
+    ros_to_character_quaternion,
+)
 from pedestrian.simulator.logic.people_manager import PeopleManager
 
 # Extension APIs
@@ -243,12 +247,16 @@ class Person:
                 self.character_graph.set_variable("Walk", 0.0)
                 self.character_graph.set_variable("Action", "Idle")
 
-            rot = self._state.orientation
+            logical_rot = self._state.orientation
             # A stationary HuNav behavior can still command a changing yaw
             # (Surprised turns to look at the robot). Locomotion owns heading
             # while walking; only apply the explicit pose orientation at rest.
             if speed <= 0.05 and self._command_orientation is not None:
-                rot = self._command_orientation
+                logical_rot = self._command_orientation
+            # ROS poses use local +X as forward, while Isaac People assets use
+            # local -Y. Keep _state in ROS semantics and offset only at the
+            # Character Graph boundary.
+            rot = ros_to_character_quaternion(logical_rot)
             self.character_graph.set_world_transform(
                 carb.Float3(float(desired[0]), float(desired[1]), float(desired[2])),
                 carb.Float4(float(rot[0]), float(rot[1]), float(rot[2]), float(rot[3])),
@@ -293,10 +301,18 @@ class Person:
             position: (x, y, z) world-space position.
             orientation: (x, y, z, w) quaternion (ROS convention).
         """
+        character_orientation = ros_to_character_quaternion(orientation)
+        logical_orientation = character_to_ros_quaternion(character_orientation)
+
         self.prim.GetAttribute("xformOp:translate").Set(
             Gf.Vec3d(float(position[0]), float(position[1]), float(position[2]))
         )
-        quat = Gf.Quatd(float(orientation[3]), float(orientation[0]), float(orientation[1]), float(orientation[2]))
+        quat = Gf.Quatd(
+            float(character_orientation[3]),
+            float(character_orientation[0]),
+            float(character_orientation[1]),
+            float(character_orientation[2]),
+        )
         orient_attr = self.prim.GetAttribute("xformOp:orient")
         if type(orient_attr.Get()) == Gf.Quatf:
             orient_attr.Set(Gf.Quatf(quat))
@@ -308,7 +324,12 @@ class Person:
         if self._character_graph:
             self._character_graph.set_world_transform(
                 carb.Float3(float(position[0]), float(position[1]), float(position[2])),
-                carb.Float4(float(orientation[0]), float(orientation[1]), float(orientation[2]), float(orientation[3])),
+                carb.Float4(
+                    float(character_orientation[0]),
+                    float(character_orientation[1]),
+                    float(character_orientation[2]),
+                    float(character_orientation[3]),
+                ),
             )
 
         self._command_position = None
@@ -317,7 +338,7 @@ class Person:
         self._command_age = 0.0
         self._path_look = None
         self._state.position = np.array(position)
-        self._state.orientation = np.array(orientation)
+        self._state.orientation = np.array(logical_orientation)
 
     def update_state(self, dt: float):
         """
@@ -339,7 +360,9 @@ class Person:
 
         # Update the current state of the person
         self._state.position = np.array([pos[0], pos[1], pos[2]])
-        self._state.orientation = np.array([rot.x, rot.y, rot.z, rot.w])
+        self._state.orientation = np.array(
+            character_to_ros_quaternion([rot.x, rot.y, rot.z, rot.w])
+        )
 
         # Signal the controller the updated state
         if self._controller:
@@ -362,10 +385,20 @@ class Person:
         # Set the initial position and orientation of the person
         self.prim.GetAttribute("xformOp:translate").Set(Gf.Vec3d(float(init_pos[0]), float(init_pos[1]), float(init_pos[2])))
 
+        logical_orientation = Rotation.from_euler(
+            'z', init_yaw, degrees=False
+        ).as_quat()
+        character_orientation = ros_to_character_quaternion(logical_orientation)
+        character_quat = Gf.Quatd(
+            float(character_orientation[3]),
+            float(character_orientation[0]),
+            float(character_orientation[1]),
+            float(character_orientation[2]),
+        )
         if type(self.prim.GetAttribute("xformOp:orient").Get()) == Gf.Quatf:
-            self.prim.GetAttribute("xformOp:orient").Set(Gf.Quatf(Gf.Rotation(Gf.Vec3d(0, 0, 1), float(init_yaw)).GetQuat()))
+            self.prim.GetAttribute("xformOp:orient").Set(Gf.Quatf(character_quat))
         else:
-            self.prim.GetAttribute("xformOp:orient").Set(Gf.Rotation(Gf.Vec3d(0, 0, 1), float(init_yaw)).GetQuat())
+            self.prim.GetAttribute("xformOp:orient").Set(character_quat)
 
         # Get the Skeleton root of the character
         self.character_skel_root, root_path = Person._transverse_prim(self._current_stage, self._stage_prefix)

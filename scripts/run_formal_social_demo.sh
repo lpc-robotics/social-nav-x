@@ -37,6 +37,14 @@ set +u
 source "$OVERLAY_ROOT/install/local_setup.bash"
 set -u
 
+ARENA_ISAAC_PREFIX="$(ros2 pkg prefix arena_isaac)"
+EXPECTED_ARENA_ISAAC_PREFIX="$OVERLAY_ROOT/install/arena_isaac"
+if [[ "$(readlink -f "$ARENA_ISAAC_PREFIX")" != "$(readlink -f "$EXPECTED_ARENA_ISAAC_PREFIX")" ]]; then
+    echo "Formal arena_isaac overlay is missing or stale." >&2
+    echo "Run: $SCRIPT_DIR/build_formal_overlay.sh" >&2
+    exit 1
+fi
+
 AUTOMATA_CONFIG="${FORMAL_SOCIAL_AUTOMATA_CONFIG:-$FEATURE_ROOT/src/formal_social_behavior/config/formal_social_automata.yaml}"
 AGENT_CONFIG="${FORMAL_SOCIAL_AGENT_CONFIG:-$FEATURE_ROOT/src/formal_social_behavior/config/formal_social_agent.yaml}"
 if [[ ! -f "$AUTOMATA_CONFIG" || ! -f "$AGENT_CONFIG" ]]; then
@@ -62,6 +70,7 @@ AGENT_SHA256="$(sha256sum "$AGENT_CONFIG" | awk '{print $1}')"
     printf 'navigation=%s\n' "$NAVIGATION"
     printf 'ideal_chassis=%s\n' "$ARENA_IDEAL_CHASSIS"
     printf 'physics_dt=%s\n' "$ARENA_PHYSICS_DT"
+    printf 'character_forward_conversion=%s\n' 'ros_plus_x_to_isaac_minus_y'
     printf 'ideal_linear_acceleration=%s\n' "${ARENA_IDEAL_LINEAR_ACCELERATION:-2.0}"
     printf 'ideal_command_timeout=%s\n' "$ARENA_IDEAL_COMMAND_TIMEOUT"
 } > "$RUN_DIR/run_manifest.txt"

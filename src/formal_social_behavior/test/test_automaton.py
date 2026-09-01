@@ -248,7 +248,7 @@ class AutomatonPathTests(unittest.TestCase):
         self.assertEqual(still_near.context.state, FormalState.CURIOUS)
         self.assertEqual(outside.context.state, FormalState.NORMAL)
 
-    def test_robot_lost_immediately_recovers_non_normal_states(self):
+    def test_robot_lost_immediately_recovers_non_normal_states_when_safe(self):
         for state in (
             FormalState.ATTENTION,
             FormalState.CURIOUS,
@@ -262,6 +262,31 @@ class AutomatonPathTests(unittest.TestCase):
                 )
                 self.assertEqual(result.context.state, FormalState.NORMAL)
                 self.assertEqual(result.transition.cause, TransitionCause.ROBOT_LOST)
+
+    def test_scared_does_not_recover_on_lost_while_danger_is_active(self):
+        context = AutomatonContext(
+            state=FormalState.SCARED,
+            state_entered_ns=0,
+            last_stamp_ns=0,
+        )
+        danger_and_lost = self.automaton.step(
+            context,
+            event_snapshot(
+                SECOND,
+                SocialEvent.ROBOT_LOST,
+                SocialEvent.ROBOT_FAST_APPROACH,
+            ),
+        )
+        safe_lost = self.automaton.step(
+            danger_and_lost.context,
+            event_snapshot(2 * SECOND, SocialEvent.ROBOT_LOST),
+        )
+
+        self.assertEqual(danger_and_lost.context.state, FormalState.SCARED)
+        self.assertIsNone(danger_and_lost.transition)
+        self.assertIsNone(danger_and_lost.context.safe_since_ns)
+        self.assertEqual(safe_lost.context.state, FormalState.NORMAL)
+        self.assertEqual(safe_lost.transition.cause, TransitionCause.ROBOT_LOST)
 
 
 class AutomatonDeterminismTests(unittest.TestCase):
