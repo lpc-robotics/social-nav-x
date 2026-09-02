@@ -62,6 +62,12 @@ person.py            429a25528bb9cc5cd7b16616a6099d0644777e90155e501ff0099c544ad
 character_frames.py  2e018db9ad9c34c8e4cedb057637628d08f6c7dd4be0fe74fe5ac5cf47d01eaa
 ```
 
+The related service source `arena_isaac/services/UpdatePedestrians.py` forwards
+the ROS pose quaternion into `Person.update_command()` and has SHA-256
+`adf6b616a22aa540c9eee4a7eb999c492903e66f6f973c5e42a3a781ab43a0a6`.
+It already byte-matched the shared install before this selective deployment, so
+it does not appear in the two-file pre/post install delta.
+
 Colcon also refreshed the timestamps of its standard top-level generated
 `install/setup*` and `local_setup*` files. The package inventory did not change,
 and `install/setup.bash` retained SHA-256
@@ -86,7 +92,7 @@ responses=3,4,5,6 robot_distance=0.967 robot_states=372`. Runtime samples were
 Evidence is at
 `logs/regression/shared_install_character_frame_fix_20260902/verification.txt`
 (SHA-256
-`72ef2199f4cc5fa56f9d5c84ab7d35e58c97a6a44adc206c098ef30dc2b39596`)
+`0ef943841843500a9a0d25a01e65a72f415174f2644b2bd5c4f4b97426823f7d`)
 and `logs/runs/20260902_170015_six_behaviors_gpu3/`. Restore only by following
 `/home/lpc/workspace/arena5_ws_archives/20260902_shared_arena_isaac_install_pre/RESTORE.md`;
 the pre-deployment archive SHA-256 is

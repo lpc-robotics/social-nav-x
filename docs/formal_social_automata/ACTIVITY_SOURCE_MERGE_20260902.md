@@ -171,6 +171,13 @@ Person.py            429a25528bb9cc5cd7b16616a6099d0644777e90155e501ff0099c544ad
 character_frames.py  2e018db9ad9c34c8e4cedb057637628d08f6c7dd4be0fe74fe5ac5cf47d01eaa
 ```
 
+`arena_isaac/services/UpdatePedestrians.py` is also part of the source chain: it
+forwards `Pedestrian.pose.orientation` to `Person.update_command()`. Its source
+and installed copies already matched before this deployment and remain
+byte-identical at SHA-256
+`adf6b616a22aa540c9eee4a7eb999c492903e66f6f973c5e42a3a781ab43a0a6`,
+so it is not listed as a pre/post shared-install delta.
+
 The launcher commit `d8b026d` defaults to `mode=shared`, validates both package
 prefixes and the installed coordinate source before launch, and retains
 `ARENA_SIX_BEHAVIORS_USE_OVERLAY=true` only for comparison. Preflight and GPU 3
@@ -189,7 +196,7 @@ Evidence:
 
 ```text
 /home/lpc/workspace/arena5_ws/logs/regression/shared_install_character_frame_fix_20260902/verification.txt
-SHA-256 72ef2199f4cc5fa56f9d5c84ab7d35e58c97a6a44adc206c098ef30dc2b39596
+SHA-256 0ef943841843500a9a0d25a01e65a72f415174f2644b2bd5c4f4b97426823f7d
 /home/lpc/workspace/arena5_ws/logs/runs/20260902_170015_six_behaviors_gpu3/runtime_manifest.txt
 SHA-256 d357874656afa1beee2737890702ae5ad129f56c0921faee66b52ef6451d5b0c
 ```

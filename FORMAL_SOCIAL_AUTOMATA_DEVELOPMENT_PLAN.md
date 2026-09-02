@@ -1162,16 +1162,20 @@ D6、Nav2 或碰撞文件；嵌套仓库 index 哈希保持一致。按用户要
    - 新增不依赖 Isaac/rclpy 的四元数归一化与乘法；
    - `ros_to_character_quaternion()` 实现 `q_ros * qz(+pi/2)`；
    - `character_to_ros_quaternion()` 实现 `q_character * qz(-pi/2)`。
-2. `src/arena-isaac/arena_isaac/pedestrian/simulator/logic/people/person.py`
+2. `src/arena-isaac/arena_isaac/arena_isaac/services/UpdatePedestrians.py`
+   - 将 ROS `Pedestrian.pose.orientation` 原样转交 `Person.update_command()`，为 Surprised
+     静止 look-at 提供权威命令姿态；
+   - 该文件在本轮共享构建前已是最新安装内容，本轮重新确认源码/install 字节一致。
+3. `src/arena-isaac/arena_isaac/pedestrian/simulator/logic/people/person.py`
    - 在 Character Graph 写入、初始 spawn 和 `set_world_pose()` 边界应用正向转换；
    - `update_state()` 读回 graph 姿态时应用逆向转换，保持 ROS `/human_states` 语义；
    - 保存并归一化 HuNav 命令姿态，静止时让 Surprised 使用显式 look-at yaw；
    - 行走时继续由 locomotion/PathPoints 控制方向，避免 Curious、Scared 等移动行为被静止
      姿态覆盖。
-3. `src/arena-isaac/arena_isaac/test/test_character_frames.py`
+4. `src/arena-isaac/arena_isaac/test/test_character_frames.py`
    - 覆盖七个 yaw 的局部 `-Y` 视觉前向、五个往返 yaw、`+90°` 常量和非法四元数，共
      `17` 个测试。
-4. `scripts/run_six_behaviors.sh`
+5. `scripts/run_six_behaviors.sh`
    - 最新提交 `d8b026d` 默认使用共享 install；
    - 启动前验证 `arena_isaac`/compat prefix、`character_frames.py` 存在及
      `Person.py` 与活动源码字节一致；
@@ -1181,6 +1185,7 @@ D6、Nav2 或碰撞文件；嵌套仓库 index 哈希保持一致。按用户要
 源码哈希为：
 
 ```text
+UpdatePedestrians.py        adf6b616a22aa540c9eee4a7eb999c492903e66f6f973c5e42a3a781ab43a0a6
 Person.py                   429a25528bb9cc5cd7b16616a6099d0644777e90155e501ff0099c544adfa7f1
 character_frames.py         2e018db9ad9c34c8e4cedb057637628d08f6c7dd4be0fe74fe5ac5cf47d01eaa
 test_character_frames.py    53d577dcd224ed2b5295ed001dc2e8f208c926ace2436158c03771701a315233
@@ -1189,7 +1194,9 @@ run_six_behaviors.sh         9f8d26eae21348e00e6141f95829e51bf5cbc21e0c57d541bd3
 
 ### 18.2 共享构建与安装结果
 
-构建前保存了 `build/arena_isaac`、`install/arena_isaac`、入口脚本和上述三份坐标源码。
+构建前保存了 `build/arena_isaac`、`install/arena_isaac`、入口脚本，以及本轮预期发生安装
+差异的 `Person.py`、`character_frames.py` 和坐标测试；`UpdatePedestrians.py` 已存在于构建前
+共享安装，因此同时包含在被归档的完整 `install/arena_isaac` 中。
 随后只执行：
 
 ```bash
@@ -1245,7 +1252,7 @@ SIX_BEHAVIORS_VERIFY_OK types=1,2,3,4,5,6 active=3,5 responses=3,4,5,6 robot_dis
 
 ```text
 /home/lpc/workspace/arena5_ws/logs/regression/shared_install_character_frame_fix_20260902/verification.txt
-SHA-256 72ef2199f4cc5fa56f9d5c84ab7d35e58c97a6a44adc206c098ef30dc2b39596
+SHA-256 0ef943841843500a9a0d25a01e65a72f415174f2644b2bd5c4f4b97426823f7d
 /home/lpc/workspace/arena5_ws/logs/runs/20260902_170015_six_behaviors_gpu3/runtime_manifest.txt
 SHA-256 d357874656afa1beee2737890702ae5ad129f56c0921faee66b52ef6451d5b0c
 ```
