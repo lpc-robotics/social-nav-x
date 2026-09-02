@@ -43,9 +43,25 @@ set -u
 VISUAL_ID="$(date +%Y%m%d_%H%M%S_%N)_${SCENARIO}_pid${BASHPID}"
 VISUAL_DIR="$FEATURE_ROOT/logs/formal_visual/$VISUAL_ID"
 mkdir -p "$VISUAL_DIR"
+if SOURCE_GIT_COMMIT="$(git -C "$FEATURE_ROOT" rev-parse HEAD 2>/dev/null)"; then
+    SOURCE_REVISION_KIND="git_commit"
+    SOURCE_REVISION="$SOURCE_GIT_COMMIT"
+else
+    SOURCE_GIT_COMMIT="not-a-root-git-worktree"
+    SOURCE_REVISION_KIND="merged_content_sha256"
+    SOURCE_REVISION="$(
+        sha256sum \
+            "$FEATURE_ROOT/src/formal_social_behavior/formal_social_behavior/automaton.py" \
+            "$FEATURE_ROOT/src/arena-isaac/arena_humble_compat/arena_humble_compat/hunav_six_behaviors_bridge.py" \
+            "$FEATURE_ROOT/src/arena-isaac/arena_isaac/pedestrian/simulator/logic/people/person.py" \
+            | sha256sum | awk '{print $1}'
+    )"
+fi
 {
     printf 'visual_id=%s\n' "$VISUAL_ID"
-    printf 'git_commit=%s\n' "$(git -C "$FEATURE_ROOT" rev-parse HEAD)"
+    printf 'git_commit=%s\n' "$SOURCE_GIT_COMMIT"
+    printf 'source_revision_kind=%s\n' "$SOURCE_REVISION_KIND"
+    printf 'source_revision=%s\n' "$SOURCE_REVISION"
     printf 'scenario=%s\n' "$SCENARIO"
     printf 'hold_seconds=%s\n' "$HOLD_SECONDS"
     printf 'ros_domain_id=%s\n' "$ROS_DOMAIN_ID"

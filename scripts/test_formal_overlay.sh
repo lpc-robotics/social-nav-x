@@ -33,6 +33,10 @@ PYTHONPATH="$FEATURE_ROOT/src/arena-isaac/arena_isaac${PYTHONPATH:+:$PYTHONPATH}
     "$FEATURE_ROOT/src/arena-isaac/arena_isaac/test/test_character_frames.py"
 
 colcon --log-base "$OVERLAY_ROOT/test-log" test \
+    --base-paths \
+        "$FEATURE_ROOT/src/arena-isaac/arena_isaac" \
+        "$FEATURE_ROOT/src/arena-isaac/arena_humble_compat" \
+        "$FEATURE_ROOT/src/formal_social_behavior" \
     --build-base "$OVERLAY_ROOT/build" \
     --install-base "$OVERLAY_ROOT/install" \
     --packages-select arena_humble_compat formal_social_behavior \

@@ -4,14 +4,15 @@
 > 唯一源码基线：`51ab117dedf6a8173c1704f0edd8d01c7938fb8e`
 > 基线标签：`arena5-isaac5.1-archive-20260829`
 > 开发目录：`/home/lpc/workspace/social-nav-x-formal-v1`
-> 运行基线：`/home/lpc/workspace/arena5_ws`（只读 underlay，不在其中开发）
+> 运行工作区：`/home/lpc/workspace/arena5_ws`（2026-09-02 已定向合并源码；共享
+> `install/`、Conda 和依赖仍为只读 underlay，构建产物隔离在 `.colcon-formal-v1`）
 
 本文是 V1 的实现记录、验收合同和后续 Codex Agent 的权威开发文档。原始需求快照位于
 `docs/formal_social_automata/source_spec_20260830.md`，经项目实况校正后的接口、范围、
 阈值、测试和恢复规则以本文为准。不可变事实和风险边界另见
 `docs/formal_social_automata/BASELINE.md`。
 
-## 0. 当前交付状态（2026-09-01）
+## 0. 当前交付状态（2026-09-02）
 
 V1 代码闭环和计划内自动化、真实 HuNav、GPU 仿真及基线回归均已完成。实现阶段提交为：
 
@@ -53,6 +54,15 @@ a048bfd  test: deliver formal social automata v1
   `logs/regression/original_with_character_frame_fix_20260901/`，`arena_isaac` 与 compat 的
   package prefix 都是 feature overlay，并取得
   `SIX_BEHAVIORS_VERIFY_OK types=1,2,3,4,5,6`。
+- 经用户授权，formal 源码及 Character 前向轴修复已定向合并到
+  `/home/lpc/workspace/arena5_ws`；该目录不是根 Git 仓库，因此运行 manifest 以三个关键
+  源文件的组合 SHA-256 `3ac7a64e30f381221cc0835059ac61c43e86961f603e582625bf58d529e7e2f4`
+  标识合并内容。原工作区使用独立 `.colcon-formal-v1` 构建成功，`17/17`、`20/20`、
+  `76/76` 测试通过；sudden 可视化误差 `2.883°`，原六行为 strict marker 不变。
+- 原工作区在合并前同样存在约 `90°` 显示偏差：其实际 `Person.py` SHA-256 为
+  `883c1aaec2c242521015313c57f8ce562d5a6122ada27b6c4bcb6a58615df684`，没有
+  ROS `+X` 与 Character `-Y` 的边界转换，且 `character_frames.py` 不存在。现已用与
+  feature 完全相同的双向转换修复，源码 SHA-256 和验证证据见第 16 节。
 - `patches/arena-isaac.patch` SHA-256 为
   `1d404fca247c81a6dfbfaa470cfd35a7ca8005d0b2cd2be056fd9bf141875b23`；在固定上游
   `16b8e3416517d8c3dc1b5038df4fe11b9a6df46c` 上正向和应用后反向
@@ -69,8 +79,9 @@ fast 验收采用 `NAVIGATION=false`、唯一 `/cmd_vel` 发布者和 odometry �
 
 ## 1. 交付目标与成功定义
 
-V1 在不改变活动工作区、现有六行为、D6、Nav2 及 Isaac 依赖的前提下，交付一个
-`1 Robot + 1 Human` 闭环：
+V1 最初在不改变活动工作区的隔离 feature 中完成；2026-09-02 经用户授权仅将交付源码
+定向合并到活动工作区，继续保持现有六行为、D6、Nav2、共享 install 与 Isaac 依赖不变。
+交付的是 `1 Robot + 1 Human` 闭环：
 
 ```text
 robot/human map-plane kinematics + simulation stamp
@@ -104,7 +115,8 @@ robot/human map-plane kinematics + simulation stamp
 4. HuNav profile 改变时恰好执行必要的 reset/recompute；同 profile 的状态变化不 reset。
 5. 独立 formal demo、JSON topic、JSONL transition trace 和测试可用。
 6. 原六行为入口和 marker 不变，feature overlay 启用前后都能回归。
-7. 活动工作区、依赖环境和受保护文件没有被修改；停止 overlay 后可立即回到基线。
+7. 活动工作区只有备份清单所列 formal/bridge/Character 文件发生有意源码变更；依赖环境、
+   嵌套 Git index 和其余受保护文件不变，可按定向快照恢复合并前版本。
 
 ## 2. 范围、非目标与项目事实修正
 
@@ -130,7 +142,8 @@ robot/human map-plane kinematics + simulation stamp
 ### 2.3 对原始说明的关键修正
 
 - 实际运行工作区不是可直接提交的单仓库，而是包含 11 个独立嵌套仓库及有意未提交
-  改动的部署环境。本次只在归档仓库的隔离 worktree 开发。
+  改动的部署环境。初始实现只在归档仓库的隔离 worktree 开发；2026-09-02 的源码合并
+  采用精确 allowlist、合并前快照和独立 build/install/log，不把活动目录误当作单仓库提交。
 - HuNav v1 已经内部使用 BehaviorTree.CPP；问题不是“缺少 BT”，而是树只在初始化时
   按 `behavior.type` 创建，后续 `/compute_agents` 中直接改 type 不会动态换树。
 - V1 因而采用现有 `/reset_agents` 代理，不修改 HuNav 核心。单人场景接受最多一个
@@ -165,21 +178,25 @@ sha256sum docs/formal_social_automata/source_spec_20260830.md
 
 保护规则：
 
-- 不编辑 `/home/lpc/workspace/arena5_ws`；不得在其嵌套仓库运行
-  `reset/clean/checkout/pull/rebase`。
+- 除 2026-09-02 已授权并记录在第 16 节的定向源码 allowlist 外，不继续编辑
+  `/home/lpc/workspace/arena5_ws`；不得在其嵌套仓库运行
+  `reset/clean/checkout/pull/rebase`，也不得覆盖用户已有的未提交改动。
 - 不运行会写活动工作区或改变 intent-to-add 的原全量 `scripts/build.sh`。
 - 不执行 `sudo`、`apt`、`rosdep`、`pip`、`conda`、`mamba` 安装。
 - 不改 Isaac 环境、Conda 元数据、lockfile、`.repos`、`upstream/manifest.tsv`。
-- `/home/lpc/workspace/arena5_ws/.conda/arena_ros` 和其 `install/` 仅作为只读
-  underlay；worktree 自己持有 `build/install/log` overlay。
+- `/home/lpc/workspace/arena5_ws/.conda/arena_ros` 和共享 `install/` 仅作为只读
+  underlay；feature 使用 `.colcon`，合并后的活动源码使用 `.colcon-formal-v1`，各自持有
+  独立 `build/install/log`。
 - 只在独立 overlay 构建 `arena_isaac`、`arena_humble_compat` 与
   `formal_social_behavior`；其中 `arena_isaac` 必须来自 feature，确保坐标边界修复生效。
 - 不自动 merge `main`，不 push 远端；每阶段通过后再形成独立 commit。
 
-受保护链路包括活动工作区中的原 `scripts/run_six_behaviors.sh`、六行为 YAML/launch、
-`Person.py`、D6、odom、碰撞、Nav2 和 Isaac Character。feature overlay 内的 `Person.py`
-只增加可逆的姿态坐标边界，不修改活动副本或 Isaac/Conda 依赖。常规回退是停止 formal
-进程并在新 shell 中只 source 原 `arena5_ws`；不需要恢复快照。
+受保护链路包括活动工作区中的原 `scripts/run_six_behaviors.sh`、六行为 YAML/launch、D6、
+odom、碰撞、Nav2 和 Isaac/Conda 依赖，它们没有被本次源码合并修改。活动工作区
+`Person.py` 是明确授权的例外：只同步已验证的动画接入修复和可逆姿态坐标边界，并新增
+纯函数 `character_frames.py`；合并前内容已单独归档。常规停用只需停止 formal 进程并在
+新 shell 中不 source `.colcon-formal-v1`；若要撤销源码合并，必须按第 16 节的定向
+`RESTORE.md` 恢复，不得覆盖式解压。
 
 ## 4. 代码布局与职责
 
@@ -744,8 +761,9 @@ formal run 目录按 safe1/safe2/sudden1/sudden2/fast1/fast2 为：
 - 无持续 future 积压、service error、NaN/Inf 或同 profile 重复 reset；
 - Curious 时人机距离下降；Scared 产生向外径向速度/负闭合速度；Surprised 速度归零且
   Character 的局部 `-Y` 视觉前向在 `3°` 内转向机器人；恢复 Regular 后速度/位移一致；
-- 人物 pose 仍由 HuNav 结果驱动；活动工作区 `Person.py`、D6 和 Nav2 守护文件哈希未变，
-  只有 feature overlay 的 `Person.py` 增加姿态边界转换。
+- 人物 pose 仍由 HuNav 结果驱动；初始 feature 验收阶段只有 overlay 的 `Person.py` 增加
+  姿态边界转换。2026-09-02 定向合并后，活动工作区 `Person.py` 也包含同一转换；D6、
+  碰撞、Nav2 和共享依赖仍未改变。
 
 最终 12 个互不复用的动作前/后窗口实测 compute `10.882--22.375 Hz`、display
 `4.678--5.929 Hz`、max step `0.025 s`、lag `0.005--0.008 s`；每个 case 均有且仅有
@@ -814,10 +832,13 @@ SIX_BEHAVIORS_VERIFY_OK types=1,2,3,4,5,6 active=3,5 responses=3,4,5,6 robot_dis
 `4.738--4.874 Hz`，`max_dt=0.025 s`、lag `0.008 s`；验收后通过 Ctrl-C 清洁退出。
 原工作区既有 no-overlay 稳定段约 `16.0--16.5 Hz` compute / `4.8--4.9 Hz` display。
 
-22/22 底盘矩阵和 3/3 碰撞套件未重跑：活动工作区的 D6、碰撞、`Person.py` 与 Nav2
-守护文件哈希均未变化；feature 的姿态转换不改变 robot/collision 实现，并已由三种一人
-GPU 场景和修复后的原六行为 strict run 定向覆盖。沿用底盘/碰撞基线符合“只有活动守护
-文件变化才触发全量重跑”的条件。最终测试只有两条依赖侧 Lark deprecation warning。
+2026-09-02 源码合并后的底盘/碰撞状态必须按实际执行记录理解：因为活动工作区
+`Person.py` 被有意修改，最初启动了底盘矩阵；首次 case 1 因 `/SpawnUrdf` 启动时序失败，
+没有生成测量结果。重试目录中最终落盘 `18/22` 条记录，18 条均 `valid=true`；之后用户
+明确要求跳过底盘和碰撞测试，因此剩余 `4/22` **未执行**，碰撞套件为 `0/3`
+**未执行**。这些项目没有被宣称为完整通过，也不再自动续跑。部分证据和哈希见第 16 节；
+D6/碰撞源码未被本次合并修改，历史完整 `22/22`、`3/3` 基线仍可参考，但不能替代本次
+未执行项。formal 测试的两条 warning 仍只是依赖侧 Lark deprecation warning。
 
 ## 13. 实施顺序、提交与补丁维护
 
@@ -835,6 +856,9 @@ feature HEAD 为交付点：
    `git rev-parse HEAD` 获取。
 6. **Character 坐标帧修复**：ROS `+X` 与 Isaac People `-Y` 前向轴双向转换、Scared
    danger/lost 安全优先、三模式 GPU 复核、补丁与文档刷新；同样以最终 HEAD 获取 commit。
+7. **活动源码交付收口**：原工作区定向备份/合并、独立 `.colcon-formal-v1` 构建测试、
+   sudden 与 strict 实测、无根 Git manifest 兼容、测试 base-path 隔离及本文第 16 节证据；
+   该提交同样无法在自身正文中写入完整 hash，以最终 `git rev-parse HEAD` 为准。
 
 bridge 变化后，基于 `upstream/manifest.tsv` 中固定 arena-isaac commit
 `16b8e3416517d8c3dc1b5038df4fe11b9a6df46c` 重新生成二进制安全
@@ -878,6 +902,23 @@ env DRL_VO_GUI=false GPU_ID=3 FORMAL_ACCEPTANCE_DOMAIN_BASE=181 \
   scripts/test_formal_simulation_matrix.sh
 ```
 
+原工作区源码合并后的隔离构建与可视化命令如下；不得改用共享 `build/install/log`：
+
+```bash
+cd /home/lpc/workspace/arena5_ws
+env ARENA_BASE_WS="$PWD" FORMAL_OVERLAY_ROOT="$PWD/.colcon-formal-v1" \
+  scripts/build_formal_overlay.sh
+env ARENA_BASE_WS="$PWD" FORMAL_OVERLAY_ROOT="$PWD/.colcon-formal-v1" \
+  scripts/test_formal_overlay.sh
+
+# 终端 1
+GPU_ID=3 NAVIGATION=false FORMAL_OVERLAY_ROOT="$PWD/.colcon-formal-v1" \
+  scripts/run_formal_social_demo.sh
+# 终端 2：三者每次只运行一个
+FORMAL_OVERLAY_ROOT="$PWD/.colcon-formal-v1" \
+  scripts/run_formal_social_visual_scenario.sh sudden 2.0
+```
+
 生效配置 SHA-256：
 
 ```text
@@ -902,7 +943,8 @@ formal_social_agent.yaml     a3f03ea3ea74178377e06aea86e764f47225e3daeb90abd2190
 
 ## 15. 后续 Codex Agent 执行检查单
 
-1. 先读 `BASELINE.md`、本文、`HANDOFF.md` 和恢复说明，确认只在 feature worktree。
+1. 先读 `BASELINE.md`、本文、`HANDOFF.md` 和恢复说明。新开发只在 feature worktree；若
+   必须维护已合并活动源码，先核对第 16 节 allowlist、定向快照和嵌套仓库现有状态。
 2. 检查 `git status`，区分其他 Agent/用户已有改动，禁止覆盖或清理。
 3. 修改前保存相关文件哈希；只在当前阶段范围内编辑。
 4. 核心先纯测试，再接 ROS；所有状态变更遵循 candidate/commit。
@@ -911,6 +953,87 @@ formal_social_agent.yaml     a3f03ea3ea74178377e06aea86e764f47225e3daeb90abd2190
 7. 记录真实测试证据，刷新 arena-isaac patch 并验证正反 apply。
 8. 对照守护哈希和原 marker 回归；任何基线变化先停止交付并调查。
 9. 更新 HANDOFF 和本文，仅把已取得的结果写成“通过”。
+
+## 16. 原工作区源码合并与坐标问题结论（2026-09-02）
+
+### 16.1 是否存在同一 `90°` 问题
+
+结论是**存在且需要修复**。合并前实际运行副本
+`src/arena-isaac/arena_isaac/pedestrian/simulator/logic/people/person.py` 的 SHA-256 为
+`883c1aaec2c242521015313c57f8ce562d5a6122ada27b6c4bcb6a58615df684`；它把 ROS
+四元数直接交给 Character Graph，并直接读回 graph 四元数，没有资产前向轴修正。
+`character_frames.py` 当时不存在。由于 ROS 平面 yaw 以局部 `+X` 为正前方，而当前 Isaac
+People 资产视觉正前方为局部 `-Y`，同一个数值 yaw 会在画面中相差约 `90°`。
+
+修复只发生在 ROS/Character 边界：
+
+```text
+写入 Character：q_character = q_ros * qz(+pi/2)
+读回 ROS：      q_ros       = q_character * qz(-pi/2)
+```
+
+因此 `/human_states`、HuNav、自动机 FOV 和 verifier 继续使用 ROS `+X` 语义；仅 Isaac
+资产得到所需偏移。合并后活动副本与 feature 字节一致：
+
+```text
+Person.py            429a25528bb9cc5cd7b16616a6099d0644777e90155e501ff0099c544adfa7f1
+character_frames.py  2e018db9ad9c34c8e4cedb057637628d08f6c7dd4be0fe74fe5ac5cf47d01eaa
+test_character_frames.py
+                     53d577dcd224ed2b5295ed001dc2e8f208c926ace2436158c03771701a315233
+```
+
+该边界转换同样服务于 Curious、Surprised、Scared 的显示姿态，不改变它们的 HuNav 速度、
+目标或状态机转移。原工作区 sudden 实测停止速度 `0.000000 m/s`，面对机器人误差
+`2.883°`；原六行为 strict marker 仍为 types `1,2,3,4,5,6`，说明转换没有破坏现有
+行为入口。
+
+### 16.2 合并、构建与验证
+
+活动根目录不是 Git 仓库，所以没有伪造顶层 commit。合并内容由关键源码组合 SHA-256
+`3ac7a64e30f381221cc0835059ac61c43e86961f603e582625bf58d529e7e2f4` 标识；run script
+在此布局下写入 `source_revision_kind=merged_content_sha256`，不再打印根 Git 错误。
+
+本次只同步：formal 包与其配置/launch/test、formal 构建/测试/demo 脚本与文档、bridge
+通用模式及测试、`Person.py`、`character_frames.py` 和其纯测试。原六行为脚本/YAML/launch、
+D6、碰撞、Nav2、共享 install、Conda 环境、lockfile、`.repos` 和 manifest 没有修改；11 个
+嵌套仓库的 Git index 哈希在复制、构建和测试前后完全一致。
+
+独立输出根为 `/home/lpc/workspace/arena5_ws/.colcon-formal-v1`。只构建
+`arena_isaac`、`arena_humble_compat`、`formal_social_behavior`，三者 package prefix 均
+解析到该 overlay。测试结果为 frame `17/17`、compat `20/20`、formal `76/76`；xUnit 为
+compat `20`、formal `261`，均 `0 errors, 0 failures, 0 skipped`。测试脚本显式限制三个
+`--base-paths`，避免 colcon 扫描活动工作区中未由该 overlay 构建的 Nav2 包。
+
+运行证据：
+
+```text
+/home/lpc/workspace/arena5_ws/logs/formal_visual/20260902_110743_494419251_sudden_pid2323558/visual.log
+SHA-256 da860f67cb99d76bafc9977842c68491ecad21939fa1c8927838241775fb1e3b
+FORMAL_SOCIAL_SCENARIO_OK ... target=SURPRISED ... surprised_speed=0.000000 ... surprised_facing_error_deg=2.883
+
+/home/lpc/workspace/arena5_ws/logs/regression/formal_source_merge_20260902/verify_six_behaviors.log
+SHA-256 ad0c1a66232befc049c484d818653db68666363a8ce5c5bdc88490229bf235cf
+SIX_BEHAVIORS_VERIFY_OK types=1,2,3,4,5,6 active=3,5 responses=3,4,5,6 robot_distance=0.863 robot_states=434
+```
+
+### 16.3 版本保护与未执行测试
+
+定向恢复包位于
+`/home/lpc/workspace/arena5_ws_archives/20260902_formal_source_merge_pre/`，恢复步骤以其中
+`RESTORE.md` 为准。`pre_existing_targets.tar.zst` SHA-256 为
+`024672330865d7500ee2af9045e0d976bb9dc5f3f8f398ddb96dcb24b9fa6e27`，已通过 zstd 和
+tar 列表校验；恢复时先把新增路径移动到保留目录，再解压旧文件，禁止覆盖式回滚。
+
+按用户 2026-09-02 的明确要求，底盘和碰撞后续项已停止：
+
+- 首次底盘 case 1 遇到 `/SpawnUrdf` 启动时序问题，未生成有效测量；日志保留在
+  `logs/chassis_control/20260902_formal_source_merge_matrix/`。
+- 重试的 `results.csv/results.json` 落盘 `18/22` 个有效 case，18 个均 `valid=true`；
+  `results.csv` SHA-256 为
+  `9fc5fc87384de90e11db55965fd213806773ee51298f1a18b9853e890acb4d4a`，`results.json`
+  为 `87a093b8e354b61f934e6a89770be9b70a921ee26e7f6ca5d282a01ede484189`。
+- 剩余底盘 `4/22` 未执行，碰撞 `0/3` 未执行；不得写成通过。对应进程已停止，不会在
+  后台自动续跑。
 
 这份规范有意将自动机、HuNav profile、ROS transaction 和 Isaac 显示分层。V1 的研究
 增量是可重放、可检查的离散社会状态；现有 HuNav/SFM、D6、Nav2 和 Character 仍保持

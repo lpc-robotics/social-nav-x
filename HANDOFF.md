@@ -1,14 +1,61 @@
 # Arena 5 / Isaac Sim 5.1 handoff
 
 Original deployment handoff updated: 2026-08-28 21:55 CST. Formal-social
-delivery addendum updated: 2026-09-01. Workspace:
+delivery and activity-source integration addendum updated: 2026-09-02. Workspace:
 `/home/lpc/workspace/arena5_ws`.
+
+## Activity source integration (2026-09-02)
+
+The formal-social sources and the validated Isaac Character frame correction
+are now present in the activity source tree. Build remains isolated:
+
+```bash
+cd /home/lpc/workspace/arena5_ws
+env ARENA_BASE_WS="$PWD" FORMAL_OVERLAY_ROOT="$PWD/.colcon-formal-v1" \
+  scripts/build_formal_overlay.sh
+env ARENA_BASE_WS="$PWD" FORMAL_OVERLAY_ROOT="$PWD/.colcon-formal-v1" \
+  scripts/test_formal_overlay.sh
+```
+
+Do not build into the shared `build/install/log`, and do not install or update
+dependencies. The merged overlay passed Character frame `17/17`, compat
+`20/20`, formal `76/76`, with xUnit `20/261` and no errors, failures or skips.
+
+The activity copy did have the same approximate 90-degree visual-heading bug.
+Before merge, its actual `Person.py` SHA-256 was
+`883c1aaec2c242521015313c57f8ce562d5a6122ada27b6c4bcb6a58615df684`
+and `character_frames.py` did not exist. ROS yaw uses local `+X` as forward,
+while the Isaac People asset uses local `-Y`. The activity source now applies
+`q_character = q_ros * qz(+pi/2)` and the inverse
+`q_ros = q_character * qz(-pi/2)` only at the Character boundary. This keeps
+HuNav and `/human_states` in ROS semantics.
+
+An activity sudden run passed with zero stop speed and `2.883 degrees` facing
+error; the original strict entry still produced
+`SIX_BEHAVIORS_VERIFY_OK types=1,2,3,4,5,6`. Detailed hashes, logs and the exact
+allowlist are in
+`docs/formal_social_automata/ACTIVITY_SOURCE_MERGE_20260902.md`.
+
+The workspace root is not Git. Run manifests use merged-content revision
+`3ac7a64e30f381221cc0835059ac61c43e86961f603e582625bf58d529e7e2f4`.
+The shared install, Conda environment and nested Git indexes remain unchanged.
+
+Rollback instructions are at
+`/home/lpc/workspace/arena5_ws_archives/20260902_formal_source_merge_pre/RESTORE.md`;
+the protected archive SHA-256 is
+`024672330865d7500ee2af9045e0d976bb9dc5f3f8f398ddb96dcb24b9fa6e27`.
+Do not overlay-extract it and do not reset or clean nested repositories.
+
+At the user's explicit direction, chassis and collision follow-up testing was
+stopped. The retry has `18/22` valid chassis results; the remaining `4/22` and
+all collision cases (`0/3` run) are **not executed**, not passed. No test or
+Isaac process remains running.
 
 ## Formal social automata V1 delivery (2026-09-01)
 
-This section is the current handoff for the isolated formal-social feature. The
-rest of this file remains the deployment/D6 history for the read-only runtime
-workspace.
+This section records the original isolated formal-social delivery. The section
+above is authoritative for its later activity-source integration; the rest of
+this file remains deployment/D6 history.
 
 - Feature worktree: `/home/lpc/workspace/social-nav-x-formal-v1`
 - Branch: `feature/formal-social-automata-v1`
@@ -31,7 +78,7 @@ acceptance driver. `THREATENING` remains only in the original six-behavior demo;
 multi-human/shared events, `SOCIAL`, RL, probability, YAML guard DSL and UPPAAL
 remain out of scope.
 
-Build and test only the isolated overlay:
+Build and test only an isolated overlay. In the feature worktree:
 
 ```bash
 cd /home/lpc/workspace/social-nav-x-formal-v1
@@ -54,7 +101,8 @@ formal unittest subtests to 261. Raw colcon logs are under
 `.colcon/test-log/test_2026-09-01_21-12-30/`; the only warnings are two
 dependency-side Lark deprecations. The build selects `arena_isaac`,
 `arena_humble_compat` and `formal_social_behavior`; `arena_isaac` resolves to
-the feature overlay rather than the read-only activity install.
+the feature overlay rather than the shared activity install. The activity-source
+layout uses `.colcon-formal-v1` as described above.
 
 Run one formal demo (the script sources the activity underlay and feature
 overlay itself):
@@ -118,8 +166,10 @@ velocity left by Curious. Isaac was repeatedly re-anchored to the fixed pose
 while receiving a non-zero velocity, so its walk animation played in place.
 The proxy now zeroes all linear/angular motion only on copied Regular messages
 inside that exact reached-goal boundary, both before reset/compute and on the
-first raw response entering it. Pose, yaw, goal, caller request, HuNav source,
-Isaac Character, and the activity workspace are unchanged.
+first raw response entering it. Pose, yaw, goal, caller request and HuNav source
+are unchanged. This sentence describes the original feature-only validation;
+the activity Character source was later intentionally synchronized under the
+protected 2026-09-02 merge.
 
 Isaac People characters use local `-Y` as their visual forward axis, whereas
 ROS planar poses use local `+X`. The feature `Person.py` now converts only at
@@ -183,9 +233,10 @@ fixed upstream `16b8e3416517d8c3dc1b5038df4fe11b9a6df46c`; verification tree:
 `/tmp/social-nav-x-arena-isaac-verify-character-frame.7Xjf7m`. No merge to
 `main` and no remote push were performed.
 
-Rollback is immediate: stop the formal launch and open a new shell that sources
-only `/home/lpc/workspace/arena5_ws/scripts/env.sh`. Do not remove or rewrite the
-activity workspace. Disaster recovery is only via
+Runtime deactivation is immediate: stop the formal launch and open a new shell
+that does not source `.colcon-formal-v1`. To undo the later activity-source
+merge, use the targeted 2026-09-02 `RESTORE.md` named at the top; do not remove
+or rewrite paths manually. Disaster recovery is only via
 `/home/lpc/workspace/arena5_ws_archives/20260829_164103_full_workspace_pre_log_cleanup/RESTORE.md`;
 rename the current workspace before extraction and never overlay-extract it.
 
@@ -411,10 +462,11 @@ archive named in the formal-social section above.
 
 The legacy deployment was once built with full-workspace and in-place colcon
 commands. Those commands are intentionally not repeated as executable
-instructions here: **do not rebuild in `/home/lpc/workspace/arena5_ws` for the
-formal-social feature**. Use only the isolated overlay commands at the top of
-this document; consult Git history or the disaster-recovery archive solely when
-maintaining the legacy deployment as a separate task.
+instructions here: **do not rebuild into the activity workspace's shared
+`build/install/log` for the formal-social feature**. Use only the isolated
+`.colcon-formal-v1` commands at the top of this document; consult Git history or
+the disaster-recovery archive solely when maintaining the legacy deployment as
+a separate task.
 
 Runtime verification, after the scene reports `SIX_BEHAVIORS_READY`:
 
@@ -486,9 +538,12 @@ write robot velocity and will fight each other.
 
 ## Current blockers and open issues
 
-There is no hard deployment or chassis blocker. The current code builds; the
-complete D6 velocity/collision suite and navigation plus six-behavior regression
-pass. The remaining items are non-blocking engineering concerns:
+There is no hard deployment or chassis blocker. The historical deployment
+baseline includes a complete D6 velocity/collision suite and navigation plus
+six-behavior regression. For the 2026-09-02 source merge, only `18/22` chassis
+rows and `0/3` collision cases were run by explicit user direction; see the
+top addendum and do not describe that partial rerun as complete. The remaining
+items are non-blocking engineering concerns:
 
 1. The source trees contain intentional, uncommitted modifications and new
    compatibility packages. Do not run `git reset`, checkout over them, or pull
