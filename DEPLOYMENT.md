@@ -100,6 +100,22 @@ source scripts/env.sh
 GPU_ID=3 ./scripts/run_six_behaviors.sh
 ```
 
+The launcher sources the activity underlay and the isolated
+`.colcon-formal-v1` overlay itself. This is required because the Character
+frame correction is intentionally built outside the shared `install`. Verify
+selection without starting Isaac:
+
+```bash
+GPU_ID=3 ./scripts/run_six_behaviors.sh --check-overlay-only
+```
+
+Success prints `SIX_BEHAVIORS_OVERLAY_OK` and prefixes below
+`.colcon-formal-v1/install`. A missing/stale overlay is a fail-fast error; rebuild
+only the isolated overlay with `scripts/build_formal_overlay.sh`. The diagnostic
+override `ARENA_SIX_BEHAVIORS_USE_OVERLAY=false` selects the legacy shared
+install and may reproduce the old approximately 90-degree People asset-axis
+error, so it is not the normal demo mode.
+
 Navigation is enabled by default. The launcher starts one Jackal, six fixed
 HuNav pedestrians, Isaac WebRTC, Foxglove Bridge, `map_server`, and Arena
 Nav2. The ideal D6 chassis and fixed 1/60 s physics step are also enabled by
@@ -138,6 +154,12 @@ GPU_ID=3 ./scripts/run_headless.sh
 The base launcher uses `scene_bridge` to spawn four walls, Jackal, and one
 dynamic display pedestrian. The six-behavior launcher uses its own bridge and
 must not start a second `scene_bridge`, robot publisher, or Isaac process.
+
+All six profiles use the same Character rendering boundary. ROS local `+X`
+forward is converted to the Isaac People asset's local `-Y` visual forward by
+`q_character = q_ros * qz(+pi/2)`, with the inverse applied to ROS feedback.
+This fixes Surprised stop/look-at and moving-profile body headings without
+changing HuNav goals, velocities, forces, behavior types or state logic.
 
 ## Ideal D6 chassis
 

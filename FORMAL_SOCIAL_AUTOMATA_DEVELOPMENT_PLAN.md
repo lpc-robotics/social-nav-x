@@ -191,8 +191,10 @@ sha256sum docs/formal_social_automata/source_spec_20260830.md
   `formal_social_behavior`；其中 `arena_isaac` 必须来自 feature，确保坐标边界修复生效。
 - 不自动 merge `main`，不 push 远端；每阶段通过后再形成独立 commit。
 
-受保护链路包括活动工作区中的原 `scripts/run_six_behaviors.sh`、六行为 YAML/launch、D6、
-odom、碰撞、Nav2 和 Isaac/Conda 依赖，它们没有被本次源码合并修改。活动工作区
+初始源码合并的受保护链路包括活动工作区中的原 `scripts/run_six_behaviors.sh`、六行为
+YAML/launch、D6、odom、碰撞、Nav2 和 Isaac/Conda 依赖。随后用户明确要求修复主六行为
+入口仍加载旧共享安装的问题；第 17 节记录了仅对 `run_six_behaviors.sh` 的授权例外，其余
+链路继续保持不变。活动工作区
 `Person.py` 是明确授权的例外：只同步已验证的动画接入修复和可逆姿态坐标边界，并新增
 纯函数 `character_frames.py`；合并前内容已单独归档。常规停用只需停止 formal 进程并在
 新 shell 中不 source `.colcon-formal-v1`；若要撤销源码合并，必须按第 16 节的定向
@@ -993,9 +995,10 @@ test_character_frames.py
 `3ac7a64e30f381221cc0835059ac61c43e86961f603e582625bf58d529e7e2f4` 标识；run script
 在此布局下写入 `source_revision_kind=merged_content_sha256`，不再打印根 Git 错误。
 
-本次只同步：formal 包与其配置/launch/test、formal 构建/测试/demo 脚本与文档、bridge
+初始源码合并只同步：formal 包与其配置/launch/test、formal 构建/测试/demo 脚本与文档、bridge
 通用模式及测试、`Person.py`、`character_frames.py` 和其纯测试。原六行为脚本/YAML/launch、
-D6、碰撞、Nav2、共享 install、Conda 环境、lockfile、`.repos` 和 manifest 没有修改；11 个
+D6、碰撞、Nav2、共享 install、Conda 环境、lockfile、`.repos` 和 manifest 当时没有修改；
+第 17 节的后续修复只修改六行为入口脚本，不改 YAML/launch 或依赖。11 个
 嵌套仓库的 Git index 哈希在复制、构建和测试前后完全一致。
 
 独立输出根为 `/home/lpc/workspace/arena5_ws/.colcon-formal-v1`。只构建
@@ -1038,3 +1041,104 @@ tar 列表校验；恢复时先把新增路径移动到保留目录，再解压�
 这份规范有意将自动机、HuNav profile、ROS transaction 和 Isaac 显示分层。V1 的研究
 增量是可重放、可检查的离散社会状态；现有 HuNav/SFM、D6、Nav2 和 Character 仍保持
 各自 authority，不因引入形式化层而被替换。
+
+## 17. 主六行为入口坐标修复落地（2026-09-02）
+
+### 17.1 再次出现 `90°` 偏差的实际根因
+
+活动源码及隔离 overlay 已包含第 16 节的双向 Character 坐标转换，但主入口
+`scripts/run_six_behaviors.sh` 当时只执行 `scripts/env.sh`，因此运行时解析到旧的共享
+`install/arena_isaac`。两个安装层的实际 `Person.py` SHA-256 为：
+
+```text
+共享 install（旧）  883c1aaec2c242521015313c57f8ce562d5a6122ada27b6c4bcb6a58615df684
+隔离 overlay（新） 429a25528bb9cc5cd7b16616a6099d0644777e90155e501ff0099c544adfa7f1
+活动源码（新）      429a25528bb9cc5cd7b16616a6099d0644777e90155e501ff0099c544adfa7f1
+```
+
+因此 formal demo 正常而主六行为仍偏转并不是转换公式失效，而是两个入口选择了不同安装
+层。源码合并、隔离构建和运行时选择必须三者同时成立。
+
+### 17.2 主入口修复
+
+主入口现在默认设置 `ARENA_SIX_BEHAVIORS_USE_OVERLAY=true`，在共享 underlay 之后加载
+`/home/lpc/workspace/arena5_ws/.colcon-formal-v1/install/local_setup.bash`，并在启动 Isaac 前：
+
+1. 检查 `arena_isaac` 和 `arena_humble_compat` 的 prefix 必须位于该 overlay；
+2. 检查安装后的 `character_frames.py` 存在；
+3. 对活动源码与 overlay 中的 `Person.py` 做字节级比较；
+4. 将 prefix、`Person.py` 哈希和 `ros_plus_x_to_isaac_minus_y` 写入每次运行的
+   `runtime_manifest.txt`；
+5. overlay 缺失或过期时直接失败并给出隔离重建命令，不回退到旧共享安装。
+
+正常启动命令不变，也不需要用户手工 source overlay：
+
+```bash
+cd /home/lpc/workspace/arena5_ws
+GPU_ID=3 ./scripts/run_six_behaviors.sh
+
+# 不启动 Isaac 的快速检查
+GPU_ID=3 ./scripts/run_six_behaviors.sh --check-overlay-only
+```
+
+`ARENA_SIX_BEHAVIORS_USE_OVERLAY=false` 只保留作诊断或紧急回退，它会选择旧共享安装并可能
+重现视觉偏差，不是正常验收模式。共享 `install` 仍未重建或修改，符合“源码合并、构建隔离”
+约束。
+
+### 17.3 对六种行为的影响
+
+六种行为最终都通过同一个 `Person`/Character Graph 边界渲染，转换与 behavior type 无关：
+
+| 行为 | 修复后的显示影响 | 保持不变的 HuNav 语义 |
+|---|---|---|
+| Regular | 行走身体前向与 ROS 轨迹一致 | 常规目标与速度 |
+| Impassive | 行走身体前向与 ROS 轨迹一致 | 无社会响应的常规导航 |
+| Surprised | 静止时按命令 yaw 面向机器人，不再偏 `90°` | 停止、计时与状态 |
+| Scared | 逃离时身体方向与离开速度一致 | 逃离目标、速度和力 |
+| Curious | 接近时身体方向与接近速度一致 | 接近距离、速度和计时 |
+| Threatening | 逼近目标时身体方向一致 | 目标点、速度和计时 |
+
+写入 Character 使用 `q_character = q_ros * qz(+pi/2)`，反馈使用
+`q_ros = q_character * qz(-pi/2)`；所以 `/human_states`、HuNav FOV、速度、目标、力系数、
+behavior type 和自动机转移均保持 ROS `+X` 语义。无需也没有对六套行为分别增加补偿。
+
+### 17.4 验证结果与证据
+
+`--check-overlay-only` 得到修复后的两个 overlay prefix 和
+`person_sha256=429a2552...fa7f1`。GPU 3 主入口的实际 Isaac 进程为：
+
+```text
+/home/lpc/workspace/arena5_ws/.colcon-formal-v1/install/arena_isaac/lib/arena_isaac/run_isaacsim
+```
+
+真实 HuNav/Isaac 六行为回归通过：
+
+```text
+SIX_BEHAVIORS_VERIFY_OK types=1,2,3,4,5,6 active=3,5 responses=3,4,5,6 robot_distance=1.020 robot_states=456
+```
+
+Character 坐标纯测试为 `17/17`；稳定运行段 compute 为 `14.848--18.399 Hz`、display 为
+`4.806--4.891 Hz`、`max_dt=0.025 s`。运行在验证后经 `Ctrl-C` 正常停止。证据为：
+
+```text
+/home/lpc/workspace/arena5_ws/logs/regression/six_behavior_overlay_heading_fix_20260902/verification.txt
+SHA-256 32b3edcd9b1edfb5208c6f160db202f3efa386f69fa7e553cabc6581b34f691a
+/home/lpc/workspace/arena5_ws/logs/runs/20260902_163617_six_behaviors_gpu3/runtime_manifest.txt
+SHA-256 6bbe7ad11815d900251568b4155aef509b04d134b24fe07f615031d690e8db29
+```
+
+### 17.5 版本保护与恢复
+
+修改前的入口保存在
+`/home/lpc/workspace/arena5_ws_archives/20260902_six_behavior_overlay_entry_pre/`：
+
+```text
+旧 run_six_behaviors.sh  bd7459f3dc75cf770cc9985a1d6c5bb7c3aea2c54ddce58b6bd312c2a74077a2
+RESTORE.md               2461d12027ee7b8491417fd34af403368cf7a162e1272f41d04ec7d387e9bc99
+新 run_six_behaviors.sh  24abb1ee73e2ca66aad1c352570c2e1d757fcfadb7ee9f1617c768f54d7f9633
+```
+
+恢复时按该 `RESTORE.md` 先保留当前脚本再复制旧脚本，禁止对任何嵌套仓库执行
+`reset/clean/checkout`。本次未修改共享 install、Conda 元数据、依赖、六行为 YAML/launch、
+D6、Nav2 或碰撞文件；嵌套仓库 index 哈希保持一致。按用户要求，本轮继续不运行底盘矩阵和
+碰撞套件，不能将它们写成通过。

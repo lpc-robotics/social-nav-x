@@ -5,6 +5,74 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/env.sh"
 cd "$ARENA_WS"
 
+export ARENA_SIX_BEHAVIORS_USE_OVERLAY="${ARENA_SIX_BEHAVIORS_USE_OVERLAY:-true}"
+export ARENA_SIX_BEHAVIORS_OVERLAY_ROOT="${ARENA_SIX_BEHAVIORS_OVERLAY_ROOT:-$ARENA_WS/.colcon-formal-v1}"
+case "$ARENA_SIX_BEHAVIORS_USE_OVERLAY" in
+    true|false) ;;
+    *)
+        echo "ARENA_SIX_BEHAVIORS_USE_OVERLAY must be true or false." >&2
+        exit 2
+        ;;
+esac
+
+if [[ "$ARENA_SIX_BEHAVIORS_USE_OVERLAY" == "true" ]]; then
+    OVERLAY_SETUP="$ARENA_SIX_BEHAVIORS_OVERLAY_ROOT/install/local_setup.bash"
+    if [[ ! -f "$OVERLAY_SETUP" ]]; then
+        echo "The isolated six-behavior overlay is missing: $OVERLAY_SETUP" >&2
+        echo "Build it with:" >&2
+        echo "  FORMAL_OVERLAY_ROOT=$ARENA_SIX_BEHAVIORS_OVERLAY_ROOT scripts/build_formal_overlay.sh" >&2
+        exit 1
+    fi
+
+    # env.sh establishes the shared underlay first.  Load the isolated overlay
+    # afterwards so both the Character-frame fix and the compatible bridge are
+    # selected without rebuilding or modifying the shared install.
+    set +u
+    source "$OVERLAY_SETUP"
+    set -u
+
+    ARENA_ISAAC_PREFIX="$(ros2 pkg prefix arena_isaac)"
+    ARENA_COMPAT_PREFIX="$(ros2 pkg prefix arena_humble_compat)"
+    EXPECTED_ARENA_ISAAC_PREFIX="$ARENA_SIX_BEHAVIORS_OVERLAY_ROOT/install/arena_isaac"
+    EXPECTED_ARENA_COMPAT_PREFIX="$ARENA_SIX_BEHAVIORS_OVERLAY_ROOT/install/arena_humble_compat"
+    if [[ "$(readlink -f "$ARENA_ISAAC_PREFIX")" != "$(readlink -f "$EXPECTED_ARENA_ISAAC_PREFIX")" ]]; then
+        echo "arena_isaac did not resolve to the isolated overlay: $ARENA_ISAAC_PREFIX" >&2
+        exit 1
+    fi
+    if [[ "$(readlink -f "$ARENA_COMPAT_PREFIX")" != "$(readlink -f "$EXPECTED_ARENA_COMPAT_PREFIX")" ]]; then
+        echo "arena_humble_compat did not resolve to the isolated overlay: $ARENA_COMPAT_PREFIX" >&2
+        exit 1
+    fi
+
+    SOURCE_PERSON="$ARENA_WS/src/arena-isaac/arena_isaac/pedestrian/simulator/logic/people/person.py"
+    INSTALLED_PERSON="$ARENA_ISAAC_PREFIX/lib/python3.11/site-packages/pedestrian/simulator/logic/people/person.py"
+    INSTALLED_FRAMES="$ARENA_ISAAC_PREFIX/lib/python3.11/site-packages/pedestrian/simulator/logic/people/character_frames.py"
+    if [[ ! -f "$INSTALLED_FRAMES" ]] || ! cmp -s "$SOURCE_PERSON" "$INSTALLED_PERSON"; then
+        echo "The isolated arena_isaac overlay is stale or lacks the Character-frame fix." >&2
+        echo "Rebuild it with:" >&2
+        echo "  FORMAL_OVERLAY_ROOT=$ARENA_SIX_BEHAVIORS_OVERLAY_ROOT scripts/build_formal_overlay.sh" >&2
+        exit 1
+    fi
+else
+    ARENA_ISAAC_PREFIX="$(ros2 pkg prefix arena_isaac)"
+    ARENA_COMPAT_PREFIX="$(ros2 pkg prefix arena_humble_compat)"
+    INSTALLED_PERSON="$ARENA_ISAAC_PREFIX/lib/python3.11/site-packages/pedestrian/simulator/logic/people/person.py"
+    echo "WARNING: legacy shared install selected; Isaac People headings may retain the 90-degree asset-axis error." >&2
+fi
+
+if [[ "${1:-}" == "--check-overlay-only" ]]; then
+    if (( $# != 1 )); then
+        echo "--check-overlay-only does not accept additional arguments." >&2
+        exit 2
+    fi
+    if [[ "$ARENA_SIX_BEHAVIORS_USE_OVERLAY" != "true" ]]; then
+        echo "--check-overlay-only requires ARENA_SIX_BEHAVIORS_USE_OVERLAY=true." >&2
+        exit 2
+    fi
+    echo "SIX_BEHAVIORS_OVERLAY_OK arena_isaac=$ARENA_ISAAC_PREFIX compat=$ARENA_COMPAT_PREFIX person_sha256=$(sha256sum "$INSTALLED_PERSON" | awk '{print $1}')"
+    exit 0
+fi
+
 export GPU_ID="${GPU_ID:-0}"
 export CUDA_VISIBLE_DEVICES="$GPU_ID"
 export ARENA_RENDER_GPU="$GPU_ID"
@@ -42,11 +110,22 @@ export ARENA_KIT_LOG="$RUN_DIR/isaac_kit.log"
 export ARENA_SCREENSHOT="$RUN_DIR/webrtc_frame.png"
 export ARENA_SCREENSHOT_DELAY="${ARENA_SCREENSHOT_DELAY:-25}"
 
+{
+    printf 'six_behavior_overlay_enabled=%s\n' "$ARENA_SIX_BEHAVIORS_USE_OVERLAY"
+    printf 'six_behavior_overlay_root=%s\n' "$ARENA_SIX_BEHAVIORS_OVERLAY_ROOT"
+    printf 'arena_isaac_prefix=%s\n' "$ARENA_ISAAC_PREFIX"
+    printf 'arena_humble_compat_prefix=%s\n' "$ARENA_COMPAT_PREFIX"
+    printf 'person_sha256=%s\n' "$(sha256sum "$INSTALLED_PERSON" | awk '{print $1}')"
+    printf 'character_forward_conversion=%s\n' 'ros_plus_x_to_isaac_minus_y'
+} > "$RUN_DIR/runtime_manifest.txt"
+
 echo "Starting HuNav six-behavior demo on host GPU $GPU_ID (Isaac internal cuda:0)"
 echo "Foxglove: ws://$ARENA_FOXGLOVE_ADDRESS:$ARENA_FOXGLOVE_PORT"
 echo "WebRTC: $ARENA_WEBRTC_IP TCP/$ARENA_WEBRTC_SIGNAL_PORT UDP/$ARENA_WEBRTC_MEDIA_PORT"
 echo "Navigation: $NAVIGATION (map_empty + NavFn + DWB)"
 echo "Ideal D6 chassis: $ARENA_IDEAL_CHASSIS (physics_dt=$ARENA_PHYSICS_DT)"
+echo "Runtime overlay: $ARENA_SIX_BEHAVIORS_OVERLAY_ROOT"
+echo "arena_isaac: $ARENA_ISAAC_PREFIX"
 echo "Logs: $RUN_DIR"
 
 exec ros2 launch arena_bringup isaac_six_behaviors.launch.py \

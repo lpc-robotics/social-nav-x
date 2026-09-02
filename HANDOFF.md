@@ -36,9 +36,57 @@ error; the original strict entry still produced
 allowlist are in
 `docs/formal_social_automata/ACTIVITY_SOURCE_MERGE_20260902.md`.
 
+### Main six-behavior launcher correction (2026-09-02)
+
+The source merge was correct, but the activity `run_six_behaviors.sh` still
+sourced only the legacy shared `install`. That installed `Person.py` has SHA-256
+`883c1aaec2c242521015313c57f8ce562d5a6122ada27b6c4bcb6a58615df684`,
+so the main entry could still render the old 90-degree error even though the
+source and `.colcon-formal-v1` overlay were fixed.
+
+The launcher now loads `.colcon-formal-v1` by default, checks that both
+`arena_isaac` and `arena_humble_compat` resolve there, byte-compares the
+installed `Person.py` with activity source, and fails before Isaac starts if the
+overlay is absent or stale. No manual `source` is needed:
+
+```bash
+cd /home/lpc/workspace/arena5_ws
+GPU_ID=3 ./scripts/run_six_behaviors.sh
+
+# Fast non-launching preflight
+GPU_ID=3 ./scripts/run_six_behaviors.sh --check-overlay-only
+```
+
+The verified Isaac executable was
+`.colcon-formal-v1/install/arena_isaac/lib/arena_isaac/run_isaacsim`; the main
+run returned `SIX_BEHAVIORS_VERIFY_OK types=1,2,3,4,5,6 active=3,5
+responses=3,4,5,6 robot_distance=1.020 robot_states=456`. Character-frame tests
+remain `17/17`, steady compute was `14.848--18.399 Hz`, display
+`4.806--4.891 Hz`, and `max_dt=0.025 s`.
+
+The conversion is shared by Regular, Impassive, Surprised, Scared, Curious and
+Threatening. It corrects only the rendered body axis and inverse ROS feedback;
+it does not change HuNav goals, velocity, forces, behavior types or transition
+logic. Surprised now renders its stationary look-at yaw correctly; moving
+profiles render their body consistently with the ROS trajectory.
+
+Evidence is under
+`/home/lpc/workspace/arena5_ws/logs/regression/six_behavior_overlay_heading_fix_20260902/`
+and `/home/lpc/workspace/arena5_ws/logs/runs/20260902_163617_six_behaviors_gpu3/`.
+The targeted pre-change launcher backup is
+`/home/lpc/workspace/arena5_ws_archives/20260902_six_behavior_overlay_entry_pre/`;
+its `RESTORE.md` SHA-256 is
+`2461d12027ee7b8491417fd34af403368cf7a162e1272f41d04ec7d387e9bc99`.
+The shared install remains unchanged. Setting
+`ARENA_SIX_BEHAVIORS_USE_OVERLAY=false` selects that legacy install only for
+diagnosis/rollback and can reproduce the old visual error.
+
 The workspace root is not Git. Run manifests use merged-content revision
 `3ac7a64e30f381221cc0835059ac61c43e86961f603e582625bf58d529e7e2f4`.
 The shared install, Conda environment and nested Git indexes remain unchanged.
+The six-behavior launcher is now the one intentional follow-up change described
+above; its current SHA-256 is
+`24abb1ee73e2ca66aad1c352570c2e1d757fcfadb7ee9f1617c768f54d7f9633`.
 
 Rollback instructions are at
 `/home/lpc/workspace/arena5_ws_archives/20260902_formal_source_merge_pre/RESTORE.md`;

@@ -63,8 +63,10 @@ xUnit formal: 261 tests, 0 errors, 0 failures, 0 skipped
 The three package prefixes resolve inside `.colcon-formal-v1/install`. The
 nested Git index hashes before merge, after build and after tests are identical.
 The shared `install/setup.bash`, previously installed bridge/Person module,
-Conda history, environment scripts and original six-behavior launcher retain
-their guard hashes.
+Conda history and environment scripts retain their guard hashes. At this
+initial merge checkpoint the original six-behavior launcher also retained its
+guard hash; the explicitly authorized follow-up below changes only that
+launcher so the fixed isolated build is selected at runtime.
 
 The workspace root is not Git. Formal run manifests therefore identify this
 layout with:
@@ -76,6 +78,60 @@ source_revision=3ac7a64e30f381221cc0835059ac61c43e86961f603e582625bf58d529e7e2f4
 ```
 
 ## Runtime evidence
+
+### Main six-behavior launcher deployment correction
+
+The activity source and isolated overlay were fixed, but the original main
+launcher sourced only the shared install. Consequently the launched executable
+was from `install/arena_isaac`, whose installed `Person.py` still has SHA-256
+`883c1aaec2c242521015313c57f8ce562d5a6122ada27b6c4bcb6a58615df684`.
+This deployment-layer mismatch explains why the formal demo looked correct but
+`GPU_ID=3 ./scripts/run_six_behaviors.sh` still showed the 90-degree error.
+
+The main launcher now defaults to `.colcon-formal-v1`, validates the
+`arena_isaac` and `arena_humble_compat` prefixes, verifies that installed
+`Person.py` byte-matches source, and writes the selected prefixes plus
+`person_sha256` to `runtime_manifest.txt`. The current launcher SHA-256 is
+`24abb1ee73e2ca66aad1c352570c2e1d757fcfadb7ee9f1617c768f54d7f9633`.
+The non-launching check is:
+
+```bash
+GPU_ID=3 ./scripts/run_six_behaviors.sh --check-overlay-only
+```
+
+Main-entry verification on GPU 3 resolved Isaac to
+`.colcon-formal-v1/install/arena_isaac/lib/arena_isaac/run_isaacsim` and passed:
+
+```text
+SIX_BEHAVIORS_VERIFY_OK types=1,2,3,4,5,6 active=3,5 responses=3,4,5,6 robot_distance=1.020 robot_states=456
+compute_hz=14.848--18.399, display_hz=4.806--4.891, max_dt=0.025
+```
+
+Evidence and hashes:
+
+```text
+/home/lpc/workspace/arena5_ws/logs/regression/six_behavior_overlay_heading_fix_20260902/verification.txt
+SHA-256 32b3edcd9b1edfb5208c6f160db202f3efa386f69fa7e553cabc6581b34f691a
+/home/lpc/workspace/arena5_ws/logs/runs/20260902_163617_six_behaviors_gpu3/runtime_manifest.txt
+SHA-256 6bbe7ad11815d900251568b4155aef509b04d134b24fe07f615031d690e8db29
+```
+
+The six behavior types all use this same `Person`/Character Graph boundary.
+Regular and Impassive retain their normal navigation; Surprised gets the
+correct stationary look-at rendering; Scared, Curious and Threatening retain
+their flee/approach/target kinematics while their body visual axis matches ROS.
+No per-behavior HuNav algorithm was changed. Character-frame tests pass
+`17/17`, and the strict verifier confirms all behavior types plus special
+responses.
+
+The targeted pre-change launcher backup is
+`/home/lpc/workspace/arena5_ws_archives/20260902_six_behavior_overlay_entry_pre/`.
+Its saved launcher SHA-256 is
+`bd7459f3dc75cf770cc9985a1d6c5bb7c3aea2c54ddce58b6bd312c2a74077a2`;
+follow `RESTORE.md` (SHA-256
+`2461d12027ee7b8491417fd34af403368cf7a162e1272f41d04ec7d387e9bc99`)
+without resetting nested repositories. The shared install and dependencies are
+still unchanged.
 
 Sudden visual scenario:
 
