@@ -91,7 +91,8 @@ This deployment-layer mismatch explains why the formal demo looked correct but
 The main launcher now defaults to `.colcon-formal-v1`, validates the
 `arena_isaac` and `arena_humble_compat` prefixes, verifies that installed
 `Person.py` byte-matches source, and writes the selected prefixes plus
-`person_sha256` to `runtime_manifest.txt`. The current launcher SHA-256 is
+`person_sha256` to `runtime_manifest.txt`. The implementation commit is
+`0359579`; the current launcher SHA-256 is
 `24abb1ee73e2ca66aad1c352570c2e1d757fcfadb7ee9f1617c768f54d7f9633`.
 The non-launching check is:
 

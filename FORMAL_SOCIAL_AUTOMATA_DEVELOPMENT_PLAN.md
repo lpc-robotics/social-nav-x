@@ -23,6 +23,7 @@ e33dd6d  feat: add formal social proxy and demo overlay
 a048bfd  test: deliver formal social automata v1
 后续修复  Regular 目标处残留运动、可视化模式和 Surprised 渲染朝向验收（以 feature HEAD 为准）
 本次修复  ROS +X 与 Isaac People -Y 前向轴转换、Scared 危险优先（以 feature HEAD 为准）
+0359579  fix: load character frame overlay in six behavior demo
 ```
 
 已取得的权威结果：
@@ -1070,6 +1071,8 @@ tar 列表校验；恢复时先把新增路径移动到保留目录，再解压�
 4. 将 prefix、`Person.py` 哈希和 `ros_plus_x_to_isaac_minus_y` 写入每次运行的
    `runtime_manifest.txt`；
 5. overlay 缺失或过期时直接失败并给出隔离重建命令，不回退到旧共享安装。
+
+该入口修复提交为 `0359579`。
 
 正常启动命令不变，也不需要用户手工 source overlay：
 

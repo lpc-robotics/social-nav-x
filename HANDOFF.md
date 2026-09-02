@@ -47,7 +47,8 @@ source and `.colcon-formal-v1` overlay were fixed.
 The launcher now loads `.colcon-formal-v1` by default, checks that both
 `arena_isaac` and `arena_humble_compat` resolve there, byte-compares the
 installed `Person.py` with activity source, and fails before Isaac starts if the
-overlay is absent or stale. No manual `source` is needed:
+overlay is absent or stale. The implementation commit is `0359579`. No manual
+`source` is needed:
 
 ```bash
 cd /home/lpc/workspace/arena5_ws
@@ -109,7 +110,8 @@ this file remains deployment/D6 history.
 - Branch: `feature/formal-social-automata-v1`
 - Canonical base: `51ab117dedf6a8173c1704f0edd8d01c7938fb8e`
 - Base tag: `arena5-isaac5.1-archive-20260829`
-- Implementation commits: `ec95e8c`, `eaa84c7`, `e33dd6d`, `a048bfd`; the
+- Implementation commits: `ec95e8c`, `eaa84c7`, `e33dd6d`, `a048bfd`,
+  `0359579`; the
   later Regular-motion/visual and Character-frame fixes are identified by the
   final feature `HEAD` (`git rev-parse HEAD`).
 - Authoritative specification:
