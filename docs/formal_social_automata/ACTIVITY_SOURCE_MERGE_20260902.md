@@ -79,7 +79,7 @@ source_revision=3ac7a64e30f381221cc0835059ac61c43e86961f603e582625bf58d529e7e2f4
 
 ## Runtime evidence
 
-### Main six-behavior launcher deployment correction
+### Intermediate overlay launcher correction (historical)
 
 The activity source and isolated overlay were fixed, but the original main
 launcher sourced only the shared install. Consequently the launched executable
@@ -88,11 +88,12 @@ was from `install/arena_isaac`, whose installed `Person.py` still has SHA-256
 This deployment-layer mismatch explains why the formal demo looked correct but
 `GPU_ID=3 ./scripts/run_six_behaviors.sh` still showed the 90-degree error.
 
-The main launcher now defaults to `.colcon-formal-v1`, validates the
+At this intermediate checkpoint the main launcher defaulted to
+`.colcon-formal-v1`, validated the
 `arena_isaac` and `arena_humble_compat` prefixes, verifies that installed
 `Person.py` byte-matches source, and writes the selected prefixes plus
 `person_sha256` to `runtime_manifest.txt`. The implementation commit is
-`0359579`; the current launcher SHA-256 is
+`0359579`; the launcher SHA-256 at that checkpoint was
 `24abb1ee73e2ca66aad1c352570c2e1d757fcfadb7ee9f1617c768f54d7f9633`.
 The non-launching check is:
 
@@ -132,7 +133,75 @@ Its saved launcher SHA-256 is
 follow `RESTORE.md` (SHA-256
 `2461d12027ee7b8491417fd34af403368cf7a162e1272f41d04ec7d387e9bc99`)
 without resetting nested repositories. The shared install and dependencies are
-still unchanged.
+unchanged at that checkpoint.
+
+### Shared arena_isaac install deployment (authoritative latest state)
+
+The user subsequently authorized a selective shared deployment so the main
+workspace does not depend on the overlay for this fix. Before building, the
+complete `build/arena_isaac`, `install/arena_isaac`, launcher and three
+coordinate-related source files were archived. Then only `arena_isaac` was
+built:
+
+```bash
+source scripts/env.sh
+colcon build --event-handlers console_cohesion+ \
+  --packages-select arena_isaac \
+  --cmake-args -DCMAKE_BUILD_TYPE=Release
+```
+
+The build completed `1 package` in `1min 31s`. Compared with the pre-deployment
+shared install, the runtime source delta is exactly:
+
+```text
+replaced  pedestrian/simulator/logic/people/person.py
+added     pedestrian/simulator/logic/people/character_frames.py
+generated egg-info/SOURCES.txt and Python bytecode refreshed
+```
+
+Colcon refreshed the timestamps of the standard top-level generated
+`install/setup*` and `local_setup*` files. No package was added or removed, and
+`install/setup.bash` retained SHA-256
+`e3b0addf5e333f92b50598538d132869b8ee08bcad6cc4ef3e9361fdfaada898`.
+
+The installed source hashes now byte-match the activity source:
+
+```text
+Person.py            429a25528bb9cc5cd7b16616a6099d0644777e90155e501ff0099c544adfa7f1
+character_frames.py  2e018db9ad9c34c8e4cedb057637628d08f6c7dd4be0fe74fe5ac5cf47d01eaa
+```
+
+The launcher commit `d8b026d` defaults to `mode=shared`, validates both package
+prefixes and the installed coordinate source before launch, and retains
+`ARENA_SIX_BEHAVIORS_USE_OVERLAY=true` only for comparison. Preflight and GPU 3
+runtime passed:
+
+```text
+SIX_BEHAVIORS_RUNTIME_OK mode=shared arena_isaac=/home/lpc/workspace/arena5_ws/install/arena_isaac ... person_sha256=429a2552...fa7f1
+17 passed in 0.02s
+SIX_BEHAVIORS_VERIFY_OK types=1,2,3,4,5,6 active=3,5 responses=3,4,5,6 robot_distance=0.967 robot_states=372
+compute_hz=14.6--15.1 display_hz=4.8 max_dt=0.025
+```
+
+The observed Isaac executable was
+`/home/lpc/workspace/arena5_ws/install/arena_isaac/lib/arena_isaac/run_isaacsim`.
+Evidence:
+
+```text
+/home/lpc/workspace/arena5_ws/logs/regression/shared_install_character_frame_fix_20260902/verification.txt
+SHA-256 72ef2199f4cc5fa56f9d5c84ab7d35e58c97a6a44adc206c098ef30dc2b39596
+/home/lpc/workspace/arena5_ws/logs/runs/20260902_170015_six_behaviors_gpu3/runtime_manifest.txt
+SHA-256 d357874656afa1beee2737890702ae5ad129f56c0921faee66b52ef6451d5b0c
+```
+
+The restore package is
+`/home/lpc/workspace/arena5_ws_archives/20260902_shared_arena_isaac_install_pre/`.
+`pre_deploy_targets.tar.zst` SHA-256 is
+`6905ce412deb772da3c04819f6942558707b0bcb98a21996c9cddb8070466f4d`;
+`RESTORE.md` SHA-256 is
+`a95b4ddba756274c387249bc2ca9b3599d5e7ce0917cd4680d3a5434f6560b6e`.
+The archive passed `zstd -t` and `tar --zstd -tf`. No Conda metadata,
+dependency repository, other shared package or nested Git index changed.
 
 Sudden visual scenario:
 

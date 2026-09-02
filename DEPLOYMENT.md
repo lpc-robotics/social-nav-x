@@ -100,21 +100,29 @@ source scripts/env.sh
 GPU_ID=3 ./scripts/run_six_behaviors.sh
 ```
 
-The launcher sources the activity underlay and the isolated
-`.colcon-formal-v1` overlay itself. This is required because the Character
-frame correction is intentionally built outside the shared `install`. Verify
-selection without starting Isaac:
+The launcher uses the activity shared install by default. The Character-frame
+source has been selectively compiled into `install/arena_isaac`; verify both
+the package selection and installed source hash without starting Isaac:
 
 ```bash
-GPU_ID=3 ./scripts/run_six_behaviors.sh --check-overlay-only
+GPU_ID=3 ./scripts/run_six_behaviors.sh --check-runtime-only
 ```
 
-Success prints `SIX_BEHAVIORS_OVERLAY_OK` and prefixes below
-`.colcon-formal-v1/install`. A missing/stale overlay is a fail-fast error; rebuild
-only the isolated overlay with `scripts/build_formal_overlay.sh`. The diagnostic
-override `ARENA_SIX_BEHAVIORS_USE_OVERLAY=false` selects the legacy shared
-install and may reproduce the old approximately 90-degree People asset-axis
-error, so it is not the normal demo mode.
+Success prints `SIX_BEHAVIORS_RUNTIME_OK mode=shared`, an `arena_isaac` prefix
+below `/home/lpc/workspace/arena5_ws/install`, and the fixed `Person.py` hash
+`429a2552...fa7f1`. A missing/stale shared package is a fail-fast error. Rebuild
+only this package with:
+
+```bash
+source scripts/env.sh
+colcon build --event-handlers console_cohesion+ \
+  --packages-select arena_isaac \
+  --cmake-args -DCMAKE_BUILD_TYPE=Release
+```
+
+For an explicit isolated comparison, set
+`ARENA_SIX_BEHAVIORS_USE_OVERLAY=true`; this is no longer the normal main-demo
+mode.
 
 Navigation is enabled by default. The launcher starts one Jackal, six fixed
 HuNav pedestrians, Isaac WebRTC, Foxglove Bridge, `map_server`, and Arena

@@ -7,7 +7,9 @@ delivery and activity-source integration addendum updated: 2026-09-02. Workspace
 ## Activity source integration (2026-09-02)
 
 The formal-social sources and the validated Isaac Character frame correction
-are now present in the activity source tree. Build remains isolated:
+are now present in the activity source tree. Formal-package builds remain
+isolated; the later authorized shared `arena_isaac` deployment is recorded
+below:
 
 ```bash
 cd /home/lpc/workspace/arena5_ws
@@ -17,8 +19,8 @@ env ARENA_BASE_WS="$PWD" FORMAL_OVERLAY_ROOT="$PWD/.colcon-formal-v1" \
   scripts/test_formal_overlay.sh
 ```
 
-Do not build into the shared `build/install/log`, and do not install or update
-dependencies. The merged overlay passed Character frame `17/17`, compat
+Do not run a full shared build and do not install or update dependencies. The
+merged overlay passed Character frame `17/17`, compat
 `20/20`, formal `76/76`, with xUnit `20/261` and no errors, failures or skips.
 
 The activity copy did have the same approximate 90-degree visual-heading bug.
@@ -36,7 +38,63 @@ error; the original strict entry still produced
 allowlist are in
 `docs/formal_social_automata/ACTIVITY_SOURCE_MERGE_20260902.md`.
 
-### Main six-behavior launcher correction (2026-09-02)
+### Shared arena_isaac deployment (authoritative latest state, 2026-09-02)
+
+At the user's direction, the already merged activity source was selectively
+built into the shared `build/arena_isaac` and `install/arena_isaac`:
+
+```bash
+cd /home/lpc/workspace/arena5_ws
+source scripts/env.sh
+colcon build --event-handlers console_cohesion+ \
+  --packages-select arena_isaac \
+  --cmake-args -DCMAKE_BUILD_TYPE=Release
+```
+
+Only `arena_isaac` was built; the result was `1 package finished`. Against the
+pre-deployment install snapshot, the runtime source delta is exactly the
+replacement of `pedestrian/.../person.py`, addition of
+`pedestrian/.../character_frames.py`, and generated metadata/bytecode. Both
+installed source hashes match activity source:
+
+```text
+person.py            429a25528bb9cc5cd7b16616a6099d0644777e90155e501ff0099c544adfa7f1
+character_frames.py  2e018db9ad9c34c8e4cedb057637628d08f6c7dd4be0fe74fe5ac5cf47d01eaa
+```
+
+Colcon also refreshed the timestamps of its standard top-level generated
+`install/setup*` and `local_setup*` files. The package inventory did not change,
+and `install/setup.bash` retained SHA-256
+`e3b0addf5e333f92b50598538d132869b8ee08bcad6cc4ef3e9361fdfaada898`.
+
+The main launcher now defaults to the validated shared install. It rejects a
+stale package before starting Isaac; the fast check is:
+
+```bash
+GPU_ID=3 ./scripts/run_six_behaviors.sh --check-runtime-only
+```
+
+The launcher commit is `d8b026d`. Set
+`ARENA_SIX_BEHAVIORS_USE_OVERLAY=true` only for an explicit comparison with
+`.colcon-formal-v1`. The shared-path Character tests passed `17/17`; a GPU 3 run
+confirmed the actual executable
+`/home/lpc/workspace/arena5_ws/install/arena_isaac/lib/arena_isaac/run_isaacsim`
+and returned `SIX_BEHAVIORS_VERIFY_OK types=1,2,3,4,5,6 active=3,5
+responses=3,4,5,6 robot_distance=0.967 robot_states=372`. Runtime samples were
+`14.6--15.1 Hz` compute, `4.8 Hz` display and `max_dt=0.025 s`.
+
+Evidence is at
+`logs/regression/shared_install_character_frame_fix_20260902/verification.txt`
+(SHA-256
+`72ef2199f4cc5fa56f9d5c84ab7d35e58c97a6a44adc206c098ef30dc2b39596`)
+and `logs/runs/20260902_170015_six_behaviors_gpu3/`. Restore only by following
+`/home/lpc/workspace/arena5_ws_archives/20260902_shared_arena_isaac_install_pre/RESTORE.md`;
+the pre-deployment archive SHA-256 is
+`6905ce412deb772da3c04819f6942558707b0bcb98a21996c9cddb8070466f4d`.
+Conda, dependencies, other shared packages and nested Git indexes were not
+changed.
+
+### Intermediate overlay workaround (historical, superseded above)
 
 The source merge was correct, but the activity `run_six_behaviors.sh` still
 sourced only the legacy shared `install`. That installed `Person.py` has SHA-256
@@ -44,7 +102,8 @@ sourced only the legacy shared `install`. That installed `Person.py` has SHA-256
 so the main entry could still render the old 90-degree error even though the
 source and `.colcon-formal-v1` overlay were fixed.
 
-The launcher now loads `.colcon-formal-v1` by default, checks that both
+At this intermediate checkpoint, the launcher loaded `.colcon-formal-v1` by
+default, checked that both
 `arena_isaac` and `arena_humble_compat` resolve there, byte-compares the
 installed `Person.py` with activity source, and fails before Isaac starts if the
 overlay is absent or stale. The implementation commit is `0359579`. No manual
@@ -78,15 +137,18 @@ The targeted pre-change launcher backup is
 `/home/lpc/workspace/arena5_ws_archives/20260902_six_behavior_overlay_entry_pre/`;
 its `RESTORE.md` SHA-256 is
 `2461d12027ee7b8491417fd34af403368cf7a162e1272f41d04ec7d387e9bc99`.
-The shared install remains unchanged. Setting
+At that checkpoint the shared install remained unchanged. Setting
 `ARENA_SIX_BEHAVIORS_USE_OVERLAY=false` selects that legacy install only for
 diagnosis/rollback and can reproduce the old visual error.
 
 The workspace root is not Git. Run manifests use merged-content revision
 `3ac7a64e30f381221cc0835059ac61c43e86961f603e582625bf58d529e7e2f4`.
-The shared install, Conda environment and nested Git indexes remain unchanged.
+At the initial merge/overlay checkpoints the shared install, Conda environment
+and nested Git indexes remained unchanged. The latest authorized deployment
+changes only shared `build/arena_isaac` and `install/arena_isaac`; Conda and
+nested Git indexes remain unchanged.
 The six-behavior launcher is now the one intentional follow-up change described
-above; its current SHA-256 is
+in the historical overlay checkpoint; its SHA-256 at that checkpoint was
 `24abb1ee73e2ca66aad1c352570c2e1d757fcfadb7ee9f1617c768f54d7f9633`.
 
 Rollback instructions are at
@@ -111,7 +173,7 @@ this file remains deployment/D6 history.
 - Canonical base: `51ab117dedf6a8173c1704f0edd8d01c7938fb8e`
 - Base tag: `arena5-isaac5.1-archive-20260829`
 - Implementation commits: `ec95e8c`, `eaa84c7`, `e33dd6d`, `a048bfd`,
-  `0359579`; the
+  `0359579`, `d8b026d`; the
   later Regular-motion/visual and Character-frame fixes are identified by the
   final feature `HEAD` (`git rev-parse HEAD`).
 - Authoritative specification:

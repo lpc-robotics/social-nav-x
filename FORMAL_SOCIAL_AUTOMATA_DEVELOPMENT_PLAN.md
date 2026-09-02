@@ -24,6 +24,7 @@ a048bfd  test: deliver formal social automata v1
 后续修复  Regular 目标处残留运动、可视化模式和 Surprised 渲染朝向验收（以 feature HEAD 为准）
 本次修复  ROS +X 与 Isaac People -Y 前向轴转换、Scared 危险优先（以 feature HEAD 为准）
 0359579  fix: load character frame overlay in six behavior demo
+d8b026d  fix: prefer validated shared arena isaac install
 ```
 
 已取得的权威结果：
@@ -1060,7 +1061,7 @@ tar 列表校验；恢复时先把新增路径移动到保留目录，再解压�
 因此 formal demo 正常而主六行为仍偏转并不是转换公式失效，而是两个入口选择了不同安装
 层。源码合并、隔离构建和运行时选择必须三者同时成立。
 
-### 17.2 主入口修复
+### 17.2 主入口修复（中间态，已由第 18 节取代）
 
 主入口现在默认设置 `ARENA_SIX_BEHAVIORS_USE_OVERLAY=true`，在共享 underlay 之后加载
 `/home/lpc/workspace/arena5_ws/.colcon-formal-v1/install/local_setup.bash`，并在启动 Isaac 前：
@@ -1145,3 +1146,122 @@ RESTORE.md               2461d12027ee7b8491417fd34af403368cf7a162e1272f41d04ec7d
 `reset/clean/checkout`。本次未修改共享 install、Conda 元数据、依赖、六行为 YAML/launch、
 D6、Nav2 或碰撞文件；嵌套仓库 index 哈希保持一致。按用户要求，本轮继续不运行底盘矩阵和
 碰撞套件，不能将它们写成通过。
+
+## 18. 主工作区共享 install 部署（2026-09-02）
+
+本节是第 17 节 overlay 中间方案之后的权威最新状态。用户明确要求将主工作区源码编译到
+共享 `install`，因此本轮允许对 `build/arena_isaac` 和 `install/arena_isaac` 做一次定向、
+可恢复的选择性构建；这项授权不扩展到全量 build、其他共享包或依赖安装。
+
+### 18.1 实际源码清单
+
+坐标修复源码已经在第 16 节合并到活动工作区，本轮先确认内容正确，未重复叠加另一个角度
+补偿。权威源码是：
+
+1. `src/arena-isaac/arena_isaac/pedestrian/simulator/logic/people/character_frames.py`
+   - 新增不依赖 Isaac/rclpy 的四元数归一化与乘法；
+   - `ros_to_character_quaternion()` 实现 `q_ros * qz(+pi/2)`；
+   - `character_to_ros_quaternion()` 实现 `q_character * qz(-pi/2)`。
+2. `src/arena-isaac/arena_isaac/pedestrian/simulator/logic/people/person.py`
+   - 在 Character Graph 写入、初始 spawn 和 `set_world_pose()` 边界应用正向转换；
+   - `update_state()` 读回 graph 姿态时应用逆向转换，保持 ROS `/human_states` 语义；
+   - 保存并归一化 HuNav 命令姿态，静止时让 Surprised 使用显式 look-at yaw；
+   - 行走时继续由 locomotion/PathPoints 控制方向，避免 Curious、Scared 等移动行为被静止
+     姿态覆盖。
+3. `src/arena-isaac/arena_isaac/test/test_character_frames.py`
+   - 覆盖七个 yaw 的局部 `-Y` 视觉前向、五个往返 yaw、`+90°` 常量和非法四元数，共
+     `17` 个测试。
+4. `scripts/run_six_behaviors.sh`
+   - 最新提交 `d8b026d` 默认使用共享 install；
+   - 启动前验证 `arena_isaac`/compat prefix、`character_frames.py` 存在及
+     `Person.py` 与活动源码字节一致；
+   - `--check-runtime-only` 提供无 Isaac 的快速校验；
+   - `ARENA_SIX_BEHAVIORS_USE_OVERLAY=true` 仅保留作 overlay 对照。
+
+源码哈希为：
+
+```text
+Person.py                   429a25528bb9cc5cd7b16616a6099d0644777e90155e501ff0099c544adfa7f1
+character_frames.py         2e018db9ad9c34c8e4cedb057637628d08f6c7dd4be0fe74fe5ac5cf47d01eaa
+test_character_frames.py    53d577dcd224ed2b5295ed001dc2e8f208c926ace2436158c03771701a315233
+run_six_behaviors.sh         9f8d26eae21348e00e6141f95829e51bf5cbc21e0c57d541bd3c8e9df2530836
+```
+
+### 18.2 共享构建与安装结果
+
+构建前保存了 `build/arena_isaac`、`install/arena_isaac`、入口脚本和上述三份坐标源码。
+随后只执行：
+
+```bash
+cd /home/lpc/workspace/arena5_ws
+source scripts/env.sh
+colcon build --event-handlers console_cohesion+ \
+  --packages-select arena_isaac \
+  --cmake-args -DCMAKE_BUILD_TYPE=Release
+```
+
+结果为 `Finished <<< arena_isaac [1min 30s]`、`1 package finished [1min 31s]`，构建日志位于
+`/home/lpc/workspace/arena5_ws/log/build_2026-09-02_16-57-32`。没有运行全量
+`scripts/build.sh`，没有构建 formal、Nav2、D6、碰撞、HuNav 或依赖包。
+
+将构建前归档解到临时目录并对共享 `install/arena_isaac` 做递归比较后，运行源码差异只有：
+
+```text
+替换  pedestrian/simulator/logic/people/person.py
+新增  pedestrian/simulator/logic/people/character_frames.py
+刷新  egg-info/SOURCES.txt 和对应 Python 字节码
+```
+
+Colcon 同时刷新了顶层生成文件 `install/setup*`、`local_setup*` 的时间戳；包清单没有增删，
+`install/setup.bash` 的 SHA-256 仍为
+`e3b0addf5e333f92b50598538d132869b8ee08bcad6cc4ef3e9361fdfaada898`。
+
+安装后的两份源码与活动源码 `cmp` 均为 `0`，哈希分别为 `429a2552...fa7f1` 与
+`2e018db9...1eaa`。这证明运行 install 不是旧缓存，也没有意外覆盖其他包。
+
+### 18.3 共享 install 验证
+
+无启动预检：
+
+```text
+SIX_BEHAVIORS_RUNTIME_OK mode=shared arena_isaac=/home/lpc/workspace/arena5_ws/install/arena_isaac compat=/home/lpc/workspace/arena5_ws/install/arena_humble_compat person_sha256=429a2552...fa7f1
+```
+
+使用共享安装路径作为 `PYTHONPATH` 的坐标测试为 `17 passed in 0.02s`。随后 GPU 3 主入口
+实测确认进程为：
+
+```text
+/home/lpc/workspace/arena5_ws/install/arena_isaac/lib/arena_isaac/run_isaacsim
+```
+
+真实六行为验证通过：
+
+```text
+SIX_BEHAVIORS_VERIFY_OK types=1,2,3,4,5,6 active=3,5 responses=3,4,5,6 robot_distance=0.967 robot_states=372
+```
+
+稳定样本为 compute `14.6--15.1 Hz`、display `4.8 Hz`、`max_dt=0.025 s`。运行完成后经
+`Ctrl-C` 正常停止，无遗留 Isaac、HuNav 或 Foxglove 进程。证据：
+
+```text
+/home/lpc/workspace/arena5_ws/logs/regression/shared_install_character_frame_fix_20260902/verification.txt
+SHA-256 72ef2199f4cc5fa56f9d5c84ab7d35e58c97a6a44adc206c098ef30dc2b39596
+/home/lpc/workspace/arena5_ws/logs/runs/20260902_170015_six_behaviors_gpu3/runtime_manifest.txt
+SHA-256 d357874656afa1beee2737890702ae5ad129f56c0921faee66b52ef6451d5b0c
+```
+
+### 18.4 恢复与依赖保护
+
+定向恢复目录为
+`/home/lpc/workspace/arena5_ws_archives/20260902_shared_arena_isaac_install_pre/`：
+
+```text
+pre_deploy_targets.tar.zst  6905ce412deb772da3c04819f6942558707b0bcb98a21996c9cddb8070466f4d
+RESTORE.md                   a95b4ddba756274c387249bc2ca9b3599d5e7ce0917cd4680d3a5434f6560b6e
+NESTED_GIT_INDEX_SHA256      243d2103a6db2207ca291f355756596806b4c84654e48dc5dfd5296e23d2205b
+```
+
+压缩包通过 `zstd -t` 和 `tar --zstd -tf`。恢复流程先移动保存当前 build/install/源码/脚本，
+再解压旧目标，禁止覆盖式恢复和 Git reset/clean。Conda history、依赖、其他共享 install 包、
+六行为 YAML/launch、Nav2、D6 和碰撞文件均未修改；11 个嵌套仓库 index 哈希保持不变。
+底盘矩阵和碰撞测试继续按用户此前要求跳过，未将其标记为通过。
