@@ -1,0 +1,10 @@
+build/
+install/
+log/
+.cache/
+.pytest_cache/
+__pycache__/
+*.pyc
+evidence/**/*.db3
+evidence/**/*.mcap
+evidence/**/*.bag
