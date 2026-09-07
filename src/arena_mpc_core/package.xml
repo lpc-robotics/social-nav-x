@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>arena_mpc_core</name>
+  <version>0.1.0</version>
+  <description>ROS-independent MPC mathematics for the Arena 5 Nav2 controller.</description>
+  <maintainer email="codex@openai.com">MPC migration maintainers</maintainer>
+  <license>MIT</license>
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <build_depend>casadi</build_depend>
+  <build_export_depend>casadi</build_export_depend>
+  <exec_depend>casadi</exec_depend>
+  <test_depend>ament_cmake_test</test_depend>
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

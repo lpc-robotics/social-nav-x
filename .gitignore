@@ -8,3 +8,5 @@ __pycache__/
 evidence/**/*.db3
 evidence/**/*.mcap
 evidence/**/*.bag
+third_party/downloads/
+third_party/casadi-3.8.0-wheel/
