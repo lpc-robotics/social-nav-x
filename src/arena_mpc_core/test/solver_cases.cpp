@@ -71,6 +71,16 @@ int main()
     return 2;
   }
 
+  auto limited = base;
+  limited.linear_speed_limit = 0.05;
+  const auto limited_result = solver.solve(limited, false);
+  if (!require(limited_result.code == SolveCode::Success, "speed-limited solve") ||
+    !require(limited_result.trajectory.controls.front().linear <= 0.050001,
+      "runtime speed limit was not applied"))
+  {
+    return 9;
+  }
+
   auto horizontal = base;
   horizontal.obstacles.push_back(repeated_obstacle(config, 2.0, 1.0, 0.5, 0.2, 0.0));
   const auto horizontal_result = solver.solve(horizontal, false);

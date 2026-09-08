@@ -1,0 +1,16 @@
+{
+  "action_status": 5,
+  "bridge_pid": 1719069,
+  "first_human_after_resume_ros_age_s": 0.233335184,
+  "first_human_after_resume_wall_s": 0.012448391411453485,
+  "first_human_agent_count": 6,
+  "first_human_stamp_step_s": 0.025,
+  "first_nonzero_after_first_human_s": 0.1274984646588564,
+  "first_nonzero_after_resume_s": 0.13994685607030988,
+  "first_zero_from_pause_s": 0.5998176811262965,
+  "nonzero_while_paused_after_first_zero": 0,
+  "output_recovered": true,
+  "pass": true,
+  "pause_requested_s": 0.75,
+  "watchdog_reason_from_pause_s": 0.6004557749256492
+}

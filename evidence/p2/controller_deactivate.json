@@ -1,0 +1,9 @@
+{
+  "action_status": 6,
+  "deactivate_ack_latency_s": 0.1634716670960188,
+  "deadline_s": 0.27,
+  "first_zero_latency_s": 0.240739478264004,
+  "mode": "controller",
+  "nonzero_after_first_zero": 0,
+  "pass": true
+}

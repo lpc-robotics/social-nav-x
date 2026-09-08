@@ -4,6 +4,32 @@ project(arena_mpc_core VERSION 0.1.0 LANGUAGES CXX)
 find_package(ament_cmake REQUIRED)
 find_package(casadi 3.8.0 CONFIG REQUIRED)
 
+# The CasADi wheel is used as an audited C++ SDK.  Its imported target does not
+# install the run-time library or the dynamically loaded IPOPT plugin, so keep a
+# small, explicit run-time closure with this package.  This also makes a sourced
+# install independent of the unpacked wheel path.
+get_filename_component(CASADI_RUNTIME_DIR "${casadi_DIR}/.." ABSOLUTE)
+set(CASADI_RUNTIME_FILES
+  libcasadi.so.3.7
+  libcasadi_nlpsol_ipopt.so
+  libcasadi_nlpsol_ipopt.so.3.7
+  libipopt.so.3
+  libcasadi-tp-openblas.so.0
+  libcoinmetis.so.2
+  libcoinmumps.so.3
+  libgfortran-8f1e9814.so.5.0.0
+  libmvec-2-583a17db.28.so
+  libquadmath-828275a7.so.0.0.0
+  libz.so.1
+)
+set(CASADI_RUNTIME_PATHS)
+foreach(runtime_file IN LISTS CASADI_RUNTIME_FILES)
+  if(NOT EXISTS "${CASADI_RUNTIME_DIR}/${runtime_file}")
+    message(FATAL_ERROR "CasADi run-time dependency is missing: ${runtime_file}")
+  endif()
+  list(APPEND CASADI_RUNTIME_PATHS "${CASADI_RUNTIME_DIR}/${runtime_file}")
+endforeach()
+
 add_library(${PROJECT_NAME} SHARED
   src/model.cpp
   src/solver.cpp
@@ -65,6 +91,20 @@ install(
   DESTINATION include
 )
 install(FILES LICENSE DESTINATION share/${PROJECT_NAME})
+install(
+  FILES ${CASADI_RUNTIME_PATHS}
+  DESTINATION lib
+)
+install(
+  DIRECTORY
+    "${CASADI_RUNTIME_DIR}/include/licenses/casadi"
+    "${CASADI_RUNTIME_DIR}/include/licenses/ipopt-external"
+    "${CASADI_RUNTIME_DIR}/include/licenses/openblas-external"
+    "${CASADI_RUNTIME_DIR}/include/licenses/mumps-external"
+    "${CASADI_RUNTIME_DIR}/include/licenses/metis-external"
+    "${CASADI_RUNTIME_DIR}/include/licenses/libz-external"
+  DESTINATION share/${PROJECT_NAME}/third_party_licenses
+)
 install(
   TARGETS ${PROJECT_NAME}
   EXPORT export_${PROJECT_NAME}

@@ -1,0 +1,35 @@
+# Values merged into Arena's model substitution dictionary before nav2.yaml is expanded.
+controller_plugins:
+  - FollowPath
+controller_plugins_dict:
+  FollowPath:
+    plugin: "arena_mpc_controller::MpcController"
+    horizon: 25
+    dt: 0.1
+    gamma: 0.2
+    safe_distance: 0.3
+    terminal_weight: 1.0
+    slack_weight: 50.0
+    max_linear: 0.26
+    max_angular: 1.0
+    max_linear_accel: 2.0
+    max_angular_accel: 3.2
+    max_dynamic_obstacles: 32
+    max_nlp_dynamic_obstacles: 8
+    max_iterations: 100
+    solver_budget_ms: 75.0
+    plugin_commit_limit_ms: 90.0
+    transform_tolerance: 0.2
+    ros_age_limit: 0.3
+    human_wall_limit: 0.6
+    odom_wall_limit: 0.4
+    lidar_wall_limit: 1.55
+    reference_spacing: 0.05
+    geometry_uncertainty: 0.05
+    failure_limit: 5
+    humans_topic: "/human_states"
+    odom_topic: "/odom"
+    lidar_topic: "/lidar"
+
+# One geometry source drives both costmaps and the controller's footprint checks.
+footprint: "[ [0.24, 0.22], [0.24, -0.22], [-0.24, -0.22], [-0.24, 0.22] ]"

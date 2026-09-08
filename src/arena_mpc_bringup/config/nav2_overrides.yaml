@@ -1,0 +1,64 @@
+controller_server:
+  ros__parameters:
+    controller_frequency: 10.0
+    failure_tolerance: 0.0
+
+local_costmap:
+  local_costmap:
+    ros__parameters:
+      update_frequency: 10.0
+      publish_frequency: 10.0
+      footprint: "[ [0.24, 0.22], [0.24, -0.22], [-0.24, -0.22], [-0.24, 0.22] ]"
+      footprint_padding: 0.0
+      voxel_layer:
+        lidar:
+          expected_update_rate: 0.3
+
+global_costmap:
+  global_costmap:
+    ros__parameters:
+      footprint: "[ [0.24, 0.22], [0.24, -0.22], [-0.24, -0.22], [-0.24, 0.22] ]"
+      footprint_padding: 0.0
+      track_unknown_space: true
+      obstacle_layer:
+        lidar:
+          expected_update_rate: 0.3
+
+planner_server:
+  ros__parameters:
+    GridBased:
+      allow_unknown: false
+
+velocity_smoother:
+  ros__parameters:
+    use_sim_time: true
+    smoothing_frequency: 20.0
+    scale_velocities: false
+    feedback: "OPEN_LOOP"
+    max_velocity: [0.26, 0.0, 1.0]
+    min_velocity: [-0.26, 0.0, -1.0]
+    max_accel: [2.0, 0.0, 3.2]
+    max_decel: [-2.0, 0.0, -3.2]
+    odom_topic: "/odom"
+    odom_duration: 0.1
+    deadband_velocity: [0.0, 0.0, 0.0]
+    velocity_timeout: 0.25
+
+mpc_command_watchdog:
+  ros__parameters:
+    use_sim_time: true
+    raw_topic: "/cmd_vel_nav"
+    smooth_topic: "/cmd_vel_watchdog_in"
+    output_topic: "/cmd_vel"
+    status_topic: "/FollowPath/status"
+    human_topic: "/human_states"
+    odom_topic: "/odom"
+    lidar_topic: "/lidar"
+    costmap_topic: "/local_costmap/costmap_raw"
+    command_lease: 0.25
+    ros_age_timeout: 0.3
+    future_tolerance: 0.05
+    human_wall_timeout: 0.6
+    odom_wall_timeout: 0.4
+    lidar_wall_timeout: 1.55
+    costmap_wall_timeout: 1.55

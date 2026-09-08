@@ -33,6 +33,11 @@ bool finite_control(const Control & control)
   return std::isfinite(control.linear) && std::isfinite(control.angular);
 }
 
+double effective_linear_limit(const Config & config, const Problem & problem)
+{
+  return problem.linear_speed_limit > 0.0 ? problem.linear_speed_limit : config.max_linear;
+}
+
 }  // namespace
 
 double wrap_angle(double angle)
@@ -88,7 +93,8 @@ void validate_problem(const Config & config, const Problem & problem)
   }
   if (!finite_state(problem.initial_state) || !finite_control(problem.measured_control) ||
     !std::isfinite(problem.first_interval) || problem.first_interval <= 0.0 ||
-    problem.first_interval > config.dt)
+    problem.first_interval > config.dt || !std::isfinite(problem.linear_speed_limit) ||
+    problem.linear_speed_limit < 0.0 || problem.linear_speed_limit > config.max_linear)
   {
     throw std::invalid_argument("invalid initial state, odometry control, or first interval");
   }
@@ -144,6 +150,7 @@ Evaluation evaluate(
   }
 
   Evaluation result;
+  const double linear_limit = effective_linear_limit(config, problem);
   result.max_initial_residual = max_abs_state_difference(
     trajectory.states.front(), problem.initial_state);
 
@@ -171,7 +178,7 @@ Evaluation evaluate(
     result.max_bound_violation = std::max({
         result.max_bound_violation,
         config.min_linear - control.linear,
-        control.linear - config.max_linear,
+        control.linear - linear_limit,
         std::abs(control.angular) - config.max_angular});
 
     const Control previous = k == 0U ? problem.measured_control : trajectory.controls[k - 1U];

@@ -74,7 +74,7 @@ struct Config
   std::size_t max_nlp_dynamic_obstacles{8};
   std::size_t max_nlp_static_obstacles{0};
   int max_iterations{100};
-  double solver_budget_seconds{0.060};
+  double solver_budget_seconds{0.075};
   double acceptable_tolerance{1.0e-3};
   SolverLayout layout{SolverLayout::FixedMasked};
 };
@@ -84,6 +84,7 @@ struct Problem
   State initial_state;
   Control measured_control;
   double first_interval{0.1};
+  double linear_speed_limit{0.0};
   std::vector<State> reference;
   std::vector<ObstaclePrediction> obstacles;
 };

@@ -1,0 +1,12 @@
+{
+  "action_status": 5,
+  "clock_before_ns": 109116672357,
+  "first_zero_latency_s": 0.01997580472379923,
+  "injected_clock_ns": 104116672357,
+  "mode": "clock_rollback",
+  "nonzero_after_latch": 0,
+  "pass": true,
+  "restart_required": true,
+  "rollback_ns": 5000000000,
+  "watchdog_reason_latency_s": 0.020162879023700953
+}

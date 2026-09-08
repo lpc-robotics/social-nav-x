@@ -72,6 +72,11 @@ double clamp(double value, double lower, double upper)
   return std::max(lower, std::min(value, upper));
 }
 
+double effective_linear_limit(const Config & config, const Problem & problem)
+{
+  return problem.linear_speed_limit > 0.0 ? problem.linear_speed_limit : config.max_linear;
+}
+
 std::string stat_string(const casadi::Dict & stats, const std::string & key)
 {
   const auto item = stats.find(key);
@@ -254,7 +259,12 @@ std::unique_ptr<Graph> build_graph(const Config & config, std::size_t slots)
   options["ipopt.print_level"] = 0;
   options["ipopt.sb"] = "yes";
   options["ipopt.max_iter"] = config.max_iterations;
-  options["ipopt.max_cpu_time"] = config.solver_budget_seconds;
+  // controller_server owns costmap and executor threads in the same process.
+  // IPOPT's process CPU timer therefore charges unrelated Nav2 work and can
+  // expire well before the solve's wall budget.  The contract is a wall-clock
+  // control deadline, so use IPOPT 3.14's wall timer and retain the measured
+  // post-solve rejection below.
+  options["ipopt.max_wall_time"] = config.solver_budget_seconds;
   options["ipopt.tol"] = config.acceptable_tolerance;
   options["ipopt.acceptable_tol"] = config.acceptable_tolerance;
   options["ipopt.acceptable_obj_change_tol"] = config.acceptable_tolerance;
@@ -285,7 +295,9 @@ std::vector<double> initial_guess(const Config & config, const Problem & problem
     control.linear = clamp(
       distance / config.dt,
       std::max(config.min_linear, previous.linear - config.max_linear_accel * interval),
-      std::min(config.max_linear, previous.linear + config.max_linear_accel * interval));
+      std::min(
+        effective_linear_limit(config, problem),
+        previous.linear + config.max_linear_accel * interval));
     control.angular = clamp(
       wrap_angle(desired_yaw - state.yaw) / config.dt,
       std::max(-config.max_angular, previous.angular - config.max_angular_accel * interval),
@@ -317,7 +329,9 @@ std::vector<double> warm_start_guess(
     control.linear = clamp(
       previous_solution[control_index(config, source_step, 0U)],
       std::max(config.min_linear, previous.linear - config.max_linear_accel * interval),
-      std::min(config.max_linear, previous.linear + config.max_linear_accel * interval));
+      std::min(
+        effective_linear_limit(config, problem),
+        previous.linear + config.max_linear_accel * interval));
     control.angular = clamp(
       previous_solution[control_index(config, source_step, 1U)],
       std::max(-config.max_angular, previous.angular - config.max_angular_accel * interval),
@@ -391,7 +405,7 @@ Problem select_relevant_obstacles(const Config & config, const Problem & problem
       const double obstacle_extent = std::max(sample.semi_major, sample.semi_minor) +
         config.safe_distance;
       const double reachable_distance =
-        static_cast<double>(k) * config.dt * config.max_linear;
+        static_cast<double>(k) * config.dt * effective_linear_limit(config, problem);
       if (center_distance - obstacle_extent <= reachable_distance + config.acceptable_tolerance) {
         reachable = true;
         break;
@@ -494,6 +508,11 @@ public:
 
     std::vector<double> lower_constraint = graph.lower_constraint;
     std::vector<double> upper_constraint = graph.upper_constraint;
+    std::vector<double> upper_variable = graph.upper_variable;
+    for (std::size_t k = 0; k < config_.horizon; ++k) {
+      upper_variable[control_index(config_, k, 0U)] =
+        effective_linear_limit(config_, problem);
+    }
     lower_constraint[graph.first_linear_acceleration_constraint] =
       -config_.max_linear_accel * problem.first_interval;
     upper_constraint[graph.first_linear_acceleration_constraint] =
@@ -513,7 +532,7 @@ public:
         {"x0", casadi::DM(guess)},
         {"p", casadi::DM(parameters)},
         {"lbx", casadi::DM(graph.lower_variable)},
-        {"ubx", casadi::DM(graph.upper_variable)},
+        {"ubx", casadi::DM(upper_variable)},
         {"lbg", casadi::DM(lower_constraint)},
         {"ubg", casadi::DM(upper_constraint)}};
       const auto solve_start = Clock::now();
@@ -569,8 +588,12 @@ public:
 
   void reset()
   {
-    exact_graphs_.clear();
-    fixed_graph_.reset();
+    for (auto & item : exact_graphs_) {
+      item.second->last_solution.clear();
+    }
+    if (fixed_graph_) {
+      fixed_graph_->last_solution.clear();
+    }
   }
 
 private:
