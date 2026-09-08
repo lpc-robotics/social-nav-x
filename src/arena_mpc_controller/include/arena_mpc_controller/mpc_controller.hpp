@@ -105,7 +105,7 @@ private:
   double odom_wall_limit_{0.40};
   double lidar_wall_limit_{1.55};
   double plugin_commit_limit_ms_{90.0};
-  double reference_spacing_{0.05};
+  double reference_spacing_{0.025};
   double geometry_uncertainty_{0.05};
   double robot_circumscribed_radius_{0.326};
   int failure_limit_{5};

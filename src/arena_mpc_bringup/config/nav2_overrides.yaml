@@ -23,6 +23,8 @@ global_costmap:
       obstacle_layer:
         lidar:
           expected_update_rate: 0.3
+      inflation_layer:
+        inflation_radius: 0.55
 
 planner_server:
   ros__parameters:

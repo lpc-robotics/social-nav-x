@@ -24,7 +24,10 @@ controller_plugins_dict:
     human_wall_limit: 0.6
     odom_wall_limit: 0.4
     lidar_wall_limit: 1.55
-    reference_spacing: 0.05
+    # Time-indexed path reference: 0.025 m / 0.1 s = 0.25 m/s, within
+    # the configured 0.26 m/s model limit so sharp turns are not cut to
+    # chase an unreachable reference.
+    reference_spacing: 0.025
     geometry_uncertainty: 0.05
     failure_limit: 5
     humans_topic: "/human_states"

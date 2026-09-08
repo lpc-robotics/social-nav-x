@@ -1,0 +1,1202 @@
+scripts/run_six_behaviors.sh: 成功
+scripts/env.sh: 成功
+install/arena_humble_compat/lib/python3.11/site-packages/arena_humble_compat/hunav_six_behaviors_bridge.py: 成功
+config/generated/jackal.urdf: 成功
+install/arena_simulation_setup/share/arena_simulation_setup/configs/nav2/nav2.yaml: 成功
+install/arena_simulation_setup/share/arena_simulation_setup/entities/robots/jackal/model_params.yaml: 成功
+.conda/arena_ros/lib/libcontroller_server_core.so: 成功
+Arena workspace: /home/lpc/workspace/arena5_ws
+ROS 2: humble (domain 103)
+Isaac Sim: /home/lpc/miniforge3/envs/isaaclab/lib/python3.11/site-packages/isaacsim
+WebRTC endpoint: 10.16.205.165:49403 (UDP 48403)
+Foxglove WebSocket: 127.0.0.1:9003
+Starting Arena MPC on GPU 0 (22658 MiB free), ROS domain 103
+MPC command chain: controller_server -> velocity_smoother -> watchdog -> /cmd_vel
+MPC scenario: empty
+Logs: /home/lpc/workspace/arena5_mpc_ws/logs/runs/20260908_212338_mpc_gpu0
+[INFO] [launch]: All log files can be found below /home/lpc/workspace/arena5_mpc_ws/logs/runs/20260908_212338_mpc_gpu0/ros/2026-09-08-21-23-39-017860-root123-desktop-2509935
+[INFO] [launch]: Default logging verbosity is set to INFO
+[WARNING] [launch_ros.actions.node]: Failed to load entry point 'NodeLogLevelExtension': No module named 'arena_bringup.extensions'
+[WARNING] [launch_ros.actions.node]: Failed to load entry point 'NodeLogLevelExtension': No module named 'arena_bringup.extensions'
+[WARNING] [launch_ros.actions.node]: Failed to load entry point 'NodeLogLevelExtension': No module named 'arena_bringup.extensions'
+[WARNING] [launch_ros.actions.node]: Failed to load entry point 'NodeLogLevelExtension': No module named 'arena_bringup.extensions'
+[WARNING] [launch_ros.actions.node]: Failed to load entry point 'NodeLogLevelExtension': No module named 'arena_bringup.extensions'
+[WARNING] [launch_ros.actions.node]: Failed to load entry point 'NodeLogLevelExtension': No module named 'arena_bringup.extensions'
+[WARNING] [launch_ros.actions.node]: Failed to load entry point 'NodeLogLevelExtension': No module named 'arena_bringup.extensions'
+[WARNING] [launch_ros.actions.node]: Failed to load entry point 'NodeLogLevelExtension': No module named 'arena_bringup.extensions'
+[WARNING] [launch_ros.actions.node]: Failed to load entry point 'NodeLogLevelExtension': No module named 'arena_bringup.extensions'
+[WARNING] [launch_ros.actions.node]: Failed to load entry point 'NodeLogLevelExtension': No module named 'arena_bringup.extensions'
+[WARNING] [launch_ros.actions.node]: Failed to load entry point 'NodeLogLevelExtension': No module named 'arena_bringup.extensions'
+[WARNING] [launch_ros.actions.node]: Failed to load entry point 'NodeLogLevelExtension': No module named 'arena_bringup.extensions'
+[WARNING] [launch_ros.actions.node]: Failed to load entry point 'NodeLogLevelExtension': No module named 'arena_bringup.extensions'
+[WARNING] [launch_ros.actions.node]: Failed to load entry point 'NodeLogLevelExtension': No module named 'arena_bringup.extensions'
+[WARNING] [launch_ros.actions.node]: Failed to load entry point 'NodeLogLevelExtension': No module named 'arena_bringup.extensions'
+[WARNING] [launch_ros.actions.node]: Failed to load entry point 'NodeLogLevelExtension': No module named 'arena_bringup.extensions'
+[WARNING] [launch_ros.actions.node]: Failed to load entry point 'NodeLogLevelExtension': No module named 'arena_bringup.extensions'
+[WARNING] [launch_ros.actions.node]: Failed to load entry point 'NodeLogLevelExtension': No module named 'arena_bringup.extensions'
+[WARNING] [launch_ros.actions.node]: Failed to load entry point 'NodeLogLevelExtension': No module named 'arena_bringup.extensions'
+[WARNING] [launch_ros.actions.node]: Failed to load entry point 'NodeLogLevelExtension': No module named 'arena_bringup.extensions'
+[WARNING] [launch_ros.actions.node]: Failed to load entry point 'NodeLogLevelExtension': No module named 'arena_bringup.extensions'
+[WARNING] [launch_ros.actions.node]: Failed to load entry point 'NodeLogLevelExtension': No module named 'arena_bringup.extensions'
+[WARNING] [launch_ros.actions.node]: Failed to load entry point 'NodeLogLevelExtension': No module named 'arena_bringup.extensions'
+[INFO] [python-1]: process started with pid [2510208]
+[INFO] [scene_bridge-2]: process started with pid [2510210]
+[INFO] [robot_state_publisher-3]: process started with pid [2510212]
+[INFO] [empty_human_states.py-4]: process started with pid [2510214]
+[INFO] [map_server-5]: process started with pid [2510216]
+[INFO] [lifecycle_manager-6]: process started with pid [2510218]
+[INFO] [controller_server-7]: process started with pid [2510220]
+[INFO] [smoother_server-8]: process started with pid [2510222]
+[INFO] [planner_server-9]: process started with pid [2510224]
+[INFO] [behavior_server-10]: process started with pid [2510226]
+[INFO] [bt_navigator-11]: process started with pid [2510228]
+[INFO] [waypoint_follower-12]: process started with pid [2510230]
+[INFO] [velocity_smoother-13]: process started with pid [2510232]
+[INFO] [lifecycle_manager-14]: process started with pid [2510234]
+[INFO] [mpc_command_watchdog-15]: process started with pid [2510236]
+[robot_state_publisher-3] [WARN] [1788873819.612236813] [robot_state_publisher]: No robot_description parameter, but command-line argument available.  Assuming argument is name of URDF file.  This backwards compatibility fallback will be removed in the future.
+[waypoint_follower-12] [INFO] [1788873819.614046181] [waypoint_follower]: 
+[waypoint_follower-12] 	waypoint_follower lifecycle node launched. 
+[waypoint_follower-12] 	Waiting on external lifecycle transitions to activate
+[waypoint_follower-12] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[waypoint_follower-12] [INFO] [1788873819.614733261] [waypoint_follower]: Creating
+[robot_state_publisher-3] [INFO] [1788873819.620085541] [robot_state_publisher]: got segment base_link
+[robot_state_publisher-3] [INFO] [1788873819.620120081] [robot_state_publisher]: got segment chassis_link
+[robot_state_publisher-3] [INFO] [1788873819.620126678] [robot_state_publisher]: got segment front_fender_link
+[robot_state_publisher-3] [INFO] [1788873819.620132240] [robot_state_publisher]: got segment front_left_wheel_link
+[robot_state_publisher-3] [INFO] [1788873819.620138718] [robot_state_publisher]: got segment front_mount
+[robot_state_publisher-3] [INFO] [1788873819.620144771] [robot_state_publisher]: got segment front_right_wheel_link
+[robot_state_publisher-3] [INFO] [1788873819.620150610] [robot_state_publisher]: got segment imu_link
+[robot_state_publisher-3] [INFO] [1788873819.620156262] [robot_state_publisher]: got segment lidar_link
+[robot_state_publisher-3] [INFO] [1788873819.620162410] [robot_state_publisher]: got segment mid_mount
+[robot_state_publisher-3] [INFO] [1788873819.620167932] [robot_state_publisher]: got segment navsat_link
+[robot_state_publisher-3] [INFO] [1788873819.620173269] [robot_state_publisher]: got segment rear_fender_link
+[robot_state_publisher-3] [INFO] [1788873819.620178678] [robot_state_publisher]: got segment rear_left_wheel_link
+[robot_state_publisher-3] [INFO] [1788873819.620185225] [robot_state_publisher]: got segment rear_mount
+[robot_state_publisher-3] [INFO] [1788873819.620190428] [robot_state_publisher]: got segment rear_right_wheel_link
+[lifecycle_manager-6] [INFO] [1788873819.622118641] [lifecycle_manager_map]: Creating
+[lifecycle_manager-6] [INFO] [1788873819.625900391] [lifecycle_manager_map]: [34m[1mCreating and initializing lifecycle service clients[0m[0m
+[map_server-5] [INFO] [1788873819.632418165] [map_server]: 
+[map_server-5] 	map_server lifecycle node launched. 
+[map_server-5] 	Waiting on external lifecycle transitions to activate
+[map_server-5] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[map_server-5] [INFO] [1788873819.632489808] [map_server]: Creating
+[controller_server-7] [INFO] [1788873819.635099435] [controller_server]: 
+[controller_server-7] 	controller_server lifecycle node launched. 
+[controller_server-7] 	Waiting on external lifecycle transitions to activate
+[controller_server-7] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[planner_server-9] [INFO] [1788873819.635352582] [planner_server]: 
+[planner_server-9] 	planner_server lifecycle node launched. 
+[planner_server-9] 	Waiting on external lifecycle transitions to activate
+[planner_server-9] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[planner_server-9] [INFO] [1788873819.638563432] [planner_server]: Creating
+[controller_server-7] [INFO] [1788873819.639194190] [controller_server]: Creating controller server
+[lifecycle_manager-14] [INFO] [1788873819.640335382] [lifecycle_manager_navigation]: Creating
+[smoother_server-8] [INFO] [1788873819.645233145] [smoother_server]: 
+[smoother_server-8] 	smoother_server lifecycle node launched. 
+[smoother_server-8] 	Waiting on external lifecycle transitions to activate
+[smoother_server-8] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[lifecycle_manager-14] [INFO] [1788873819.645334582] [lifecycle_manager_navigation]: [34m[1mCreating and initializing lifecycle service clients[0m[0m
+[behavior_server-10] [INFO] [1788873819.646082467] [behavior_server]: 
+[behavior_server-10] 	behavior_server lifecycle node launched. 
+[behavior_server-10] 	Waiting on external lifecycle transitions to activate
+[behavior_server-10] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[bt_navigator-11] [INFO] [1788873819.646839170] [bt_navigator]: 
+[bt_navigator-11] 	bt_navigator lifecycle node launched. 
+[bt_navigator-11] 	Waiting on external lifecycle transitions to activate
+[bt_navigator-11] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[bt_navigator-11] [INFO] [1788873819.646942964] [bt_navigator]: Creating
+[smoother_server-8] [INFO] [1788873819.647218874] [smoother_server]: Creating smoother server
+[controller_server-7] [INFO] [1788873819.649948933] [local_costmap.local_costmap]: 
+[controller_server-7] 	local_costmap lifecycle node launched. 
+[controller_server-7] 	Waiting on external lifecycle transitions to activate
+[controller_server-7] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[controller_server-7] [INFO] [1788873819.650546458] [local_costmap.local_costmap]: Creating Costmap
+[planner_server-9] [INFO] [1788873819.653163766] [global_costmap.global_costmap]: 
+[planner_server-9] 	global_costmap lifecycle node launched. 
+[planner_server-9] 	Waiting on external lifecycle transitions to activate
+[planner_server-9] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[planner_server-9] [INFO] [1788873819.654402860] [global_costmap.global_costmap]: Creating Costmap
+[velocity_smoother-13] [INFO] [1788873819.658771885] [velocity_smoother]: 
+[velocity_smoother-13] 	velocity_smoother lifecycle node launched. 
+[velocity_smoother-13] 	Waiting on external lifecycle transitions to activate
+[velocity_smoother-13] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[mpc_command_watchdog-15] [WARN] [1788873819.697463725] [mpc_command_watchdog]: publishing zero command: controller_status
+[lifecycle_manager-6] [INFO] [1788873819.704125192] [lifecycle_manager_map]: [34m[1mStarting managed nodes bringup...[0m[0m
+[lifecycle_manager-6] [INFO] [1788873819.704247604] [lifecycle_manager_map]: [34m[1mConfiguring map_server[0m[0m
+[map_server-5] [INFO] [1788873819.704691233] [map_server]: Configuring
+[map_server-5] [INFO] [1788873819.704771411] [map_io]: Loading yaml file: /home/lpc/workspace/arena5_ws/install/arena_simulation_setup/share/arena_simulation_setup/worlds/map_empty/map/map.yaml
+[map_server-5] [INFO] [1788873819.705205284] [map_io]: resolution: 0.05
+[map_server-5] [INFO] [1788873819.705221019] [map_io]: origin[0]: 0
+[map_server-5] [INFO] [1788873819.705238299] [map_io]: origin[1]: 0
+[map_server-5] [INFO] [1788873819.705248330] [map_io]: origin[2]: 0
+[map_server-5] [INFO] [1788873819.705258876] [map_io]: free_thresh: 0.196
+[map_server-5] [INFO] [1788873819.705269450] [map_io]: occupied_thresh: 0.65
+[map_server-5] [INFO] [1788873819.705279057] [map_io]: mode: trinary
+[map_server-5] [INFO] [1788873819.705288141] [map_io]: negate: 0
+[map_server-5] [INFO] [1788873819.705616914] [map_io]: Loading image_file: /home/lpc/workspace/arena5_ws/install/arena_simulation_setup/share/arena_simulation_setup/worlds/map_empty/map/map.png
+[lifecycle_manager-14] [INFO] [1788873819.745463905] [lifecycle_manager_navigation]: [34m[1mStarting managed nodes bringup...[0m[0m
+[lifecycle_manager-14] [INFO] [1788873819.745526158] [lifecycle_manager_navigation]: [34m[1mConfiguring controller_server[0m[0m
+[controller_server-7] [INFO] [1788873819.745837558] [controller_server]: Configuring controller interface
+[controller_server-7] [INFO] [1788873819.746034817] [controller_server]: getting goal checker plugins..
+[controller_server-7] [INFO] [1788873819.746184514] [controller_server]: Controller frequency set to 10.0000Hz
+[controller_server-7] [INFO] [1788873819.746242104] [local_costmap.local_costmap]: Configuring
+[controller_server-7] [INFO] [1788873819.758005225] [local_costmap.local_costmap]: Using plugin "voxel_layer"
+[controller_server-7] [INFO] [1788873819.764637047] [local_costmap.local_costmap]: Subscribed to Topics: lidar
+[controller_server-7] [INFO] [1788873819.773266061] [local_costmap.local_costmap]: Initialized plugin "voxel_layer"
+[controller_server-7] [INFO] [1788873819.773298587] [local_costmap.local_costmap]: Using plugin "inflation_layer"
+[controller_server-7] [INFO] [1788873819.773955465] [local_costmap.local_costmap]: Initialized plugin "inflation_layer"
+[controller_server-7] [INFO] [1788873819.782858029] [controller_server]: Created progress_checker : progress_checker of type nav2_controller::SimpleProgressChecker
+[controller_server-7] [INFO] [1788873819.783724216] [controller_server]: Created goal checker : goal_checker of type nav2_controller::SimpleGoalChecker
+[controller_server-7] [INFO] [1788873819.784034083] [controller_server]: Controller Server has goal_checker  goal checkers available.
+[map_server-5] [INFO] [1788873819.834144065] [map_io]: Read map /home/lpc/workspace/arena5_ws/install/arena_simulation_setup/share/arena_simulation_setup/worlds/map_empty/map/map.png: 626 X 481 map @ 0.05 m/cell
+[lifecycle_manager-6] [INFO] [1788873819.840083058] [lifecycle_manager_map]: [34m[1mActivating map_server[0m[0m
+[map_server-5] [INFO] [1788873819.840203354] [map_server]: Activating
+[map_server-5] [INFO] [1788873819.840662465] [map_server]: Creating bond (map_server) to lifecycle manager.
+[controller_server-7] [INFO] [1788873819.841477810] [controller_server]: Created controller : FollowPath of type arena_mpc_controller::MpcController
+[lifecycle_manager-6] [INFO] [1788873819.944254996] [lifecycle_manager_map]: Server map_server connected with bond.
+[lifecycle_manager-6] [INFO] [1788873819.944333521] [lifecycle_manager_map]: [34m[1mManaged nodes are active[0m[0m
+[lifecycle_manager-6] [INFO] [1788873819.944348380] [lifecycle_manager_map]: [34m[1mCreating bond timer...[0m[0m
+[controller_server-7] [INFO] [1788873820.460531437] [controller_server]: Configured FollowPath: CasADi graph N=25 dynamic_slots=8 build occurs outside control loop
+[controller_server-7] [INFO] [1788873820.460575949] [controller_server]: Controller Server has FollowPath  controllers available.
+[lifecycle_manager-14] [INFO] [1788873820.464901101] [lifecycle_manager_navigation]: [34m[1mConfiguring smoother_server[0m[0m
+[smoother_server-8] [INFO] [1788873820.465077899] [smoother_server]: Configuring smoother server
+[smoother_server-8] [INFO] [1788873820.476781860] [smoother_server]: Created smoother : simple_smoother of type nav2_smoother::SimpleSmoother
+[smoother_server-8] [INFO] [1788873820.477196004] [smoother_server]: Smoother Server has simple_smoother  smoothers available.
+[lifecycle_manager-14] [INFO] [1788873820.482579839] [lifecycle_manager_navigation]: [34m[1mConfiguring planner_server[0m[0m
+[planner_server-9] [INFO] [1788873820.482782801] [planner_server]: Configuring
+[planner_server-9] [INFO] [1788873820.482873676] [global_costmap.global_costmap]: Configuring
+[planner_server-9] [INFO] [1788873820.494201687] [global_costmap.global_costmap]: Using plugin "static_layer"
+[planner_server-9] [INFO] [1788873820.500014314] [global_costmap.global_costmap]: Subscribing to the map topic (/task_generator_node/map) with transient local durability
+[planner_server-9] [INFO] [1788873820.501947396] [global_costmap.global_costmap]: Initialized plugin "static_layer"
+[planner_server-9] [INFO] [1788873820.501983361] [global_costmap.global_costmap]: Using plugin "obstacle_layer"
+[planner_server-9] [INFO] [1788873820.502572973] [global_costmap.global_costmap]: Subscribed to Topics: lidar
+[planner_server-9] [INFO] [1788873820.506979181] [global_costmap.global_costmap]: Initialized plugin "obstacle_layer"
+[planner_server-9] [INFO] [1788873820.507016703] [global_costmap.global_costmap]: Using plugin "inflation_layer"
+[planner_server-9] [INFO] [1788873820.507758222] [global_costmap.global_costmap]: Initialized plugin "inflation_layer"
+[planner_server-9] [INFO] [1788873820.517158732] [planner_server]: Created global planner plugin GridBased of type nav2_navfn_planner/NavfnPlanner
+[planner_server-9] [INFO] [1788873820.517193646] [planner_server]: Configuring plugin GridBased of type NavfnPlanner
+[planner_server-9] [INFO] [1788873820.517184779] [global_costmap.global_costmap]: StaticLayer: Resizing costmap to 626 X 481 at 0.050000 m/pix
+[planner_server-9] [INFO] [1788873820.517851139] [planner_server]: Planner Server has GridBased  planners available.
+[lifecycle_manager-14] [INFO] [1788873820.524126252] [lifecycle_manager_navigation]: [34m[1mConfiguring behavior_server[0m[0m
+[behavior_server-10] [INFO] [1788873820.524314309] [behavior_server]: Configuring
+[behavior_server-10] [INFO] [1788873820.542298533] [behavior_server]: Creating behavior plugin spin of type nav2_behaviors/Spin
+[behavior_server-10] [INFO] [1788873820.544049926] [behavior_server]: Configuring spin
+[behavior_server-10] [INFO] [1788873820.550556576] [behavior_server]: Creating behavior plugin backup of type nav2_behaviors/BackUp
+[behavior_server-10] [INFO] [1788873820.551827396] [behavior_server]: Configuring backup
+[behavior_server-10] [INFO] [1788873820.555303173] [behavior_server]: Creating behavior plugin drive_on_heading of type nav2_behaviors/DriveOnHeading
+[behavior_server-10] [INFO] [1788873820.556489704] [behavior_server]: Configuring drive_on_heading
+[behavior_server-10] [INFO] [1788873820.559983736] [behavior_server]: Creating behavior plugin wait of type nav2_behaviors/Wait
+[behavior_server-10] [INFO] [1788873820.561052575] [behavior_server]: Configuring wait
+[lifecycle_manager-14] [INFO] [1788873820.564299291] [lifecycle_manager_navigation]: [34m[1mConfiguring bt_navigator[0m[0m
+[bt_navigator-11] [INFO] [1788873820.564490828] [bt_navigator]: Configuring
+[lifecycle_manager-14] [INFO] [1788873820.643634208] [lifecycle_manager_navigation]: [34m[1mConfiguring waypoint_follower[0m[0m
+[waypoint_follower-12] [INFO] [1788873820.643796913] [waypoint_follower]: Configuring
+[waypoint_follower-12] [INFO] [1788873820.661977695] [waypoint_follower]: Created waypoint_task_executor : wait_at_waypoint of type nav2_waypoint_follower::WaitAtWaypoint
+[waypoint_follower-12] [INFO] [1788873820.662260683] [waypoint_follower]: Waypoint pause duration is set to zero, disabling task executor plugin.
+[lifecycle_manager-14] [INFO] [1788873820.662527908] [lifecycle_manager_navigation]: [34m[1mConfiguring velocity_smoother[0m[0m
+[velocity_smoother-13] [INFO] [1788873820.662686038] [velocity_smoother]: Configuring velocity smoother
+[lifecycle_manager-14] [INFO] [1788873820.668434054] [lifecycle_manager_navigation]: [34m[1mActivating controller_server[0m[0m
+[controller_server-7] [INFO] [1788873820.668594178] [controller_server]: Activating
+[controller_server-7] [INFO] [1788873820.668672560] [local_costmap.local_costmap]: Activating
+[controller_server-7] [INFO] [1788873820.668695979] [local_costmap.local_costmap]: Checking transform
+[controller_server-7] [INFO] [1788873820.668720054] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[python-1] [Info] [carb] Logging to file: /home/lpc/workspace/arena5_mpc_ws/logs/runs/20260908_212338_mpc_gpu0/isaac_kit.log
+[python-1] 2026-09-08T13:23:39Z [2ms] [Warning] [carb.crashreporter-breakpad.plugin] [previous crash] preventing upload of minidump due to user opt-out: '/home/lpc/miniforge3/envs/isaaclab/lib/python3.11/site-packages/isaacsim/kit/data/Kit/Isaac-Sim Python/5.1/0ac5911a-264e-47a3-2a16f79d-c5b7759a.dmp'
+[python-1] 2026-09-08T13:23:39Z [3ms] [Warning] [carb.crashreporter-breakpad.plugin] [previous crash] preventing upload of minidump due to user opt-out: '/home/lpc/miniforge3/envs/isaaclab/lib/python3.11/site-packages/isaacsim/kit/data/Kit/Isaac-Sim Python/5.1/873d0d6d-b3e2-40f3-6eb3df86-85c4cb14.dmp'
+[python-1] 2026-09-08T13:23:39Z [4ms] [Warning] [carb.crashreporter-breakpad.plugin] [previous crash] preventing upload of minidump due to user opt-out: '/home/lpc/miniforge3/envs/isaaclab/lib/python3.11/site-packages/isaacsim/kit/data/Kit/Isaac-Sim Python/5.1/54846835-9b12-4c85-5eb92bac-99ba56c4.dmp'
+[python-1] 2026-09-08T13:23:39Z [5ms] [Warning] [carb.crashreporter-breakpad.plugin] [previous crash] preventing upload of minidump due to user opt-out: '/home/lpc/miniforge3/envs/isaaclab/lib/python3.11/site-packages/isaacsim/kit/data/Kit/Isaac-Sim Python/5.1/4c7676b1-3af0-4296-87341b84-52502d37.dmp'
+[python-1] 2026-09-08T13:23:39Z [7ms] [Warning] [carb.crashreporter-breakpad.plugin] [previous crash] preventing upload of minidump due to user opt-out: '/home/lpc/miniforge3/envs/isaaclab/lib/python3.11/site-packages/isaacsim/kit/data/Kit/Isaac-Sim Python/5.1/4fb36b02-970f-460e-d915d5bf-47095803.dmp'
+[python-1] [0.099s] [ext: omni.kit.async_engine-0.0.3] startup
+[python-1] [0.312s] [ext: omni.metrics.core-0.0.3] startup
+[python-1] [0.313s] [ext: omni.client.lib-1.1.0] startup
+[python-1] [0.337s] [ext: omni.blobkey-1.1.2] startup
+[python-1] [0.338s] [ext: omni.stats-1.0.1] startup
+[python-1] [0.339s] [ext: omni.datastore-0.0.0] startup
+[python-1] [0.349s] [ext: omni.client-1.3.0] startup
+[python-1] [0.357s] [ext: omni.ujitso.default-1.0.0] startup
+[python-1] [0.359s] [ext: omni.hsscclient-1.1.2] startup
+[python-1] [0.378s] [ext: omni.gpu_foundation.shadercache.vulkan-1.0.0] startup
+[python-1] [0.384s] [ext: omni.assets.plugins-0.0.0] startup
+[python-1] [0.387s] [ext: omni.gpu_foundation-0.0.0] startup
+[python-1] [0.402s] [ext: carb.windowing.plugins-1.0.0] startup
+[python-1] 2026-09-08T13:23:40Z [366ms] [Warning] [carb.windowing-glfw.plugin] GLFW initialization failed.
+[python-1] 2026-09-08T13:23:40Z [366ms] [Warning] [carb] Failed to startup plugin carb.windowing-glfw.plugin (interfaces: [carb::windowing::IGLContext v1.0],[carb::windowing::IWindowing v1.5]) (impl: carb.windowing-glfw.plugin)
+[python-1] [0.403s] [ext: omni.kit.renderer.init-0.0.0] startup
+[python-1] 2026-09-08T13:23:40Z [438ms] [Warning] [omni.platforminfo.plugin] failed to open the default display.  Can't verify X Server version.
+[python-1] 2026-09-08T13:23:40Z [450ms] [Warning] [carb.cudainterop.plugin] CUDA_VISIBLE_DEVICES environment variable is set.
+[python-1] 2026-09-08T13:23:40Z [450ms] [Warning] [carb.cudainterop.plugin] Note CUDA device enumeration and Omniverse device enumeration are different.
+[python-1] 2026-09-08T13:23:40Z [450ms] [Warning] [carb.cudainterop.plugin] Setting CUDA_VISIBLE_DEVICES can lead to undesired behavior or crashes.
+[python-1] 2026-09-08T13:23:40Z [1,044ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA GeForce RTX 4090
+[python-1] 2026-09-08T13:23:40Z [1,044ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+[python-1] 2026-09-08T13:23:40Z [1,046ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA GeForce RTX 4090
+[python-1] 2026-09-08T13:23:40Z [1,046ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+[python-1] 2026-09-08T13:23:40Z [1,047ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA GeForce RTX 4090
+[python-1] 2026-09-08T13:23:40Z [1,047ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+[python-1] 2026-09-08T13:23:40Z [1,047ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA GeForce RTX 4090
+[python-1] 2026-09-08T13:23:40Z [1,047ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+[controller_server-7] [INFO] [1788873821.168793960] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[controller_server-7] [INFO] [1788873821.668800200] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[controller_server-7] [INFO] [1788873822.168804909] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[python-1] 2026-09-08T13:23:40Z [1,047ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA GeForce RTX 4090
+[python-1] 2026-09-08T13:23:40Z [1,047ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+[python-1] 2026-09-08T13:23:40Z [1,047ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA GeForce RTX 4090
+[python-1] 2026-09-08T13:23:40Z [1,047ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+[python-1] 
+[python-1] |---------------------------------------------------------------------------------------------|
+[python-1] | Driver Version: 580.126.09    | Graphics API: Vulkan
+[python-1] |=============================================================================================|
+[python-1] | GPU | Name                             | Active | LDA | GPU Memory | Vendor-ID | LUID       |
+[python-1] |     |                                  |        |     |            | Device-ID | UUID       |
+[python-1] |     |                                  |        |     |            | Bus-ID    |            |
+[python-1] |---------------------------------------------------------------------------------------------|
+[python-1] | 0   | NVIDIA GeForce RTX 4090          | Yes: 0 |     | 24810   MB | 10de      | 0          |
+[python-1] |     |                                  |        |     |            | 2684      | cff28fa1.. |
+[python-1] |     |                                  |        |     |            | 31        |            |
+[python-1] |---------------------------------------------------------------------------------------------|
+[python-1] | 1   | NVIDIA GeForce RTX 4090          |        |     | 24810   MB | 10de      | 0          |
+[python-1] |     |                                  |        |     |            | 2684      | 53d85912.. |
+[python-1] |     |                                  |        |     |            | 4b        |            |
+[python-1] |---------------------------------------------------------------------------------------------|
+[python-1] | 2   | NVIDIA GeForce RTX 4090          |        |     | 24810   MB | 10de      | 0          |
+[python-1] |     |                                  |        |     |            | 2684      | 2d2c45be.. |
+[python-1] |     |                                  |        |     |            | b1        |            |
+[python-1] |---------------------------------------------------------------------------------------------|
+[python-1] | 3   | NVIDIA GeForce RTX 4090          |        |     | 24810   MB | 10de      | 0          |
+[python-1] |     |                                  |        |     |            | 2684      | 6fc79961.. |
+[python-1] |     |                                  |        |     |            | ca        |            |
+[python-1] |=============================================================================================|
+[python-1] | OS: 22.04.5 LTS (Jammy Jellyfish) ubuntu, Version: 22.04.5, Kernel: 6.8.0-136-generic
+[python-1] | Processor: Intel(R) Xeon(R) Gold 6330 CPU @ 2.00GHz
+[python-1] | Cores: 56 | Logical Cores: 112
+[python-1] |---------------------------------------------------------------------------------------------|
+[python-1] | Total Memory (MB): 257544 | Free Memory: 225975
+[python-1] | Total Page/Swap (MB): 2047 | Free Page/Swap: 2020
+[python-1] |---------------------------------------------------------------------------------------------|
+[python-1] 2026-09-08T13:23:41Z [1,876ms] [Warning] [gpu.foundation.plugin] CPU performance profile is set to powersave. This profile sets the CPU to the lowest frequency reducing performance.
+[python-1] 2026-09-08T13:23:41Z [1,887ms] [Warning] [gpu.foundation.plugin] IOMMU is enabled.
+[python-1] 2026-09-08T13:23:41Z [1,887ms] [Warning] [gpu.foundation.plugin] Detected IOMMU is enabled. Running CUDA peer-to-peer bandwidth and latency validation.
+[python-1] Unidirectional P2P=Enabled Bandwidth (P2P Writes) Matrix (GB/s)
+[python-1]    D\D     0 
+[python-1]      0 937.31 
+[python-1] P2P=Enabled Latency (P2P Writes) Matrix (us)
+[python-1]    GPU     0 
+[python-1]      0   1.40 
+[python-1] 
+[python-1]    CPU     0 
+[python-1]      0   4.48 
+[python-1] [2.197s] [ext: omni.materialx.libs-1.0.7] startup
+[python-1] [2.211s] [ext: omni.kit.telemetry-0.5.2] startup
+[python-1] [2.274s] [ext: omni.usd.config-1.0.6] startup
+[python-1] [2.281s] [ext: omni.gpucompute.plugins-0.0.0] startup
+[python-1] [2.282s] [ext: omni.usd.libs-1.0.1] startup
+[python-1] [2.440s] [ext: omni.kit.loop-isaac-1.3.7] startup
+[controller_server-7] [INFO] [1788873822.668801152] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[python-1] [2.442s] [ext: omni.kit.test-2.0.1] startup
+[python-1] [2.536s] [ext: omni.mdl-56.0.3] startup
+[python-1] [2.654s] [ext: omni.iray.libs-0.0.0] startup
+[python-1] [2.663s] [ext: omni.mdl.neuraylib-0.2.12] startup
+[python-1] [2.667s] [ext: omni.kit.usd.mdl-1.1.5] startup
+[python-1] [2.836s] [ext: omni.kit.pipapi-0.0.0] startup
+[python-1] [2.837s] [ext: omni.appwindow-1.1.10] startup
+[python-1] 2026-09-08T13:23:42Z [2,801ms] [Warning] [carb.windowing-glfw.plugin] GLFW initialization failed.
+[python-1] 2026-09-08T13:23:42Z [2,801ms] [Warning] [carb] Failed to startup plugin carb.windowing-glfw.plugin (interfaces: [carb::windowing::IGLContext v1.0],[carb::windowing::IWindowing v1.5]) (impl: carb.windowing-glfw.plugin)
+[python-1] [2.841s] [ext: omni.kit.renderer.core-1.1.0] startup
+[python-1] 2026-09-08T13:23:42Z [2,872ms] [Warning] [carb.windowing-glfw.plugin] GLFW initialization failed.
+[python-1] 2026-09-08T13:23:42Z [2,872ms] [Warning] [carb] Failed to startup plugin carb.windowing-glfw.plugin (interfaces: [carb::windowing::IGLContext v1.0],[carb::windowing::IWindowing v1.5]) (impl: carb.windowing-glfw.plugin)
+[python-1] 2026-09-08T13:23:42Z [2,893ms] [Warning] [carb.windowing-glfw.plugin] GLFW initialization failed.
+[python-1] 2026-09-08T13:23:42Z [2,893ms] [Warning] [carb] Failed to startup plugin carb.windowing-glfw.plugin (interfaces: [carb::windowing::IGLContext v1.0],[carb::windowing::IWindowing v1.5]) (impl: carb.windowing-glfw.plugin)
+[python-1] [2.933s] [ext: omni.kit.renderer.capture-0.0.0] startup
+[python-1] [2.937s] [ext: omni.kit.renderer.imgui-2.0.5] startup
+[python-1] 2026-09-08T13:23:42Z [2,906ms] [Warning] [carb.windowing-glfw.plugin] GLFW initialization failed.
+[python-1] 2026-09-08T13:23:42Z [2,906ms] [Warning] [carb] Failed to startup plugin carb.windowing-glfw.plugin (interfaces: [carb::windowing::IGLContext v1.0],[carb::windowing::IWindowing v1.5]) (impl: carb.windowing-glfw.plugin)
+[python-1] 2026-09-08T13:23:42Z [2,908ms] [Warning] [carb.windowing-glfw.plugin] GLFW initialization failed.
+[python-1] 2026-09-08T13:23:42Z [2,908ms] [Warning] [carb] Failed to startup plugin carb.windowing-glfw.plugin (interfaces: [carb::windowing::IGLContext v1.0],[carb::windowing::IWindowing v1.5]) (impl: carb.windowing-glfw.plugin)
+[python-1] 2026-09-08T13:23:42Z [2,910ms] [Warning] [carb.windowing-glfw.plugin] GLFW initialization failed.
+[python-1] 2026-09-08T13:23:42Z [2,910ms] [Warning] [carb] Failed to startup plugin carb.windowing-glfw.plugin (interfaces: [carb::windowing::IGLContext v1.0],[carb::windowing::IWindowing v1.5]) (impl: carb.windowing-glfw.plugin)
+[python-1] [3.054s] [ext: omni.ui-2.27.1] startup
+[python-1] [3.070s] [ext: omni.kit.mainwindow-1.0.3] startup
+[python-1] [3.072s] [ext: carb.audio-0.1.0] startup
+[python-1] [3.080s] [ext: omni.uiaudio-1.0.0] startup
+[python-1] [3.082s] [ext: omni.kit.uiapp-0.0.0] startup
+[python-1] [3.082s] [ext: omni.usd.schema.metrics.assembler-107.3.1] startup
+[python-1] [3.086s] [ext: omni.usd.schema.physx-107.3.26] startup
+[python-1] [3.142s] [ext: omni.usd.schema.geospatial-0.0.0] startup
+[python-1] [3.146s] [ext: omni.usd.schema.audio-0.0.0] startup
+[python-1] [3.151s] [ext: omni.usd.schema.anim-0.0.0] startup
+[python-1] [3.184s] [ext: omni.usd.schema.flow-107.1.1] startup
+[python-1] [3.184s] [ext: omni.usd_resolver-1.0.0] startup
+[python-1] [3.191s] [ext: omni.usd.core-1.5.3] startup
+[python-1] [3.195s] [ext: omni.usd.schema.omni_sensors-0.0.0] startup
+[python-1] [3.228s] [ext: omni.usd.schema.semantics-0.0.0] startup
+[python-1] [3.232s] [ext: omni.usd.schema.omniscripting-1.0.0] startup
+[python-1] [3.239s] [ext: omni.usd.schema.omni_lens_distortion-0.0.0] startup
+[python-1] [3.240s] [ext: omni.usd.schema.omnigraph-1.0.0] startup
+[python-1] [3.249s] [ext: omni.kit.window.popup_dialog-2.0.24] startup
+[python-1] [3.255s] [ext: omni.graph.exec-0.9.6] startup
+[python-1] [3.255s] [ext: omni.kit.widget.nucleus_connector-2.0.1] startup
+[python-1] [3.258s] [ext: omni.kit.usd_undo-0.1.8] startup
+[python-1] [3.259s] [ext: omni.kit.exec.core-0.13.4] startup
+[python-1] [3.262s] [ext: omni.kit.actions.core-1.0.0] startup
+[python-1] [3.266s] [ext: omni.resourcemonitor-107.0.1] startup
+[python-1] [3.270s] [ext: omni.activity.core-1.0.3] startup
+[python-1] [3.272s] [ext: omni.timeline-1.0.14] startup
+[python-1] [3.274s] [ext: omni.kit.commands-1.4.10] startup
+[python-1] [3.280s] [ext: usdrt.scenegraph-7.6.1] startup
+[python-1] [3.340s] [ext: omni.kit.audiodeviceenum-1.0.2] startup
+[python-1] [3.343s] [ext: omni.hydra.usdrt_delegate-7.5.1] startup
+[python-1] [3.353s] [ext: omni.hydra.scene_delegate-0.3.4] startup
+[python-1] [3.361s] [ext: omni.usd-1.13.10] startup
+[controller_server-7] [INFO] [1788873823.168804023] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[python-1] [3.401s] [ext: omni.inspect-1.0.2] startup
+[python-1] [3.404s] [ext: omni.kit.notification_manager-1.0.10] startup
+[python-1] [3.406s] [ext: omni.graph.core-2.184.5] startup
+[python-1] [3.410s] [ext: isaacsim.core.deprecation_manager-0.2.7] startup
+[python-1] [3.411s] [ext: omni.anim.graph.schema-107.3.3] startup
+[python-1] [3.422s] [ext: omni.usd.schema.isaac-3.0.5] startup
+[python-1] [3.422s] [ext: omni.anim.navigation.schema-107.3.3] startup
+[python-1] [3.427s] [ext: omni.kit.asset_converter-5.0.17] startup
+[python-1] [3.446s] [ext: isaacsim.robot.schema-3.6.0] startup
+[python-1] [3.458s] [ext: omni.usd.schema.render_settings.rtx-0.0.0] startup
+[python-1] [3.460s] [ext: omni.kit.menu.core-1.1.2] startup
+[python-1] [3.461s] [ext: omni.kit.widget.path_field-2.0.11] startup
+[python-1] [3.462s] [ext: omni.kit.widget.context_menu-1.2.5] startup
+[python-1] [3.464s] [ext: omni.kit.widget.browser_bar-2.0.10] startup
+[python-1] [3.465s] [ext: omni.kit.clipboard-1.0.5] startup
+[python-1] [3.466s] [ext: omni.kit.numpy.common-0.1.3] startup
+[python-1] [3.469s] [ext: omni.kit.widget.options_menu-1.1.6] startup
+[python-1] [3.473s] [ext: omni.kit.helper.file_utils-0.1.9] startup
+[python-1] [3.476s] [ext: omni.ui.scene-1.11.5] startup
+[python-1] [3.483s] [ext: omni.kit.widget.options_button-1.0.3] startup
+[python-1] [3.484s] [ext: omni.kit.widget.filebrowser-2.12.3] startup
+[python-1] [3.490s] [ext: omni.kit.usd.layers-2.2.11] startup
+[python-1] [3.503s] [ext: omni.kit.window.filepicker-2.13.4] startup
+[python-1] [3.526s] [ext: omni.kit.hotkeys.core-1.3.10] startup
+[python-1] [3.531s] [ext: omni.kit.context_menu-1.8.6] startup
+[python-1] [3.534s] [ext: omni.kit.property.adapter.core-1.0.2] startup
+[python-1] [3.537s] [ext: omni.kit.window.file_exporter-1.0.33] startup
+[python-1] [3.540s] [ext: omni.kit.widget.searchfield-1.1.8] startup
+[python-1] [3.542s] [ext: omni.kit.widget.filter-1.1.4] startup
+[python-1] [3.544s] [ext: omni.kit.widget.graph-2.0.0] startup
+[python-1] [3.552s] [ext: omni.kit.widget.stage-3.1.4] startup
+[python-1] [3.569s] [ext: omni.kit.property.adapter.usd-1.0.2] startup
+[python-1] [3.571s] [ext: omni.kit.property.adapter.fabric-1.0.3] startup
+[python-1] [3.573s] [ext: omni.kit.graph.delegate.default-1.2.3] startup
+[python-1] [3.574s] [ext: omni.kit.window.file_importer-1.1.18] startup
+[python-1] [3.575s] [ext: omni.kit.stage_template.core-1.1.22] startup
+[python-1] [3.576s] [ext: omni.kit.menu.utils-2.0.5] startup
+[python-1] [3.583s] [ext: omni.kit.window.file-2.0.5] startup
+[python-1] [3.588s] [ext: omni.kit.widget.highlight_label-1.0.3] startup
+[python-1] [3.589s] [ext: omni.kit.window.drop_support-1.0.5] startup
+[python-1] [3.589s] [ext: omni.kit.window.content_browser_registry-0.0.6] startup
+[python-1] [3.590s] [ext: omni.kit.window.property-1.12.1] startup
+[python-1] [3.594s] [ext: omni.kit.window.content_browser-3.1.3] startup
+[python-1] [3.613s] [ext: isaacsim.core.version-2.0.6] startup
+[python-1] [3.614s] [ext: omni.kit.property.usd-4.5.12] startup
+[python-1] [3.630s] [ext: omni.kit.graph.editor.core-1.5.3] startup
+[python-1] [3.634s] [ext: omni.kit.material.library-2.0.7] startup
+[python-1] [3.641s] [ext: omni.kit.graph.usd.commands-1.3.1] startup
+[python-1] [3.642s] [ext: omni.kvdb-107.3.26] startup
+[python-1] [3.645s] [ext: omni.usdphysics-107.3.26] startup
+[python-1] [3.648s] [ext: omni.physx.foundation-107.3.26] startup
+[python-1] [3.651s] [ext: omni.localcache-107.3.26] startup
+[python-1] [3.653s] [ext: omni.convexdecomposition-107.3.26] startup
+[python-1] [3.657s] [ext: omni.physics-107.3.26] startup
+[python-1] [3.662s] [ext: omni.physx.cooking-107.3.26] startup
+[python-1] [3.667s] [ext: omni.physics.stageupdate-107.3.26] startup
+[python-1] [3.670s] [ext: omni.physx-107.3.26] startup
+[python-1] [3.686s] [ext: omni.index.libs-380600.8087.0] startup
+[python-1] [3.686s] [ext: omni.physics.physx-107.3.26] startup
+[python-1] 2026-09-08T13:23:43Z [3,651ms] [Warning] [carb] Acquiring non optional plugin interface which is not listed as dependency: [omni::physx::IPhysxBenchmarks v1.0] (plugin: <default plugin>), by client: omni.physics.physx.plugin. Add it to CARB_PLUGIN_IMPL_DEPS() macro of a client.
+[python-1] [3.689s] [ext: omni.index-1.0.1] startup
+[python-1] [3.690s] [ext: omni.volume-0.5.2] startup
+[python-1] [3.694s] [ext: omni.ujitso.client-0.0.0] startup
+[python-1] [3.695s] [ext: omni.hydra.rtx.shadercache.vulkan-1.0.0] startup
+[python-1] [3.697s] [ext: omni.kit.widget.searchable_combobox-1.0.6] startup
+[python-1] [3.698s] [ext: omni.hydra.rtx-1.0.0] startup
+[python-1] 2026-09-08T13:23:43Z [3,691ms] [Warning] [omni.log] Source: omni.hydra was already registered.
+[python-1] [3.756s] [ext: omni.kit.widget.settings-1.2.6] startup
+[python-1] [3.760s] [ext: omni.kit.hydra_texture-1.4.6] startup
+[python-1] [3.765s] [ext: omni.graph.tools-1.79.2] startup
+[controller_server-7] [INFO] [1788873823.668801551] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[controller_server-7] [INFO] [1788873824.168802953] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[controller_server-7] [INFO] [1788873824.668801154] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[controller_server-7] [INFO] [1788873825.168792398] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[controller_server-7] [INFO] [1788873825.668806924] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[controller_server-7] [INFO] [1788873826.168805074] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[controller_server-7] [INFO] [1788873826.668786366] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[controller_server-7] [INFO] [1788873827.168788067] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[controller_server-7] [INFO] [1788873827.668790703] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[controller_server-7] [INFO] [1788873828.168784652] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[controller_server-7] [INFO] [1788873828.668783519] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[controller_server-7] [INFO] [1788873829.168789786] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[python-1] [3.804s] [ext: omni.kit.window.preferences-1.8.0] startup
+[python-1] [3.812s] [ext: omni.kit.widget.material_preview-1.0.16] startup
+[python-1] [3.815s] [ext: omni.graph-1.141.2] startup
+[python-1] [3.886s] [ext: omni.kit.window.material_graph-1.9.1] startup
+[python-1] [3.903s] [ext: omni.isaac.dynamic_control-2.0.7] startup
+[python-1] 2026-09-08T13:23:43Z [3,875ms] [Warning] [omni.isaac.dynamic_control] omni.isaac.dynamic_control is deprecated as of Isaac Sim 4.5. No action is needed from end-users.
+[python-1] [3.913s] [ext: isaacsim.storage.native-1.5.1] startup
+[python-1] [3.920s] [ext: omni.graph.scriptnode-1.50.0] startup
+[python-1] [3.925s] [ext: omni.hydra.engine.stats-1.0.3] startup
+[python-1] [3.934s] [ext: omni.kit.viewport.legacy_gizmos-1.0.19] startup
+[python-1] [3.939s] [ext: omni.kit.raycast.query-1.1.0] startup
+[python-1] [3.948s] [ext: omni.graph.action_core-1.1.7] startup
+[python-1] [3.957s] [ext: omni.kit.viewport.scene_camera_model-1.0.6] startup
+[python-1] [3.965s] [ext: omni.graph.image.core-0.6.1] startup
+[python-1] [3.967s] [ext: omni.kit.widget.viewport-107.1.3] startup
+[python-1] [3.982s] [ext: omni.kit.viewport.registry-104.0.6] startup
+[python-1] [3.987s] [ext: omni.usd.metrics.assembler-107.3.1] startup
+[python-1] [4.015s] [ext: omni.kit.viewport.window-107.2.0] startup
+[python-1] [4.060s] [ext: omni.kit.viewport.menubar.core-107.2.1] startup
+[python-1] [4.084s] [ext: omni.graph.image.nodes-1.3.1] startup
+[python-1] [4.086s] [ext: omni.usd.metrics.assembler.physics-107.3.26] startup
+[python-1] [4.090s] [ext: omni.warp.core-1.8.2] startup
+[python-1] [4.463s] [ext: omni.kit.viewport.utility-1.1.2] startup
+[python-1] [4.467s] [ext: omni.physics.tensors-107.3.26] startup
+[python-1] [4.478s] [ext: omni.syntheticdata-0.6.13] startup
+[python-1] [4.520s] [ext: isaacsim.test.docstring-1.1.0] startup
+[python-1] [4.535s] [ext: isaacsim.core.utils-3.5.1] startup
+[python-1] [4.553s] [ext: omni.physx.tensors-107.3.26] startup
+[python-1] [4.560s] [ext: omni.graph.nodes-1.170.10] startup
+[python-1] [4.589s] [ext: omni.graph.action_nodes-1.50.4] startup
+[python-1] [4.605s] [ext: omni.kit.primitive.mesh-1.0.17] startup
+[python-1] [4.623s] [ext: isaacsim.core.simulation_manager-1.4.4] startup
+[python-1] [7.457s] [ext: omni.graph.ui_nodes-1.50.5] startup
+[python-1] [7.470s] [ext: omni.graph.action-1.130.0] startup
+[python-1] [7.475s] [ext: omni.kit.stage_templates-2.0.0] startup
+[python-1] [7.485s] [ext: isaacsim.core.prims-0.6.1] startup
+[python-1] [7.552s] [ext: omni.warp-1.8.2] startup
+[python-1] [7.572s] [ext: omni.videoencoding-0.1.2] startup
+[python-1] [7.579s] [ext: isaacsim.core.api-4.8.0] startup
+[python-1] [7.623s] [ext: isaacsim.core.experimental.utils-0.3.0] startup
+[python-1] [7.639s] [ext: omni.replicator.core-1.12.27] startup
+[python-1] 2026-09-08T13:23:47Z [7,640ms] [Warning] [pxr.Semantics] pxr.Semantics is deprecated - please use Semantics instead
+[python-1] 2026-09-08T13:23:47Z [7,873ms] [Warning] [omni.graph.core.plugin] Found duplicate of category 'Replicator' - was 'Annotators', adding 'Fabric Reader'
+[python-1] 2026-09-08T13:23:47Z [7,873ms] [Warning] [omni.graph.core.plugin] Category 'Replicator' not accepted on node type 'omni.replicator.core.FabricReader' in extension 'omni.replicator.core'
+[python-1] 2026-09-08T13:23:47Z [7,878ms] [Warning] [omni.replicator.core.scripts.extension] No material configuration file, adding configuration to material settings directly.
+[python-1] [7.930s] [ext: isaacsim.core.experimental.prims-0.8.1] startup
+[python-1] [8.208s] [ext: omni.kit.window.extensions-1.4.27] startup
+[python-1] [8.232s] [ext: isaacsim.core.experimental.objects-0.4.0] startup
+[python-1] [8.242s] [ext: omni.ui_query-1.1.8] startup
+[python-1] [8.254s] [ext: omni.kit.manipulator.viewport-107.0.1] startup
+[python-1] [8.259s] [ext: isaacsim.robot.surface_gripper-3.3.1] startup
+[python-1] [8.266s] [ext: omni.kit.ui_test-1.3.7] startup
+[python-1] [8.278s] [ext: omni.graph.visualization.nodes-2.1.3] startup
+[python-1] [8.459s] [ext: isaacsim.robot_motion.lula-4.0.8] startup
+[python-1] [8.671s] [ext: isaacsim.core.nodes-3.4.3] startup
+[python-1] [9.025s] [ext: isaacsim.gui.components-1.2.1] startup
+[python-1] [9.331s] [ext: isaacsim.robot_motion.motion_generation-8.0.26] startup
+[python-1] [9.482s] [ext: isaacsim.robot.manipulators-3.3.6] startup
+[python-1] [9.537s] [ext: isaacsim.core.experimental.materials-0.4.0] startup
+[python-1] [9.636s] [ext: isaacsim.robot.manipulators.examples-1.1.2] startup
+[python-1] [9.653s] [ext: isaacsim.cortex.framework-1.0.12] startup
+[python-1] [9.675s] [ext: isaacsim.cortex.behaviors-2.0.14] startup
+[python-1] [9.693s] [ext: omni.isaac.cortex.sample_behaviors-2.0.5] startup
+[python-1] 2026-09-08T13:23:49Z [9,666ms] [Warning] [omni.isaac.cortex] omni.isaac.cortex has been deprecated in favor of isaacsim.cortex.framework. Please update your code accordingly.
+[controller_server-7] [INFO] [1788873829.668787955] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[python-1] 2026-09-08T13:23:49Z [9,667ms] [Warning] [omni.isaac.cortex.sample_behaviors] omni.isaac.cortex.sample_behaviors has been deprecated in favor of isaacsim.cortex.behaviors. Please update your code accordingly.
+[python-1] [9.706s] [ext: omni.kit.widget.zoombar-1.0.6] startup
+[python-1] [9.756s] [ext: isaacsim.gui.content_browser-0.1.11] startup
+[python-1] [9.773s] [ext: omni.kit.browser.core-2.3.13] startup
+[python-1] [9.813s] [ext: omni.kit.widget.stage_icons-1.0.8] startup
+[python-1] [9.823s] [ext: omni.kit.widget.prompt-1.0.7] startup
+[python-1] [9.829s] [ext: omni.kit.usd.collect-2.4.5] startup
+[python-1] [9.859s] [ext: omni.kit.browser.folder.core-1.10.9] startup
+[python-1] [9.891s] [ext: omni.kit.window.stage-2.6.1] startup
+[python-1] [9.938s] [ext: omni.kit.usdz_export-1.0.9] startup
+[python-1] [9.955s] [ext: omni.kit.tool.collect-2.2.18] startup
+[python-1] [9.970s] [ext: omni.kit.menu.stage-1.2.7] startup
+[python-1] [9.977s] [ext: omni.kit.tool.asset_importer-4.3.2] startup
+[python-1] [10.008s] [ext: isaacsim.robot.wheeled_robots-4.0.24] startup
+[python-1] [10.066s] [ext: isaacsim.examples.browser-0.2.1] startup
+[python-1] [10.085s] [ext: isaacsim.asset.importer.urdf-2.4.30] startup
+[python-1] [10.252s] [ext: omni.isaac.wheeled_robots-3.0.7] startup
+[python-1] 2026-09-08T13:23:50Z [10,220ms] [Warning] [omni.isaac.wheeled_robots] omni.isaac.wheeled_robots has been deprecated in favor of isaacsim.robot.wheeled_robots. Please update your code accordingly.
+[python-1] 2026-09-08T13:23:50Z [10,220ms] [Warning] [omni.isaac.wheeled_robots.controllers] omni.isaac.wheeled_robots has been deprecated in favor of isaacsim.robot.wheeled_robots. Please update your code accordingly.
+[python-1] 2026-09-08T13:23:50Z [10,221ms] [Warning] [omni.isaac.wheeled_robots.controllers.ackermann_controller] omni.isaac.wheeled_robots has been deprecated in favor of isaacsim.robot.wheeled_robots. Please update your code accordingly.
+[python-1] 2026-09-08T13:23:50Z [10,221ms] [Warning] [omni.isaac.wheeled_robots.controllers.differential_controller] omni.isaac.wheeled_robots has been deprecated in favor of isaacsim.robot.wheeled_robots. Please update your code accordingly.
+[python-1] 2026-09-08T13:23:50Z [10,221ms] [Warning] [omni.isaac.wheeled_robots.controllers.holonomic_controller] omni.isaac.wheeled_robots has been deprecated in favor of isaacsim.robot.wheeled_robots. Please update your code accordingly.
+[python-1] 2026-09-08T13:23:50Z [10,222ms] [Warning] [omni.isaac.wheeled_robots.controllers.quintic_path_planner] omni.isaac.wheeled_robots has been deprecated in favor of isaacsim.robot.wheeled_robots. Please update your code accordingly.
+[python-1] 2026-09-08T13:23:50Z [10,222ms] [Warning] [omni.isaac.wheeled_robots.controllers.stanley_control] omni.isaac.wheeled_robots has been deprecated in favor of isaacsim.robot.wheeled_robots. Please update your code accordingly.
+[python-1] 2026-09-08T13:23:50Z [10,222ms] [Warning] [omni.isaac.wheeled_robots.controllers.wheel_base_pose_controller] omni.isaac.wheeled_robots has been deprecated in favor of isaacsim.robot.wheeled_robots. Please update your code accordingly.
+[python-1] 2026-09-08T13:23:50Z [10,222ms] [Warning] [omni.isaac.wheeled_robots.impl] omni.isaac.wheeled_robots has been deprecated in favor of isaacsim.robot.wheeled_robots. Please update your code accordingly.
+[python-1] 2026-09-08T13:23:50Z [10,223ms] [Warning] [omni.isaac.wheeled_robots.robots] omni.isaac.wheeled_robots has been deprecated in favor of isaacsim.robot.wheeled_robots. Please update your code accordingly.
+[python-1] 2026-09-08T13:23:50Z [10,223ms] [Warning] [omni.isaac.wheeled_robots.robots.holonomic_robot_usd_setup] omni.isaac.wheeled_robots has been deprecated in favor of isaacsim.robot.wheeled_robots. Please update your code accordingly.
+[python-1] 2026-09-08T13:23:50Z [10,223ms] [Warning] [omni.isaac.wheeled_robots.robots.wheeled_robot] omni.isaac.wheeled_robots has been deprecated in favor of isaacsim.robot.wheeled_robots. Please update your code accordingly.
+[python-1] [10.261s] [ext: isaacsim.simulation_app-2.12.2] startup
+[python-1] [10.271s] [ext: omni.isaac.franka-1.0.7] startup
+[python-1] 2026-09-08T13:23:50Z [10,237ms] [Warning] [omni.isaac.franka] omni.isaac.franka has been deprecated in favor of isaacsim.robot.manipulators.examples.franka. Please update your code accordingly.
+[python-1] 2026-09-08T13:23:50Z [10,237ms] [Warning] [omni.isaac.franka.franka] omni.isaac.franka has been deprecated in favor of isaacsim.robot.manipulators.examples.franka. Please update your code accordingly.
+[controller_server-7] [INFO] [1788873830.168800701] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[python-1] 2026-09-08T13:23:50Z [10,300ms] [Warning] [omni.isaac.franka.kinematics_solver] omni.isaac.franka has been deprecated in favor of isaacsim.robot.manipulators.examples.franka. Please update your code accordingly.
+[python-1] [10.338s] [ext: omni.isaac.kit-2.0.6] startup
+[python-1] 2026-09-08T13:23:50Z [10,314ms] [Warning] [omni.isaac.kit] omni.isaac.kit has been deprecated in favor of isaacsim.simulation_app. Please update your code accordingly.
+[python-1] [10.352s] [ext: omni.kit.selection-0.1.6] startup
+[python-1] [10.362s] [ext: omni.isaac.lula-4.0.6] startup
+[python-1] 2026-09-08T13:23:50Z [10,332ms] [Warning] [omni.isaac.lula] omni.isaac.lula has been deprecated in favor of isaacsim.robot_motion.lula. Please update your code accordingly.
+[python-1] [10.385s] [ext: isaacsim.robot_motion.lula_test_widget-1.0.12] startup
+[python-1] [10.394s] [ext: isaacsim.asset.browser-1.3.23] startup
+[python-1] [10.559s] [ext: omni.kit.viewport.actions-107.0.2] startup
+[python-1] [10.573s] [ext: isaacsim.gui.menu-2.4.4] startup
+[python-1] [10.586s] [ext: omni.isaac.manipulators-3.0.7] startup
+[python-1] 2026-09-08T13:23:50Z [10,555ms] [Warning] [omni.isaac.manipulators] omni.isaac.manipulators has been deprecated in favor of isaacsim.robot.manipulators. Please update your code accordingly.
+[python-1] 2026-09-08T13:23:50Z [10,555ms] [Warning] [omni.isaac.manipulators.controllers] omni.isaac.manipulators has been deprecated in favor of isaacsim.robot.manipulators. Please update your code accordingly.
+[python-1] 2026-09-08T13:23:50Z [10,556ms] [Warning] [omni.isaac.manipulators.controllers.pick_place_controller] omni.isaac.manipulators has been deprecated in favor of isaacsim.robot.manipulators. Please update your code accordingly.
+[python-1] 2026-09-08T13:23:50Z [10,557ms] [Warning] [omni.isaac.manipulators.controllers.stacking_controller] omni.isaac.manipulators has been deprecated in favor of isaacsim.robot.manipulators. Please update your code accordingly.
+[python-1] 2026-09-08T13:23:50Z [10,557ms] [Warning] [omni.isaac.manipulators.grippers] omni.isaac.manipulators has been deprecated in favor of isaacsim.robot.manipulators. Please update your code accordingly.
+[python-1] 2026-09-08T13:23:50Z [10,557ms] [Warning] [omni.isaac.manipulators.grippers.gripper] omni.isaac.manipulators has been deprecated in favor of isaacsim.robot.manipulators. Please update your code accordingly.
+[python-1] 2026-09-08T13:23:50Z [10,558ms] [Warning] [omni.isaac.manipulators.grippers.parallel_gripper] omni.isaac.manipulators has been deprecated in favor of isaacsim.robot.manipulators. Please update your code accordingly.
+[python-1] 2026-09-08T13:23:50Z [10,558ms] [Warning] [omni.isaac.manipulators.grippers.surface_gripper] omni.isaac.manipulators has been deprecated in favor of isaacsim.robot.manipulators. Please update your code accordingly.
+[python-1] 2026-09-08T13:23:50Z [10,558ms] [Warning] [omni.isaac.manipulators.manipulators] omni.isaac.manipulators has been deprecated in favor of isaacsim.robot.manipulators. Please update your code accordingly.
+[python-1] 2026-09-08T13:23:50Z [10,559ms] [Warning] [omni.isaac.manipulators.manipulators.single_manipulator] omni.isaac.manipulators has been deprecated in favor of isaacsim.robot.manipulators. Please update your code accordingly.
+[python-1] [10.597s] [ext: omni.isaac.lula_test_widget-1.0.6] startup
+[python-1] 2026-09-08T13:23:50Z [10,568ms] [Warning] [omni.isaac.lula_test_widget] omni.isaac.lula_test_widget has been deprecated in favor of isaacsim.robot_motion.lula_test_widget. Please update your code accordingly.
+[python-1] [10.606s] [ext: omni.isaac.asset_browser-1.0.6] startup
+[python-1] 2026-09-08T13:23:50Z [10,576ms] [Warning] [omni.isaac.asset_browser] omni.isaac.asset_browser has been deprecated in favor of isaacsim.asset.browser. Please update your code accordingly.
+[python-1] [10.615s] [ext: omni.kit.viewport.menubar.display-107.0.3] startup
+[python-1] [10.639s] [ext: omni.isaac.menu-1.0.6] startup
+[python-1] 2026-09-08T13:23:50Z [10,606ms] [Warning] [omni.isaac.menu] omni.isaac.menu has been deprecated in favor of isaacsim.gui.menu. Please update your code accordingly.
+[python-1] [10.653s] [ext: omni.isaac.motion_generation-8.0.7] startup
+[python-1] 2026-09-08T13:23:50Z [10,622ms] [Warning] [omni.isaac.motion_generation] omni.isaac.motion_generation has been deprecated in favor of isaacsim.robot_motion.motion_generation. Please update your code accordingly.
+[python-1] 2026-09-08T13:23:50Z [10,623ms] [Warning] [omni.isaac.motion_generation.articulation_kinematics_solver] omni.isaac.motion_generation has been deprecated in favor of isaacsim.robot_motion.motion_generation. Please update your code accordingly.
+[python-1] 2026-09-08T13:23:50Z [10,624ms] [Warning] [omni.isaac.motion_generation.articulation_motion_policy] omni.isaac.motion_generation has been deprecated in favor of isaacsim.robot_motion.motion_generation. Please update your code accordingly.
+[python-1] 2026-09-08T13:23:50Z [10,630ms] [Warning] [omni.isaac.motion_generation.articulation_trajectory] omni.isaac.motion_generation has been deprecated in favor of isaacsim.robot_motion.motion_generation. Please update your code accordingly.
+[python-1] 2026-09-08T13:23:50Z [10,631ms] [Warning] [omni.isaac.motion_generation.kinematics_interface] omni.isaac.motion_generation has been deprecated in favor of isaacsim.robot_motion.motion_generation. Please update your code accordingly.
+[python-1] 2026-09-08T13:23:50Z [10,631ms] [Warning] [omni.isaac.motion_generation.lula] omni.isaac.motion_generation has been deprecated in favor of isaacsim.robot_motion.motion_generation. Please update your code accordingly.
+[python-1] 2026-09-08T13:23:50Z [10,632ms] [Warning] [omni.isaac.motion_generation.lula.kinematics] omni.isaac.motion_generation has been deprecated in favor of isaacsim.robot_motion.motion_generation. Please update your code accordingly.
+[python-1] 2026-09-08T13:23:50Z [10,632ms] [Warning] [omni.isaac.motion_generation.lula.motion_policies] omni.isaac.motion_generation has been deprecated in favor of isaacsim.robot_motion.motion_generation. Please update your code accordingly.
+[python-1] 2026-09-08T13:23:50Z [10,632ms] [Warning] [omni.isaac.motion_generation.lula.path_planners] omni.isaac.motion_generation has been deprecated in favor of isaacsim.robot_motion.motion_generation. Please update your code accordingly.
+[python-1] 2026-09-08T13:23:50Z [10,633ms] [Warning] [omni.isaac.motion_generation.lula.trajectory_generator] omni.isaac.motion_generation has been deprecated in favor of isaacsim.robot_motion.motion_generation. Please update your code accordingly.
+[python-1] 2026-09-08T13:23:50Z [10,633ms] [Warning] [omni.isaac.motion_generation.motion_policy_controller] omni.isaac.motion_generation has been deprecated in favor of isaacsim.robot_motion.motion_generation. Please update your code accordingly.
+[python-1] 2026-09-08T13:23:50Z [10,634ms] [Warning] [omni.isaac.motion_generation.motion_policy_interface] omni.isaac.motion_generation has been deprecated in favor of isaacsim.robot_motion.motion_generation. Please update your code accordingly.
+[python-1] 2026-09-08T13:23:50Z [10,634ms] [Warning] [omni.isaac.motion_generation.path_planner_visualizer] omni.isaac.motion_generation has been deprecated in favor of isaacsim.robot_motion.motion_generation. Please update your code accordingly.
+[python-1] 2026-09-08T13:23:50Z [10,634ms] [Warning] [omni.isaac.motion_generation.path_planning_interface] omni.isaac.motion_generation has been deprecated in favor of isaacsim.robot_motion.motion_generation. Please update your code accordingly.
+[python-1] 2026-09-08T13:23:50Z [10,639ms] [Warning] [omni.isaac.motion_generation.trajectory] omni.isaac.motion_generation has been deprecated in favor of isaacsim.robot_motion.motion_generation. Please update your code accordingly.
+[python-1] 2026-09-08T13:23:50Z [10,639ms] [Warning] [omni.isaac.motion_generation.world_interface] omni.isaac.motion_generation has been deprecated in favor of isaacsim.robot_motion.motion_generation. Please update your code accordingly.
+[python-1] [10.678s] [ext: omni.isaac.assets_check-0.3.13] startup
+[python-1] 2026-09-08T13:23:50Z [10,649ms] [Warning] [omni.isaac.assets_check] omni.isaac.assets_check has been deprecated in favor of isaacsim.asset.browser. Please update your code accordingly.
+[python-1] [10.687s] [ext: isaacsim.gui.sensors.icon-2.0.3] startup
+[python-1] [10.734s] [ext: isaacsim.asset.importer.mjcf-2.5.13] startup
+[python-1] [10.751s] [ext: omni.sensors.nv.common-3.0.0] startup
+[python-1] [10.768s] [ext: isaacsim.sensors.physics-0.4.3] startup
+[python-1] [10.778s] [ext: omni.sensors.net-1.0.0] startup
+[python-1] [10.788s] [ext: omni.isaac.nucleus-1.0.6] startup
+[python-1] 2026-09-08T13:23:50Z [10,752ms] [Warning] [omni.isaac.nucleus] omni.isaac.nucleus has been deprecated in favor of isaacsim.storage.native. Please update your code accordingly.
+[controller_server-7] [INFO] [1788873830.668792931] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[python-1] 2026-09-08T13:23:50Z [10,753ms] [Warning] [omni.isaac.nucleus.nucleus] omni.isaac.nucleus.nucleus has been deprecated in favor of isaacsim.storage.native. Please update your code accordingly.
+[python-1] [10.791s] [ext: omni.sensors.nv.materials-2.0.0] startup
+[python-1] [10.800s] [ext: isaacsim.robot.policy.examples-4.1.11] startup
+[python-1] [10.804s] [ext: omni.sensors.nv.wpm-3.0.0] startup
+[python-1] [10.820s] [ext: omni.sensors.nv.lidar-3.0.0] startup
+[python-1] [10.835s] [ext: isaacsim.util.debug_draw-3.1.0] startup
+[python-1] [10.852s] [ext: omni.sensors.nv.radar-3.0.0] startup
+[python-1] [10.869s] [ext: omni.sensors.nv.ids-2.0.0] startup
+[python-1] [10.877s] [ext: isaacsim.core.cloner-1.4.10] startup
+[python-1] [10.887s] [ext: isaacsim.sensors.physx-2.3.2] startup
+[python-1] [10.903s] [ext: isaacsim.sensors.rtx-15.8.4] startup
+[python-1] [10.920s] [ext: isaacsim.sensors.camera-1.3.6] startup
+[python-1] [10.941s] [ext: omni.isaac.quadruped-3.0.7] startup
+[python-1] 2026-09-08T13:23:50Z [10,920ms] [Warning] [omni.isaac.quadruped] omni.isaac.quadruped has been deprecated in favor of isaacsim.robot.policy.examples. Please update your code accordingly.
+[python-1] [10.960s] [ext: omni.isaac.cloner-1.0.7] startup
+[python-1] 2026-09-08T13:23:50Z [10,933ms] [Warning] [omni.isaac.cloner] omni.isaac.cloner has been deprecated in favor of isaacsim.core.cloner. Please update your code accordingly.
+[python-1] [10.980s] [ext: omni.isaac.range_sensor-4.0.6] startup
+[python-1] 2026-09-08T13:23:50Z [10,971ms] [Warning] [omni.isaac.range_sensor] omni.isaac.range_sensor has been deprecated in favor of isaacsim.sensors.physx. Please update your code accordingly.
+[python-1] 2026-09-08T13:23:50Z [10,979ms] [Warning] [omni.isaac.range_sensor.commands] omni.isaac.range_sensor.commands has been deprecated in favor of isaacsim.sensors.physx.commands. Please update your code accordingly.
+[python-1] [11.020s] [ext: omni.isaac.sensor-13.0.7] startup
+[python-1] 2026-09-08T13:23:50Z [10,989ms] [Warning] [omni.isaac.sensor] omni.isaac.sensor has been deprecated in favor of isaacsim.sensors.camera, isaacsim.sensors.physics, isaacsim.sensors.physx, and isaacsim.sensors.rtx. Please update your code accordingly.
+[python-1] 2026-09-08T13:23:50Z [10,990ms] [Warning] [omni.isaac.sensor.camera] omni.isaac.sensor.camera has been deprecated in favor of isaacsim.sensors.camera.camera. Please update your code accordingly.
+[python-1] 2026-09-08T13:23:50Z [10,992ms] [Warning] [omni.isaac.sensor.camera_view] omni.isaac.sensor.camera_view has been deprecated in favor of isaacsim.sensors.camera.camera_view. Please update your code accordingly.
+[python-1] 2026-09-08T13:23:50Z [10,997ms] [Warning] [omni.isaac.sensor.commands] omni.isaac.sensor.commands has been deprecated in favor of isaacsim.sensors.physics.commands, isaacsim.sensors.physx.commands, and isaacsim.sensors.rtx.commands. Please update your code accordingly.
+[python-1] 2026-09-08T13:23:50Z [10,998ms] [Warning] [omni.isaac.sensor.contact_sensor] omni.isaac.sensor.contact_sensor has been deprecated in favor of isaacsim.sensors.physics.contact_sensor. Please update your code accordingly.
+[python-1] 2026-09-08T13:23:50Z [10,998ms] [Warning] [omni.isaac.sensor.imu_sensor] omni.isaac.sensor.imu_sensor has been deprecated in favor of isaacsim.sensors.physics.imu_sensor. Please update your code accordingly.
+[python-1] 2026-09-08T13:23:50Z [10,998ms] [Warning] [omni.isaac.sensor.lidar_rtx] omni.isaac.sensor.lidar_rtx has been deprecated in favor of isaacsim.sensors.rtx.lidar_rtx. Please update your code accordingly.
+[python-1] 2026-09-08T13:23:50Z [10,999ms] [Warning] [omni.isaac.sensor.rotating_lidar_physX] omni.isaac.sensor.imu_sensor has been deprecated in favor of isaacsim.sensors.physix.rotating_lidar_physX. Please update your code accordingly.
+[python-1] 2026-09-08T13:23:50Z [11,001ms] [Warning] [omni.isaac.sensor.scripts.samples.contact_sensor] omni.isaac.sensor.scripts.samples.contact_sensor has been deprecated in favor of isaacsim.sensors.physics.scripts.samples.contact_sensor. Please update your code accordingly.
+[python-1] 2026-09-08T13:23:50Z [11,001ms] [Warning] [omni.isaac.sensor.scripts.samples.imu_sensor] omni.isaac.sensor.scripts.samples.imu_sensor has been deprecated in favor of isaacsim.sensors.physics.scripts.samples.imu_sensor. Please update your code accordingly.
+[python-1] 2026-09-08T13:23:50Z [11,001ms] [Warning] [omni.isaac.sensor.scripts.samples.lightbeam_sensor] omni.isaac.sensor.scripts.samples.lightbeam_sensor has been deprecated in favor of isaacsim.sensors.physx.scripts.samples.lightbeam_sensor. Please update your code accordingly.
+[python-1] [11.040s] [ext: omni.kit.menu.create-2.0.1] startup
+[python-1] [11.056s] [ext: omni.kit.widget.toolbar-2.0.1] startup
+[python-1] [11.114s] [ext: omni.kit.manipulator.transform-107.0.0] startup
+[python-1] [11.127s] [ext: omni.isaac.core-4.0.7] startup
+[python-1] 2026-09-08T13:23:50Z [11,092ms] [Warning] [omni.isaac.core.physics_context.physics_context] omni.isaac.core.physics_context.physics_context has been deprecated in favor of isaacsim.core.api.physics_context.physics_context. Please update your code accordingly.
+[python-1] 2026-09-08T13:23:50Z [11,093ms] [Warning] [omni.isaac.core.simulation_context.simulation_context] omni.isaac.core.simulation_context.simulation_context has been deprecated in favor of isaacsim.core.api.simulation_context.simulation_context. Please update your code accordingly.
+[python-1] 2026-09-08T13:23:50Z [11,093ms] [Warning] [omni.isaac.core.world.world] omni.isaac.core.world.world has been deprecated in favor of isaacsim.core.api.world.world. Please update your code accordingly.
+[python-1] 2026-09-08T13:23:50Z [11,093ms] [Warning] [omni.isaac.core] omni.isaac.core has been deprecated in favor of isaacsim.core.api. Please update your code accordingly.
+[python-1] [11.131s] [ext: omni.kit.scripting-107.3.2] startup
+[python-1] [11.150s] [ext: omni.kit.manipulator.tool.snap-1.5.13] startup
+[python-1] [11.163s] [ext: omni.kit.manipulator.selector-1.1.3] startup
+[python-1] [11.169s] [ext: isaacsim.app.about-2.0.11] startup
+[python-1] [11.183s] [ext: isaacsim.replicator.behavior-1.1.16] startup
+[python-1] [11.186s] [ext: omni.kit.viewport.manipulator.transform-107.0.4] startup
+[python-1] [11.194s] [ext: omni.isaac.window.about-2.0.7] startup
+[python-1] 2026-09-08T13:23:50Z [11,163ms] [Warning] [omni.isaac.window.about] omni.isaac.window.about has been deprecated in favor of isaacsim.app.about. Please update your code accordingly.
+[python-1] 2026-09-08T13:23:50Z [11,163ms] [Warning] [omni.isaac.window.about.about] omni.isaac.window.about.about has been deprecated in favor of isaacsim.app.about.about. Please update your code accordingly.
+[python-1] [11.201s] [ext: omni.fabric.commands-1.1.6] startup
+[python-1] [11.211s] [ext: omni.kit.manipulator.prim.core-107.0.8] startup
+[python-1] [11.228s] [ext: omni.kit.property.audio-1.0.16] startup
+[python-1] [11.234s] [ext: omni.kit.property.camera-1.0.10] startup
+[python-1] [11.239s] [ext: omni.kit.property.geometry-2.0.4] startup
+[python-1] [11.250s] [ext: omni.hydra.scene_api-0.1.2] startup
+[python-1] [11.261s] [ext: omni.kit.property.light-1.0.12] startup
+[python-1] [11.296s] [ext: omni.kit.manipulator.prim.fabric-107.0.4] startup
+[python-1] [11.303s] [ext: omni.kit.manipulator.prim.usd-107.0.3] startup
+[python-1] [11.308s] [ext: omni.kit.property.material-1.11.9] startup
+[python-1] [11.321s] [ext: omni.kit.property.render-1.2.1] startup
+[python-1] [11.326s] [ext: omni.kit.property.transform-1.5.13] startup
+[python-1] [11.335s] [ext: isaacsim.gui.property-1.1.3] startup
+[python-1] [11.342s] [ext: omni.kit.manipulator.camera-106.0.4] startup
+[python-1] [11.358s] [ext: omni.kit.manipulator.prim-107.0.0] startup
+[python-1] [11.358s] [ext: omni.isaac.surface_gripper-2.0.6] startup
+[python-1] 2026-09-08T13:23:51Z [11,321ms] [Warning] [omni.isaac.surface_gripper] omni.isaac.surface_gripper has been deprecated in favor of isaacsim.robot.surface_gripper. Please update your code accordingly.
+[python-1] [11.360s] [ext: omni.kit.manipulator.selection-106.0.1] startup
+[python-1] [11.371s] [ext: omni.kit.property.bundle-1.4.1] startup
+[python-1] [11.379s] [ext: omni.kit.property.isaac-1.0.6] startup
+[python-1] 2026-09-08T13:23:51Z [11,347ms] [Warning] [omni.kit.property.isaac] omni.kit.property.isaac has been deprecated in favor of isaacsim.gui.property. Please update your code accordingly.
+[python-1] 2026-09-08T13:23:51Z [11,347ms] [Warning] [omni.kit.property.isaac.widgets] omni.kit.property.isaac.widgets has been deprecated in favor of isaacsim.gui.property.widgets. Please update your code accordingly.
+[python-1] [11.385s] [ext: omni.isaac.universal_robots-1.0.6] startup
+[python-1] 2026-09-08T13:23:51Z [11,352ms] [Warning] [omni.isaac.universal_robots] omni.isaac.universal_robots has been deprecated in favor of isaacsim.robot.manipulators.examples.universal_robots. Please update your code accordingly.
+[python-1] 2026-09-08T13:23:51Z [11,352ms] [Warning] [omni.isaac.universal_robots.kinematics_solver] omni.isaac.franka has been deprecated in favor of isaacsim.robot.manipulators.examples.universal_robots. Please update your code accordingly.
+[controller_server-7] [INFO] [1788873831.168798094] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[controller_server-7] [INFO] [1788873831.668800692] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[python-1] 2026-09-08T13:23:51Z [11,356ms] [Warning] [omni.isaac.universal_robots.ur10] omni.isaac.franka has been deprecated in favor of isaacsim.robot.manipulators.examples.universal_robots. Please update your code accordingly.
+[python-1] [11.394s] [ext: omni.isaac.core_nodes-2.0.6] startup
+[python-1] 2026-09-08T13:23:51Z [11,367ms] [Warning] [omni.isaac.core_nodes] omni.isaac.core_nodes has been deprecated in favor of isaacsim.core.nodes. Please update your code accordingly.
+[python-1] [11.406s] [ext: omni.kit.viewport.menubar.camera-107.0.6] startup
+[python-1] [11.442s] [ext: omni.kit.viewport.menubar.lighting-107.3.1] startup
+[python-1] [11.451s] [ext: isaacsim.replicator.writers-1.0.17] startup
+[python-1] [11.485s] [ext: omni.kit.viewport.menubar.render-107.0.10] startup
+[python-1] [11.499s] [ext: omni.kit.viewport.menubar.settings-107.0.3] startup
+[python-1] [11.509s] [ext: omni.kit.window.console-1.1.4] startup
+[python-1] [11.518s] [ext: isaacsim.replicator.domain_randomization-1.0.16] startup
+[python-1] [11.532s] [ext: isaacsim.replicator.examples-1.3.6] startup
+[python-1] [11.546s] [ext: omni.ocio-0.1.1] startup
+[python-1] [11.565s] [ext: omni.rtx.window.settings-0.6.19] startup
+[python-1] [11.621s] [ext: omni.kit.window.status_bar-0.1.9] startup
+[python-1] [11.665s] [ext: omni.kit.window.toolbar-2.0.0] startup
+[python-1] [11.677s] [ext: omni.replicator.isaac-2.0.8] startup
+[python-1] 2026-09-08T13:23:51Z [11,642ms] [Warning] [omni.replicator.isaac] omni.replicator.isaac has been deprecated in favor of isaacsim.replicator.domain_randomization, isaacsim.replicator.examples, isaacsim.replicator.writers. Please update your code accordingly.
+[python-1] [11.681s] [ext: omni.replicator.replicator_yaml-2.0.11] startup
+[python-1] [11.742s] [ext: omni.rtx.settings.core-0.6.5] startup
+[python-1] [11.754s] [ext: omni.usd.metrics.assembler.ui-107.3.1] startup
+[python-1] [11.788s] [ext: omni.isaac.utils-2.0.6] startup
+[python-1] [11.803s] [ext: semantics.schema.editor-2.0.2] startup
+[python-1] [11.814s] [ext: omni.kit.ui.actions-1.0.5] startup
+[python-1] [11.822s] [ext: semantics.schema.property-2.0.1] startup
+[python-1] [11.829s] [ext: omni.isaac.version-2.0.7] startup
+[python-1] 2026-09-08T13:23:51Z [11,795ms] [Warning] [omni.isaac.version] omni.isaac.version has been deprecated in favor of isaacsim.core.version. Please update your code accordingly.
+[python-1] [11.833s] [ext: omni.isaac.cortex-1.0.5] startup
+[python-1] [11.837s] [ext: omni.anim.curve.core-1.3.1] startup
+[python-1] [11.867s] [ext: isaacsim.core.throttling-2.2.2] startup
+[python-1] [11.873s] [ext: omni.kit.menu.common-2.0.1] startup
+[python-1] [11.880s] [ext: isaacsim.exp.base-5.1.0] startup
+[python-1] [11.883s] [ext: isaacsim.exp.base.python-5.1.0] startup
+[python-1] [11.888s] Simulation App Starting
+[python-1] 2026-09-08T13:23:51Z [12,030ms] [Warning] [omni.fabric.plugin] Warning: attribute viewportHandle not found for bucket id 9
+[python-1] 
+[python-1] 2026-09-08T13:23:51Z [12,055ms] [Warning] [usdrt.population.plugin] [UsdNoticeHandler] Unhandled attribute type VtArray<std::string> (prim attribute: omni:rtx:material:db:flattener:transmittance_color)
+[python-1] 2026-09-08T13:23:51Z [12,055ms] [Warning] [usdrt.population.plugin] [UsdNoticeHandler] Unhandled attribute type VtArray<std::string> (prim attribute: omni:rtx:material:db:flattener:ior_constant)
+[python-1] 2026-09-08T13:23:51Z [12,055ms] [Warning] [usdrt.population.plugin] [UsdNoticeHandler] Unhandled attribute type VtArray<std::string> (prim attribute: omni:rtx:material:db:flattener:reflection_roughness_constant)
+[python-1] [12.110s] app ready
+[controller_server-7] [INFO] [1788873832.168765280] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[controller_server-7] [INFO] [1788873832.668798145] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[controller_server-7] [INFO] [1788873833.168810144] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[controller_server-7] [INFO] [1788873833.668859808] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[controller_server-7] [INFO] [1788873834.168837952] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[controller_server-7] [INFO] [1788873834.668804031] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[controller_server-7] [INFO] [1788873835.168827740] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[controller_server-7] [INFO] [1788873835.668804008] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[controller_server-7] [INFO] [1788873836.168830449] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[controller_server-7] [INFO] [1788873836.668804927] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[controller_server-7] [INFO] [1788873837.168803555] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[python-1] Warning: Possible version incompatibility. Attempting to load omni::fabric::IStageReaderWriter with version v0.14 against v0.13.
+[controller_server-7] [INFO] [1788873837.668803690] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[controller_server-7] [INFO] [1788873838.168801725] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[controller_server-7] [INFO] [1788873838.668809925] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[controller_server-7] [INFO] [1788873839.168761695] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[controller_server-7] [INFO] [1788873839.668801124] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[controller_server-7] [INFO] [1788873840.168799430] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[controller_server-7] [INFO] [1788873840.668803004] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[controller_server-7] [INFO] [1788873841.168803218] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[controller_server-7] [INFO] [1788873841.668829899] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[controller_server-7] [INFO] [1788873842.168827463] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[controller_server-7] [INFO] [1788873842.668807993] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[controller_server-7] [INFO] [1788873843.168808726] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[controller_server-7] [INFO] [1788873843.668804348] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[controller_server-7] [INFO] [1788873844.168802036] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[python-1] [INFO] [1788873844.571743000] [isaac]: Ideal planar chassis enabled: physics_dt=0.016667, limits=(1.500 m/s, 2.000 rad/s), accelerations=(2.000 m/s^2, 4.000 rad/s^2)
+[controller_server-7] [INFO] [1788873844.668800144] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[python-1] [17.450s] Simulation App Startup Complete
+[python-1] [17.494s] [ext: omni.anim.behavior.schema-107.3.0] startup
+[python-1] [17.510s] [ext: omni.anim.asset-107.3.0] startup
+[python-1] [17.516s] [ext: omni.debugdraw-0.1.4] startup
+[python-1] [17.524s] [ext: omni.anim.retarget.core-107.3.3] startup
+[python-1] [17.536s] [ext: omni.anim.graph.core-107.3.4] startup
+[python-1] 2026-09-08T13:23:57Z [17,528ms] [Warning] [omni.graph.core._impl._registration.register_python_ogn] Python import process in omni.anim.graph.core failed - 'NoneType' object is not subscriptable. Aborting Python node registration
+[python-1] [17.565s] [ext: omni.kit.quicklayout-1.0.8] startup
+[python-1] [17.648s] [ext: omni.anim.navigation.core-107.3.8] startup
+[python-1] [17.660s] [ext: omni.metropolis.utils-0.1.20] startup
+[python-1] [17.749s] [ext: omni.anim.people-0.7.9] startup
+[python-1] [17.778s] [ext: omni.usd.schema.scene.visualization-2.0.2] startup
+[python-1] [17.786s] [ext: omni.curve.creator-107.0.1] startup
+[python-1] [17.791s] [ext: omni.kit.browser.sample-1.4.9] startup
+[python-1] [17.864s] [ext: omni.scene.visualization.core-107.0.2] startup
+[python-1] [17.876s] [ext: omni.curve.manipulator-107.0.4] startup
+[python-1] [17.976s] [ext: omni.anim.navigation.ui-107.3.6] startup
+[python-1] [18.128s] [ext: omni.anim.navigation.bundle-107.3.3] startup
+[python-1] [18.143s] [ext: omni.anim.timeline-107.0.0] startup
+[python-1] [18.164s] [ext: omni.kit.widget.text_editor-1.1.1] startup
+[python-1] [18.175s] [ext: omni.graph.ui-1.101.6] startup
+[python-1] [18.274s] [ext: omni.kit.widget.imageview-1.0.4] startup
+[python-1] [18.275s] [ext: omni.ramp-107.0.1] startup
+[python-1] [18.589s] [ext: omni.kit.window.quicksearch-2.4.4] startup
+[python-1] [18.596s] [ext: omni.genproc.core-107.0.3] startup
+[python-1] [18.621s] [ext: omni.kit.graph.widget.variables-2.1.0] startup
+[python-1] [18.625s] [ext: omni.graph.io-1.30.1] startup
+[python-1] 2026-09-08T13:23:58Z [18,589ms] [Warning] [omni.graph.io._impl.extension] omni.graph.io is deprecated. Nodes in this extension have been moved to omni.graph.nodes. Update any dependencies accordingly.
+[python-1] [18.629s] [ext: omni.graph.bundle.action-2.30.0] startup
+[python-1] [18.635s] [ext: omni.kit.graph.delegate.modern-1.10.9] startup
+[python-1] [18.638s] [ext: omni.anim.graph.ui-107.3.3] startup
+[python-1] [18.811s] [ext: omni.anim.graph.bundle-107.3.3] startup
+[python-1] [18.840s] [ext: omni.kit.preferences.animation-1.2.0] startup
+[python-1] [18.850s] [ext: omni.anim.skelJoint-107.3.3] startup
+[python-1] [18.865s] [ext: omni.anim.widget.timeline-0.1.14] startup
+[python-1] 2026-09-08T13:23:58Z [18,837ms] [Warning] [omni.anim.widget.timeline.views.timeline_view] Could not import omni.kit.window.cursor
+[python-1] [18.877s] [ext: omni.kit.widget.layers-1.8.6] startup
+[python-1] [18.980s] [ext: omni.anim.retarget.preview-107.3.3] startup
+[python-1] [19.119s] [ext: omni.anim.retarget.ui-107.3.3] startup
+[python-1] [19.219s] [ext: omni.anim.retarget.bundle-107.3.3] startup
+[python-1] 2026-09-08T13:24:01Z [21,746ms] [Warning] [omni.anim.graph.core.plugin] CharacterManager::Shutdown() called without a prior successful call to CharacterManager::Initialize().
+[python-1] [21.898s] [ext: isaacsim.ros2.bridge-4.12.4] startup
+[python-1] [21.994s] Attempting to load system rclpy
+[python-1] [22.011s] rclpy loaded
+[python-1] 2026-09-08T13:24:03Z [24,073ms] [Warning] [carb.windowing-glfw.plugin] GLFW initialization failed.
+[python-1] 2026-09-08T13:24:03Z [24,073ms] [Warning] [carb] Failed to startup plugin carb.windowing-glfw.plugin (interfaces: [carb::windowing::IGLContext v1.0],[carb::windowing::IWindowing v1.5]) (impl: carb.windowing-glfw.plugin)
+[python-1] 2026-09-08T13:24:03Z [24,086ms] [Warning] [carb.windowing-glfw.plugin] GLFW initialization failed.
+[python-1] 2026-09-08T13:24:03Z [24,086ms] [Warning] [carb] Failed to startup plugin carb.windowing-glfw.plugin (interfaces: [carb::windowing::IGLContext v1.0],[carb::windowing::IWindowing v1.5]) (impl: carb.windowing-glfw.plugin)
+[python-1] 2026-09-08T13:24:03Z [24,088ms] [Warning] [carb.windowing-glfw.plugin] GLFW initialization failed.
+[python-1] 2026-09-08T13:24:03Z [24,088ms] [Warning] [carb] Failed to startup plugin carb.windowing-glfw.plugin (interfaces: [carb::windowing::IGLContext v1.0],[carb::windowing::IWindowing v1.5]) (impl: carb.windowing-glfw.plugin)
+[python-1] 2026-09-08T13:24:04Z [24,914ms] [Warning] [omni.timeline.plugin] Deprecated: direct use of ITimeline callbacks is deprecated. Use ITimeline::getTimeline (Python: omni.timeline.get_timeline_interface) instead.
+[python-1] 2026-09-08T13:24:05Z [25,253ms] [Warning] [omni.kit.viewport.menubar.lighting.actions] Not able to set the lighting mode, no lighting rig found for Stage Lights
+[controller_server-7] [INFO] [1788873845.168803907] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[controller_server-7] [INFO] [1788873845.668825054] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[scene_bridge-2] [INFO] [1788873845.951490262] [arena_scene_bridge]: SCENE_WALLS_OK count=4 world=map_empty
+[controller_server-7] [INFO] [1788873846.168811100] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[python-1] 2026-09-08T13:24:05Z [26,184ms] [Warning] [isaacsim.asset.importer.urdf] Creating Asset in an in-memory stage, will not create layered structure
+[python-1] 2026-09-08T13:24:06Z [26,233ms] [Warning] [isaacsim.asset.importer.urdf] No mass specified for link base_link
+[python-1] 2026-09-08T13:24:06Z [26,234ms] [Warning] [omni.usd] Warning: in _ReportErrors at line 3172 of /builds/omniverse/usd-ci/USD/pxr/usd/usd/stage.cpp -- In </jackal/base_link/visuals>: Unresolved reference prim path @anon:0x5feb2f71b210:World1.usd@</visuals/base_link> introduced by @anon:0x5feb2f71b210:World1.usd@</jackal/base_link/visuals> (recomposing stage on stage @anon:0x5feb2f71b210:World1.usd@ <0x5feb307c8140>)
+[python-1] 
+[python-1] 2026-09-08T13:24:06Z [26,234ms] [Warning] [omni.usd] Warning: in _ReportErrors at line 3172 of /builds/omniverse/usd-ci/USD/pxr/usd/usd/stage.cpp -- In </jackal/base_link/visuals>: Unresolved reference prim path @anon:0x5feb2f71b210:World1.usd@</visuals/base_link> introduced by @anon:0x5feb2f71b210:World1.usd@</jackal/base_link/visuals> (recomposing stage on stage @anon:0x5feb2f71b210:World1.usd@ <0x5feb307c8140>)
+[python-1] 
+[python-1] 2026-09-08T13:24:06Z [26,234ms] [Warning] [omni.usd] Warning: in _ReportErrors at line 3172 of /builds/omniverse/usd-ci/USD/pxr/usd/usd/stage.cpp -- In </jackal/base_link/visuals>: Unresolved reference prim path @anon:0x5feb2f71b210:World1.usd@</visuals/base_link> introduced by @anon:0x5feb2f71b210:World1.usd@</jackal/base_link/visuals> (recomposing stage on stage @anon:0x5feb2f71b210:World1.usd@ <0x5feb307c8140>)
+[python-1] 
+[python-1] 2026-09-08T13:24:06Z [26,235ms] [Warning] [omni.usd] Warning: in _ReportErrors at line 3172 of /builds/omniverse/usd-ci/USD/pxr/usd/usd/stage.cpp -- In </jackal/base_link/visuals>: Unresolved reference prim path @anon:0x5feb2f71b210:World1.usd@</visuals/base_link> introduced by @anon:0x5feb2f71b210:World1.usd@</jackal/base_link/visuals> (recomposing stage on stage @anon:0x5feb2f71b210:World1.usd@ <0x5feb307c8140>)
+[python-1] 
+[python-1] 2026-09-08T13:24:06Z [26,235ms] [Warning] [omni.usd] Warning: in _ReportErrors at line 3172 of /builds/omniverse/usd-ci/USD/pxr/usd/usd/stage.cpp -- In </jackal/base_link/visuals>: Unresolved reference prim path @anon:0x5feb2f71b210:World1.usd@</visuals/base_link> introduced by @anon:0x5feb2f71b210:World1.usd@</jackal/base_link/visuals> (recomposing stage on stage @anon:0x5feb2f71b210:World1.usd@ <0x5feb307c8140>)
+[python-1] 
+[python-1] 2026-09-08T13:24:06Z [26,235ms] [Warning] [omni.usd] Warning: in _ReportErrors at line 3172 of /builds/omniverse/usd-ci/USD/pxr/usd/usd/stage.cpp -- In </jackal/base_link/visuals>: Unresolved reference prim path @anon:0x5feb2f71b210:World1.usd@</visuals/base_link> introduced by @anon:0x5feb2f71b210:World1.usd@</jackal/base_link/visuals> (recomposing stage on stage @anon:0x5feb2f71b210:World1.usd@ <0x5feb307c8140>)
+[python-1] 
+[python-1] 2026-09-08T13:24:06Z [26,236ms] [Warning] [isaacsim.asset.importer.urdf] Link base_link has no colliders, and no inertia was imported; assigning a small isotropic inertia matrix
+[python-1] 2026-09-08T13:24:06Z [26,301ms] [Warning] [isaacsim.asset.importer.urdf] No mass specified for link front_fender_link
+[python-1] 2026-09-08T13:24:06Z [26,330ms] [Warning] [isaacsim.asset.importer.urdf] Link front_fender_link has no colliders, and no inertia was imported; assigning a small isotropic inertia matrix
+[python-1] 2026-09-08T13:24:06Z [26,462ms] [Warning] [isaacsim.asset.importer.urdf] No mass specified for link imu_link
+[python-1] 2026-09-08T13:24:06Z [26,463ms] [Warning] [omni.usd] Warning: in _ReportErrors at line 3172 of /builds/omniverse/usd-ci/USD/pxr/usd/usd/stage.cpp -- In </jackal/imu_link/visuals>: Unresolved reference prim path @anon:0x5feb2f71b210:World1.usd@</visuals/imu_link> introduced by @anon:0x5feb2f71b210:World1.usd@</jackal/imu_link/visuals> (recomposing stage on stage @anon:0x5feb2f71b210:World1.usd@ <0x5feb307c8140>)
+[python-1] 
+[python-1] 2026-09-08T13:24:06Z [26,463ms] [Warning] [omni.usd] Warning: in _ReportErrors at line 3172 of /builds/omniverse/usd-ci/USD/pxr/usd/usd/stage.cpp -- In </jackal/imu_link/visuals>: Unresolved reference prim path @anon:0x5feb2f71b210:World1.usd@</visuals/imu_link> introduced by @anon:0x5feb2f71b210:World1.usd@</jackal/imu_link/visuals> (recomposing stage on stage @anon:0x5feb2f71b210:World1.usd@ <0x5feb307c8140>)
+[python-1] 
+[python-1] 2026-09-08T13:24:06Z [26,463ms] [Warning] [omni.usd] Warning: in _ReportErrors at line 3172 of /builds/omniverse/usd-ci/USD/pxr/usd/usd/stage.cpp -- In </jackal/imu_link/visuals>: Unresolved reference prim path @anon:0x5feb2f71b210:World1.usd@</visuals/imu_link> introduced by @anon:0x5feb2f71b210:World1.usd@</jackal/imu_link/visuals> (recomposing stage on stage @anon:0x5feb2f71b210:World1.usd@ <0x5feb307c8140>)
+[python-1] 
+[python-1] 2026-09-08T13:24:06Z [26,463ms] [Warning] [omni.usd] Warning: in _ReportErrors at line 3172 of /builds/omniverse/usd-ci/USD/pxr/usd/usd/stage.cpp -- In </jackal/imu_link/visuals>: Unresolved reference prim path @anon:0x5feb2f71b210:World1.usd@</visuals/imu_link> introduced by @anon:0x5feb2f71b210:World1.usd@</jackal/imu_link/visuals> (recomposing stage on stage @anon:0x5feb2f71b210:World1.usd@ <0x5feb307c8140>)
+[python-1] 
+[python-1] 2026-09-08T13:24:06Z [26,463ms] [Warning] [omni.usd] Warning: in _ReportErrors at line 3172 of /builds/omniverse/usd-ci/USD/pxr/usd/usd/stage.cpp -- In </jackal/imu_link/visuals>: Unresolved reference prim path @anon:0x5feb2f71b210:World1.usd@</visuals/imu_link> introduced by @anon:0x5feb2f71b210:World1.usd@</jackal/imu_link/visuals> (recomposing stage on stage @anon:0x5feb2f71b210:World1.usd@ <0x5feb307c8140>)
+[python-1] 
+[python-1] 2026-09-08T13:24:06Z [26,463ms] [Warning] [omni.usd] Warning: in _ReportErrors at line 3172 of /builds/omniverse/usd-ci/USD/pxr/usd/usd/stage.cpp -- In </jackal/imu_link/visuals>: Unresolved reference prim path @anon:0x5feb2f71b210:World1.usd@</visuals/imu_link> introduced by @anon:0x5feb2f71b210:World1.usd@</jackal/imu_link/visuals> (recomposing stage on stage @anon:0x5feb2f71b210:World1.usd@ <0x5feb307c8140>)
+[python-1] 
+[python-1] 2026-09-08T13:24:06Z [26,465ms] [Warning] [isaacsim.asset.importer.urdf] Link imu_link has no colliders, and no inertia was imported; assigning a small isotropic inertia matrix
+[python-1] 2026-09-08T13:24:06Z [26,481ms] [Warning] [isaacsim.asset.importer.urdf] No mass specified for link lidar_link
+[python-1] 2026-09-08T13:24:06Z [26,518ms] [Warning] [isaacsim.asset.importer.urdf] No mass specified for link mid_mount
+[python-1] 2026-09-08T13:24:06Z [26,518ms] [Warning] [omni.usd] Warning: in _ReportErrors at line 3172 of /builds/omniverse/usd-ci/USD/pxr/usd/usd/stage.cpp -- In </jackal/mid_mount/visuals>: Unresolved reference prim path @anon:0x5feb2f71b210:World1.usd@</visuals/mid_mount> introduced by @anon:0x5feb2f71b210:World1.usd@</jackal/mid_mount/visuals> (recomposing stage on stage @anon:0x5feb2f71b210:World1.usd@ <0x5feb307c8140>)
+[python-1] 
+[python-1] 2026-09-08T13:24:06Z [26,518ms] [Warning] [omni.usd] Warning: in _ReportErrors at line 3172 of /builds/omniverse/usd-ci/USD/pxr/usd/usd/stage.cpp -- In </jackal/mid_mount/visuals>: Unresolved reference prim path @anon:0x5feb2f71b210:World1.usd@</visuals/mid_mount> introduced by @anon:0x5feb2f71b210:World1.usd@</jackal/mid_mount/visuals> (recomposing stage on stage @anon:0x5feb2f71b210:World1.usd@ <0x5feb307c8140>)
+[python-1] 
+[python-1] 2026-09-08T13:24:06Z [26,518ms] [Warning] [omni.usd] Warning: in _ReportErrors at line 3172 of /builds/omniverse/usd-ci/USD/pxr/usd/usd/stage.cpp -- In </jackal/mid_mount/visuals>: Unresolved reference prim path @anon:0x5feb2f71b210:World1.usd@</visuals/mid_mount> introduced by @anon:0x5feb2f71b210:World1.usd@</jackal/mid_mount/visuals> (recomposing stage on stage @anon:0x5feb2f71b210:World1.usd@ <0x5feb307c8140>)
+[python-1] 
+[python-1] 2026-09-08T13:24:06Z [26,519ms] [Warning] [omni.usd] Warning: in _ReportErrors at line 3172 of /builds/omniverse/usd-ci/USD/pxr/usd/usd/stage.cpp -- In </jackal/mid_mount/visuals>: Unresolved reference prim path @anon:0x5feb2f71b210:World1.usd@</visuals/mid_mount> introduced by @anon:0x5feb2f71b210:World1.usd@</jackal/mid_mount/visuals> (recomposing stage on stage @anon:0x5feb2f71b210:World1.usd@ <0x5feb307c8140>)
+[python-1] 
+[python-1] 2026-09-08T13:24:06Z [26,519ms] [Warning] [omni.usd] Warning: in _ReportErrors at line 3172 of /builds/omniverse/usd-ci/USD/pxr/usd/usd/stage.cpp -- In </jackal/mid_mount/visuals>: Unresolved reference prim path @anon:0x5feb2f71b210:World1.usd@</visuals/mid_mount> introduced by @anon:0x5feb2f71b210:World1.usd@</jackal/mid_mount/visuals> (recomposing stage on stage @anon:0x5feb2f71b210:World1.usd@ <0x5feb307c8140>)
+[python-1] 
+[python-1] 2026-09-08T13:24:06Z [26,519ms] [Warning] [omni.usd] Warning: in _ReportErrors at line 3172 of /builds/omniverse/usd-ci/USD/pxr/usd/usd/stage.cpp -- In </jackal/mid_mount/visuals>: Unresolved reference prim path @anon:0x5feb2f71b210:World1.usd@</visuals/mid_mount> introduced by @anon:0x5feb2f71b210:World1.usd@</jackal/mid_mount/visuals> (recomposing stage on stage @anon:0x5feb2f71b210:World1.usd@ <0x5feb307c8140>)
+[python-1] 
+[python-1] 2026-09-08T13:24:06Z [26,521ms] [Warning] [isaacsim.asset.importer.urdf] Link mid_mount has no colliders, and no inertia was imported; assigning a small isotropic inertia matrix
+[python-1] 2026-09-08T13:24:06Z [26,537ms] [Warning] [isaacsim.asset.importer.urdf] No mass specified for link front_mount
+[python-1] 2026-09-08T13:24:06Z [26,538ms] [Warning] [omni.usd] Warning: in _ReportErrors at line 3172 of /builds/omniverse/usd-ci/USD/pxr/usd/usd/stage.cpp -- In </jackal/front_mount/visuals>: Unresolved reference prim path @anon:0x5feb2f71b210:World1.usd@</visuals/front_mount> introduced by @anon:0x5feb2f71b210:World1.usd@</jackal/front_mount/visuals> (recomposing stage on stage @anon:0x5feb2f71b210:World1.usd@ <0x5feb307c8140>)
+[python-1] 
+[python-1] 2026-09-08T13:24:06Z [26,538ms] [Warning] [omni.usd] Warning: in _ReportErrors at line 3172 of /builds/omniverse/usd-ci/USD/pxr/usd/usd/stage.cpp -- In </jackal/front_mount/visuals>: Unresolved reference prim path @anon:0x5feb2f71b210:World1.usd@</visuals/front_mount> introduced by @anon:0x5feb2f71b210:World1.usd@</jackal/front_mount/visuals> (recomposing stage on stage @anon:0x5feb2f71b210:World1.usd@ <0x5feb307c8140>)
+[python-1] 
+[python-1] 2026-09-08T13:24:06Z [26,538ms] [Warning] [omni.usd] Warning: in _ReportErrors at line 3172 of /builds/omniverse/usd-ci/USD/pxr/usd/usd/stage.cpp -- In </jackal/front_mount/visuals>: Unresolved reference prim path @anon:0x5feb2f71b210:World1.usd@</visuals/front_mount> introduced by @anon:0x5feb2f71b210:World1.usd@</jackal/front_mount/visuals> (recomposing stage on stage @anon:0x5feb2f71b210:World1.usd@ <0x5feb307c8140>)
+[python-1] 
+[python-1] 2026-09-08T13:24:06Z [26,538ms] [Warning] [omni.usd] Warning: in _ReportErrors at line 3172 of /builds/omniverse/usd-ci/USD/pxr/usd/usd/stage.cpp -- In </jackal/front_mount/visuals>: Unresolved reference prim path @anon:0x5feb2f71b210:World1.usd@</visuals/front_mount> introduced by @anon:0x5feb2f71b210:World1.usd@</jackal/front_mount/visuals> (recomposing stage on stage @anon:0x5feb2f71b210:World1.usd@ <0x5feb307c8140>)
+[python-1] 
+[python-1] 2026-09-08T13:24:06Z [26,538ms] [Warning] [omni.usd] Warning: in _ReportErrors at line 3172 of /builds/omniverse/usd-ci/USD/pxr/usd/usd/stage.cpp -- In </jackal/front_mount/visuals>: Unresolved reference prim path @anon:0x5feb2f71b210:World1.usd@</visuals/front_mount> introduced by @anon:0x5feb2f71b210:World1.usd@</jackal/front_mount/visuals> (recomposing stage on stage @anon:0x5feb2f71b210:World1.usd@ <0x5feb307c8140>)
+[python-1] 
+[python-1] 2026-09-08T13:24:06Z [26,538ms] [Warning] [omni.usd] Warning: in _ReportErrors at line 3172 of /builds/omniverse/usd-ci/USD/pxr/usd/usd/stage.cpp -- In </jackal/front_mount/visuals>: Unresolved reference prim path @anon:0x5feb2f71b210:World1.usd@</visuals/front_mount> introduced by @anon:0x5feb2f71b210:World1.usd@</jackal/front_mount/visuals> (recomposing stage on stage @anon:0x5feb2f71b210:World1.usd@ <0x5feb307c8140>)
+[python-1] 
+[python-1] 2026-09-08T13:24:06Z [26,540ms] [Warning] [isaacsim.asset.importer.urdf] Link front_mount has no colliders, and no inertia was imported; assigning a small isotropic inertia matrix
+[python-1] 2026-09-08T13:24:06Z [26,556ms] [Warning] [isaacsim.asset.importer.urdf] No mass specified for link rear_mount
+[python-1] 2026-09-08T13:24:06Z [26,557ms] [Warning] [omni.usd] Warning: in _ReportErrors at line 3172 of /builds/omniverse/usd-ci/USD/pxr/usd/usd/stage.cpp -- In </jackal/rear_mount/visuals>: Unresolved reference prim path @anon:0x5feb2f71b210:World1.usd@</visuals/rear_mount> introduced by @anon:0x5feb2f71b210:World1.usd@</jackal/rear_mount/visuals> (recomposing stage on stage @anon:0x5feb2f71b210:World1.usd@ <0x5feb307c8140>)
+[python-1] 
+[python-1] 2026-09-08T13:24:06Z [26,557ms] [Warning] [omni.usd] Warning: in _ReportErrors at line 3172 of /builds/omniverse/usd-ci/USD/pxr/usd/usd/stage.cpp -- In </jackal/rear_mount/visuals>: Unresolved reference prim path @anon:0x5feb2f71b210:World1.usd@</visuals/rear_mount> introduced by @anon:0x5feb2f71b210:World1.usd@</jackal/rear_mount/visuals> (recomposing stage on stage @anon:0x5feb2f71b210:World1.usd@ <0x5feb307c8140>)
+[python-1] 
+[python-1] 2026-09-08T13:24:06Z [26,557ms] [Warning] [omni.usd] Warning: in _ReportErrors at line 3172 of /builds/omniverse/usd-ci/USD/pxr/usd/usd/stage.cpp -- In </jackal/rear_mount/visuals>: Unresolved reference prim path @anon:0x5feb2f71b210:World1.usd@</visuals/rear_mount> introduced by @anon:0x5feb2f71b210:World1.usd@</jackal/rear_mount/visuals> (recomposing stage on stage @anon:0x5feb2f71b210:World1.usd@ <0x5feb307c8140>)
+[python-1] 
+[python-1] 2026-09-08T13:24:06Z [26,557ms] [Warning] [omni.usd] Warning: in _ReportErrors at line 3172 of /builds/omniverse/usd-ci/USD/pxr/usd/usd/stage.cpp -- In </jackal/rear_mount/visuals>: Unresolved reference prim path @anon:0x5feb2f71b210:World1.usd@</visuals/rear_mount> introduced by @anon:0x5feb2f71b210:World1.usd@</jackal/rear_mount/visuals> (recomposing stage on stage @anon:0x5feb2f71b210:World1.usd@ <0x5feb307c8140>)
+[python-1] 
+[python-1] 2026-09-08T13:24:06Z [26,557ms] [Warning] [omni.usd] Warning: in _ReportErrors at line 3172 of /builds/omniverse/usd-ci/USD/pxr/usd/usd/stage.cpp -- In </jackal/rear_mount/visuals>: Unresolved reference prim path @anon:0x5feb2f71b210:World1.usd@</visuals/rear_mount> introduced by @anon:0x5feb2f71b210:World1.usd@</jackal/rear_mount/visuals> (recomposing stage on stage @anon:0x5feb2f71b210:World1.usd@ <0x5feb307c8140>)
+[python-1] 
+[python-1] 2026-09-08T13:24:06Z [26,557ms] [Warning] [omni.usd] Warning: in _ReportErrors at line 3172 of /builds/omniverse/usd-ci/USD/pxr/usd/usd/stage.cpp -- In </jackal/rear_mount/visuals>: Unresolved reference prim path @anon:0x5feb2f71b210:World1.usd@</visuals/rear_mount> introduced by @anon:0x5feb2f71b210:World1.usd@</jackal/rear_mount/visuals> (recomposing stage on stage @anon:0x5feb2f71b210:World1.usd@ <0x5feb307c8140>)
+[python-1] 
+[python-1] 2026-09-08T13:24:06Z [26,559ms] [Warning] [isaacsim.asset.importer.urdf] Link rear_mount has no colliders, and no inertia was imported; assigning a small isotropic inertia matrix
+[python-1] 2026-09-08T13:24:06Z [26,575ms] [Warning] [isaacsim.asset.importer.urdf] No mass specified for link navsat_link
+[python-1] 2026-09-08T13:24:06Z [26,587ms] [Warning] [isaacsim.asset.importer.urdf] Link navsat_link has no colliders, and no inertia was imported; assigning a small isotropic inertia matrix
+[python-1] 2026-09-08T13:24:06Z [26,603ms] [Warning] [isaacsim.asset.importer.urdf] No mass specified for link rear_fender_link
+[python-1] 2026-09-08T13:24:06Z [26,614ms] [Warning] [isaacsim.asset.importer.urdf] Link rear_fender_link has no colliders, and no inertia was imported; assigning a small isotropic inertia matrix
+[python-1] 2026-09-08T13:24:06Z [26,728ms] [Warning] [omni.usd] Warning: in _ReportErrors at line 3172 of /builds/omniverse/usd-ci/USD/pxr/usd/usd/stage.cpp -- In </World/arena_robot/imu_link/visuals>: Unresolved reference prim path @anon:0x5feb2f71b210:World1.usd@</visuals/imu_link> introduced by @anon:0x5feb2f71b210:World1.usd@</World/arena_robot/imu_link/visuals> (recomposing stage on stage @anon:0x5feb2f71b210:World1.usd@ <0x5feb307c8140>)
+[python-1] 
+[python-1] 2026-09-08T13:24:06Z [26,728ms] [Warning] [omni.usd] Warning: in _ReportErrors at line 3172 of /builds/omniverse/usd-ci/USD/pxr/usd/usd/stage.cpp -- In </World/arena_robot/imu_link/visuals>: Unresolved reference prim path @anon:0x5feb2f71b210:World1.usd@</visuals/imu_link> introduced by @anon:0x5feb2f71b210:World1.usd@</World/arena_robot/imu_link/visuals> (recomposing stage on stage @anon:0x5feb2f71b210:World1.usd@ <0x5feb307c8140>)
+[python-1] 
+[python-1] 2026-09-08T13:24:06Z [26,728ms] [Warning] [omni.usd] Warning: in _ReportErrors at line 3172 of /builds/omniverse/usd-ci/USD/pxr/usd/usd/stage.cpp -- In </World/arena_robot/imu_link/visuals>: Unresolved reference prim path @anon:0x5feb2f71b210:World1.usd@</visuals/imu_link> introduced by @anon:0x5feb2f71b210:World1.usd@</World/arena_robot/imu_link/visuals> (recomposing stage on stage @anon:0x5feb2f71b210:World1.usd@ <0x5feb307c8140>)
+[python-1] 
+[python-1] 2026-09-08T13:24:06Z [26,728ms] [Warning] [omni.usd] Warning: in _ReportErrors at line 3172 of /builds/omniverse/usd-ci/USD/pxr/usd/usd/stage.cpp -- In </World/arena_robot/base_link/visuals>: Unresolved reference prim path @anon:0x5feb2f71b210:World1.usd@</visuals/base_link> introduced by @anon:0x5feb2f71b210:World1.usd@</World/arena_robot/base_link/visuals> (recomposing stage on stage @anon:0x5feb2f71b210:World1.usd@ <0x5feb307c8140>)
+[python-1] 
+[python-1] 2026-09-08T13:24:06Z [26,728ms] [Warning] [omni.usd] Warning: in _ReportErrors at line 3172 of /builds/omniverse/usd-ci/USD/pxr/usd/usd/stage.cpp -- In </World/arena_robot/base_link/visuals>: Unresolved reference prim path @anon:0x5feb2f71b210:World1.usd@</visuals/base_link> introduced by @anon:0x5feb2f71b210:World1.usd@</World/arena_robot/base_link/visuals> (recomposing stage on stage @anon:0x5feb2f71b210:World1.usd@ <0x5feb307c8140>)
+[python-1] 
+[python-1] 2026-09-08T13:24:06Z [26,728ms] [Warning] [omni.usd] Warning: in _ReportErrors at line 3172 of /builds/omniverse/usd-ci/USD/pxr/usd/usd/stage.cpp -- In </World/arena_robot/base_link/visuals>: Unresolved reference prim path @anon:0x5feb2f71b210:World1.usd@</visuals/base_link> introduced by @anon:0x5feb2f71b210:World1.usd@</World/arena_robot/base_link/visuals> (recomposing stage on stage @anon:0x5feb2f71b210:World1.usd@ <0x5feb307c8140>)
+[python-1] 
+[python-1] 2026-09-08T13:24:06Z [26,728ms] [Warning] [omni.usd] Warning: in _ReportErrors at line 3172 of /builds/omniverse/usd-ci/USD/pxr/usd/usd/stage.cpp -- In </World/arena_robot/front_mount/visuals>: Unresolved reference prim path @anon:0x5feb2f71b210:World1.usd@</visuals/front_mount> introduced by @anon:0x5feb2f71b210:World1.usd@</World/arena_robot/front_mount/visuals> (recomposing stage on stage @anon:0x5feb2f71b210:World1.usd@ <0x5feb307c8140>)
+[python-1] 
+[python-1] 2026-09-08T13:24:06Z [26,728ms] [Warning] [omni.usd] Warning: in _ReportErrors at line 3172 of /builds/omniverse/usd-ci/USD/pxr/usd/usd/stage.cpp -- In </World/arena_robot/front_mount/visuals>: Unresolved reference prim path @anon:0x5feb2f71b210:World1.usd@</visuals/front_mount> introduced by @anon:0x5feb2f71b210:World1.usd@</World/arena_robot/front_mount/visuals> (recomposing stage on stage @anon:0x5feb2f71b210:World1.usd@ <0x5feb307c8140>)
+[python-1] 
+[python-1] 2026-09-08T13:24:06Z [26,728ms] [Warning] [omni.usd] Warning: in _ReportErrors at line 3172 of /builds/omniverse/usd-ci/USD/pxr/usd/usd/stage.cpp -- In </World/arena_robot/front_mount/visuals>: Unresolved reference prim path @anon:0x5feb2f71b210:World1.usd@</visuals/front_mount> introduced by @anon:0x5feb2f71b210:World1.usd@</World/arena_robot/front_mount/visuals> (recomposing stage on stage @anon:0x5feb2f71b210:World1.usd@ <0x5feb307c8140>)
+[python-1] 
+[python-1] 2026-09-08T13:24:06Z [26,728ms] [Warning] [omni.usd] Warning: in _ReportErrors at line 3172 of /builds/omniverse/usd-ci/USD/pxr/usd/usd/stage.cpp -- In </World/arena_robot/mid_mount/visuals>: Unresolved reference prim path @anon:0x5feb2f71b210:World1.usd@</visuals/mid_mount> introduced by @anon:0x5feb2f71b210:World1.usd@</World/arena_robot/mid_mount/visuals> (recomposing stage on stage @anon:0x5feb2f71b210:World1.usd@ <0x5feb307c8140>)
+[python-1] 
+[python-1] 2026-09-08T13:24:06Z [26,728ms] [Warning] [omni.usd] Warning: in _ReportErrors at line 3172 of /builds/omniverse/usd-ci/USD/pxr/usd/usd/stage.cpp -- In </World/arena_robot/mid_mount/visuals>: Unresolved reference prim path @anon:0x5feb2f71b210:World1.usd@</visuals/mid_mount> introduced by @anon:0x5feb2f71b210:World1.usd@</World/arena_robot/mid_mount/visuals> (recomposing stage on stage @anon:0x5feb2f71b210:World1.usd@ <0x5feb307c8140>)
+[python-1] 
+[python-1] 2026-09-08T13:24:06Z [26,728ms] [Warning] [omni.usd] Warning: in _ReportErrors at line 3172 of /builds/omniverse/usd-ci/USD/pxr/usd/usd/stage.cpp -- In </World/arena_robot/mid_mount/visuals>: Unresolved reference prim path @anon:0x5feb2f71b210:World1.usd@</visuals/mid_mount> introduced by @anon:0x5feb2f71b210:World1.usd@</World/arena_robot/mid_mount/visuals> (recomposing stage on stage @anon:0x5feb2f71b210:World1.usd@ <0x5feb307c8140>)
+[python-1] 
+[python-1] 2026-09-08T13:24:06Z [26,728ms] [Warning] [omni.usd] Warning: in _ReportErrors at line 3172 of /builds/omniverse/usd-ci/USD/pxr/usd/usd/stage.cpp -- In </World/arena_robot/rear_mount/visuals>: Unresolved reference prim path @anon:0x5feb2f71b210:World1.usd@</visuals/rear_mount> introduced by @anon:0x5feb2f71b210:World1.usd@</World/arena_robot/rear_mount/visuals> (recomposing stage on stage @anon:0x5feb2f71b210:World1.usd@ <0x5feb307c8140>)
+[python-1] 
+[python-1] 2026-09-08T13:24:06Z [26,728ms] [Warning] [omni.usd] Warning: in _ReportErrors at line 3172 of /builds/omniverse/usd-ci/USD/pxr/usd/usd/stage.cpp -- In </World/arena_robot/rear_mount/visuals>: Unresolved reference prim path @anon:0x5feb2f71b210:World1.usd@</visuals/rear_mount> introduced by @anon:0x5feb2f71b210:World1.usd@</World/arena_robot/rear_mount/visuals> (recomposing stage on stage @anon:0x5feb2f71b210:World1.usd@ <0x5feb307c8140>)
+[python-1] 
+[controller_server-7] [INFO] [1788873846.668800248] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[controller_server-7] [INFO] [1788873847.168803619] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[controller_server-7] [INFO] [1788873847.668802404] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[controller_server-7] [INFO] [1788873848.168801936] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[controller_server-7] [INFO] [1788873848.668798822] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[controller_server-7] [INFO] [1788873849.168805324] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[controller_server-7] [INFO] [1788873849.668797756] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[controller_server-7] [INFO] [1788873850.168802791] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[controller_server-7] [INFO] [1788873850.668802954] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[controller_server-7] [INFO] [1788873851.168825187] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[scene_bridge-2] [INFO] [1788873851.353237947] [arena_scene_bridge]: SCENE_ROBOT_OK path=/World/arena_robot model=jackal
+[controller_server-7] [INFO] [1788873851.668802452] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[controller_server-7] [INFO] [1788873852.168966172] [local_costmap.local_costmap]: start
+[controller_server-7] [INFO] [1788873852.270657508] [controller_server]: Creating bond (controller_server) to lifecycle manager.
+[lifecycle_manager-14] [INFO] [1788873852.379186025] [lifecycle_manager_navigation]: Server controller_server connected with bond.
+[lifecycle_manager-14] [INFO] [1788873852.379339847] [lifecycle_manager_navigation]: [34m[1mActivating smoother_server[0m[0m
+[smoother_server-8] [INFO] [1788873852.379776364] [smoother_server]: Activating
+[smoother_server-8] [INFO] [1788873852.379847896] [smoother_server]: Creating bond (smoother_server) to lifecycle manager.
+[lifecycle_manager-14] [INFO] [1788873852.487057361] [lifecycle_manager_navigation]: Server smoother_server connected with bond.
+[lifecycle_manager-14] [INFO] [1788873852.487148271] [lifecycle_manager_navigation]: [34m[1mActivating planner_server[0m[0m
+[planner_server-9] [INFO] [1788873852.487590105] [planner_server]: Activating
+[planner_server-9] [INFO] [1788873852.487669173] [global_costmap.global_costmap]: Activating
+[planner_server-9] [INFO] [1788873852.487693248] [global_costmap.global_costmap]: Checking transform
+[planner_server-9] [INFO] [1788873852.487719391] [global_costmap.global_costmap]: Timed out waiting for transform from base_link to map to become available, tf error: Could not find a connection between 'map' and 'base_link' because they are not part of the same tree.Tf has two or more unconnected trees.
+[planner_server-9] [INFO] [1788873852.987954885] [global_costmap.global_costmap]: start
+[planner_server-9] [INFO] [1788873853.239732720] [planner_server]: Activating plugin GridBased of type NavfnPlanner
+[planner_server-9] [INFO] [1788873853.241695002] [planner_server]: Creating bond (planner_server) to lifecycle manager.
+[lifecycle_manager-14] [INFO] [1788873853.347677449] [lifecycle_manager_navigation]: Server planner_server connected with bond.
+[lifecycle_manager-14] [INFO] [1788873853.347740864] [lifecycle_manager_navigation]: [34m[1mActivating behavior_server[0m[0m
+[behavior_server-10] [INFO] [1788873853.348131938] [behavior_server]: Activating
+[behavior_server-10] [INFO] [1788873853.348204697] [behavior_server]: Activating spin
+[behavior_server-10] [INFO] [1788873853.348272620] [behavior_server]: Activating backup
+[behavior_server-10] [INFO] [1788873853.348297837] [behavior_server]: Activating drive_on_heading
+[behavior_server-10] [INFO] [1788873853.348321857] [behavior_server]: Activating wait
+[behavior_server-10] [INFO] [1788873853.348346617] [behavior_server]: Creating bond (behavior_server) to lifecycle manager.
+[lifecycle_manager-14] [INFO] [1788873853.454898028] [lifecycle_manager_navigation]: Server behavior_server connected with bond.
+[lifecycle_manager-14] [INFO] [1788873853.454957070] [lifecycle_manager_navigation]: [34m[1mActivating bt_navigator[0m[0m
+[bt_navigator-11] [INFO] [1788873853.455280918] [bt_navigator]: Activating
+[bt_navigator-11] [INFO] [1788873853.470633243] [bt_navigator]: Creating bond (bt_navigator) to lifecycle manager.
+[lifecycle_manager-14] [INFO] [1788873853.576616965] [lifecycle_manager_navigation]: Server bt_navigator connected with bond.
+[lifecycle_manager-14] [INFO] [1788873853.576731719] [lifecycle_manager_navigation]: [34m[1mActivating waypoint_follower[0m[0m
+[waypoint_follower-12] [INFO] [1788873853.577262046] [waypoint_follower]: Activating
+[waypoint_follower-12] [INFO] [1788873853.577335503] [waypoint_follower]: Creating bond (waypoint_follower) to lifecycle manager.
+[planner_server-9] [INFO] [1788873853.661750508] [global_costmap.global_costmap]: Received request to clear entirely the global_costmap
+[controller_server-7] [INFO] [1788873853.663252334] [local_costmap.local_costmap]: Received request to clear entirely the local_costmap
+[bt_navigator-11] [INFO] [1788873853.665724263] [bt_navigator]: Begin navigating from current location (3.00, 3.00) to (3.00, 3.00)
+[lifecycle_manager-14] [INFO] [1788873853.685344992] [lifecycle_manager_navigation]: Server waypoint_follower connected with bond.
+[lifecycle_manager-14] [INFO] [1788873853.685430600] [lifecycle_manager_navigation]: [34m[1mActivating velocity_smoother[0m[0m
+[velocity_smoother-13] [INFO] [1788873853.685872152] [velocity_smoother]: Activating
+[velocity_smoother-13] [INFO] [1788873853.685957921] [velocity_smoother]: Creating bond (velocity_smoother) to lifecycle manager.
+[lifecycle_manager-14] [INFO] [1788873853.793923736] [lifecycle_manager_navigation]: Server velocity_smoother connected with bond.
+[lifecycle_manager-14] [INFO] [1788873853.794003610] [lifecycle_manager_navigation]: [34m[1mManaged nodes are active[0m[0m
+[lifecycle_manager-14] [INFO] [1788873853.794022123] [lifecycle_manager_navigation]: [34m[1mCreating bond timer...[0m[0m
+[planner_server-9] [WARN] [1788873853.807564163] [planner_server]: Planner loop missed its desired rate of 20.0000 Hz. Current loop rate is 8.5714 Hz
+[controller_server-7] [INFO] [1788873853.966653865] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-7] [WARN] [1788873853.966751043] [controller_server]: No goal checker was specified in parameter 'current_goal_checker'. Server will use only plugin loaded goal_checker . This warning will appear once.
+[mpc_command_watchdog-15] [WARN] [1788873854.017882212] [mpc_command_watchdog]: publishing zero command: command_sequence
+[mpc_command_watchdog-15] [INFO] [1788873854.037812774] [mpc_command_watchdog]: command forwarding enabled
+[controller_server-7] [INFO] [1788873854.466867759] [controller_server]: Passing new path to controller.
+[controller_server-7] [INFO] [1788873854.966865684] [controller_server]: Passing new path to controller.
+[controller_server-7] [INFO] [1788873855.466861410] [controller_server]: Passing new path to controller.
+[controller_server-7] [INFO] [1788873855.966872549] [controller_server]: Passing new path to controller.
+[controller_server-7] [INFO] [1788873856.466884336] [controller_server]: Passing new path to controller.
+[controller_server-7] [INFO] [1788873856.966896297] [controller_server]: Passing new path to controller.
+[controller_server-7] [INFO] [1788873857.466897241] [controller_server]: Passing new path to controller.
+[controller_server-7] [INFO] [1788873857.966873330] [controller_server]: Passing new path to controller.
+[controller_server-7] [INFO] [1788873858.466894329] [controller_server]: Passing new path to controller.
+[controller_server-7] [INFO] [1788873858.966919962] [controller_server]: Passing new path to controller.
+[controller_server-7] [INFO] [1788873859.466873884] [controller_server]: Passing new path to controller.
+[controller_server-7] [INFO] [1788873859.716561024] [controller_server]: Reached the goal!
+[mpc_command_watchdog-15] [WARN] [1788873859.978002027] [mpc_command_watchdog]: publishing zero command: status_lease
+[bt_navigator-11] [INFO] [1788873860.166119651] [bt_navigator]: Goal succeeded
+[bt_navigator-11] [INFO] [1788873860.168463490] [bt_navigator]: Begin navigating from current location (3.01, 3.01) to (3.00, 3.00)
+[controller_server-7] [INFO] [1788873860.369332593] [controller_server]: Received a goal, begin computing control effort.
+[mpc_command_watchdog-15] [WARN] [1788873860.417965928] [mpc_command_watchdog]: publishing zero command: smooth_lease
+[mpc_command_watchdog-15] [INFO] [1788873860.437883421] [mpc_command_watchdog]: command forwarding enabled
+[controller_server-7] [INFO] [1788873860.469531176] [controller_server]: Passing new path to controller.
+[controller_server-7] [INFO] [1788873860.869549342] [controller_server]: Passing new path to controller.
+[controller_server-7] [INFO] [1788873861.369523049] [controller_server]: Passing new path to controller.
+[controller_server-7] [INFO] [1788873861.869523597] [controller_server]: Passing new path to controller.
+[controller_server-7] [INFO] [1788873862.369524559] [controller_server]: Passing new path to controller.
+[controller_server-7] [INFO] [1788873862.869481278] [controller_server]: Passing new path to controller.
+[controller_server-7] [INFO] [1788873863.369531490] [controller_server]: Passing new path to controller.
+[controller_server-7] [INFO] [1788873863.869551400] [controller_server]: Passing new path to controller.
+[controller_server-7] [INFO] [1788873864.369580239] [controller_server]: Passing new path to controller.
+[controller_server-7] [INFO] [1788873864.869533145] [controller_server]: Passing new path to controller.
+[controller_server-7] [INFO] [1788873865.369530044] [controller_server]: Passing new path to controller.
+[controller_server-7] [INFO] [1788873865.869541015] [controller_server]: Passing new path to controller.
+[controller_server-7] [INFO] [1788873866.316447913] [controller_server]: Reached the goal!
+[controller_server-7] [INFO] [1788873866.369618215] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-7] [INFO] [1788873866.415348213] [controller_server]: Reached the goal!
+[mpc_command_watchdog-15] [WARN] [1788873866.677990277] [mpc_command_watchdog]: publishing zero command: status_lease
+[bt_navigator-11] [INFO] [1788873866.768845623] [bt_navigator]: Goal succeeded
+[bt_navigator-11] [INFO] [1788873866.770548114] [bt_navigator]: Begin navigating from current location (3.00, 3.02) to (3.00, 3.00)
+[controller_server-7] [INFO] [1788873866.971843193] [controller_server]: Received a goal, begin computing control effort.
+[mpc_command_watchdog-15] [INFO] [1788873867.038022570] [mpc_command_watchdog]: command forwarding enabled
+[controller_server-7] [INFO] [1788873867.472053833] [controller_server]: Passing new path to controller.
+[controller_server-7] [INFO] [1788873867.972054191] [controller_server]: Passing new path to controller.
+[controller_server-7] [INFO] [1788873868.472060659] [controller_server]: Passing new path to controller.
+[controller_server-7] [INFO] [1788873868.972067772] [controller_server]: Passing new path to controller.
+[controller_server-7] [INFO] [1788873869.472065152] [controller_server]: Passing new path to controller.
+[controller_server-7] [INFO] [1788873869.972045942] [controller_server]: Passing new path to controller.
+[controller_server-7] [INFO] [1788873870.472104333] [controller_server]: Passing new path to controller.
+[controller_server-7] [INFO] [1788873870.972055701] [controller_server]: Passing new path to controller.
+[controller_server-7] [INFO] [1788873871.472068221] [controller_server]: Passing new path to controller.
+[controller_server-7] [INFO] [1788873871.972064300] [controller_server]: Passing new path to controller.
+[controller_server-7] [INFO] [1788873872.472050104] [controller_server]: Passing new path to controller.
+[controller_server-7] [INFO] [1788873872.972049148] [controller_server]: Passing new path to controller.
+[controller_server-7] [INFO] [1788873873.020656179] [controller_server]: Reached the goal!
+[mpc_command_watchdog-15] [WARN] [1788873873.278064723] [mpc_command_watchdog]: publishing zero command: status_lease
+[bt_navigator-11] [INFO] [1788873873.470979496] [bt_navigator]: Goal succeeded
+[bt_navigator-11] [INFO] [1788873873.474679434] [bt_navigator]: Begin navigating from current location (2.99, 3.00) to (3.00, 3.00)
+[controller_server-7] [INFO] [1788873873.675480406] [controller_server]: Received a goal, begin computing control effort.
+[mpc_command_watchdog-15] [INFO] [1788873873.718096564] [mpc_command_watchdog]: command forwarding enabled
+[controller_server-7] [INFO] [1788873874.175623327] [controller_server]: Passing new path to controller.
+[controller_server-7] [INFO] [1788873874.675620415] [controller_server]: Passing new path to controller.
+[controller_server-7] [INFO] [1788873875.175617099] [controller_server]: Passing new path to controller.
+[controller_server-7] [INFO] [1788873875.675623768] [controller_server]: Passing new path to controller.
+[controller_server-7] [INFO] [1788873876.175619005] [controller_server]: Passing new path to controller.
+[controller_server-7] [INFO] [1788873876.675639590] [controller_server]: Passing new path to controller.
+[controller_server-7] [INFO] [1788873877.175620948] [controller_server]: Passing new path to controller.
+[controller_server-7] [INFO] [1788873877.675641130] [controller_server]: Passing new path to controller.
+[controller_server-7] [INFO] [1788873878.175627441] [controller_server]: Passing new path to controller.
+[controller_server-7] [INFO] [1788873878.675597858] [controller_server]: Passing new path to controller.
+[controller_server-7] [INFO] [1788873879.175619282] [controller_server]: Passing new path to controller.
+[controller_server-7] [INFO] [1788873879.519617330] [controller_server]: Reached the goal!
+[controller_server-7] [INFO] [1788873879.675517181] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-7] [INFO] [1788873879.719537364] [controller_server]: Reached the goal!
+[mpc_command_watchdog-15] [WARN] [1788873879.978135141] [mpc_command_watchdog]: publishing zero command: status_lease
+[bt_navigator-11] [INFO] [1788873880.075079552] [bt_navigator]: Goal succeeded
+[bt_navigator-11] [INFO] [1788873880.076343077] [bt_navigator]: Begin navigating from current location (3.00, 2.99) to (3.00, 3.00)
+[controller_server-7] [INFO] [1788873880.277043978] [controller_server]: Received a goal, begin computing control effort.
+[mpc_command_watchdog-15] [INFO] [1788873880.338073144] [mpc_command_watchdog]: command forwarding enabled
+[controller_server-7] [INFO] [1788873880.777264183] [controller_server]: Passing new path to controller.
+[controller_server-7] [INFO] [1788873881.277252451] [controller_server]: Passing new path to controller.
+[controller_server-7] [INFO] [1788873881.777240863] [controller_server]: Passing new path to controller.
+[controller_server-7] [INFO] [1788873882.277408462] [controller_server]: Passing new path to controller.
+[controller_server-7] [INFO] [1788873882.777247898] [controller_server]: Passing new path to controller.
+[mpc_command_watchdog-15] [WARN] [1788873883.238081882] [mpc_command_watchdog]: publishing zero command: controller_status
+[controller_server-7] [INFO] [1788873883.277264153] [controller_server]: Passing new path to controller.
+[mpc_command_watchdog-15] [INFO] [1788873883.338117967] [mpc_command_watchdog]: command forwarding enabled
+[controller_server-7] [INFO] [1788873883.777250280] [controller_server]: Passing new path to controller.
+[controller_server-7] [INFO] [1788873884.277251674] [controller_server]: Passing new path to controller.
+[controller_server-7] [INFO] [1788873884.777270554] [controller_server]: Passing new path to controller.
+[controller_server-7] [INFO] [1788873885.277262056] [controller_server]: Passing new path to controller.
+[controller_server-7] [INFO] [1788873885.777250449] [controller_server]: Passing new path to controller.
+[controller_server-7] [INFO] [1788873886.277251545] [controller_server]: Passing new path to controller.
+[controller_server-7] [INFO] [1788873886.425548500] [controller_server]: Reached the goal!
+[mpc_command_watchdog-15] [WARN] [1788873886.678163771] [mpc_command_watchdog]: publishing zero command: status_lease
+[bt_navigator-11] [INFO] [1788873886.876769359] [bt_navigator]: Goal succeeded
+[velocity_smoother-13] [INFO] [1788873887.075441195] [rclcpp]: signal_handler(signum=2)
+[waypoint_follower-12] [INFO] [1788873887.075445801] [rclcpp]: signal_handler(signum=2)
+[lifecycle_manager-14] [INFO] [1788873887.075439583] [rclcpp]: signal_handler(signum=2)
+[bt_navigator-11] [INFO] [1788873887.075453443] [rclcpp]: signal_handler(signum=2)
+[planner_server-9] [INFO] [1788873887.075460058] [rclcpp]: signal_handler(signum=2)
+[planner_server-9] [INFO] [1788873887.075554237] [planner_server]: Running Nav2 LifecycleNode rcl preshutdown (planner_server)
+[waypoint_follower-12] [INFO] [1788873887.075631310] [waypoint_follower]: Running Nav2 LifecycleNode rcl preshutdown (waypoint_follower)
+[waypoint_follower-12] [INFO] [1788873887.075758587] [waypoint_follower]: Deactivating
+[waypoint_follower-12] [INFO] [1788873887.075803850] [waypoint_follower]: Destroying bond (waypoint_follower) to lifecycle manager.
+[bt_navigator-11] [INFO] [1788873887.075624214] [bt_navigator]: Running Nav2 LifecycleNode rcl preshutdown (bt_navigator)
+[mpc_command_watchdog-15] [INFO] [1788873887.075464608] [rclcpp]: signal_handler(signum=2)
+[smoother_server-8] [INFO] [1788873887.075459888] [rclcpp]: signal_handler(signum=2)
+[smoother_server-8] [INFO] [1788873887.075669492] [smoother_server]: Running Nav2 LifecycleNode rcl preshutdown (smoother_server)
+[smoother_server-8] [INFO] [1788873887.075818158] [smoother_server]: Deactivating
+[smoother_server-8] [INFO] [1788873887.075865188] [smoother_server]: Destroying bond (smoother_server) to lifecycle manager.
+[map_server-5] [INFO] [1788873887.075467821] [rclcpp]: signal_handler(signum=2)
+[map_server-5] [INFO] [1788873887.075679384] [map_server]: Running Nav2 LifecycleNode rcl preshutdown (map_server)
+[map_server-5] [INFO] [1788873887.075857786] [map_server]: Deactivating
+[lifecycle_manager-6] [INFO] [1788873887.075467631] [rclcpp]: signal_handler(signum=2)
+[lifecycle_manager-6] [INFO] [1788873887.075680427] [lifecycle_manager_map]: Running Nav2 LifecycleManager rcl preshutdown (lifecycle_manager_map)
+[lifecycle_manager-6] [INFO] [1788873887.075768931] [lifecycle_manager_map]: [34m[1mTerminating bond timer...[0m[0m
+[robot_state_publisher-3] [INFO] [1788873887.075475508] [rclcpp]: signal_handler(signum=2)
+[behavior_server-10] [INFO] [1788873887.075460103] [rclcpp]: signal_handler(signum=2)
+[behavior_server-10] [INFO] [1788873887.075835872] [behavior_server]: Running Nav2 LifecycleNode rcl preshutdown (behavior_server)
+[controller_server-7] [INFO] [1788873887.075535734] [rclcpp]: signal_handler(signum=2)
+[controller_server-7] [INFO] [1788873887.075764821] [controller_server]: Running Nav2 LifecycleNode rcl preshutdown (controller_server)
+[bt_navigator-11] [INFO] [1788873887.075857496] [bt_navigator]: Deactivating
+[bt_navigator-11] [INFO] [1788873887.075899952] [bt_navigator]: Destroying bond (bt_navigator) to lifecycle manager.
+[map_server-5] [INFO] [1788873887.075889930] [map_server]: Destroying bond (map_server) to lifecycle manager.
+[planner_server-9] [INFO] [1788873887.075675290] [planner_server]: Deactivating
+[planner_server-9] [INFO] [1788873887.075724040] [global_costmap.global_costmap]: Deactivating
+[velocity_smoother-13] [INFO] [1788873887.075665413] [velocity_smoother]: Running Nav2 LifecycleNode rcl preshutdown (velocity_smoother)
+[velocity_smoother-13] [INFO] [1788873887.075800472] [velocity_smoother]: Deactivating
+[velocity_smoother-13] [INFO] [1788873887.075835292] [velocity_smoother]: Destroying bond (velocity_smoother) to lifecycle manager.
+[lifecycle_manager-14] [INFO] [1788873887.075696437] [lifecycle_manager_navigation]: Running Nav2 LifecycleManager rcl preshutdown (lifecycle_manager_navigation)
+[lifecycle_manager-14] [INFO] [1788873887.075906958] [lifecycle_manager_navigation]: [34m[1mTerminating bond timer...[0m[0m
+[controller_server-7] [INFO] [1788873887.075988377] [controller_server]: Deactivating
+[controller_server-7] [INFO] [1788873887.076173195] [local_costmap.local_costmap]: Deactivating
+[behavior_server-10] [INFO] [1788873887.076221127] [behavior_server]: Deactivating
+[behavior_server-10] [INFO] [1788873887.076367704] [behavior_server]: Destroying bond (behavior_server) to lifecycle manager.
+[scene_bridge-2] [FATAL] [1788873887.080119298] [arena_scene_bridge]: failed to initialize wait set: the given context is not valid, either rcl_init() was not called or rcl_shutdown() was called., at /home/runner/conda-bld/bld/rattler-build_ros-humble-rcl_1753312600/work/ros-humble-rcl/src/work/src/rcl/wait.c:130
+[scene_bridge-2] Failed to publish log message to rosout: publisher's context is invalid, at /home/runner/conda-bld/bld/rattler-build_ros-humble-rcl_1753312600/work/ros-humble-rcl/src/work/src/rcl/publisher.c:389
+[waypoint_follower-12] [INFO] [1788873887.086132282] [waypoint_follower]: Cleaning up
+[velocity_smoother-13] [INFO] [1788873887.086184769] [velocity_smoother]: Cleaning up
+[velocity_smoother-13] [INFO] [1788873887.086300040] [velocity_smoother]: Destroying bond (velocity_smoother) to lifecycle manager.
+[smoother_server-8] [INFO] [1788873887.086204049] [smoother_server]: Cleaning up
+[map_server-5] [INFO] [1788873887.086211922] [map_server]: Cleaning up
+[map_server-5] [INFO] [1788873887.086394964] [map_server]: Destroying bond (map_server) to lifecycle manager.
+[bt_navigator-11] [INFO] [1788873887.086377416] [bt_navigator]: Cleaning up
+[behavior_server-10] [INFO] [1788873887.086737369] [behavior_server]: Cleaning up
+[velocity_smoother-13] [INFO] [1788873887.090680991] [velocity_smoother]: Destroying
+[lifecycle_manager-6] [INFO] [1788873887.091597888] [lifecycle_manager_map]: Destroying lifecycle_manager_map
+[waypoint_follower-12] [INFO] [1788873887.093246732] [waypoint_follower]: Destroying bond (waypoint_follower) to lifecycle manager.
+[map_server-5] [INFO] [1788873887.094026253] [map_server]: Destroying
+[behavior_server-10] [INFO] [1788873887.094681824] [behavior_server]: Destroying bond (behavior_server) to lifecycle manager.
+[smoother_server-8] [INFO] [1788873887.096320110] [smoother_server]: Destroying bond (smoother_server) to lifecycle manager.
+[smoother_server-8] [INFO] [1788873887.101247141] [smoother_server]: Destroying
+[waypoint_follower-12] [INFO] [1788873887.101785416] [waypoint_follower]: Destroying
+[empty_human_states.py-4] Traceback (most recent call last):
+[empty_human_states.py-4]   File "/home/lpc/workspace/arena5_mpc_ws/install/arena_mpc_bringup/lib/arena_mpc_bringup/empty_human_states.py", line 87, in <module>
+[empty_human_states.py-4]     main()
+[empty_human_states.py-4]   File "/home/lpc/workspace/arena5_mpc_ws/install/arena_mpc_bringup/lib/arena_mpc_bringup/empty_human_states.py", line 77, in main
+[empty_human_states.py-4]     rclpy.spin(node)
+[empty_human_states.py-4]   File "/home/lpc/workspace/arena5_ws/.conda/arena_ros/lib/python3.11/site-packages/rclpy/__init__.py", line 226, in spin
+[empty_human_states.py-4]     executor.spin_once()
+[empty_human_states.py-4]   File "/home/lpc/workspace/arena5_ws/.conda/arena_ros/lib/python3.11/site-packages/rclpy/executors.py", line 751, in spin_once
+[empty_human_states.py-4]     self._spin_once_impl(timeout_sec)
+[empty_human_states.py-4]   File "/home/lpc/workspace/arena5_ws/.conda/arena_ros/lib/python3.11/site-packages/rclpy/executors.py", line 740, in _spin_once_impl
+[empty_human_states.py-4]     handler, entity, node = self.wait_for_ready_callbacks(timeout_sec=timeout_sec)
+[empty_human_states.py-4]                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[empty_human_states.py-4]   File "/home/lpc/workspace/arena5_ws/.conda/arena_ros/lib/python3.11/site-packages/rclpy/executors.py", line 723, in wait_for_ready_callbacks
+[empty_human_states.py-4]     return next(self._cb_iter)
+[empty_human_states.py-4]            ^^^^^^^^^^^^^^^^^^^
+[empty_human_states.py-4]   File "/home/lpc/workspace/arena5_ws/.conda/arena_ros/lib/python3.11/site-packages/rclpy/executors.py", line 596, in _wait_for_ready_callbacks
+[empty_human_states.py-4]     wait_set = _rclpy.WaitSet(
+[empty_human_states.py-4]                ^^^^^^^^^^^^^^^
+[empty_human_states.py-4] rclpy._rclpy_pybind11.RCLError: failed to initialize wait set: the given context is not valid, either rcl_init() was not called or rcl_shutdown() was called., at /home/runner/conda-bld/bld/rattler-build_ros-humble-rcl_1753312600/work/ros-humble-rcl/src/work/src/rcl/wait.c:130
+[scene_bridge-2] Traceback (most recent call last):
+[scene_bridge-2]   File "/home/lpc/workspace/arena5_ws/install/arena_humble_compat/lib/python3.11/site-packages/arena_humble_compat/scene_bridge.py", line 207, in main
+[scene_bridge-2]     rclpy.spin(node)
+[scene_bridge-2]   File "/home/lpc/workspace/arena5_ws/.conda/arena_ros/lib/python3.11/site-packages/rclpy/__init__.py", line 226, in spin
+[scene_bridge-2]     executor.spin_once()
+[scene_bridge-2]   File "/home/lpc/workspace/arena5_ws/.conda/arena_ros/lib/python3.11/site-packages/rclpy/executors.py", line 751, in spin_once
+[scene_bridge-2]     self._spin_once_impl(timeout_sec)
+[scene_bridge-2]   File "/home/lpc/workspace/arena5_ws/.conda/arena_ros/lib/python3.11/site-packages/rclpy/executors.py", line 740, in _spin_once_impl
+[scene_bridge-2]     handler, entity, node = self.wait_for_ready_callbacks(timeout_sec=timeout_sec)
+[scene_bridge-2]                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[scene_bridge-2]   File "/home/lpc/workspace/arena5_ws/.conda/arena_ros/lib/python3.11/site-packages/rclpy/executors.py", line 723, in wait_for_ready_callbacks
+[scene_bridge-2]     return next(self._cb_iter)
+[scene_bridge-2]            ^^^^^^^^^^^^^^^^^^^
+[scene_bridge-2]   File "/home/lpc/workspace/arena5_ws/.conda/arena_ros/lib/python3.11/site-packages/rclpy/executors.py", line 596, in _wait_for_ready_callbacks
+[scene_bridge-2]     wait_set = _rclpy.WaitSet(
+[scene_bridge-2]                ^^^^^^^^^^^^^^^
+[scene_bridge-2] rclpy._rclpy_pybind11.RCLError: failed to initialize wait set: the given context is not valid, either rcl_init() was not called or rcl_shutdown() was called., at /home/runner/conda-bld/bld/rattler-build_ros-humble-rcl_1753312600/work/ros-humble-rcl/src/work/src/rcl/wait.c:130
+[scene_bridge-2] 
+[scene_bridge-2] During handling of the above exception, another exception occurred:
+[scene_bridge-2] 
+[scene_bridge-2] Traceback (most recent call last):
+[scene_bridge-2]   File "/home/lpc/workspace/arena5_ws/install/arena_humble_compat/lib/arena_humble_compat/scene_bridge", line 33, in <module>
+[scene_bridge-2]     sys.exit(load_entry_point('arena_humble_compat==0.0.0', 'console_scripts', 'scene_bridge')())
+[scene_bridge-2]              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[scene_bridge-2]   File "/home/lpc/workspace/arena5_ws/install/arena_humble_compat/lib/python3.11/site-packages/arena_humble_compat/scene_bridge.py", line 215, in main
+[scene_bridge-2]     rclpy.shutdown()
+[scene_bridge-2]   File "/home/lpc/workspace/arena5_ws/.conda/arena_ros/lib/python3.11/site-packages/rclpy/__init__.py", line 130, in shutdown
+[scene_bridge-2]     _shutdown(context=context)
+[scene_bridge-2]   File "/home/lpc/workspace/arena5_ws/.conda/arena_ros/lib/python3.11/site-packages/rclpy/utilities.py", line 58, in shutdown
+[scene_bridge-2]     return context.shutdown()
+[scene_bridge-2]            ^^^^^^^^^^^^^^^^^^
+[scene_bridge-2]   File "/home/lpc/workspace/arena5_ws/.conda/arena_ros/lib/python3.11/site-packages/rclpy/context.py", line 102, in shutdown
+[scene_bridge-2]     self.__context.shutdown()
+[scene_bridge-2] rclpy._rclpy_pybind11.RCLError: failed to shutdown: rcl_shutdown already called on the given context, at /home/runner/conda-bld/bld/rattler-build_ros-humble-rcl_1753312600/work/ros-humble-rcl/src/work/src/rcl/init.c:241
+[behavior_server-10] [INFO] [1788873887.117075148] [behavior_server]: Destroying
+[bt_navigator-11] [INFO] [1788873887.125221096] [bt_navigator]: Completed Cleaning up
+[bt_navigator-11] [INFO] [1788873887.125300532] [bt_navigator]: Destroying bond (bt_navigator) to lifecycle manager.
+[bt_navigator-11] [INFO] [1788873887.139926655] [bt_navigator]: Destroying
+[controller_server-7] [INFO] [1788873887.169212416] [controller_server]: Destroying bond (controller_server) to lifecycle manager.
+[lifecycle_manager-14] [INFO] [1788873887.176973265] [lifecycle_manager_navigation]: Destroying lifecycle_manager_navigation
+[controller_server-7] [INFO] [1788873887.179469950] [controller_server]: Cleaning up
+[planner_server-9] [INFO] [1788873887.188174098] [planner_server]: Deactivating plugin GridBased of type NavfnPlanner
+[planner_server-9] [INFO] [1788873887.188247823] [planner_server]: Destroying bond (planner_server) to lifecycle manager.
+[planner_server-9] [INFO] [1788873887.198402402] [planner_server]: Cleaning up
+[INFO] [robot_state_publisher-3]: process has finished cleanly [pid 2510212]
+[planner_server-9] [INFO] [1788873887.205810937] [global_costmap.global_costmap]: Cleaning up
+[planner_server-9] [INFO] [1788873887.209729971] [planner_server]: Cleaning up plugin GridBased of type NavfnPlanner
+[planner_server-9] [INFO] [1788873887.209983509] [planner_server]: Destroying plugin GridBased of type NavfnPlanner
+[INFO] [lifecycle_manager-6]: process has finished cleanly [pid 2510218]
+[planner_server-9] [INFO] [1788873887.215716549] [planner_server]: Destroying bond (planner_server) to lifecycle manager.
+[INFO] [velocity_smoother-13]: process has finished cleanly [pid 2510232]
+[INFO] [mpc_command_watchdog-15]: process has finished cleanly [pid 2510236]
+[planner_server-9] [INFO] [1788873887.220071912] [global_costmap.global_costmap]: Destroying
+[INFO] [smoother_server-8]: process has finished cleanly [pid 2510222]
+[INFO] [map_server-5]: process has finished cleanly [pid 2510216]
+[INFO] [waypoint_follower-12]: process has finished cleanly [pid 2510230]
+[planner_server-9] [INFO] [1788873887.227557447] [planner_server]: Destroying
+[controller_server-7] [INFO] [1788873887.242895695] [local_costmap.local_costmap]: Cleaning up
+[INFO] [behavior_server-10]: process has finished cleanly [pid 2510226]
+[controller_server-7] [INFO] [1788873887.255113188] [controller_server]: Destroying bond (controller_server) to lifecycle manager.
+[INFO] [bt_navigator-11]: process has finished cleanly [pid 2510228]
+[controller_server-7] [INFO] [1788873887.261011020] [local_costmap.local_costmap]: Destroying
+[controller_server-7] [INFO] [1788873887.269866180] [controller_server]: Destroying
+[ERROR] [empty_human_states.py-4]: process has died [pid 2510214, exit code 1, cmd '/home/lpc/workspace/arena5_mpc_ws/install/arena_mpc_bringup/lib/arena_mpc_bringup/empty_human_states.py --ros-args -r __node:=empty_human_states --params-file /tmp/launch_params_9okwb47o'].
+[ERROR] [scene_bridge-2]: process has died [pid 2510210, exit code 1, cmd '/home/lpc/workspace/arena5_ws/install/arena_humble_compat/lib/arena_humble_compat/scene_bridge --ros-args -r __node:=arena_scene_bridge --params-file /tmp/launch_params_s2b029gj'].
+[INFO] [lifecycle_manager-14]: process has finished cleanly [pid 2510234]
+[INFO] [planner_server-9]: process has finished cleanly [pid 2510224]
+[INFO] [controller_server-7]: process has finished cleanly [pid 2510220]
+[python-1] 2026-09-08T13:24:06Z [26,728ms] [Warning] [omni.usd] Warning: in _ReportErrors at line 3172 of /builds/omniverse/usd-ci/USD/pxr/usd/usd/stage.cpp -- In </World/arena_robot/rear_mount/visuals>: Unresolved reference prim path @anon:0x5feb2f71b210:World1.usd@</visuals/rear_mount> introduced by @anon:0x5feb2f71b210:World1.usd@</World/arena_robot/rear_mount/visuals> (recomposing stage on stage @anon:0x5feb2f71b210:World1.usd@ <0x5feb307c8140>)
+[python-1] 
+[python-1] 2026-09-08T13:24:07Z [27,333ms] [Warning] [omni.replicator.core.scripts.functional.create_batch] World/arena_robot/lidar_link/gpu_lidar_points is an invalid prim path. Renaming to World_arena_robot_lidar_link_gpu_lidar_points.
+[python-1] 2026-09-08T13:24:07Z [27,355ms] [Warning] [omni.replicator.core.scripts.functional.create_batch] World/arena_robot/lidar_link/gpu_lidar_scan is an invalid prim path. Renaming to World_arena_robot_lidar_link_gpu_lidar_scan.
+[python-1] 2026-09-08T13:24:08Z [28,734ms] [Warning] [omni.fabric.plugin] getAttributeCount called on non-existent path /World/arena_robot/rear_right_wheel_link/collisions/mesh_0
+[python-1] 2026-09-08T13:24:08Z [28,734ms] [Warning] [omni.fabric.plugin] getTypes called on non-existent path /World/arena_robot/rear_right_wheel_link/collisions/mesh_0
+[python-1] 2026-09-08T13:24:10Z [30,769ms] [Warning] [omni.sensors.nv.lidar.lidar_core.plugin] MotionBVH for lidar model not enabled. This will result in an incorrect point cloud without motion effects!
+[python-1] 2026-09-08T13:24:10Z [30,785ms] [Warning] [carb] Client omni.sensors.nv.materials.composite_material has acquired [omni::sensors::materials::IMaterialReaderFactory v0.1] 100 times. Consider accessing this interface with carb::getCachedInterface() (Performance warning)
+[python-1] 2026-09-08T13:24:10Z [31,148ms] [Warning] [carb] Plugin interface for a client: omni.hydratexture.plugin was already released.
+[python-1] 2026-09-08T13:24:10Z [31,151ms] [Warning] [carb] Plugin interface for a client: omni.hydratexture.plugin was already released.
+[python-1] 2026-09-08T13:24:11Z [31,232ms] [Warning] [omni.graph.core.plugin] /World/arena_robot/imu_link/IMUPublisher/read_imu: [/World/arena_robot/imu_link/IMUPublisher] no valid sensor reading, is the sensor enabled?
+[python-1] 2026-09-08T13:24:11Z [31,564ms] [Warning] [omni.timeline.plugin] Deprecated: direct use of ITimeline callbacks is deprecated. Use ITimeline::getTimeline (Python: omni.timeline.get_timeline_interface) instead.
+[python-1] 2026-09-08T13:24:11Z [31,913ms] [Warning] [isaacsim.core.simulation_manager.plugin] No adjacent samples found for interpolation at time 185/30
+[python-1] 2026-09-08T13:24:11Z [31,913ms] [Warning] [isaacsim.core.simulation_manager.plugin] getSimulationTimeMonotonicAtTime: no data found for time 185/30, returning current sim time
+[python-1] 2026-09-08T13:24:11Z [31,913ms] [Warning] [isaacsim.core.simulation_manager.plugin] No adjacent samples found for interpolation at time 185/30
+[python-1] 2026-09-08T13:24:11Z [31,913ms] [Warning] [isaacsim.core.simulation_manager.plugin] getSimulationTimeMonotonicAtTime: no data found for time 185/30, returning current sim time
+[INFO] [python-1]: process has finished cleanly [pid 2510208]

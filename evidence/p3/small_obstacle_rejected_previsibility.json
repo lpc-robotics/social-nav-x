@@ -1,0 +1,5 @@
+{
+  "error": "spawned walls were not marked in global costmap",
+  "pass": false,
+  "scenario": "small_obstacle"
+}

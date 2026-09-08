@@ -143,13 +143,17 @@ bool pose_collision_free(
 bool swept_trajectory_collision_free(
   nav2_costmap_2d::Costmap2D & costmap,
   const std::vector<geometry_msgs::msg::Point> & footprint,
-  const std::vector<arena_mpc_core::State> & states, double circumscribed_radius)
+  const std::vector<arena_mpc_core::State> & states, double circumscribed_radius,
+  arena_mpc_core::State * collision_state = nullptr)
 {
   if (states.empty()) {
     return false;
   }
   const double sample_motion = std::max(0.005, 0.5 * costmap.getResolution());
   if (!pose_collision_free(costmap, footprint, states.front())) {
+    if (collision_state != nullptr) {
+      *collision_state = states.front();
+    }
     return false;
   }
   for (std::size_t index = 1U; index < states.size(); ++index) {
@@ -168,6 +172,9 @@ bool swept_trajectory_collision_free(
         previous.y + ratio * (next.y - previous.y),
         previous.yaw + ratio * yaw_delta};
       if (!pose_collision_free(costmap, footprint, interpolated)) {
+        if (collision_state != nullptr) {
+          *collision_state = interpolated;
+        }
         return false;
       }
     }
@@ -317,7 +324,7 @@ void MpcController::configure(
   odom_wall_limit_ = parameter<double>(node_, prefix + "odom_wall_limit", 0.40);
   lidar_wall_limit_ = parameter<double>(node_, prefix + "lidar_wall_limit", 1.55);
   plugin_commit_limit_ms_ = parameter<double>(node_, prefix + "plugin_commit_limit_ms", 90.0);
-  reference_spacing_ = parameter<double>(node_, prefix + "reference_spacing", 0.05);
+  reference_spacing_ = parameter<double>(node_, prefix + "reference_spacing", 0.025);
   geometry_uncertainty_ = parameter<double>(node_, prefix + "geometry_uncertainty", 0.05);
   failure_limit_ = static_cast<int>(parameter<std::int64_t>(node_, prefix + "failure_limit", 5));
   const std::string humans_topic = parameter<std::string>(node_, prefix + "humans_topic", "/human_states");
@@ -663,15 +670,25 @@ geometry_msgs::msg::TwistStamped MpcController::computeVelocityCommands(
   const auto footprint = costmap_ros_->getRobotFootprint();
   {
     std::lock_guard<nav2_costmap_2d::Costmap2D::mutex_t> lock(*costmap->getMutex());
+    arena_mpc_core::State collision_state;
     if (!swept_trajectory_collision_free(
-        *costmap, footprint, result.trajectory.states, robot_circumscribed_radius_))
+        *costmap, footprint, result.trajectory.states, robot_circumscribed_radius_,
+        &collision_state))
     {
-      return fail("predicted trajectory failed full-footprint costmap check", output_header);
+      std::ostringstream reason;
+      reason << "predicted trajectory failed full-footprint costmap check at x="
+             << collision_state.x << " y=" << collision_state.y
+             << " yaw=" << collision_state.yaw;
+      return fail(reason.str(), output_header);
     }
     if (!swept_trajectory_collision_free(
-        *costmap, footprint, braking, robot_circumscribed_radius_))
+        *costmap, footprint, braking, robot_circumscribed_radius_, &collision_state))
     {
-      return fail("braking trajectory failed full-footprint costmap check", output_header);
+      std::ostringstream reason;
+      reason << "braking trajectory failed full-footprint costmap check at x="
+             << collision_state.x << " y=" << collision_state.y
+             << " yaw=" << collision_state.yaw;
+      return fail(reason.str(), output_header);
     }
   }
 

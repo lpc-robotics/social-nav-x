@@ -1,0 +1,124 @@
+{
+  "collision_samples": 0,
+  "expected_success": true,
+  "minimum_exact_footprint_wall_clearance_m": null,
+  "observed_wall_count": 0,
+  "odom_samples": 2237,
+  "pass": true,
+  "repetitions": 5,
+  "results": [
+    {
+      "accepted": true,
+      "end": [
+        3.5627057552337646,
+        3.606968402862549,
+        1.3403530428007924
+      ],
+      "expected_success": true,
+      "nonzero_rebound_after_failure": null,
+      "pass": true,
+      "position_error_m": 0.03793968016653088,
+      "repetition": 1,
+      "sim_duration_s": 6.833333690000001,
+      "status": 4,
+      "target": [
+        3.6,
+        3.6,
+        1.5707963267948966
+      ],
+      "wall_duration_s": 10.003552317619324,
+      "yaw_error_rad": 0.2304432839941042
+    },
+    {
+      "accepted": true,
+      "end": [
+        2.99222993850708,
+        4.162105560302734,
+        2.9134430592403686
+      ],
+      "expected_success": true,
+      "nonzero_rebound_after_failure": null,
+      "pass": true,
+      "position_error_m": 0.038682843943710646,
+      "repetition": 2,
+      "sim_duration_s": 6.966667030000001,
+      "status": 4,
+      "target": [
+        3.0,
+        4.2,
+        3.141592653589793
+      ],
+      "wall_duration_s": 11.103173682000488,
+      "yaw_error_rad": 0.2281495943494245
+    },
+    {
+      "accepted": true,
+      "end": [
+        2.438290596008301,
+        3.5896122455596924,
+        -1.8004991151365923
+      ],
+      "expected_success": true,
+      "nonzero_rebound_after_failure": null,
+      "pass": true,
+      "position_error_m": 0.03967461638104443,
+      "repetition": 3,
+      "sim_duration_s": 7.133333705,
+      "status": 4,
+      "target": [
+        2.4,
+        3.6,
+        4.71238898038469
+      ],
+      "wall_duration_s": 10.102897634729743,
+      "yaw_error_rad": 0.2297027883416953
+    },
+    {
+      "accepted": true,
+      "end": [
+        3.0118472576141357,
+        3.0379652976989746,
+        -0.23489375562832057
+      ],
+      "expected_success": true,
+      "nonzero_rebound_after_failure": null,
+      "pass": true,
+      "position_error_m": 0.03977086046777797,
+      "repetition": 4,
+      "sim_duration_s": 7.316667048,
+      "status": 4,
+      "target": [
+        3.0,
+        3.0,
+        6.283185307179586
+      ],
+      "wall_duration_s": 10.20169632928446,
+      "yaw_error_rad": 0.23489375562832016
+    },
+    {
+      "accepted": true,
+      "end": [
+        3.5607399940490723,
+        3.6103274822235107,
+        1.3436148149651093
+      ],
+      "expected_success": true,
+      "nonzero_rebound_after_failure": null,
+      "pass": true,
+      "position_error_m": 0.04059562730570642,
+      "repetition": 5,
+      "sim_duration_s": 7.283333713,
+      "status": 4,
+      "target": [
+        3.6,
+        3.6,
+        1.5707963267948966
+      ],
+      "wall_duration_s": 10.302354666870087,
+      "yaw_error_rad": 0.22718151182978732
+    }
+  ],
+  "scenario": "turn",
+  "walls": [],
+  "walls_observed_in_global_costmap": true
+}
