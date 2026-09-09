@@ -12,6 +12,18 @@
 阈值、测试和恢复规则以本文为准。不可变事实和风险边界另见
 `docs/formal_social_automata/BASELINE.md`。
 
+### Phase 4 开发入口（2026-09-08）
+
+V1 下述交付记录继续保留，不重新设计。新的 `1 Robot + 2 Humans`、`H_A || H_B`、
+`SOCIAL` 与 shared events 扩展位于 `feature/formal-social-automata-phase4` 分支；
+完整设计、实现边界、隔离构建命令和验收状态见
+[`docs/formal_social_automata/PHASE4.md`](docs/formal_social_automata/PHASE4.md)。
+Phase 4 仅使用 feature 目录的 `.colcon-formal-phase4`，不向活动工作区部署；
+2026-09-09 最终审计确认 Phase 4 已完成：Formal `150/150`、compat `20/20`、
+Character `17/17`；双人 GPU `12/12`、原 V1 GPU `6/6`、共享/overlay 六行为与
+Nav2 `4/4` 均通过；当前源码重放 `13,466` 条提交记录一致。证据路径与哈希见上述
+Phase 4 文档；这些是新执行的验收，不是复用历史 V1 通过记录。
+
 ## 0. 当前交付状态（2026-09-02）
 
 V1 代码闭环和计划内自动化、真实 HuNav、GPU 仿真及基线回归均已完成。实现阶段提交为：

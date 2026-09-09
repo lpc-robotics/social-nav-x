@@ -1,0 +1,91 @@
+formal_social_multi:
+  ros__parameters:
+    agent_ids: [1, 2]
+    thresholds:
+      visible_enter_distance: 6.0
+      visible_exit_distance: 6.5
+      visible_enter_half_fov_deg: 100.0
+      visible_exit_half_fov_deg: 110.0
+      near_enter_distance: 2.5
+      near_exit_distance: 2.8
+      personal_space_enter_distance: 1.0
+      personal_space_exit_distance: 1.2
+      fast_approach_enter_speed: 0.50
+      fast_approach_exit_speed: 0.35
+      ttc_low_enter_seconds: 1.5
+      ttc_low_exit_seconds: 2.0
+      leaving_enter_speed: -0.10
+      leaving_exit_speed: 0.0
+      sudden_near_min_closing_speed: 0.25
+      sudden_near_max_closing_speed: 0.50
+    timing:
+      attention_dwell_seconds: 0.5
+      recovery_timeout_seconds: 3.0
+      reentry_cooldown_seconds: 0.5
+    peer:
+      visible_enter_distance: 6.0
+      visible_exit_distance: 6.5
+      visible_enter_half_fov_deg: 100.0
+      visible_exit_half_fov_deg: 110.0
+      near_enter_distance: 2.5
+      near_exit_distance: 2.8
+      gaze_enter_deg: 25.0
+      gaze_exit_deg: 35.0
+      stationary_enter_speed: 0.05
+      stationary_exit_speed: 0.10
+      intrusion_enter_margin: 0.45
+      intrusion_exit_margin: 0.65
+      formation_dwell_seconds: 1.0
+      break_dwell_seconds: 0.3
+      reentry_cooldown_seconds: 1.0
+    behavior_profiles:
+      NORMAL: &regular
+        type: 1
+        state: 0
+        configuration: 1
+        duration: 40.0
+        once: true
+        vel: 0.6
+        dist: 0.0
+        goal_force_factor: 2.0
+        obstacle_force_factor: 10.0
+        social_force_factor: 5.0
+        other_force_factor: 20.0
+      ATTENTION: *regular
+      SOCIAL: *regular
+      CURIOUS:
+        type: 5
+        state: 0
+        configuration: 1
+        duration: 30.0
+        once: false
+        vel: 0.8
+        dist: 1.5
+        goal_force_factor: 2.0
+        obstacle_force_factor: 10.0
+        social_force_factor: 5.0
+        other_force_factor: 20.0
+      SURPRISED:
+        type: 3
+        state: 0
+        configuration: 1
+        duration: 30.0
+        once: false
+        vel: 0.6
+        dist: 4.0
+        goal_force_factor: 2.0
+        obstacle_force_factor: 10.0
+        social_force_factor: 5.0
+        other_force_factor: 20.0
+      SCARED:
+        type: 4
+        state: 0
+        configuration: 1
+        duration: 40.0
+        once: false
+        vel: 0.6
+        dist: 3.0
+        goal_force_factor: 2.0
+        obstacle_force_factor: 10.0
+        social_force_factor: 5.0
+        other_force_factor: 20.0

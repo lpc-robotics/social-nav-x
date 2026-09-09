@@ -4,6 +4,23 @@ Original deployment handoff updated: 2026-08-28 21:55 CST. Formal-social
 delivery and activity-source integration addendum updated: 2026-09-02. Workspace:
 `/home/lpc/workspace/arena5_ws`.
 
+## Phase 4 feature development (2026-09-08, not deployed)
+
+The separate feature workspace `/home/lpc/workspace/social-nav-x-formal-v1`,
+branch `feature/formal-social-automata-phase4`, extends the completed V1 with
+exactly two independent human automata and a bounded shared SOCIAL protocol.
+The design, isolation contract, commands and verification record are in
+[`docs/formal_social_automata/PHASE4.md`](docs/formal_social_automata/PHASE4.md).
+Its build output is `.colcon-formal-phase4`; this work does not deploy Phase 4
+to the activity source/install or change the six-behavior default below.
+Implementation and verification are complete (audit 2026-09-09): Formal
+150/150, compat 20/20, Character 17/17; twelve Phase 4 GPU cases, six original
+V1 GPU cases and four shared/overlay six-behavior/Nav2 regressions pass.
+Current-source replay matches 13,466 committed frames and all 25 activity
+protection hashes still match. Consult the linked record for exact artifacts
+and limitations. Do not restart V1 or expand into HuNav v2, crowds, UPPAAL
+proofs or PPO training without a new scope decision.
+
 ## Activity source integration (2026-09-02)
 
 The formal-social sources and the validated Isaac Character frame correction

@@ -1,0 +1,59 @@
+hunav_loader:
+  ros__parameters:
+    map: formal_social_pair
+    publish_people: true
+    agents: [human_a, human_b]
+    human_a:
+      id: 1
+      skin: 0
+      group_id: -1
+      max_vel: 0.6
+      radius: 0.4
+      behavior:
+        type: 1
+        configuration: 1
+        duration: 40.0
+        once: true
+        vel: 0.6
+        dist: 0.0
+        goal_force_factor: 2.0
+        obstacle_force_factor: 10.0
+        social_force_factor: 5.0
+        other_force_factor: 20.0
+      init_pose: {x: 6.0, y: 1.8, z: 0.0, h: 1.5707963267948966}
+      goal_radius: 0.3
+      cyclic_goals: true
+      goals: [g0]
+      g0: {x: 6.0, y: 1.8, h: 1.5707963267948966}
+    human_b:
+      id: 2
+      skin: 1
+      group_id: -1
+      max_vel: 0.6
+      radius: 0.4
+      behavior:
+        type: 1
+        configuration: 1
+        duration: 40.0
+        once: true
+        vel: 0.6
+        dist: 0.0
+        goal_force_factor: 2.0
+        obstacle_force_factor: 10.0
+        social_force_factor: 5.0
+        other_force_factor: 20.0
+      init_pose: {x: 6.0, y: 4.2, z: 0.0, h: -1.5707963267948966}
+      goal_radius: 0.3
+      cyclic_goals: true
+      goals: [g0]
+      g0: {x: 6.0, y: 4.2, h: -1.5707963267948966}
+
+arena_hunav_isaac_bridge:
+  ros__parameters:
+    update_rate: 40.0
+    display_rate: 6.0
+    max_integration_step: 0.025
+    scheduler_rate: 100.0
+    character_models:
+      - original_female_adult_business_02
+      - original_female_adult_medical_01

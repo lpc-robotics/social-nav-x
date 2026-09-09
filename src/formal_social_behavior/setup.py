@@ -35,6 +35,14 @@ setup(
             "formal_social_behavior.proxy_node:main",
             "verify_formal_social_scenario = "
             "formal_social_behavior.scenario_verifier:main",
+            "formal_social_multi_proxy = "
+            "formal_social_behavior.multi_agent.proxy_node:main",
+            "export_formal_social_multi_model = "
+            "formal_social_behavior.multi_agent.model_export:main",
+            "replay_formal_social_multi = "
+            "formal_social_behavior.multi_agent.replay:main",
+            "verify_formal_social_multi_scenario = "
+            "formal_social_behavior.multi_agent.scenario_verifier:main",
         ],
     },
 )

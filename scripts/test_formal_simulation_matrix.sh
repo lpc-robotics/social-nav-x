@@ -38,7 +38,7 @@ exec > >(tee "$MATRIX_ROOT/matrix.log") 2>&1
 echo "Formal acceptance matrix: $MATRIX_ROOT"
 echo "GPU: $GPU_ID; domain base: $DOMAIN_BASE"
 
-KEY_MANIFEST="/home/lpc/workspace/arena5_ws_archives/20260829_164103_full_workspace_pre_log_cleanup/KEY_SHA256SUMS"
+KEY_MANIFEST="${FORMAL_BASELINE_MANIFEST:-/home/lpc/workspace/arena5_ws_archives/20260829_164103_full_workspace_pre_log_cleanup/KEY_SHA256SUMS}"
 PROTECTED_PATHS=(
     "$BASE_WS/config/generated/jackal.urdf"
     "$BASE_WS/scripts/run_six_behaviors.sh"
