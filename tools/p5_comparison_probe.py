@@ -139,24 +139,30 @@ class ComparisonProbe(Node):
         if not self.parameters.wait_for_service(timeout_sec=60.0):
             raise RuntimeError("controller parameter service unavailable")
         request = GetParameters.Request()
+        speed_parameter = (
+            "FollowPath.max_vel_x"
+            if self.args.method == "dwb"
+            else "FollowPath.max_linear"
+        )
         request.names = [
             "controller_plugins",
             "FollowPath.plugin",
-            "FollowPath.max_vel_x",
-            "FollowPath.max_linear",
+            speed_parameter,
         ]
         future = self.parameters.call_async(request)
         if not self.spin_until(future.done, 5.0):
             raise RuntimeError("controller parameter request timed out")
         values = future.result().values
+        if len(values) != len(request.names):
+            raise RuntimeError(
+                "controller parameter response length mismatch: "
+                f"requested {len(request.names)}, received {len(values)}"
+            )
         return {
             "controller_plugins": list(values[0].string_array_value),
             "follow_path_plugin": values[1].string_value,
-            "configured_max_linear_mps": (
-                values[2].double_value
-                if self.args.method == "dwb"
-                else values[3].double_value
-            ),
+            "speed_parameter": speed_parameter,
+            "configured_max_linear_mps": values[2].double_value,
         }
 
     def costmap_parameters(self):
@@ -173,6 +179,11 @@ class ComparisonProbe(Node):
             if not self.spin_until(future.done, 5.0):
                 raise RuntimeError(f"{label} costmap parameter request timed out")
             values = future.result().values
+            if len(values) != len(request.names):
+                raise RuntimeError(
+                    f"{label} costmap parameter response length mismatch: "
+                    f"requested {len(request.names)}, received {len(values)}"
+                )
             result[label] = {
                 "plugins": list(values[0].string_array_value),
                 "footprint": values[1].string_value,
