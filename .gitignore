@@ -6,5 +6,6 @@
 /.conda/
 /.cache/
 /vendor/
+/audit/final.diff
 __pycache__/
 *.pyc
