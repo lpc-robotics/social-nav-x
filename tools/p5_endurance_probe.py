@@ -205,6 +205,7 @@ class EnduranceProbe(Node):
         end_wall = start_wall + self.args.duration
         completed = []
         goal_index = 0
+        timed_out_goals = 0
         cancelled_at_end = False
         while time.monotonic() < end_wall:
             target_x = (3.6, 3.0)[goal_index % 2]
@@ -229,11 +230,26 @@ class EnduranceProbe(Node):
                 goal_index += 1
                 continue
             cancel = handle.cancel_goal_async()
-            self.spin_until(cancel.done, 5.0)
+            if not self.spin_until(cancel.done, 5.0):
+                raise RuntimeError("endurance goal cancellation timed out")
             if time.monotonic() >= end_wall:
                 cancelled_at_end = True
                 break
-            raise RuntimeError("endurance goal exceeded per-goal timeout")
+            response = cancel.result()
+            if response is None or not response.goals_canceling:
+                raise RuntimeError("endurance goal cancellation was rejected")
+            if not self.spin_until(result.done, 10.0):
+                raise RuntimeError("cancelled endurance goal did not terminate")
+            completed.append(
+                {
+                    "target_x": target_x,
+                    "status": result.result().status,
+                    "elapsed_wall_s": time.monotonic() - start_wall,
+                    "timed_out": True,
+                }
+            )
+            timed_out_goals += 1
+            goal_index += 1
 
         self.spin_until(lambda: False, 0.5)
         wall_duration = time.monotonic() - start_wall
@@ -330,6 +346,7 @@ class EnduranceProbe(Node):
             "completed_goal_count": len(completed),
             "successful_goal_count": success_count,
             "non_successful_goal_count": non_success_count,
+            "timed_out_goal_count": timed_out_goals,
             "cancelled_active_goal_at_end": cancelled_at_end,
             "outputs_finite": finite,
             "output_samples": len(self.outputs),
