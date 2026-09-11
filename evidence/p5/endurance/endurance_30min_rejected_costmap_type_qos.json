@@ -1,0 +1,4 @@
+{
+  "error": "MPC runtime did not become ready: missing ['local_costmap']",
+  "pass": false
+}

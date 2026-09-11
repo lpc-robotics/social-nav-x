@@ -17,9 +17,11 @@ from hunav_msgs.msg import Agents
 from lifecycle_msgs.msg import State
 from lifecycle_msgs.srv import GetState
 from nav2_msgs.action import NavigateToPose
-from nav_msgs.msg import OccupancyGrid, Odometry
+from nav2_msgs.msg import Costmap
+from nav_msgs.msg import Odometry
 from rclpy.action import ActionClient
 from rclpy.node import Node
+from rclpy.qos import DurabilityPolicy, HistoryPolicy, QoSProfile, ReliabilityPolicy
 from sensor_msgs.msg import LaserScan
 from std_msgs.msg import String
 
@@ -62,8 +64,14 @@ class EnduranceProbe(Node):
         self.create_subscription(Odometry, "/odom", self.on_odom, 50)
         self.create_subscription(Agents, "/human_states", self.on_humans, 20)
         self.create_subscription(LaserScan, "/lidar", self.on_lidar, 20)
+        costmap_qos = QoSProfile(
+            history=HistoryPolicy.KEEP_LAST,
+            depth=1,
+            reliability=ReliabilityPolicy.RELIABLE,
+            durability=DurabilityPolicy.TRANSIENT_LOCAL,
+        )
         self.create_subscription(
-            OccupancyGrid, "/local_costmap/costmap_raw", self.on_costmap, 20
+            Costmap, "/local_costmap/costmap_raw", self.on_costmap, costmap_qos
         )
         self.create_subscription(Twist, "/cmd_vel_nav", self.on_raw, 50)
         self.create_subscription(Twist, "/cmd_vel", self.on_output, 50)
