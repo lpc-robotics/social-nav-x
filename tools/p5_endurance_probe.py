@@ -163,10 +163,21 @@ class EnduranceProbe(Node):
             and len(self.latest_humans.agents) == 6
             and self.latest_lidar is not None
             and self.latest_costmap is not None,
-            120.0,
+            self.args.startup_timeout,
         )
-        if not ready or not self.navigation.wait_for_server(timeout_sec=60.0):
-            raise RuntimeError("MPC runtime did not become ready")
+        if not ready:
+            missing = []
+            if self.latest_odom is None:
+                missing.append("odom")
+            if self.latest_humans is None or len(self.latest_humans.agents) != 6:
+                missing.append("six-agent human_states")
+            if self.latest_lidar is None:
+                missing.append("lidar")
+            if self.latest_costmap is None:
+                missing.append("local_costmap")
+            raise RuntimeError(f"MPC runtime did not become ready: missing {missing}")
+        if not self.navigation.wait_for_server(timeout_sec=60.0):
+            raise RuntimeError("navigate_to_pose server unavailable")
         self.wait_navigation_active()
 
         initial_stamp = self.latest_odom.header.stamp
@@ -339,6 +350,7 @@ class EnduranceProbe(Node):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--duration", type=float, default=1800.0)
+    parser.add_argument("--startup-timeout", type=float, default=180.0)
     parser.add_argument("--goal-timeout", type=float, default=180.0)
     parser.add_argument("--minimum-goals", type=int, default=10)
     parser.add_argument("--output", type=Path, required=True)

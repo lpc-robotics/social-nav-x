@@ -1,0 +1,83 @@
+{
+  "action_status": 4,
+  "command_samples": 158,
+  "command_total_variation": 3.1339473684210524,
+  "controller": {
+    "configured_max_linear_mps": 0.26,
+    "controller_plugins": [
+      "FollowPath"
+    ],
+    "follow_path_plugin": "dwb_core::DWBLocalPlanner",
+    "speed_parameter": "FollowPath.max_vel_x"
+  },
+  "costmaps": {
+    "global": {
+      "footprint": "[ [0.1, 0.1], [0.1, -0.1], [-0.1, -0.1], [-0.1, 0.1] ]",
+      "plugins": [
+        "static_layer",
+        "inflation_layer"
+      ]
+    },
+    "local": {
+      "footprint": "[ [0.1, 0.1], [0.1, -0.1], [-0.1, -0.1], [-0.1, 0.1] ]",
+      "plugins": [
+        "voxel_layer",
+        "inflation_layer"
+      ]
+    }
+  },
+  "end": [
+    3.3732779026031494,
+    3.0023059844970703,
+    0.042118593262460646
+  ],
+  "lidar_samples": 22,
+  "maximum_abs_angular_command_rps": 0.1578947368421052,
+  "maximum_abs_linear_command_mps": 0.26000000000000006,
+  "method": "dwb",
+  "mpc_costmap_gate": true,
+  "order": 1,
+  "outputs_finite": true,
+  "pair": 5,
+  "pass": true,
+  "path_length_m": 0.3733093738099094,
+  "plugin_matches_method": true,
+  "position_error_m": 0.2267338241474522,
+  "run_metadata": {
+    "config_path": "/home/lpc/workspace/arena5_ws/install/arena_bringup/share/arena_bringup/configs/hunav_agents/isaac_six_behaviors_warehouse.yaml",
+    "config_sha256": "ac77047d69256d71fadca0aa958848cb9b30a0b15e3fcf91275514fc1a748b67",
+    "gpu_index": 2,
+    "gpu_snapshot_csv": "2, GPU-2d2c45be-6725-97f3-d624-8fe61cd7ef64, 24564, 1823, 22259",
+    "ideal_chassis": "true",
+    "launch_log": "/home/lpc/workspace/arena5_mpc_ws/evidence/p5/comparison/pair5_1_dwb_launch.log",
+    "physics_dt_s": 0.016666666666666666,
+    "probe_sha256": "c3fd2dbf2041793df8d79fe646c7d518929a2339fb324d92498320a5a8cbe256",
+    "ros_domain_id": 160,
+    "source_revision": "stable-manifest:e9207fbf03c66883458f2f394f06bea2530f6ccf0f838514a5cca1bf2a8075a4"
+  },
+  "safety": {
+    "aligned_human_samples": 78,
+    "maximum_human_stamp_gap_s": 0.025,
+    "maximum_odom_bracket_s": 0.016666668000000003,
+    "minimum_clearance_lower_bound_m": 0.5220857798352849,
+    "minimum_measured_clearance_by_id_m": {
+      "1": 11.755120298962261,
+      "2": 6.659736503889357,
+      "3": 2.7615249389504255,
+      "4": 1.8306488230653515,
+      "5": 4.046491796937555,
+      "6": 0.5638325641600399
+    },
+    "minimum_measured_footprint_human_clearance_m": 0.5638325641600399,
+    "sampling_alignment_error_bound_m": 0.04174678432475498
+  },
+  "simulation_duration_s": 1.9500001020000002,
+  "speed_limit_matches_pairing": true,
+  "target": [
+    3.6,
+    3.0,
+    0.0
+  ],
+  "wall_duration_s": 8.167481221724302,
+  "yaw_error_rad": 0.042118593262460646
+}

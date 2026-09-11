@@ -51,6 +51,7 @@ set -u
 
 python "$MPC_WS/tools/p5_endurance_probe.py" \
     --duration "$DURATION" \
+    --startup-timeout "${P5_STARTUP_TIMEOUT:-180}" \
     --goal-timeout 180 \
     --minimum-goals "${P5_MINIMUM_GOALS:-10}" \
     --output "$OUTPUT" \
