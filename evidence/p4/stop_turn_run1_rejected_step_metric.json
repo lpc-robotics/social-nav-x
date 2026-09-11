@@ -1,0 +1,106 @@
+{
+  "action_status": 4,
+  "backlog_delay_s": 0.25,
+  "backlog_injections": 0,
+  "controller_failure_counts": {},
+  "controller_mode_counts": {
+    "human_wait": 85,
+    "track": 842
+  },
+  "controller_wait_reason_counts": {
+    "dynamic_postcheck": 81,
+    "solver_timeout": 4
+  },
+  "cycle_ms_max": 85.4788,
+  "cycle_ms_p95": 58.1498,
+  "end": [
+    7.99669075012207,
+    2.9566147327423096,
+    0.24057064449246307
+  ],
+  "expected_agents": 6,
+  "id_change_injections": 0,
+  "interaction_distance_gate_m": 1.5,
+  "outputs_finite": true,
+  "pass": false,
+  "position_error_m": 0.043511292209905725,
+  "safety": {
+    "aligned_human_samples": 1224,
+    "clearance_samples": 7344,
+    "closest_sample": {
+      "human": [
+        5.214373029503512,
+        3.0276102944324585,
+        0.4000000059604645
+      ],
+      "human_id": 101,
+      "robot": [
+        4.073841959548652,
+        2.891425455100091,
+        -0.7545178239179403
+      ],
+      "stamp_ns": 10258333340
+    },
+    "human_speed_bound_mps": 0.25000000000000006,
+    "id_set_change_count": 0,
+    "ids_seen": [
+      101,
+      102,
+      103,
+      104,
+      105,
+      106
+    ],
+    "maximum_human_stamp_gap_s": 0.025,
+    "maximum_odom_bracket_s": 0.016666668000000003,
+    "maximum_step_velocity_heading_change_by_id_rad": {
+      "101": 1.3784506989098866,
+      "102": 3.137684506835778,
+      "103": 0.03647176701196875,
+      "104": 0.28860991159497984,
+      "105": 1.893553385793725,
+      "106": 2.4635113189786804
+    },
+    "maximum_step_velocity_heading_change_rad": 3.137684506835778,
+    "minimum_clearance_lower_bound_by_id_m": {
+      "101": 0.4066402806391092,
+      "102": 18.73547242373455,
+      "103": 0.7233204332076912,
+      "104": 0.6136053039265987,
+      "105": 23.973181960188704,
+      "106": 23.665289477494273
+    },
+    "minimum_clearance_lower_bound_m": 0.4066402806391092,
+    "minimum_measured_clearance_by_id_m": {
+      "101": 0.42696478961120166,
+      "102": 18.75579693270664,
+      "103": 0.7436449421797837,
+      "104": 0.6339298128986912,
+      "105": 23.993506469160796,
+      "106": 23.685613986466365
+    },
+    "minimum_measured_footprint_human_clearance_m": 0.42696478961120166,
+    "sampling_alignment_error_bound_m": 0.020324508972092488,
+    "stopped_after_motion_ids": [
+      101,
+      102,
+      103,
+      104,
+      105,
+      106
+    ]
+  },
+  "scenario": "stop_turn",
+  "simulation_duration_s": 30.600001596000002,
+  "solver_ms_max": 83.2633,
+  "solver_ms_p50": 40.4432,
+  "solver_ms_p95": 56.1746,
+  "solver_samples": 927,
+  "target": [
+    8.0,
+    3.0,
+    0.0
+  ],
+  "wall_duration_s": 93.76202094601467,
+  "yaw_error_rad": 0.24057064449246307
+}

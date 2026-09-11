@@ -6,8 +6,8 @@ STABLE_WS="${ARENA_STABLE_WS:-/home/lpc/workspace/arena5_ws}"
 SCENARIO="${1:?usage: run_p3_scenario.sh SCENARIO}"
 DOMAIN="${P3_DOMAIN:?set P3_DOMAIN to a private ROS domain}"
 GPU="${GPU_ID:-0}"
-OUTPUT="$MPC_WS/evidence/p3/${SCENARIO}.json"
-LAUNCH_LOG="$MPC_WS/evidence/p3/${SCENARIO}_launch.log"
+OUTPUT="${P3_OUTPUT:-$MPC_WS/evidence/p3/${SCENARIO}.json}"
+LAUNCH_LOG="${P3_LAUNCH_LOG:-$MPC_WS/evidence/p3/${SCENARIO}_launch.log}"
 
 mkdir -p "$MPC_WS/evidence/p3"
 

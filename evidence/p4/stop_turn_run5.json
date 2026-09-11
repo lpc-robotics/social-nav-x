@@ -1,0 +1,129 @@
+{
+  "action_status": 4,
+  "backlog_delay_s": 0.25,
+  "backlog_injections": 0,
+  "bt_default_server_timeout_ms": 500,
+  "controller_failure_counts": {},
+  "controller_mode_counts": {
+    "track": 691
+  },
+  "controller_wait_reason_counts": {},
+  "cycle_ms_max": 74.8634,
+  "cycle_ms_p95": 48.4798,
+  "end": [
+    7.780056953430176,
+    2.9999983310699463,
+    3.9653891035242915e-06
+  ],
+  "expected_agents": 6,
+  "id_change_injections": 0,
+  "interaction_distance_gate_m": 1.5,
+  "outputs_finite": true,
+  "pass": true,
+  "position_error_m": 0.21994304657615615,
+  "progress_movement_time_allowance_s": 30.0,
+  "run_metadata": {
+    "config_path": "/home/lpc/workspace/arena5_mpc_ws/src/arena_mpc_bringup/config/hunav/p4_stop_turn.yaml",
+    "config_sha256": "802a78254e8f2d54e8b6dec4bce42b11652c02fd6dd372b00e116e48d91bfc11",
+    "controller_config_sha256": "78f27edd6cc997bcabe90cb3b9c398073ea85265a46a96a7e26d65c323400283",
+    "controller_source_sha256": "cc2d2b8088a6cc29cb5c2cf9b67efb9a71990ca877e7c8dd1f522dabb46f979e",
+    "foxglove_port": 9214,
+    "git_head": "b0a18f0ab89745ec7776c8e0be188471f9a62e73",
+    "gpu_index": 0,
+    "gpu_snapshot_csv": "0, GPU-cff28fa1-3402-3702-126b-d0cb66a69fb6, 24564, 7590, 16492",
+    "launch_log": "/home/lpc/workspace/arena5_mpc_ws/evidence/p4/stop_turn_run5_launch.log",
+    "launch_sha256": "0d0aba0fd223a6ee8552525147d54b993b287cf8f56cb479c7319260c5d0712f",
+    "nav2_overrides_sha256": "bc6db58746f264c40567968db07463768de4c0dca16c4159d40081d7eae8b794",
+    "probe_sha256": "8b02a78d97ebb82e2ed361355c2b430a2bf0a805a4be444ba1d87d7ed4bd13f0",
+    "ros_domain_id": 114,
+    "webrtc_media_port": 48614,
+    "webrtc_signal_port": 49614
+  },
+  "safety": {
+    "aligned_human_samples": 869,
+    "clearance_samples": 5214,
+    "closest_sample": {
+      "human": [
+        5.091858439919841,
+        4.178642805252178,
+        0.4000000059604645
+      ],
+      "human_id": 103,
+      "robot": [
+        4.6939581814669245,
+        2.9998598099018667,
+        -0.0002762057446122393
+      ],
+      "stamp_ns": 8983333340
+    },
+    "human_speed_bound_mps": 0.25,
+    "id_set_change_count": 0,
+    "ids_seen": [
+      101,
+      102,
+      103,
+      104,
+      105,
+      106
+    ],
+    "maximum_human_stamp_gap_s": 0.033334487,
+    "maximum_odom_bracket_s": 0.016666668000000003,
+    "maximum_step_velocity_heading_change_by_id_rad": {
+      "101": 3.141290254265133,
+      "102": 3.138819547554856,
+      "103": 0.07915020087182656,
+      "104": 0.2784736775229655,
+      "105": 1.893872516869177,
+      "106": 2.46346385510014
+    },
+    "maximum_step_velocity_heading_change_rad": 3.141290254265133,
+    "maximum_velocity_heading_excursion_by_id_rad": {
+      "101": 3.143529536772566,
+      "102": 6.285639923846406,
+      "103": 0.36699928895526623,
+      "104": 1.4887407877316543,
+      "105": 6.299498627193643,
+      "106": 3.7773426298083184
+    },
+    "minimum_clearance_lower_bound_by_id_m": {
+      "101": 17.364544940642833,
+      "102": 19.47082055612228,
+      "103": 0.5479471459919205,
+      "104": 1.1950513031077785,
+      "105": 23.164979650345444,
+      "106": 24.564901427886912
+    },
+    "minimum_clearance_lower_bound_m": 0.5479471459919205,
+    "minimum_measured_clearance_by_id_m": {
+      "101": 17.38835149998626,
+      "102": 19.494627115465708,
+      "103": 0.5717537053353483,
+      "104": 1.2188578624512063,
+      "105": 23.18878620968887,
+      "106": 24.58870798723034
+    },
+    "minimum_measured_footprint_human_clearance_m": 0.5717537053353483,
+    "sampling_alignment_error_bound_m": 0.023806559343427743,
+    "stopped_after_motion_ids": [
+      101,
+      102,
+      103,
+      104,
+      105,
+      106
+    ]
+  },
+  "scenario": "stop_turn",
+  "simulation_duration_s": 21.750001134,
+  "solver_ms_max": 72.5656,
+  "solver_ms_p50": 38.2509,
+  "solver_ms_p95": 46.1424,
+  "solver_samples": 691,
+  "target": [
+    8.0,
+    3.0,
+    0.0
+  ],
+  "wall_duration_s": 70.04021590808406,
+  "yaw_error_rad": 3.9653891035242915e-06
+}

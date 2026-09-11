@@ -1,0 +1,151 @@
+{
+  "action_status": 4,
+  "backlog_delay_s": 0.25,
+  "backlog_injections": 0,
+  "controller_failure_counts": {
+    "HuNav input changed during final postcheck": 1,
+    "input expired before command commit human_age=0.000801556 odom_age=0.433844 lidar_age=0.106719": 1,
+    "input expired before command commit human_age=0.00267208 odom_age=0.428947 lidar_age=0.122191": 1,
+    "input expired before command commit human_age=0.0186469 odom_age=0.403902 lidar_age=0.268728": 1,
+    "input expired before command commit human_age=0.0367976 odom_age=0.413071 lidar_age=0.0675282": 1,
+    "input expired before command commit human_age=0.0368802 odom_age=0.414938 lidar_age=0.180118": 1,
+    "input expired before command commit human_age=0.040182 odom_age=0.405143 lidar_age=0.151532": 1,
+    "input expired before command commit human_age=0.044087 odom_age=0.404921 lidar_age=0.118855": 1,
+    "input expired before command commit human_age=0.0598452 odom_age=0.418846 lidar_age=0.0823991": 1,
+    "input expired before command commit human_age=0.0740219 odom_age=0.429754 lidar_age=0.26596": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.00545345 odom_age=0.430557 lidar_age=0.0353795": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.0170318 odom_age=0.515511 lidar_age=0.044729": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.0173054 odom_age=0.512948 lidar_age=0.293945": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.0177436 odom_age=0.430955 lidar_age=0.0496761": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.025482 odom_age=0.429176 lidar_age=0.0881612": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.0256857 odom_age=0.485902 lidar_age=0.149455": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.026468 odom_age=0.41483 lidar_age=0.325362": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.0272339 odom_age=0.424298 lidar_age=0.114843": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.0369806 odom_age=0.425086 lidar_age=0.0652278": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.0470519 odom_age=0.415908 lidar_age=0.257248": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.0567866 odom_age=0.416555 lidar_age=0.0736861": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.0575255 odom_age=0.530383 lidar_age=0.135205": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.058438 odom_age=0.452339 lidar_age=0.271137": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.0968558 odom_age=0.424358 lidar_age=0.122163": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.107441 odom_age=0.412995 lidar_age=0.193993": 1
+  },
+  "controller_mode_counts": {
+    "track": 928
+  },
+  "controller_wait_reason_counts": {},
+  "cycle_ms_max": 68.3273,
+  "cycle_ms_p95": 50.3465,
+  "end": [
+    7.985925674438477,
+    3.041832685470581,
+    -0.24177143837928877
+  ],
+  "expected_agents": 6,
+  "id_change_injections": 0,
+  "interaction_distance_gate_m": 1.5,
+  "outputs_finite": true,
+  "pass": true,
+  "position_error_m": 0.044136835111869034,
+  "run_metadata": {
+    "config_path": "/home/lpc/workspace/arena5_mpc_ws/src/arena_mpc_bringup/config/hunav/p4_same_direction.yaml",
+    "config_sha256": "023af1d072df689e0e63e584e195c24331d38af8516e35947a848a04342c0b6a",
+    "controller_source_sha256": "1eb2905e6fe5eebca8ff051c5722e90feeab65d141b29614190288490b9a1ead",
+    "foxglove_port": 9242,
+    "git_head": "b0a18f0ab89745ec7776c8e0be188471f9a62e73",
+    "gpu_index": 0,
+    "gpu_snapshot_csv": "0, GPU-cff28fa1-3402-3702-126b-d0cb66a69fb6, 24564, 636, 23446",
+    "launch_log": "/home/lpc/workspace/arena5_mpc_ws/evidence/p4/same_direction_run2_launch.log",
+    "launch_sha256": "0d0aba0fd223a6ee8552525147d54b993b287cf8f56cb479c7319260c5d0712f",
+    "probe_sha256": "f4878cf22bdf927259505814521813c4537862355a69ff6ec5a9b9439c24a8e2",
+    "ros_domain_id": 142,
+    "webrtc_media_port": 48642,
+    "webrtc_signal_port": 49642
+  },
+  "safety": {
+    "aligned_human_samples": 1397,
+    "clearance_samples": 8382,
+    "closest_sample": {
+      "human": [
+        4.221371363947695,
+        3.0,
+        0.4000000059604645
+      ],
+      "human_id": 101,
+      "robot": [
+        3.0,
+        3.0,
+        0.0
+      ],
+      "stamp_ns": 558333348
+    },
+    "human_speed_bound_mps": 0.2000000029802323,
+    "id_set_change_count": 0,
+    "ids_seen": [
+      101,
+      102,
+      103,
+      104,
+      105,
+      106
+    ],
+    "maximum_human_stamp_gap_s": 0.025,
+    "maximum_odom_bracket_s": 0.016666668000000003,
+    "maximum_step_velocity_heading_change_by_id_rad": {
+      "101": 0.35459101942864757,
+      "102": 2.9309434351571455,
+      "103": 2.914988884512595,
+      "104": 3.0004573715882654,
+      "105": 0.9043736127298487,
+      "106": 2.6580624393268706
+    },
+    "maximum_step_velocity_heading_change_rad": 3.0004573715882654,
+    "maximum_velocity_heading_excursion_by_id_rad": {
+      "101": 0.7130041667955345,
+      "102": 3.2107482674893557,
+      "103": 3.2168255082728225,
+      "104": 12.631185880978805,
+      "105": 6.524774755879761,
+      "106": 4.045636367365209
+    },
+    "minimum_clearance_lower_bound_by_id_m": {
+      "101": 0.5616718489778848,
+      "102": 18.79625461409758,
+      "103": 20.720302112595583,
+      "104": 21.555886373285364,
+      "105": 24.120363178531218,
+      "106": 23.589432257139094
+    },
+    "minimum_clearance_lower_bound_m": 0.5616718489778848,
+    "minimum_measured_clearance_by_id_m": {
+      "101": 0.5813713579872302,
+      "102": 18.815954123106927,
+      "103": 20.74000162160493,
+      "104": 21.57558588229471,
+      "105": 24.140062687540564,
+      "106": 23.60913176614844
+    },
+    "minimum_measured_footprint_human_clearance_m": 0.5813713579872302,
+    "sampling_alignment_error_bound_m": 0.019699509009345393,
+    "stopped_after_motion_ids": [
+      101,
+      102,
+      103,
+      104,
+      105,
+      106
+    ]
+  },
+  "scenario": "same_direction",
+  "simulation_duration_s": 34.933335155,
+  "solver_ms_max": 67.6349,
+  "solver_ms_p50": 39.948949999999996,
+  "solver_ms_p95": 49.1455,
+  "solver_samples": 928,
+  "target": [
+    8.0,
+    3.0,
+    0.0
+  ],
+  "wall_duration_s": 96.38877075025812,
+  "yaw_error_rad": 0.24177143837928877
+}

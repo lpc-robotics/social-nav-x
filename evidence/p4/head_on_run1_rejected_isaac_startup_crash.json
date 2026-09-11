@@ -1,0 +1,5 @@
+{
+  "error": "timed out waiting for odom and expected HuNav state",
+  "pass": false,
+  "scenario": "head_on"
+}

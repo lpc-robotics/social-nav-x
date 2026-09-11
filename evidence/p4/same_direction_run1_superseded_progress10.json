@@ -1,0 +1,127 @@
+{
+  "action_status": 4,
+  "backlog_delay_s": 0.25,
+  "backlog_injections": 0,
+  "bt_default_server_timeout_ms": 500,
+  "controller_failure_counts": {},
+  "controller_mode_counts": {
+    "track": 587
+  },
+  "controller_wait_reason_counts": {},
+  "cycle_ms_max": 72.689,
+  "cycle_ms_p95": 42.0732,
+  "end": [
+    7.780941009521484,
+    2.9998488426208496,
+    -0.00025617159824425163
+  ],
+  "expected_agents": 6,
+  "id_change_injections": 0,
+  "interaction_distance_gate_m": 1.5,
+  "outputs_finite": true,
+  "pass": true,
+  "position_error_m": 0.21905904263010845,
+  "run_metadata": {
+    "config_path": "/home/lpc/workspace/arena5_mpc_ws/src/arena_mpc_bringup/config/hunav/p4_same_direction.yaml",
+    "config_sha256": "c04dfc67f8e2a997d99bfa8472dccebbea6393425fe8eca80240d516290eaad8",
+    "controller_config_sha256": "78f27edd6cc997bcabe90cb3b9c398073ea85265a46a96a7e26d65c323400283",
+    "controller_source_sha256": "cc2d2b8088a6cc29cb5c2cf9b67efb9a71990ca877e7c8dd1f522dabb46f979e",
+    "foxglove_port": 9262,
+    "git_head": "b0a18f0ab89745ec7776c8e0be188471f9a62e73",
+    "gpu_index": 0,
+    "gpu_snapshot_csv": "0, GPU-cff28fa1-3402-3702-126b-d0cb66a69fb6, 24564, 45, 24037",
+    "launch_log": "/home/lpc/workspace/arena5_mpc_ws/evidence/p4/same_direction_run1_launch.log",
+    "launch_sha256": "0d0aba0fd223a6ee8552525147d54b993b287cf8f56cb479c7319260c5d0712f",
+    "nav2_overrides_sha256": "25e90bff609542a2c2728dcd49ed2a522d9b132825d8db84c825ce88c536cb43",
+    "probe_sha256": "2d481c028e7f73ed413316b1df5233413eb9dcbe760d964196f092dbf49a7391",
+    "ros_domain_id": 162,
+    "webrtc_media_port": 48662,
+    "webrtc_signal_port": 49662
+  },
+  "safety": {
+    "aligned_human_samples": 892,
+    "clearance_samples": 5352,
+    "closest_sample": {
+      "human": [
+        8.188940687942779,
+        4.286060017614549,
+        0.4000000059604645
+      ],
+      "human_id": 101,
+      "robot": [
+        7.7767680339924565,
+        2.9998500347647714,
+        -0.0002561713070036576
+      ],
+      "stamp_ns": 22933333340
+    },
+    "human_speed_bound_mps": 0.2000000029802323,
+    "id_set_change_count": 0,
+    "ids_seen": [
+      101,
+      102,
+      103,
+      104,
+      105,
+      106
+    ],
+    "maximum_human_stamp_gap_s": 0.025,
+    "maximum_odom_bracket_s": 0.016666668000000003,
+    "maximum_step_velocity_heading_change_by_id_rad": {
+      "101": 0.011757648608574785,
+      "102": 2.9309434351571455,
+      "103": 2.914988884512596,
+      "104": 2.835520749140971,
+      "105": 0.9043736127298487,
+      "106": 2.4549479009758812
+    },
+    "maximum_step_velocity_heading_change_rad": 2.9309434351571455,
+    "maximum_velocity_heading_excursion_by_id_rad": {
+      "101": 0.1006312718580207,
+      "102": 3.2347593962420795,
+      "103": 3.241781313343178,
+      "104": 6.278965008840543,
+      "105": 3.5604550445147565,
+      "106": 4.096999975160356
+    },
+    "minimum_clearance_lower_bound_by_id_m": {
+      "101": 0.6603740345653829,
+      "102": 19.55245885798586,
+      "103": 20.498993180930505,
+      "104": 22.347613244737556,
+      "105": 23.129840491052725,
+      "106": 24.63555912849491
+    },
+    "minimum_clearance_lower_bound_m": 0.6603740345653829,
+    "minimum_measured_clearance_by_id_m": {
+      "101": 0.6800735435747283,
+      "102": 19.572158366995208,
+      "103": 20.51869268993985,
+      "104": 22.3673127537469,
+      "105": 23.14954000006207,
+      "106": 24.655258637504257
+    },
+    "minimum_measured_footprint_human_clearance_m": 0.6800735435747283,
+    "sampling_alignment_error_bound_m": 0.019699509009345393,
+    "stopped_after_motion_ids": [
+      102,
+      103,
+      104,
+      105,
+      106
+    ]
+  },
+  "scenario": "same_direction",
+  "simulation_duration_s": 22.31666783,
+  "solver_ms_max": 70.4434,
+  "solver_ms_p50": 36.8655,
+  "solver_ms_p95": 39.8304,
+  "solver_samples": 587,
+  "target": [
+    8.0,
+    3.0,
+    0.0
+  ],
+  "wall_duration_s": 59.735352887772024,
+  "yaw_error_rad": 0.00025617159824425163
+}

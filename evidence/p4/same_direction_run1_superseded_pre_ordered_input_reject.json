@@ -1,0 +1,127 @@
+{
+  "action_status": 4,
+  "backlog_delay_s": 0.25,
+  "backlog_injections": 0,
+  "bt_default_server_timeout_ms": 500,
+  "controller_failure_counts": {},
+  "controller_mode_counts": {
+    "track": 606
+  },
+  "controller_wait_reason_counts": {},
+  "cycle_ms_max": 55.6688,
+  "cycle_ms_p95": 45.4981,
+  "end": [
+    7.773237705230713,
+    2.999824285507202,
+    -0.0001857120092699121
+  ],
+  "expected_agents": 6,
+  "id_change_injections": 0,
+  "interaction_distance_gate_m": 1.5,
+  "outputs_finite": true,
+  "pass": true,
+  "position_error_m": 0.2267623628484587,
+  "run_metadata": {
+    "config_path": "/home/lpc/workspace/arena5_mpc_ws/src/arena_mpc_bringup/config/hunav/p4_same_direction.yaml",
+    "config_sha256": "c04dfc67f8e2a997d99bfa8472dccebbea6393425fe8eca80240d516290eaad8",
+    "controller_config_sha256": "78f27edd6cc997bcabe90cb3b9c398073ea85265a46a96a7e26d65c323400283",
+    "controller_source_sha256": "9cff9195dc670bbe9845f26b0cb0418f2ac547f8d832d26dfdfbccfd0a343caf",
+    "foxglove_port": 9322,
+    "git_head": "b0a18f0ab89745ec7776c8e0be188471f9a62e73",
+    "gpu_index": 0,
+    "gpu_snapshot_csv": "0, GPU-cff28fa1-3402-3702-126b-d0cb66a69fb6, 24564, 45, 24037",
+    "launch_log": "/home/lpc/workspace/arena5_mpc_ws/evidence/p4/same_direction_run1_launch.log",
+    "launch_sha256": "0d0aba0fd223a6ee8552525147d54b993b287cf8f56cb479c7319260c5d0712f",
+    "nav2_overrides_sha256": "25e90bff609542a2c2728dcd49ed2a522d9b132825d8db84c825ce88c536cb43",
+    "probe_sha256": "2d481c028e7f73ed413316b1df5233413eb9dcbe760d964196f092dbf49a7391",
+    "ros_domain_id": 222,
+    "webrtc_media_port": 48722,
+    "webrtc_signal_port": 49722
+  },
+  "safety": {
+    "aligned_human_samples": 828,
+    "clearance_samples": 4968,
+    "closest_sample": {
+      "human": [
+        6.817526180034215,
+        4.294160062400221,
+        0.4000000059604645
+      ],
+      "human_id": 101,
+      "robot": [
+        6.318046379674412,
+        2.99989557267354,
+        -3.809136526295239e-05
+      ],
+      "stamp_ns": 15283333348
+    },
+    "human_speed_bound_mps": 0.2000000029802323,
+    "id_set_change_count": 0,
+    "ids_seen": [
+      101,
+      102,
+      103,
+      104,
+      105,
+      106
+    ],
+    "maximum_human_stamp_gap_s": 0.025,
+    "maximum_odom_bracket_s": 0.016666668000000003,
+    "maximum_step_velocity_heading_change_by_id_rad": {
+      "101": 0.009213787341917084,
+      "102": 2.9309434351571455,
+      "103": 2.9149888845125966,
+      "104": 2.835520749140971,
+      "105": 0.9043736127298487,
+      "106": 2.1228716200466597
+    },
+    "maximum_step_velocity_heading_change_rad": 2.9309434351571455,
+    "maximum_velocity_heading_excursion_by_id_rad": {
+      "101": 0.13090791693004186,
+      "102": 3.239101631851728,
+      "103": 3.245940944672292,
+      "104": 6.278360061629161,
+      "105": 3.5345625288739124,
+      "106": 4.1054397910378455
+    },
+    "minimum_clearance_lower_bound_by_id_m": {
+      "101": 0.6854652935689604,
+      "102": 19.350352193684852,
+      "103": 20.693812262960858,
+      "104": 22.137051795420117,
+      "105": 23.40945605294533,
+      "106": 24.677157560266682
+    },
+    "minimum_clearance_lower_bound_m": 0.6854652935689604,
+    "minimum_measured_clearance_by_id_m": {
+      "101": 0.7051648025783057,
+      "102": 19.370051702694198,
+      "103": 20.713511771970204,
+      "104": 22.156751304429463,
+      "105": 23.429155561954676,
+      "106": 24.696857069276028
+    },
+    "minimum_measured_footprint_human_clearance_m": 0.7051648025783057,
+    "sampling_alignment_error_bound_m": 0.019699509009345393,
+    "stopped_after_motion_ids": [
+      102,
+      103,
+      104,
+      105,
+      106
+    ]
+  },
+  "scenario": "same_direction",
+  "simulation_duration_s": 20.700001079,
+  "solver_ms_max": 52.122,
+  "solver_ms_p50": 39.2183,
+  "solver_ms_p95": 44.2185,
+  "solver_samples": 606,
+  "target": [
+    8.0,
+    3.0,
+    0.0
+  ],
+  "wall_duration_s": 61.62479694094509,
+  "yaw_error_rad": 0.0001857120092699121
+}

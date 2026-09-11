@@ -1,0 +1,167 @@
+{
+  "action_status": 4,
+  "backlog_delay_s": 0.25,
+  "backlog_injections": 0,
+  "bt_default_server_timeout_ms": 500,
+  "controller_failure_counts": {
+    "input expired before command commit human_age=0.0136515 odom_age=0.404046 lidar_age=0.096803": 1,
+    "input expired before command commit human_age=0.014651 odom_age=0.426837 lidar_age=0.293675": 1,
+    "input expired before command commit human_age=0.0161107 odom_age=0.45242 lidar_age=0.0416451": 1,
+    "input expired before command commit human_age=0.0167326 odom_age=0.400961 lidar_age=0.201486": 1,
+    "input expired before command commit human_age=0.0172042 odom_age=0.434552 lidar_age=0.0382886": 1,
+    "input expired before command commit human_age=0.0278429 odom_age=0.432923 lidar_age=0.0486594": 1,
+    "input expired before command commit human_age=0.0297607 odom_age=0.435203 lidar_age=0.202519": 1,
+    "input expired before command commit human_age=0.0317496 odom_age=0.412223 lidar_age=0.264463": 1,
+    "input expired before command commit human_age=0.0339503 odom_age=0.426875 lidar_age=0.00742069": 1,
+    "input expired before command commit human_age=0.0399886 odom_age=0.402878 lidar_age=0.118772": 1,
+    "input expired before command commit human_age=0.0452838 odom_age=0.420542 lidar_age=0.00106119": 1,
+    "input expired before command commit human_age=0.045354 odom_age=0.421028 lidar_age=0.0704395": 1,
+    "input expired before command commit human_age=0.0497185 odom_age=0.431187 lidar_age=0.123782": 1,
+    "input expired before command commit human_age=0.0575435 odom_age=0.416223 lidar_age=0.294558": 1,
+    "input expired before command commit human_age=0.0759544 odom_age=0.410446 lidar_age=0.141388": 1,
+    "input expired before command commit human_age=0.0827892 odom_age=0.459741 lidar_age=0.157358": 1,
+    "input expired before command commit human_age=0.0857535 odom_age=0.403559 lidar_age=0.00875291": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.00412119 odom_age=0.409106 lidar_age=0.0251347": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.00451288 odom_age=0.407111 lidar_age=0.170665": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.0046286 odom_age=0.41246 lidar_age=0.0736287": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.00474099 odom_age=0.448103 lidar_age=0.117074": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.0146579 odom_age=0.540537 lidar_age=0.189949": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.0147647 odom_age=0.44051 lidar_age=0.0899218": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.0152021 odom_age=0.412077 lidar_age=0.28445": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.0152544 odom_age=0.416259 lidar_age=0.197565": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.0242492 odom_age=0.422918 lidar_age=0.0419042": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.0247475 odom_age=0.456901 lidar_age=0.146522": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.024784 odom_age=0.473514 lidar_age=0.0470597": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.0250103 odom_age=0.459009 lidar_age=0.259533": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.0251881 odom_age=0.446887 lidar_age=0.142975": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.0340789 odom_age=0.416986 lidar_age=0.24994": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.0349341 odom_age=0.471244 lidar_age=0.0604685": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.0349476 odom_age=0.475266 lidar_age=0.168023": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.0446365 odom_age=0.449717 lidar_age=0.065453": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.0633395 odom_age=0.413073 lidar_age=0.131589": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.0637581 odom_age=0.414651 lidar_age=0.140938": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.0748223 odom_age=0.640526 lidar_age=0.289938": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.0751396 odom_age=0.40705 lidar_age=0.0982641": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.0958312 odom_age=0.403731 lidar_age=0.16632": 1
+  },
+  "controller_mode_counts": {
+    "human_wait": 83,
+    "track": 239
+  },
+  "controller_wait_reason_counts": {
+    "dynamic_postcheck": 4,
+    "solver_timeout": 79
+  },
+  "cycle_ms_max": 88.2745,
+  "cycle_ms_p95": 81.2722,
+  "end": [
+    3.3751044273376465,
+    3.0,
+    -4.2145765664943e-08
+  ],
+  "expected_agents": 6,
+  "id_change_injections": 0,
+  "interaction_distance_gate_m": 1.5,
+  "outputs_finite": true,
+  "pass": true,
+  "position_error_m": 0.2248955726623536,
+  "progress_movement_time_allowance_s": 30.0,
+  "run_metadata": {
+    "config_path": "/home/lpc/workspace/arena5_ws/install/arena_bringup/share/arena_bringup/configs/hunav_agents/isaac_six_behaviors_warehouse.yaml",
+    "config_sha256": "ac77047d69256d71fadca0aa958848cb9b30a0b15e3fcf91275514fc1a748b67",
+    "controller_config_sha256": "78f27edd6cc997bcabe90cb3b9c398073ea85265a46a96a7e26d65c323400283",
+    "controller_source_sha256": "cc2d2b8088a6cc29cb5c2cf9b67efb9a71990ca877e7c8dd1f522dabb46f979e",
+    "foxglove_port": 9187,
+    "git_head": "b0a18f0ab89745ec7776c8e0be188471f9a62e73",
+    "gpu_index": 0,
+    "gpu_snapshot_csv": "0, GPU-cff28fa1-3402-3702-126b-d0cb66a69fb6, 24564, 7590, 16492",
+    "launch_log": "/home/lpc/workspace/arena5_mpc_ws/evidence/p4/six_behaviors_run2_launch.log",
+    "launch_sha256": "0d0aba0fd223a6ee8552525147d54b993b287cf8f56cb479c7319260c5d0712f",
+    "nav2_overrides_sha256": "bc6db58746f264c40567968db07463768de4c0dca16c4159d40081d7eae8b794",
+    "probe_sha256": "8b02a78d97ebb82e2ed361355c2b430a2bf0a805a4be444ba1d87d7ed4bd13f0",
+    "ros_domain_id": 87,
+    "webrtc_media_port": 48587,
+    "webrtc_signal_port": 49587
+  },
+  "safety": {
+    "aligned_human_samples": 484,
+    "clearance_samples": 2904,
+    "closest_sample": {
+      "human": [
+        4.218897450209901,
+        3.0003939989009445,
+        0.4000000059604645
+      ],
+      "human_id": 6,
+      "robot": [
+        3.0,
+        3.0,
+        0.0
+      ],
+      "stamp_ns": 1508333348
+    },
+    "human_speed_bound_mps": 2.0000000000000004,
+    "id_set_change_count": 0,
+    "ids_seen": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "maximum_human_stamp_gap_s": 0.025,
+    "maximum_odom_bracket_s": 0.016666668000000003,
+    "maximum_step_velocity_heading_change_by_id_rad": {
+      "1": 3.079418887261644,
+      "2": 3.0819042607980025,
+      "4": 2.234036638553107,
+      "5": 0.018896356386500116,
+      "6": 3.109160035690083
+    },
+    "maximum_step_velocity_heading_change_rad": 3.109160035690083,
+    "maximum_velocity_heading_excursion_by_id_rad": {
+      "1": 3.15085805046248,
+      "2": 3.150408669337933,
+      "4": 3.8083198000257648,
+      "5": 0.179603264061015,
+      "6": 3.1771567978022506
+    },
+    "minimum_clearance_lower_bound_by_id_m": {
+      "1": 8.5435827351722,
+      "2": 6.603089613640312,
+      "3": 2.7139092343920463,
+      "4": 1.7749792182872022,
+      "5": 1.440830706830326,
+      "6": 0.5366979352773437
+    },
+    "minimum_clearance_lower_bound_m": 0.5366979352773437,
+    "minimum_measured_clearance_by_id_m": {
+      "1": 8.585782244144292,
+      "2": 6.645289122612404,
+      "3": 2.756108743364139,
+      "4": 1.8171787272592947,
+      "5": 1.4830302158024187,
+      "6": 0.5788974442494361
+    },
+    "minimum_measured_footprint_human_clearance_m": 0.5788974442494361,
+    "sampling_alignment_error_bound_m": 0.04219950897209249,
+    "stopped_after_motion_ids": [
+      4,
+      6
+    ]
+  },
+  "scenario": "six_behaviors",
+  "simulation_duration_s": 12.116667298000001,
+  "solver_ms_max": 87.8894,
+  "solver_ms_p50": 42.0899,
+  "solver_ms_p95": 80.9362,
+  "solver_samples": 322,
+  "target": [
+    3.6,
+    3.0,
+    0.0
+  ],
+  "wall_duration_s": 37.00052743125707,
+  "yaw_error_rad": 4.2145765664943e-08
+}

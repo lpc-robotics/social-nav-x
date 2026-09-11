@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <memory>
 #include <mutex>
+#include <optional>
 #include <string>
 
 #include <arena_mpc_core/solver.hpp>
@@ -67,6 +68,8 @@ private:
 
   geometry_msgs::msg::TwistStamped fail(
     const std::string & reason, const std_msgs::msg::Header & header);
+  geometry_msgs::msg::TwistStamped retry_stale_path(
+    const std::string & reason, const std_msgs::msg::Header & header);
   void publish_status(const std::string & text);
   bool input_stamp_fresh(const builtin_interfaces::msg::Time & stamp) const;
   void on_humans(const hunav_msgs::msg::Agents::SharedPtr message);
@@ -105,10 +108,13 @@ private:
   double odom_wall_limit_{0.40};
   double lidar_wall_limit_{1.55};
   double plugin_commit_limit_ms_{90.0};
+  double costmap_obstacle_wait_limit_{1.0};
   double reference_spacing_{0.025};
   double geometry_uncertainty_{0.05};
+  double emergency_safe_distance_{0.30};
   double robot_circumscribed_radius_{0.326};
   int failure_limit_{5};
+  std::optional<SteadyClock::time_point> costmap_wait_started_;
   bool active_{false};
 };
 

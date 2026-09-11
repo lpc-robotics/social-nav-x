@@ -1,0 +1,127 @@
+{
+  "action_status": 4,
+  "backlog_delay_s": 0.25,
+  "backlog_injections": 0,
+  "bt_default_server_timeout_ms": 500,
+  "controller_failure_counts": {},
+  "controller_mode_counts": {
+    "track": 561
+  },
+  "controller_wait_reason_counts": {},
+  "cycle_ms_max": 71.9921,
+  "cycle_ms_p95": 43.0587,
+  "end": [
+    7.780033588409424,
+    2.9999961853027344,
+    8.967825342227646e-06
+  ],
+  "expected_agents": 6,
+  "id_change_injections": 0,
+  "interaction_distance_gate_m": 1.5,
+  "outputs_finite": true,
+  "pass": true,
+  "position_error_m": 0.21996641162365377,
+  "run_metadata": {
+    "config_path": "/home/lpc/workspace/arena5_mpc_ws/src/arena_mpc_bringup/config/hunav/p4_head_on.yaml",
+    "config_sha256": "a5ba6dccbe970b4267e5a5e40168f49d6c1b28fe65c3a0f8c521b81860fd8c6d",
+    "controller_config_sha256": "78f27edd6cc997bcabe90cb3b9c398073ea85265a46a96a7e26d65c323400283",
+    "controller_source_sha256": "9cff9195dc670bbe9845f26b0cb0418f2ac547f8d832d26dfdfbccfd0a343caf",
+    "foxglove_port": 9321,
+    "git_head": "b0a18f0ab89745ec7776c8e0be188471f9a62e73",
+    "gpu_index": 0,
+    "gpu_snapshot_csv": "0, GPU-cff28fa1-3402-3702-126b-d0cb66a69fb6, 24564, 45, 24037",
+    "launch_log": "/home/lpc/workspace/arena5_mpc_ws/evidence/p4/head_on_run1_launch.log",
+    "launch_sha256": "0d0aba0fd223a6ee8552525147d54b993b287cf8f56cb479c7319260c5d0712f",
+    "nav2_overrides_sha256": "25e90bff609542a2c2728dcd49ed2a522d9b132825d8db84c825ce88c536cb43",
+    "probe_sha256": "2d481c028e7f73ed413316b1df5233413eb9dcbe760d964196f092dbf49a7391",
+    "ros_domain_id": 221,
+    "webrtc_media_port": 48721,
+    "webrtc_signal_port": 49721
+  },
+  "safety": {
+    "aligned_human_samples": 839,
+    "clearance_samples": 5034,
+    "closest_sample": {
+      "human": [
+        5.64760788449221,
+        4.254585661210016,
+        0.4000000059604645
+      ],
+      "human_id": 101,
+      "robot": [
+        5.2903679483516415,
+        2.9998894929966973,
+        -0.0001418107895635337
+      ],
+      "stamp_ns": 11008333340
+    },
+    "human_speed_bound_mps": 0.25000000000000006,
+    "id_set_change_count": 0,
+    "ids_seen": [
+      101,
+      102,
+      103,
+      104,
+      105,
+      106
+    ],
+    "maximum_human_stamp_gap_s": 0.025001132000000002,
+    "maximum_odom_bracket_s": 0.016666668000000003,
+    "maximum_step_velocity_heading_change_by_id_rad": {
+      "101": 0.0033892147163552266,
+      "102": 2.9309434351571455,
+      "103": 2.9149888845125953,
+      "104": 2.835520749140971,
+      "105": 0.9043736127298487,
+      "106": 2.1228716200466597
+    },
+    "maximum_step_velocity_heading_change_rad": 2.9309434351571455,
+    "maximum_velocity_heading_excursion_by_id_rad": {
+      "101": 0.28496897052038905,
+      "102": 3.2370349614763567,
+      "103": 3.2439674755559436,
+      "104": 6.278658823569246,
+      "105": 3.54073627946977,
+      "106": 4.101413452026261
+    },
+    "minimum_clearance_lower_bound_by_id_m": {
+      "101": 0.6210224498025355,
+      "102": 19.372864388714305,
+      "103": 20.66071258867198,
+      "104": 22.16057202027721,
+      "105": 23.362616848554545,
+      "106": 24.69609174132452
+    },
+    "minimum_clearance_lower_bound_m": 0.6210224498025355,
+    "minimum_measured_clearance_by_id_m": {
+      "101": 0.6413474317108772,
+      "102": 19.393189370622647,
+      "103": 20.681037570580322,
+      "104": 22.180897002185553,
+      "105": 23.382941830462887,
+      "106": 24.71641672323286
+    },
+    "minimum_measured_footprint_human_clearance_m": 0.6413474317108772,
+    "sampling_alignment_error_bound_m": 0.020324981908341637,
+    "stopped_after_motion_ids": [
+      102,
+      103,
+      104,
+      105,
+      106
+    ]
+  },
+  "scenario": "head_on",
+  "simulation_duration_s": 21.000001096000002,
+  "solver_ms_max": 69.6476,
+  "solver_ms_p50": 37.0733,
+  "solver_ms_p95": 41.3331,
+  "solver_samples": 561,
+  "target": [
+    8.0,
+    3.0,
+    0.0
+  ],
+  "wall_duration_s": 57.14032127382234,
+  "yaw_error_rad": 8.967825342227646e-06
+}

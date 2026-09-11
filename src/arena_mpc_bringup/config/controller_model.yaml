@@ -7,7 +7,9 @@ controller_plugins_dict:
     horizon: 25
     dt: 0.1
     gamma: 0.2
-    safe_distance: 0.3
+    # Enforce 0.35 m internally so the measured 0.30 m net-clearance gate
+    # retains 0.05 m for prediction and command-application uncertainty.
+    safe_distance: 0.35
     terminal_weight: 1.0
     slack_weight: 50.0
     max_linear: 0.26
@@ -19,6 +21,9 @@ controller_plugins_dict:
     max_iterations: 100
     solver_budget_ms: 75.0
     plugin_commit_limit_ms: 90.0
+    # Permit a short zero-command interval for lidar marks left by a moving
+    # HuNav agent. Persistent costmap collisions still fail after this bound.
+    costmap_obstacle_wait_limit: 1.0
     transform_tolerance: 0.2
     ros_age_limit: 0.3
     human_wall_limit: 0.6
@@ -29,6 +34,9 @@ controller_plugins_dict:
     # chase an unreachable reference.
     reference_spacing: 0.025
     geometry_uncertainty: 0.05
+    # Hard floor used only when the safest available response is to brake to
+    # zero; normal planning retains the larger safe_distance above.
+    emergency_safe_distance: 0.3
     failure_limit: 5
     humans_topic: "/human_states"
     odom_topic: "/odom"

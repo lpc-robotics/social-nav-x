@@ -1,0 +1,73 @@
+{
+  "action_status": 4,
+  "controller_failure_counts": {
+    "latest HuNav update failed swept postcheck": 2
+  },
+  "cycle_ms_max": 73.9948,
+  "cycle_ms_p95": 54.7047,
+  "end": [
+    7.9947285652160645,
+    2.9572901725769043,
+    0.24091903683302587
+  ],
+  "expected_agents": 6,
+  "interaction_distance_gate_m": 1.5,
+  "outputs_finite": true,
+  "pass": true,
+  "position_error_m": 0.043033909689823714,
+  "safety": {
+    "aligned_human_samples": 1259,
+    "clearance_samples": 7554,
+    "closest_sample": {
+      "human": [
+        5.340992217927085,
+        3.379450873287515,
+        0.4000000059604645
+      ],
+      "human_id": 101,
+      "robot": [
+        4.220835647184108,
+        3.0772256588121816,
+        0.6036109531472227
+      ],
+      "stamp_ns": 10183333348
+    },
+    "human_speed_bound_mps": 0.25000000000000006,
+    "id_set_change_count": 0,
+    "ids_seen": [
+      101,
+      102,
+      103,
+      104,
+      105,
+      106
+    ],
+    "maximum_human_stamp_gap_s": 0.025001656,
+    "maximum_odom_bracket_s": 0.016666668000000003,
+    "maximum_step_velocity_heading_change_rad": 3.0004573715882654,
+    "minimum_clearance_lower_bound_m": 0.44961897607947704,
+    "minimum_measured_footprint_human_clearance_m": 0.4699441769088386,
+    "sampling_alignment_error_bound_m": 0.02032520082936156,
+    "stopped_after_motion_ids": [
+      101,
+      102,
+      103,
+      104,
+      105,
+      106
+    ]
+  },
+  "scenario": "crossing",
+  "simulation_duration_s": 31.500001643,
+  "solver_ms_max": 72.5709,
+  "solver_ms_p50": 40.34795,
+  "solver_ms_p95": 52.885,
+  "solver_samples": 926,
+  "target": [
+    8.0,
+    3.0,
+    0.0
+  ],
+  "wall_duration_s": 93.87408935185522,
+  "yaw_error_rad": 0.24091903683302585
+}

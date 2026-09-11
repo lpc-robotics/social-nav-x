@@ -1,0 +1,135 @@
+{
+  "action_status": 4,
+  "backlog_delay_s": 0.25,
+  "backlog_injections": 0,
+  "bt_default_server_timeout_ms": 500,
+  "controller_failure_counts": {
+    "input expired before command commit human_age=0.469237 odom_age=0.412438 lidar_age=0.540198": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.526907 odom_age=0.470107 lidar_age=0.597867": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.626934 odom_age=0.570135 lidar_age=0.697894": 1
+  },
+  "controller_mode_counts": {
+    "human_wait": 101,
+    "track": 857
+  },
+  "controller_wait_reason_counts": {
+    "dynamic_postcheck": 101
+  },
+  "cycle_ms_max": 75.1884,
+  "cycle_ms_p95": 56.2914,
+  "end": [
+    7.994932174682617,
+    2.9570515155792236,
+    0.23845733740145442
+  ],
+  "expected_agents": 6,
+  "id_change_injections": 0,
+  "interaction_distance_gate_m": 1.5,
+  "outputs_finite": true,
+  "pass": true,
+  "position_error_m": 0.04324644687704617,
+  "run_metadata": {
+    "config_path": "/home/lpc/workspace/arena5_mpc_ws/src/arena_mpc_bringup/config/hunav/p4_crossing.yaml",
+    "config_sha256": "cf8ffd4714dce884e4ca87e279283dbeb5d4b62d0f585d16e158ac9652106402",
+    "controller_config_sha256": "78f27edd6cc997bcabe90cb3b9c398073ea85265a46a96a7e26d65c323400283",
+    "controller_source_sha256": "9cff9195dc670bbe9845f26b0cb0418f2ac547f8d832d26dfdfbccfd0a343caf",
+    "foxglove_port": 9296,
+    "git_head": "b0a18f0ab89745ec7776c8e0be188471f9a62e73",
+    "gpu_index": 0,
+    "gpu_snapshot_csv": "0, GPU-cff28fa1-3402-3702-126b-d0cb66a69fb6, 24564, 636, 23446",
+    "launch_log": "/home/lpc/workspace/arena5_mpc_ws/evidence/p4/crossing_runfloor_calibration2_launch.log",
+    "launch_sha256": "0d0aba0fd223a6ee8552525147d54b993b287cf8f56cb479c7319260c5d0712f",
+    "nav2_overrides_sha256": "25e90bff609542a2c2728dcd49ed2a522d9b132825d8db84c825ce88c536cb43",
+    "probe_sha256": "2d481c028e7f73ed413316b1df5233413eb9dcbe760d964196f092dbf49a7391",
+    "ros_domain_id": 196,
+    "webrtc_media_port": 48696,
+    "webrtc_signal_port": 49696
+  },
+  "safety": {
+    "aligned_human_samples": 1276,
+    "clearance_samples": 7656,
+    "closest_sample": {
+      "human": [
+        5.300692475336915,
+        3.442979769260766,
+        0.4000000059604645
+      ],
+      "human_id": 101,
+      "robot": [
+        4.140468798442844,
+        3.065008022044298,
+        0.5371817398462733
+      ],
+      "stamp_ns": 10475000018
+    },
+    "human_speed_bound_mps": 0.25000000000000006,
+    "id_set_change_count": 0,
+    "ids_seen": [
+      101,
+      102,
+      103,
+      104,
+      105,
+      106
+    ],
+    "maximum_human_stamp_gap_s": 0.025,
+    "maximum_odom_bracket_s": 0.016666668000000003,
+    "maximum_step_velocity_heading_change_by_id_rad": {
+      "101": 2.9044272021011617,
+      "102": 2.9309434351571455,
+      "103": 2.9149888845125953,
+      "104": 3.0004573715882654,
+      "105": 0.9043736127298487,
+      "106": 2.6580624393268466
+    },
+    "maximum_step_velocity_heading_change_rad": 3.0004573715882654,
+    "maximum_velocity_heading_excursion_by_id_rad": {
+      "101": 6.295341995665097,
+      "102": 3.2279357491053,
+      "103": 3.233850530616297,
+      "104": 12.57962563914759,
+      "105": 6.516641819153388,
+      "106": 4.081122613182149
+    },
+    "minimum_clearance_lower_bound_by_id_m": {
+      "101": 0.5311620279552056,
+      "102": 18.6849732764579,
+      "103": 21.077355337504947,
+      "104": 21.421105623145174,
+      "105": 23.94531939981232,
+      "106": 23.68677150522998
+    },
+    "minimum_clearance_lower_bound_m": 0.5311620279552056,
+    "minimum_measured_clearance_by_id_m": {
+      "101": 0.5514865369272981,
+      "102": 18.70529778542999,
+      "103": 21.09767984647704,
+      "104": 21.441430132117265,
+      "105": 23.96564390878441,
+      "106": 23.707096014202072
+    },
+    "minimum_measured_footprint_human_clearance_m": 0.5514865369272981,
+    "sampling_alignment_error_bound_m": 0.020324508972092488,
+    "stopped_after_motion_ids": [
+      101,
+      102,
+      103,
+      104,
+      105,
+      106
+    ]
+  },
+  "scenario": "crossing",
+  "simulation_duration_s": 31.900001664,
+  "solver_ms_max": 73.0727,
+  "solver_ms_p50": 44.15605,
+  "solver_ms_p95": 54.3435,
+  "solver_samples": 958,
+  "target": [
+    8.0,
+    3.0,
+    0.0
+  ],
+  "wall_duration_s": 97.18116796622053,
+  "yaw_error_rad": 0.23845733740145442
+}

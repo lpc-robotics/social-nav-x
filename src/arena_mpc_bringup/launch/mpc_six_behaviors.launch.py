@@ -8,12 +8,24 @@ from launch_ros.substitutions import FindPackageShare
 
 def generate_launch_description():
     mpc_root = FindPackageShare("arena_mpc_bringup")
+    agent_config = LaunchConfiguration("agent_config")
     map_yaml = LaunchConfiguration("map_yaml")
     use_sim_time = LaunchConfiguration("use_sim_time")
 
     return LaunchDescription(
         [
             DeclareLaunchArgument("use_sim_time", default_value="true"),
+            DeclareLaunchArgument(
+                "agent_config",
+                default_value=PathJoinSubstitution(
+                    [
+                        FindPackageShare("arena_bringup"),
+                        "configs",
+                        "hunav_agents",
+                        "isaac_six_behaviors_warehouse.yaml",
+                    ]
+                ),
+            ),
             DeclareLaunchArgument("headless", default_value="true"),
             DeclareLaunchArgument("livestream", default_value="true"),
             DeclareLaunchArgument(
@@ -56,6 +68,7 @@ def generate_launch_description():
                     )
                 ),
                 launch_arguments={
+                    "agent_config": agent_config,
                     "headless": LaunchConfiguration("headless"),
                     "livestream": LaunchConfiguration("livestream"),
                     "webrtc_ip": LaunchConfiguration("webrtc_ip"),

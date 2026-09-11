@@ -1,0 +1,160 @@
+{
+  "action_status": 4,
+  "backlog_delay_s": 0.25,
+  "backlog_injections": 0,
+  "bt_default_server_timeout_ms": 500,
+  "controller_failure_counts": {
+    "input expired before command commit human_age=0.0103826 odom_age=0.43192 lidar_age=0.158688": 1,
+    "input expired before command commit human_age=0.0120882 odom_age=0.428764 lidar_age=0.152521": 1,
+    "input expired before command commit human_age=0.0235201 odom_age=0.409256 lidar_age=0.291541": 1,
+    "input expired before command commit human_age=0.0272844 odom_age=0.422876 lidar_age=0.0991026": 1,
+    "input expired before command commit human_age=0.0340227 odom_age=0.43962 lidar_age=0.117308": 1,
+    "input expired before command commit human_age=0.0610355 odom_age=0.430179 lidar_age=0.262676": 1,
+    "input expired before command commit human_age=0.104579 odom_age=0.400198 lidar_age=0.130928": 1,
+    "input expired before command commit human_age=0.170623 odom_age=0.43663 lidar_age=0.137967": 1,
+    "plugin commit deadline exceeded": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.000680825 odom_age=0.405021 lidar_age=0.143725": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.000787726 odom_age=0.489769 lidar_age=0.322266": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.00104634 odom_age=0.407409 lidar_age=0.100846": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.0106362 odom_age=0.465488 lidar_age=0.347773": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.0108434 odom_age=0.546729 lidar_age=0.103908": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.0204914 odom_age=0.447476 lidar_age=0.403192": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.0205342 odom_age=0.43572 lidar_age=0.16645": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.020955 odom_age=0.412055 lidar_age=0.214567": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.0305974 odom_age=0.546458 lidar_age=0.0598531": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.0307987 odom_age=0.446962 lidar_age=0.274502": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.0372688 odom_age=0.495848 lidar_age=0.173536": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.0396571 odom_age=0.40544 lidar_age=0.0683457": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.0496375 odom_age=0.496419 lidar_age=0.197756": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.0501899 odom_age=0.428906 lidar_age=0.0194295": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.0508607 odom_age=0.587432 lidar_age=0.311189": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.0510508 odom_age=0.446773 lidar_age=0.00395302": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.0610651 odom_age=0.547475 lidar_age=0.0883606": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.0705201 odom_age=0.492057 lidar_age=0.218826": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.0711626 odom_age=0.487838 lidar_age=0.211595": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.0818746 odom_age=0.435851 lidar_age=0.0577161": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.100695 odom_age=0.505035 lidar_age=0.243739": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.10078 odom_age=0.456154 lidar_age=0.2538": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.110299 odom_age=0.446112 lidar_age=0.334942": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.129983 odom_age=0.419235 lidar_age=0.388854": 1
+  },
+  "controller_mode_counts": {
+    "human_wait": 97,
+    "track": 175
+  },
+  "controller_wait_reason_counts": {
+    "dynamic_postcheck": 2,
+    "solver_timeout": 95
+  },
+  "cycle_ms_max": 84.1786,
+  "cycle_ms_p95": 81.4854,
+  "end": [
+    3.3738949298858643,
+    3.004190444946289,
+    0.0027011547765895317
+  ],
+  "expected_agents": 6,
+  "id_change_injections": 0,
+  "interaction_distance_gate_m": 1.5,
+  "outputs_finite": true,
+  "pass": true,
+  "position_error_m": 0.22614389790610348,
+  "progress_movement_time_allowance_s": 30.0,
+  "run_metadata": {
+    "config_path": "/home/lpc/workspace/arena5_ws/install/arena_bringup/share/arena_bringup/configs/hunav_agents/isaac_six_behaviors_warehouse.yaml",
+    "config_sha256": "ac77047d69256d71fadca0aa958848cb9b30a0b15e3fcf91275514fc1a748b67",
+    "controller_config_sha256": "78f27edd6cc997bcabe90cb3b9c398073ea85265a46a96a7e26d65c323400283",
+    "controller_source_sha256": "cc2d2b8088a6cc29cb5c2cf9b67efb9a71990ca877e7c8dd1f522dabb46f979e",
+    "foxglove_port": 9207,
+    "git_head": "b0a18f0ab89745ec7776c8e0be188471f9a62e73",
+    "gpu_index": 0,
+    "gpu_snapshot_csv": "0, GPU-cff28fa1-3402-3702-126b-d0cb66a69fb6, 24564, 7590, 16492",
+    "launch_log": "/home/lpc/workspace/arena5_mpc_ws/evidence/p4/six_behaviors_run4_launch.log",
+    "launch_sha256": "0d0aba0fd223a6ee8552525147d54b993b287cf8f56cb479c7319260c5d0712f",
+    "nav2_overrides_sha256": "bc6db58746f264c40567968db07463768de4c0dca16c4159d40081d7eae8b794",
+    "probe_sha256": "8b02a78d97ebb82e2ed361355c2b430a2bf0a805a4be444ba1d87d7ed4bd13f0",
+    "ros_domain_id": 107,
+    "webrtc_media_port": 48607,
+    "webrtc_signal_port": 49607
+  },
+  "safety": {
+    "aligned_human_samples": 361,
+    "clearance_samples": 2166,
+    "closest_sample": {
+      "human": [
+        4.510259349960344,
+        3.025645930447365,
+        0.4000000059604645
+      ],
+      "human_id": 6,
+      "robot": [
+        3.292952299118042,
+        3.00372052192688,
+        0.010128309220573513
+      ],
+      "stamp_ns": 8866666680
+    },
+    "human_speed_bound_mps": 2.0000000000000004,
+    "id_set_change_count": 0,
+    "ids_seen": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "maximum_human_stamp_gap_s": 0.025,
+    "maximum_odom_bracket_s": 0.016666668000000003,
+    "maximum_step_velocity_heading_change_by_id_rad": {
+      "1": 3.079434272789049,
+      "2": 3.0819045014341917,
+      "4": 2.067311535257829,
+      "5": 0.019441157824685588,
+      "6": 3.109160035690083
+    },
+    "maximum_step_velocity_heading_change_rad": 3.109160035690083,
+    "maximum_velocity_heading_excursion_by_id_rad": {
+      "1": 3.15130254251531,
+      "2": 3.1508391890506773,
+      "4": 3.8104960228560922,
+      "5": 0.16494311290082964,
+      "6": 3.192097713838528
+    },
+    "minimum_clearance_lower_bound_by_id_m": {
+      "1": 8.503987056472427,
+      "2": 6.617536994917264,
+      "3": 2.713600917982684,
+      "4": 1.788449314093259,
+      "5": 1.9801658937560696,
+      "6": 0.5352671626739353
+    },
+    "minimum_clearance_lower_bound_m": 0.5352671626739353,
+    "minimum_measured_clearance_by_id_m": {
+      "1": 8.54618656544452,
+      "2": 6.659736503889357,
+      "3": 2.7558004269547767,
+      "4": 1.8306488230653515,
+      "5": 2.022365402728162,
+      "6": 0.5774666716460277
+    },
+    "minimum_measured_footprint_human_clearance_m": 0.5774666716460277,
+    "sampling_alignment_error_bound_m": 0.04219950897209249,
+    "stopped_after_motion_ids": [
+      6
+    ]
+  },
+  "scenario": "six_behaviors",
+  "simulation_duration_s": 9.016667137,
+  "solver_ms_max": 83.8503,
+  "solver_ms_p50": 43.59425,
+  "solver_ms_p95": 81.1816,
+  "solver_samples": 272,
+  "target": [
+    3.6,
+    3.0,
+    0.0
+  ],
+  "wall_duration_s": 31.487620999105275,
+  "yaw_error_rad": 0.0027011547765895317
+}

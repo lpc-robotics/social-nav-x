@@ -1,0 +1,211 @@
+hunav_loader:
+  ros__parameters:
+    map: p4_multi_crossing
+    publish_people: true
+    agents:
+    - crossing
+    - filler_impassive
+    - filler_surprised
+    - filler_scared
+    - filler_curious
+    - filler_threatening
+    crossing:
+      id: 101
+      skin: 0
+      group_id: -1
+      max_vel: 0.25
+      radius: 0.4
+      behavior:
+        type: 1
+        configuration: 1
+        duration: 40.0
+        once: true
+        vel: 0.25
+        dist: 0.0
+        goal_force_factor: 2.0
+        obstacle_force_factor: 10.0
+        social_force_factor: 5.0
+        other_force_factor: 20.0
+      init_pose:
+        x: 5.2
+        y: 1.0
+        z: 0.0
+        h: 1.5707963268
+      goal_radius: 0.2
+      cyclic_goals: false
+      goals:
+      - p4_goal_north
+      p4_goal_north:
+        x: 5.2
+        y: 5.0
+        h: 0.0
+    filler_impassive:
+      id: 102
+      skin: 1
+      group_id: -1
+      max_vel: 0.25
+      radius: 0.4
+      behavior:
+        type: 2
+        configuration: 1
+        duration: 40.0
+        once: true
+        vel: 0.25
+        dist: 0.0
+        goal_force_factor: 2.0
+        obstacle_force_factor: 10.0
+        social_force_factor: 5.0
+        other_force_factor: 20.0
+      init_pose:
+        x: 6.8
+        y: 5.0
+        z: 0.0
+        h: -1.5707963268
+      goal_radius: 0.2
+      cyclic_goals: false
+      goals:
+      - p4_goal_south
+      p4_goal_south:
+        x: 6.8
+        y: 1.0
+        h: 0.0
+    filler_surprised:
+      id: 103
+      skin: 2
+      group_id: -1
+      max_vel: 0.2
+      radius: 0.4
+      behavior:
+        type: 3
+        configuration: 1
+        duration: 40.0
+        once: true
+        vel: 0.2
+        dist: 2.0
+        goal_force_factor: 2.0
+        obstacle_force_factor: 10.0
+        social_force_factor: 5.0
+        other_force_factor: 20.0
+      init_pose:
+        x: 22.0
+        y: 20.0
+        z: 0.0
+        h: 3.1415926536
+      goal_radius: 0.2
+      cyclic_goals: true
+      goals:
+      - west
+      - east
+      west:
+        x: 20.0
+        y: 20.0
+        h: 0.0
+      east:
+        x: 22.0
+        y: 20.0
+        h: 0.0
+    filler_scared:
+      id: 104
+      skin: 3
+      group_id: -1
+      max_vel: 0.2
+      radius: 0.4
+      behavior:
+        type: 4
+        configuration: 1
+        duration: 40.0
+        once: true
+        vel: 0.2
+        dist: 2.0
+        goal_force_factor: 2.0
+        obstacle_force_factor: 10.0
+        social_force_factor: 5.0
+        other_force_factor: 20.0
+      init_pose:
+        x: 24.0
+        y: 18.0
+        z: 0.0
+        h: 1.5707963268
+      goal_radius: 0.2
+      cyclic_goals: true
+      goals:
+      - north
+      - south
+      north:
+        x: 24.0
+        y: 20.0
+        h: 0.0
+      south:
+        x: 24.0
+        y: 18.0
+        h: 0.0
+    filler_curious:
+      id: 105
+      skin: 4
+      group_id: -1
+      max_vel: 0.2
+      radius: 0.4
+      behavior:
+        type: 5
+        configuration: 1
+        duration: 40.0
+        once: true
+        vel: 0.2
+        dist: 1.5
+        goal_force_factor: 2.0
+        obstacle_force_factor: 10.0
+        social_force_factor: 5.0
+        other_force_factor: 20.0
+      init_pose:
+        x: 26.0
+        y: 18.0
+        z: 0.0
+        h: 1.5707963268
+      goal_radius: 0.2
+      cyclic_goals: true
+      goals:
+      - north
+      - south
+      north:
+        x: 26.0
+        y: 20.0
+        h: 0.0
+      south:
+        x: 26.0
+        y: 18.0
+        h: 0.0
+    filler_threatening:
+      id: 106
+      skin: 5
+      group_id: -1
+      max_vel: 0.2
+      radius: 0.4
+      behavior:
+        type: 6
+        configuration: 1
+        duration: 40.0
+        once: true
+        vel: 0.2
+        dist: 1.5
+        goal_force_factor: 2.0
+        obstacle_force_factor: 10.0
+        social_force_factor: 5.0
+        other_force_factor: 20.0
+      init_pose:
+        x: 27.0
+        y: 20.0
+        z: 0.0
+        h: 3.1415926536
+      goal_radius: 0.2
+      cyclic_goals: true
+      goals:
+      - west
+      - east
+      west:
+        x: 25.0
+        y: 20.0
+        h: 0.0
+      east:
+        x: 27.0
+        y: 20.0
+        h: 0.0

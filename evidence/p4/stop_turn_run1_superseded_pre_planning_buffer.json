@@ -1,0 +1,127 @@
+{
+  "action_status": 4,
+  "backlog_delay_s": 0.25,
+  "backlog_injections": 0,
+  "bt_default_server_timeout_ms": 500,
+  "controller_failure_counts": {},
+  "controller_mode_counts": {
+    "track": 576
+  },
+  "controller_wait_reason_counts": {},
+  "cycle_ms_max": 59.0112,
+  "cycle_ms_p95": 44.6017,
+  "end": [
+    7.777228832244873,
+    2.9999983310699463,
+    3.952713824819981e-06
+  ],
+  "expected_agents": 6,
+  "id_change_injections": 0,
+  "interaction_distance_gate_m": 1.5,
+  "outputs_finite": true,
+  "pass": true,
+  "position_error_m": 0.2227711677613785,
+  "run_metadata": {
+    "config_path": "/home/lpc/workspace/arena5_mpc_ws/src/arena_mpc_bringup/config/hunav/p4_stop_turn.yaml",
+    "config_sha256": "802a78254e8f2d54e8b6dec4bce42b11652c02fd6dd372b00e116e48d91bfc11",
+    "controller_config_sha256": "c4ce4f0420de1164b21d95fb089d948ad4a88aef5441a892238963ab817d6264",
+    "controller_source_sha256": "1eb2905e6fe5eebca8ff051c5722e90feeab65d141b29614190288490b9a1ead",
+    "foxglove_port": 9234,
+    "git_head": "b0a18f0ab89745ec7776c8e0be188471f9a62e73",
+    "gpu_index": 0,
+    "gpu_snapshot_csv": "0, GPU-cff28fa1-3402-3702-126b-d0cb66a69fb6, 24564, 636, 23446",
+    "launch_log": "/home/lpc/workspace/arena5_mpc_ws/evidence/p4/stop_turn_run1_launch.log",
+    "launch_sha256": "0d0aba0fd223a6ee8552525147d54b993b287cf8f56cb479c7319260c5d0712f",
+    "nav2_overrides_sha256": "25e90bff609542a2c2728dcd49ed2a522d9b132825d8db84c825ce88c536cb43",
+    "probe_sha256": "2d481c028e7f73ed413316b1df5233413eb9dcbe760d964196f092dbf49a7391",
+    "ros_domain_id": 134,
+    "webrtc_media_port": 48634,
+    "webrtc_signal_port": 49634
+  },
+  "safety": {
+    "aligned_human_samples": 830,
+    "clearance_samples": 4980,
+    "closest_sample": {
+      "human": [
+        5.220025921847422,
+        4.182410008725144,
+        0.4000000059604645
+      ],
+      "human_id": 103,
+      "robot": [
+        4.833655496288535,
+        2.999893069285791,
+        -0.00021427436218184024
+      ],
+      "stamp_ns": 8375000005
+    },
+    "human_speed_bound_mps": 0.25000000000000006,
+    "id_set_change_count": 0,
+    "ids_seen": [
+      101,
+      102,
+      103,
+      104,
+      105,
+      106
+    ],
+    "maximum_human_stamp_gap_s": 0.025,
+    "maximum_odom_bracket_s": 0.016666668000000003,
+    "maximum_step_velocity_heading_change_by_id_rad": {
+      "101": 3.141290254265133,
+      "102": 3.1388195475548892,
+      "103": 0.056943523555843534,
+      "104": 0.27833078600913264,
+      "105": 0.31722394336994375,
+      "106": 2.46346385510014
+    },
+    "maximum_step_velocity_heading_change_rad": 3.141290254265133,
+    "maximum_velocity_heading_excursion_by_id_rad": {
+      "101": 3.1435339873634636,
+      "102": 6.284455592423726,
+      "103": 0.36868326139120855,
+      "104": 1.4808701019977197,
+      "105": 3.969360307346651,
+      "106": 3.7659886427338995
+    },
+    "minimum_clearance_lower_bound_by_id_m": {
+      "101": 17.20586474378166,
+      "102": 19.329841574701017,
+      "103": 0.5533018882509114,
+      "104": 1.209813359409752,
+      "105": 23.090344215532266,
+      "106": 24.710287469066454
+    },
+    "minimum_clearance_lower_bound_m": 0.5533018882509114,
+    "minimum_measured_clearance_by_id_m": {
+      "101": 17.226189252753752,
+      "102": 19.35016608367311,
+      "103": 0.5736263972230039,
+      "104": 1.2301378683818445,
+      "105": 23.110668724504357,
+      "106": 24.730611978038546
+    },
+    "minimum_measured_footprint_human_clearance_m": 0.5736263972230039,
+    "sampling_alignment_error_bound_m": 0.020324508972092488,
+    "stopped_after_motion_ids": [
+      101,
+      102,
+      103,
+      105,
+      106
+    ]
+  },
+  "scenario": "stop_turn",
+  "simulation_duration_s": 20.733334415,
+  "solver_ms_max": 57.159,
+  "solver_ms_p50": 38.0679,
+  "solver_ms_p95": 43.2037,
+  "solver_samples": 576,
+  "target": [
+    8.0,
+    3.0,
+    0.0
+  ],
+  "wall_duration_s": 58.62376962322742,
+  "yaw_error_rad": 3.952713824819981e-06
+}

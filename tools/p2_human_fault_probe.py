@@ -9,6 +9,8 @@ from pathlib import Path
 import rclpy
 from action_msgs.msg import GoalStatus
 from geometry_msgs.msg import Twist
+from lifecycle_msgs.msg import State
+from lifecycle_msgs.srv import GetState
 from nav2_msgs.action import NavigateToPose
 from nav_msgs.msg import Odometry
 from rclpy.action import ActionClient
@@ -25,6 +27,10 @@ class HumanFaultProbe(Node):
         super().__init__("arena_mpc_p2_human_fault_probe")
         self.timeout = timeout
         self.navigation = ActionClient(self, NavigateToPose, "/navigate_to_pose")
+        self.lifecycle_clients = [
+            self.create_client(GetState, f"/{name}/get_state")
+            for name in ("bt_navigator", "planner_server", "controller_server")
+        ]
         self.set_enabled = self.create_client(
             SetBool, "/empty_human_states/set_enabled"
         )
@@ -71,11 +77,27 @@ class HumanFaultProbe(Node):
 
     def wait_ready(self):
         if not self.spin_until(
-            lambda: self.odom is not None and self.output is not None, 30.0
+            lambda: self.odom is not None and self.output is not None, 120.0
         ):
             raise RuntimeError("timed out waiting for odom and /cmd_vel")
-        if not self.navigation.wait_for_server(timeout_sec=30.0):
+        if not self.navigation.wait_for_server(timeout_sec=60.0):
             raise RuntimeError("navigate_to_pose server unavailable")
+        for client in self.lifecycle_clients:
+            if not client.wait_for_service(timeout_sec=60.0):
+                raise RuntimeError(f"lifecycle service unavailable: {client.srv_name}")
+        deadline = time.monotonic() + 60.0
+        states = []
+        while time.monotonic() < deadline:
+            states = []
+            for client in self.lifecycle_clients:
+                future = client.call_async(GetState.Request())
+                if not self.spin_until(future.done, 5.0):
+                    raise RuntimeError(f"lifecycle service timed out: {client.srv_name}")
+                states.append(future.result().current_state.id)
+            if all(value == State.PRIMARY_STATE_ACTIVE for value in states):
+                return
+            self.spin_until(lambda: False, 0.2)
+        raise RuntimeError(f"navigation lifecycle did not become active: {states}")
 
     def send_goal(self, distance=1.2):
         start = self.odom.pose.pose.position
@@ -208,17 +230,15 @@ class HumanFaultProbe(Node):
         request_time = time.monotonic()
         ack_time, service_message = self.call_bad_stamp(mode)
 
-        def epoch_advanced():
-            current = latest_epoch()
-            return current is not None and current > before_epoch
-
-        if not self.spin_until(epoch_advanced, 3.0):
-            raise RuntimeError(f"{mode} human sample did not advance reset epoch")
-        after_epoch = latest_epoch()
+        if not self.spin_until(
+            lambda: self.first_zero_after(request_time) is not None, 3.0
+        ):
+            raise RuntimeError(f"{mode} human sample did not revoke the command chain")
         first_zero = self.first_zero_after(request_time)
         if not self.spin_until(result.done):
             raise RuntimeError(f"navigation did not finish after {mode} human sample")
         action_status = result.result().status
+        after_epoch = latest_epoch()
         return {
             "mode": mode,
             "service_response": service_message,
@@ -230,7 +250,7 @@ class HumanFaultProbe(Node):
             if first_zero is None
             else first_zero - request_time,
             "action_status": action_status,
-            "pass": after_epoch > before_epoch
+            "pass": after_epoch == before_epoch
             and first_zero is not None
             and action_status == GoalStatus.STATUS_SUCCEEDED,
         }

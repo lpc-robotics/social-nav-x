@@ -1,0 +1,134 @@
+{
+  "action_status": 4,
+  "backlog_delay_s": 0.25,
+  "backlog_injections": 0,
+  "bt_default_server_timeout_ms": 500,
+  "controller_failure_counts": {
+    "HuNav input changed during final postcheck": 1
+  },
+  "controller_mode_counts": {
+    "human_wait": 106,
+    "track": 843
+  },
+  "controller_wait_reason_counts": {
+    "dynamic_postcheck": 106
+  },
+  "cycle_ms_max": 68.2795,
+  "cycle_ms_p95": 57.9058,
+  "end": [
+    7.988155841827393,
+    2.9578373432159424,
+    0.23963129980320885
+  ],
+  "expected_agents": 6,
+  "id_change_injections": 0,
+  "interaction_distance_gate_m": 1.5,
+  "outputs_finite": true,
+  "pass": true,
+  "position_error_m": 0.04379467673026007,
+  "progress_movement_time_allowance_s": 30.0,
+  "run_metadata": {
+    "config_path": "/home/lpc/workspace/arena5_mpc_ws/src/arena_mpc_bringup/config/hunav/p4_multi_crossing.yaml",
+    "config_sha256": "603c99ceec4daac0b309be7d87ebee946871ee88c6ad823f8128dea55ed910b4",
+    "controller_config_sha256": "78f27edd6cc997bcabe90cb3b9c398073ea85265a46a96a7e26d65c323400283",
+    "controller_source_sha256": "cc2d2b8088a6cc29cb5c2cf9b67efb9a71990ca877e7c8dd1f522dabb46f979e",
+    "foxglove_port": 9183,
+    "git_head": "b0a18f0ab89745ec7776c8e0be188471f9a62e73",
+    "gpu_index": 0,
+    "gpu_snapshot_csv": "0, GPU-cff28fa1-3402-3702-126b-d0cb66a69fb6, 24564, 7590, 16492",
+    "launch_log": "/home/lpc/workspace/arena5_mpc_ws/evidence/p4/multi_crossing_run2_launch.log",
+    "launch_sha256": "0d0aba0fd223a6ee8552525147d54b993b287cf8f56cb479c7319260c5d0712f",
+    "nav2_overrides_sha256": "bc6db58746f264c40567968db07463768de4c0dca16c4159d40081d7eae8b794",
+    "probe_sha256": "8b02a78d97ebb82e2ed361355c2b430a2bf0a805a4be444ba1d87d7ed4bd13f0",
+    "ros_domain_id": 83,
+    "webrtc_media_port": 48583,
+    "webrtc_signal_port": 49583
+  },
+  "safety": {
+    "aligned_human_samples": 1196,
+    "clearance_samples": 7176,
+    "closest_sample": {
+      "human": [
+        5.352438269441863,
+        3.6692296704741563,
+        0.4000000059604645
+      ],
+      "human_id": 101,
+      "robot": [
+        4.249901170706599,
+        3.0183797200420517,
+        -0.2570162876786318
+      ],
+      "stamp_ns": 11133333340
+    },
+    "human_speed_bound_mps": 0.25000000000000006,
+    "id_set_change_count": 0,
+    "ids_seen": [
+      101,
+      102,
+      103,
+      104,
+      105,
+      106
+    ],
+    "maximum_human_stamp_gap_s": 0.025,
+    "maximum_odom_bracket_s": 0.016666668000000003,
+    "maximum_step_velocity_heading_change_by_id_rad": {
+      "101": 0.01332495669046696,
+      "102": 0.05912251927304223,
+      "103": 3.1395440028441586,
+      "104": 3.0313435820866,
+      "105": 0.9055837900088849,
+      "106": 2.6612407115711942
+    },
+    "maximum_step_velocity_heading_change_rad": 3.1395440028441586,
+    "maximum_velocity_heading_excursion_by_id_rad": {
+      "101": 0.171828551637367,
+      "102": 0.23801943697295314,
+      "103": 3.1553581210890242,
+      "104": 9.472614090024122,
+      "105": 6.419802767198152,
+      "106": 4.084224270522132
+    },
+    "minimum_clearance_lower_bound_by_id_m": {
+      "101": 0.5349189735704091,
+      "102": 0.9634661956773467,
+      "103": 20.879914832165746,
+      "104": 21.581983324859596,
+      "105": 23.653006158197577,
+      "106": 23.60556743152953
+    },
+    "minimum_clearance_lower_bound_m": 0.5349189735704091,
+    "minimum_measured_clearance_by_id_m": {
+      "101": 0.5552434825425016,
+      "102": 0.9837907046494392,
+      "103": 20.900239341137837,
+      "104": 21.602307833831688,
+      "105": 23.67333066716967,
+      "106": 23.62589194050162
+    },
+    "minimum_measured_footprint_human_clearance_m": 0.5552434825425016,
+    "sampling_alignment_error_bound_m": 0.020324508972092488,
+    "stopped_after_motion_ids": [
+      101,
+      102,
+      103,
+      104,
+      105,
+      106
+    ]
+  },
+  "scenario": "multi_crossing",
+  "simulation_duration_s": 29.883334892,
+  "solver_ms_max": 66.1841,
+  "solver_ms_p50": 41.1986,
+  "solver_ms_p95": 56.0685,
+  "solver_samples": 949,
+  "target": [
+    8.0,
+    3.0,
+    0.0
+  ],
+  "wall_duration_s": 96.06380261294544,
+  "yaw_error_rad": 0.23963129980320882
+}

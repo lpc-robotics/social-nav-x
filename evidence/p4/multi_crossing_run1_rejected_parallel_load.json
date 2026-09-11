@@ -1,0 +1,82 @@
+{
+  "action_status": 6,
+  "backlog_delay_s": 0.25,
+  "backlog_injections": 0,
+  "controller_failure_counts": {
+    "MPC solve rejected: Maximum_WallTime_Exceeded": 9,
+    "MPC solve rejected: Solve_Succeeded: measured solver budget exceeded": 5
+  },
+  "controller_mode_counts": {
+    "human_wait": 27,
+    "track": 175
+  },
+  "cycle_ms_max": 76.3897,
+  "cycle_ms_p95": 71.2169,
+  "end": [
+    3.8826980590820312,
+    3.0177297592163086,
+    0.236746057699912
+  ],
+  "expected_agents": 6,
+  "id_change_injections": 0,
+  "interaction_distance_gate_m": 1.5,
+  "outputs_finite": true,
+  "pass": false,
+  "position_error_m": 4.1173401143273,
+  "safety": {
+    "aligned_human_samples": 226,
+    "clearance_samples": 1356,
+    "closest_sample": {
+      "human": [
+        4.854039086753838,
+        2.183761849219931,
+        0.4000000059604645
+      ],
+      "human_id": 101,
+      "robot": [
+        3.8826980590820312,
+        3.0177297592163086,
+        0.2367460576988475
+      ],
+      "stamp_ns": 6033333340
+    },
+    "human_speed_bound_mps": 0.25,
+    "id_set_change_count": 0,
+    "ids_seen": [
+      101,
+      102,
+      103,
+      104,
+      105,
+      106
+    ],
+    "maximum_human_stamp_gap_s": 0.025,
+    "maximum_odom_bracket_s": 0.016666668000000003,
+    "maximum_step_velocity_heading_change_by_id_rad": {
+      "101": 0.04065108553867325,
+      "102": 0.002663349945364768,
+      "103": 6.151167528090085e-05,
+      "104": 0.0006616510837884616,
+      "105": 0.0010668877653170483,
+      "106": 0.00393720496587191
+    },
+    "maximum_step_velocity_heading_change_rad": 0.04065108553867325,
+    "minimum_clearance_lower_bound_m": 0.5433685846734005,
+    "minimum_measured_footprint_human_clearance_m": 0.563693093645493,
+    "sampling_alignment_error_bound_m": 0.020324508972092488,
+    "stopped_after_motion_ids": []
+  },
+  "scenario": "multi_crossing",
+  "simulation_duration_s": 5.650000294000001,
+  "solver_ms_max": 74.8627,
+  "solver_ms_p50": 45.6316,
+  "solver_ms_p95": 69.9621,
+  "solver_samples": 202,
+  "target": [
+    8.0,
+    3.0,
+    0.0
+  ],
+  "wall_duration_s": 22.482181577011943,
+  "yaw_error_rad": 0.236746057699912
+}

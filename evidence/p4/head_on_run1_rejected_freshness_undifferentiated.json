@@ -1,0 +1,82 @@
+{
+  "action_status": 6,
+  "backlog_delay_s": 0.25,
+  "backlog_injections": 0,
+  "controller_failure_counts": {
+    "input expired before command commit": 12,
+    "required input exceeded wall-clock freshness limit": 30
+  },
+  "controller_mode_counts": {
+    "track": 235
+  },
+  "controller_wait_reason_counts": {},
+  "cycle_ms_max": 63.4564,
+  "cycle_ms_p95": 53.0866,
+  "end": [
+    3.7940735816955566,
+    3.0,
+    8.940696703851203e-08
+  ],
+  "expected_agents": 6,
+  "id_change_injections": 0,
+  "interaction_distance_gate_m": 1.5,
+  "outputs_finite": true,
+  "pass": false,
+  "position_error_m": 4.205926418304443,
+  "safety": {
+    "aligned_human_samples": 300,
+    "clearance_samples": 1800,
+    "closest_sample": {
+      "human": [
+        6.329192384447265,
+        4.022562909924768,
+        0.4000000059604645
+      ],
+      "human_id": 101,
+      "robot": [
+        3.7940735816955566,
+        3.0,
+        8.940696703851203e-08
+      ],
+      "stamp_ns": 7950000007
+    },
+    "human_speed_bound_mps": 0.25,
+    "id_set_change_count": 0,
+    "ids_seen": [
+      101,
+      102,
+      103,
+      104,
+      105,
+      106
+    ],
+    "maximum_human_stamp_gap_s": 0.025,
+    "maximum_odom_bracket_s": 0.016666668000000003,
+    "maximum_step_velocity_heading_change_by_id_rad": {
+      "101": 0.002846712073566682,
+      "102": 0.0018002811631626266,
+      "103": 0.0017925099111066878,
+      "104": 0.0008611960801838681,
+      "105": 0.0010633748170658652,
+      "106": 0.004303308180847676
+    },
+    "maximum_step_velocity_heading_change_rad": 0.004303308180847676,
+    "minimum_clearance_lower_bound_m": 2.01106965281913,
+    "minimum_measured_footprint_human_clearance_m": 2.0313941617912223,
+    "sampling_alignment_error_bound_m": 0.020324508972092488,
+    "stopped_after_motion_ids": []
+  },
+  "scenario": "head_on",
+  "simulation_duration_s": 7.500000391,
+  "solver_ms_max": 61.0004,
+  "solver_ms_p50": 41.4259,
+  "solver_ms_p95": 50.944,
+  "solver_samples": 235,
+  "target": [
+    8.0,
+    3.0,
+    0.0
+  ],
+  "wall_duration_s": 28.584894828964025,
+  "yaw_error_rad": 8.940696703851203e-08
+}
