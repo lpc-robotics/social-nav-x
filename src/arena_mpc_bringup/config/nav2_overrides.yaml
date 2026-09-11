@@ -30,6 +30,11 @@ local_costmap:
 global_costmap:
   global_costmap:
     ros__parameters:
+      # Freeze the MPC-mode planner input independently of DWB's installed
+      # template.  P4 inherited these three layers from the stable template;
+      # spell them out so a later DWB-only template rebuild cannot silently
+      # remove lidar obstacles from MPC global planning.
+      plugins: ["static_layer", "obstacle_layer", "inflation_layer"]
       footprint: "[ [0.24, 0.22], [0.24, -0.22], [-0.24, -0.22], [-0.24, 0.22] ]"
       footprint_padding: 0.0
       track_unknown_space: true

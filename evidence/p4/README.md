@@ -48,6 +48,12 @@ architecture and gate:
   allowance.  The six-behavior goal is 0.6 m because the former 1.2 m target
   coincided with the threatening actor's hold point.
 
+After P4, an independent rebuild of the stable DWB template removed its global
+obstacle layer.  The MPC override now states the same three-layer list that was
+effective during all P4 runs, rather than inheriting it.  This changes the
+override file hash but preserves P4's effective global-costmap behavior; P5
+must verify the resulting runtime parameter before accepting its measurements.
+
 Rejected and superseded attempts remain in this directory and are excluded by
 the exact-name summarizer.  In particular, the retained infrastructure or
 safety-stop trials include `head_on_run3_rejected_odom_stall`,
