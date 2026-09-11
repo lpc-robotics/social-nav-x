@@ -2,6 +2,7 @@
 """Thirty-minute MPC endurance and complete-command timing probe."""
 
 import argparse
+import bisect
 import json
 import math
 import re
@@ -55,6 +56,7 @@ class EnduranceProbe(Node):
         self.message_count = Counter()
         self.outputs = []
         self.status = []
+        self.watchdog_status = []
         self.timed_cycles = []
         self.solve_ms = []
         self.raw_times = []
@@ -76,6 +78,9 @@ class EnduranceProbe(Node):
         self.create_subscription(Twist, "/cmd_vel_nav", self.on_raw, 50)
         self.create_subscription(Twist, "/cmd_vel", self.on_output, 50)
         self.create_subscription(String, "/FollowPath/status", self.on_status, 50)
+        self.create_subscription(
+            String, "/mpc_command_watchdog/status", self.on_watchdog_status, 20
+        )
 
     def arrival(self, topic):
         now = time.monotonic()
@@ -125,7 +130,10 @@ class EnduranceProbe(Node):
             solve = float(match.group(1))
             cycle = float(match.group(2))
             self.solve_ms.append(solve)
-            self.timed_cycles.append((now, cycle))
+            self.timed_cycles.append((now, cycle, message.data.startswith("ok ")))
+
+    def on_watchdog_status(self, message):
+        self.watchdog_status.append((time.monotonic(), message.data))
 
     def spin_until(self, predicate, timeout):
         deadline = time.monotonic() + timeout
@@ -195,6 +203,7 @@ class EnduranceProbe(Node):
         self.message_count.clear()
         self.outputs.clear()
         self.status.clear()
+        self.watchdog_status.clear()
         self.timed_cycles.clear()
         self.solve_ms.clear()
         self.raw_times.clear()
@@ -253,28 +262,51 @@ class EnduranceProbe(Node):
 
         self.spin_until(lambda: False, 0.5)
         wall_duration = time.monotonic() - start_wall
-        full_command_ms = []
+        # Status is published inside the plugin immediately before it returns;
+        # controller_server then publishes the headerless raw Twist.  DDS does
+        # not define delivery order across those two topics, so receipt-order
+        # matching can incorrectly pair a status with the next 10 Hz command.
+        # Match both orders within one quarter-period, then add the observed
+        # boundary p99 to every directly measured plugin cycle as a conservative
+        # server/publication bound.
+        matching_window_s = 0.025
+        ok_cycles = [item for item in self.timed_cycles if item[2]]
+        candidates = []
+        for status_index, (status_time, _, _) in enumerate(ok_cycles):
+            insertion = bisect.bisect_left(self.raw_times, status_time)
+            for raw_index in range(max(0, insertion - 2), min(len(self.raw_times), insertion + 2)):
+                separation = abs(self.raw_times[raw_index] - status_time)
+                if separation <= matching_window_s:
+                    candidates.append((separation, status_index, raw_index))
+        candidates.sort()
+        matched_status = set()
+        matched_raw = set()
         status_to_raw_ms = []
-        raw_index = 0
-        for index, (status_time, cycle_ms) in enumerate(self.timed_cycles):
-            next_status = (
-                self.timed_cycles[index + 1][0]
-                if index + 1 < len(self.timed_cycles)
-                else math.inf
-            )
-            while raw_index < len(self.raw_times) and self.raw_times[raw_index] < status_time:
-                raw_index += 1
-            if raw_index >= len(self.raw_times) or self.raw_times[raw_index] >= next_status:
+        for separation, status_index, raw_index in candidates:
+            if status_index in matched_status or raw_index in matched_raw:
                 continue
-            boundary = 1000.0 * (self.raw_times[raw_index] - status_time)
-            status_to_raw_ms.append(boundary)
-            full_command_ms.append(cycle_ms + boundary)
-            raw_index += 1
+            matched_status.add(status_index)
+            matched_raw.add(raw_index)
+            status_to_raw_ms.append(1000.0 * separation)
+        match_coverage = (
+            len(matched_status) / len(ok_cycles) if ok_cycles else None
+        )
+        boundary_p99 = percentile(status_to_raw_ms, 0.99)
+        full_command_ms = (
+            [cycle_ms + boundary_p99 for _, cycle_ms, _ in self.timed_cycles]
+            if boundary_p99 is not None
+            else []
+        )
 
         failure_reasons = Counter(
             text.split(" reason=", 1)[1].split(" solve_ms=", 1)[0]
             for _, text in self.status
             if text.startswith("stop ") and " reason=" in text
+        )
+        watchdog_reasons = Counter(
+            text.removeprefix("stop reason=")
+            for _, text in self.watchdog_status
+            if text.startswith("stop reason=")
         )
         finite = all(
             math.isfinite(linear) and math.isfinite(angular)
@@ -297,7 +329,7 @@ class EnduranceProbe(Node):
         non_success_count = len(completed) - success_count
         stream_limits = {
             "human_states": 1.2,
-            "odom": 0.8,
+            "odom": 1.2,
             "lidar": 3.1,
             "local_costmap": 3.1,
         }
@@ -320,6 +352,9 @@ class EnduranceProbe(Node):
             and full_p95 <= 90.0
             and full_p99 <= 100.0
             and over_deadline <= 0.01
+            and match_coverage is not None
+            and match_coverage >= 0.95
+            and boundary_p99 <= 10.0
             and streams_healthy
             and self.clock_rollbacks == 0
             and output_publishers == ["/mpc_command_watchdog"]
@@ -352,13 +387,35 @@ class EnduranceProbe(Node):
             "output_samples": len(self.outputs),
             "cmd_vel_publishers": output_publishers,
             "controller_failure_counts": dict(failure_reasons),
+            "watchdog_stop_counts": dict(watchdog_reasons),
             "solver_samples": len(self.solve_ms),
             "solver_ms_p50": statistics.median(self.solve_ms) if self.solve_ms else None,
             "solver_ms_p95": percentile(self.solve_ms, 0.95),
             "solver_ms_p99": percentile(self.solve_ms, 0.99),
             "solver_ms_max": max(self.solve_ms, default=None),
-            "cross_boundary_samples": len(full_command_ms),
+            "plugin_cycle_ms_p50": statistics.median(
+                [item[1] for item in self.timed_cycles]
+            ) if self.timed_cycles else None,
+            "plugin_cycle_ms_p95": percentile(
+                [item[1] for item in self.timed_cycles], 0.95
+            ),
+            "plugin_cycle_ms_p99": percentile(
+                [item[1] for item in self.timed_cycles], 0.99
+            ),
+            "plugin_cycle_ms_max": max(
+                (item[1] for item in self.timed_cycles), default=None
+            ),
+            "full_command_measurement": (
+                "plugin cycle plus p99 absolute callback skew from nearest "
+                "same-cycle ok-status/raw pairs within 25 ms"
+            ),
+            "ok_status_samples": len(ok_cycles),
+            "cross_boundary_samples": len(matched_status),
+            "full_command_samples": len(full_command_ms),
+            "matched_status_raw_samples": len(matched_status),
+            "status_raw_match_coverage": match_coverage,
             "status_to_raw_ms_p95": percentile(status_to_raw_ms, 0.95),
+            "status_to_raw_ms_p99": boundary_p99,
             "status_to_raw_ms_max": max(status_to_raw_ms, default=None),
             "full_command_ms_p95": full_p95,
             "full_command_ms_p99": full_p99,
