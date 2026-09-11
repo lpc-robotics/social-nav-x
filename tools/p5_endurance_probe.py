@@ -14,6 +14,8 @@ import rclpy
 from action_msgs.msg import GoalStatus
 from geometry_msgs.msg import Twist
 from hunav_msgs.msg import Agents
+from lifecycle_msgs.msg import State
+from lifecycle_msgs.srv import GetState
 from nav2_msgs.action import NavigateToPose
 from nav_msgs.msg import OccupancyGrid, Odometry
 from rclpy.action import ActionClient
@@ -38,6 +40,10 @@ class EnduranceProbe(Node):
         super().__init__("p5_mpc_endurance_probe")
         self.args = args
         self.navigation = ActionClient(self, NavigateToPose, "/navigate_to_pose")
+        self.lifecycle_clients = [
+            self.create_client(GetState, f"/{name}/get_state")
+            for name in ("bt_navigator", "planner_server", "controller_server")
+        ]
         self.latest_odom = None
         self.latest_humans = None
         self.latest_lidar = None
@@ -121,10 +127,30 @@ class EnduranceProbe(Node):
                 return True
         return False
 
+    def wait_navigation_active(self):
+        for client in self.lifecycle_clients:
+            if not client.wait_for_service(timeout_sec=60.0):
+                raise RuntimeError(f"lifecycle service unavailable: {client.srv_name}")
+        deadline = time.monotonic() + 60.0
+        states = []
+        while time.monotonic() < deadline:
+            states = []
+            for client in self.lifecycle_clients:
+                future = client.call_async(GetState.Request())
+                if not self.spin_until(future.done, 5.0):
+                    raise RuntimeError(
+                        f"lifecycle service timed out: {client.srv_name}"
+                    )
+                states.append(future.result().current_state.id)
+            if all(value == State.PRIMARY_STATE_ACTIVE for value in states):
+                return
+            self.spin_until(lambda: False, 0.2)
+        raise RuntimeError(f"navigation lifecycle did not become active: {states}")
+
     def make_goal(self, x):
         goal = NavigateToPose.Goal()
         goal.pose.header.frame_id = "map"
-        goal.pose.header.stamp = self.get_clock().now().to_msg()
+        goal.pose.header.stamp = self.latest_odom.header.stamp
         goal.pose.pose.position.x = x
         goal.pose.pose.position.y = 3.0
         goal.pose.pose.orientation.w = 1.0
@@ -141,6 +167,7 @@ class EnduranceProbe(Node):
         )
         if not ready or not self.navigation.wait_for_server(timeout_sec=60.0):
             raise RuntimeError("MPC runtime did not become ready")
+        self.wait_navigation_active()
 
         initial_stamp = self.latest_odom.header.stamp
         initial_ns = initial_stamp.sec * 1_000_000_000 + initial_stamp.nanosec
