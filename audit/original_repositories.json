@@ -1,0 +1,72 @@
+{
+  "recorded_at": "2026-09-11T21:25:33.231586",
+  "workspace": "/home/lpc/workspace/arena5_ws",
+  "repositories": [
+    {
+      "path": "src/arena/evaluation",
+      "branch": "humble",
+      "commit": "94762429bea19b84cab50a3d0910a736184738a0",
+      "status": ""
+    },
+    {
+      "path": "src/arena/simulation-setup",
+      "branch": "humble-fix",
+      "commit": "3f142b25d88ce962c803b57cf20f38985d376dea",
+      "status": " M configs/nav2/nav2.yaml\n M launch/nav2.launch.py\n"
+    },
+    {
+      "path": "src/arena/tools",
+      "branch": "",
+      "commit": "cbf1d05abd436cdb820da9fd0c35847b06a39ae0",
+      "status": ""
+    },
+    {
+      "path": "src/arena-isaac",
+      "branch": "arena5-isaac5.1.0",
+      "commit": "16b8e3416517d8c3dc1b5038df4fe11b9a6df46c",
+      "status": " A arena_humble_compat/arena_humble_compat/__init__.py\n A arena_humble_compat/arena_humble_compat/hunav_six_behaviors_bridge.py\n A arena_humble_compat/arena_humble_compat/scene_bridge.py\n A arena_humble_compat/arena_humble_compat/verify_runtime.py\n A arena_humble_compat/arena_humble_compat/verify_six_behaviors.py\n A arena_humble_compat/package.xml\n A arena_humble_compat/resource/arena_humble_compat\n A arena_humble_compat/setup.cfg\n A arena_humble_compat/setup.py\n M arena_isaac/arena_isaac/run_isaacsim.py\n M arena_isaac/arena_isaac/services/SpawnUrdf.py\n M arena_isaac/arena_isaac/services/UpdatePedestrians.py\n A arena_isaac/isaac_utils/config/__init__.py\n M arena_isaac/isaac_utils/graphs/odom.py\n A arena_isaac/isaac_utils/managers/__init__.py\n A arena_isaac/isaac_utils/utils/__init__.py\n M arena_isaac/launch/run_isaacsim.launch.py\n M arena_isaac/pedestrian/simulator/logic/people/person.py\n A arena_people_msgs/CMakeLists.txt\n A arena_people_msgs/msg/Pedestrian.msg\n A arena_people_msgs/msg/Pedestrians.msg\n A arena_people_msgs/msg/SpawnPedestrian.msg\n A arena_people_msgs/package.xml\n A arena_people_msgs/srv/DeletePedestrians.srv\n A arena_people_msgs/srv/MovePedestrians.srv\n A arena_people_msgs/srv/SpawnPedestrians.srv\n A arena_people_msgs/srv/UpdatePedestrians.srv\n?? arena_humble_compat/arena_humble_compat/bridge_validation.py\n?? arena_humble_compat/test/test_bridge_validation.py\n?? arena_isaac/pedestrian/simulator/logic/people/character_frames.py\n?? arena_isaac/test/test_character_frames.py\n"
+    },
+    {
+      "path": "src/arena-rosnav",
+      "branch": "humble",
+      "commit": "c2ff4a87e8686013b53f1e9cd8b01b3ab04fbce4",
+      "status": " A arena_bringup/configs/hunav_agents/isaac_six_behaviors_warehouse.yaml\n A arena_bringup/launch/isaac_six_behaviors.launch.py\n M arena_bringup/package.xml\n"
+    },
+    {
+      "path": "src/deps/foxglove-sdk",
+      "branch": "",
+      "commit": "05f27efc7e535d9c30c6b0cb4f6aa89de7243870",
+      "status": " M ros/src/foxglove_bridge/src/message_definition_cache.cpp\n M ros/src/foxglove_bridge/src/ros2_foxglove_bridge_node.cpp\n"
+    },
+    {
+      "path": "src/deps/hunav/hunav_sim",
+      "branch": "",
+      "commit": "a69cf96d98b0d40e247f819d7aebab661ac68b3b",
+      "status": " M hunav_agent_manager/src/agent_manager.cpp\n"
+    },
+    {
+      "path": "src/deps/hunav/lightsfm",
+      "branch": "master",
+      "commit": "b30327cca189af2fb90443a5d0040cceb46d7195",
+      "status": ""
+    },
+    {
+      "path": "src/deps/hunav/people_msgs",
+      "branch": "",
+      "commit": "0ae47f6e0208cedd84d19d066743fdc1d05fcafa",
+      "status": ""
+    },
+    {
+      "path": "src/deps/nav2/navigation2",
+      "branch": "humble",
+      "commit": "8e34dcf5790671085a893dc58d2a0940ec80dd1e",
+      "status": ""
+    },
+    {
+      "path": "src/deps/robots/jackal",
+      "branch": "foxy-devel",
+      "commit": "017b8b581a90873047f7d6fe438bd87513be4a76",
+      "status": ""
+    }
+  ]
+}

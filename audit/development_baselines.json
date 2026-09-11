@@ -1,0 +1,46 @@
+[
+  {
+    "path": "src/arena/evaluation",
+    "baseline_commit": "94762429bea19b84cab50a3d0910a736184738a0"
+  },
+  {
+    "path": "src/arena/simulation-setup",
+    "baseline_commit": "06574f395de6807f9df842c7369a228902c87256"
+  },
+  {
+    "path": "src/arena/tools",
+    "baseline_commit": "cbf1d05abd436cdb820da9fd0c35847b06a39ae0"
+  },
+  {
+    "path": "src/arena-isaac",
+    "baseline_commit": "c5a1d8e9561b869c7c67898007948460e6d892ec"
+  },
+  {
+    "path": "src/arena-rosnav",
+    "baseline_commit": "39ca4cab709eb29733422c9afd1e6e1503e96a07"
+  },
+  {
+    "path": "src/deps/foxglove-sdk",
+    "baseline_commit": "8339d02ebf13cbb88bef94ab9f2329d6b2ccfd5c"
+  },
+  {
+    "path": "src/deps/hunav/hunav_sim",
+    "baseline_commit": "e8f7da39cda61a8005633e9a29d61ec2ca3601ac"
+  },
+  {
+    "path": "src/deps/hunav/lightsfm",
+    "baseline_commit": "b30327cca189af2fb90443a5d0040cceb46d7195"
+  },
+  {
+    "path": "src/deps/hunav/people_msgs",
+    "baseline_commit": "0ae47f6e0208cedd84d19d066743fdc1d05fcafa"
+  },
+  {
+    "path": "src/deps/nav2/navigation2",
+    "baseline_commit": "8e34dcf5790671085a893dc58d2a0940ec80dd1e"
+  },
+  {
+    "path": "src/deps/robots/jackal",
+    "baseline_commit": "017b8b581a90873047f7d6fe438bd87513be4a76"
+  }
+]

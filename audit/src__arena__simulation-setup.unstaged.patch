@@ -1,0 +1,67 @@
+diff --git a/configs/nav2/nav2.yaml b/configs/nav2/nav2.yaml
+index 14f5576..4617875 100644
+--- a/configs/nav2/nav2.yaml
++++ b/configs/nav2/nav2.yaml
+@@ -64,7 +64,7 @@ bt_navigator_rclcpp_node:
+ controller_server:
+   ros__parameters:
+     use_sim_time: True
+-    controller_frequency: 1.0
++    controller_frequency: 10.0
+     min_x_velocity_threshold: 0.001
+     min_y_velocity_threshold: 0.5
+     min_theta_velocity_threshold: 0.001
+@@ -169,8 +169,8 @@ local_costmap:
+ global_costmap:
+   global_costmap:
+     ros__parameters:
+-      update_frequency: 5.0
+-      publish_frequency: 2.0
++      update_frequency: 10.0
++      publish_frequency: 5.0
+       global_frame: map
+       robot_base_frame: ${frame:-}${robot_base_frame:-base_link}
+       use_sim_time: True
+@@ -182,7 +182,7 @@ global_costmap:
+       origin_y: -10.0
+       track_unknown_space: true
+       rolling_window: false
+-      plugins: ["static_layer", "obstacle_layer", "inflation_layer"]
++      plugins: ["static_layer", "inflation_layer"]
+       obstacle_layer:
+         plugin: "nav2_costmap_2d::ObstacleLayer"
+         enabled: True
+diff --git a/launch/nav2.launch.py b/launch/nav2.launch.py
+index e91e6b0..ac2f256 100644
+--- a/launch/nav2.launch.py
++++ b/launch/nav2.launch.py
+@@ -23,8 +23,8 @@ def generate_launch_description():
+ 
+     robot = LaunchArgument('robot')
+     task_generator_node = LaunchArgument('task_generator_node')
+-    namespace = LaunchArgument('namespace')
+-    frame = LaunchArgument('frame')
++    namespace = LaunchArgument('namespace', default_value='')
++    frame = LaunchArgument('frame', default_value='')
+     use_sim_time = LaunchArgument('use_sim_time')
+     global_planner = LaunchArgument('global_planner')
+     local_planner = LaunchArgument('local_planner')
+@@ -174,7 +174,7 @@ def generate_launch_description():
+         ('map_server', '/map_server'),
+         ('/tf', '/tf'),
+         ('/tf_static', '/tf_static'),
+-        ('map', PathJoinSubstitution([task_generator_node.substitution, 'map'])),
++        ('map', PathJoinSubstitution(['/', task_generator_node.substitution, 'map'])),
+     ]
+ 
+     bringup_cmd_group = GroupAction([
+@@ -184,6 +184,9 @@ def generate_launch_description():
+             executable='relay',
+             name='goal_pose_relay',
+             arguments=['/goal_pose', 'goal_pose'],
++            condition=IfCondition(PythonExpression([
++                "'", namespace.substitution, "' != ''"
++            ])),
+         ),
+         # Node(
+         #     package='tf2_ros',

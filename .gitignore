@@ -1,0 +1,10 @@
+/src/
+/install/
+/build/
+/log/
+/logs/
+/.conda/
+/.cache/
+/vendor/
+__pycache__/
+*.pyc

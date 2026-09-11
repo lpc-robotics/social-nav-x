@@ -1,0 +1,33 @@
+diff --git a/hunav_agent_manager/src/agent_manager.cpp b/hunav_agent_manager/src/agent_manager.cpp
+index 64a088f..3bbef93 100644
+--- a/hunav_agent_manager/src/agent_manager.cpp
++++ b/hunav_agent_manager/src/agent_manager.cpp
+@@ -125,6 +125,14 @@ bool AgentManager::isRobotVisible(int id, double dist)
+ void AgentManager::lookAtTheRobot(int id)
+ {
+   std::lock_guard<std::mutex> guard(mutex_);
++
++  // SurprisedNav keeps the agent in place while it turns to face the robot.
++  // Keep the reported kinematic state consistent with that stopped pose;
++  // otherwise consumers (notably Isaac's animation graph) receive the last
++  // RegularNav velocity and render the stationary character as walking.
++  agents_[id].sfmAgent.velocity.set(0.0, 0.0);
++  agents_[id].sfmAgent.linearVelocity = 0.0;
++
+   // Robot position
+   float rx = robot_.sfmAgent.position.getX();
+   float ry = robot_.sfmAgent.position.getY();
+@@ -232,8 +240,11 @@ void AgentManager::blockRobot(int id, double dt, double front_dist)
+ 
+   // Change the agent goal.
+   // We should compute a goal in front of the robot heading.
+-  float newgx = rx + front_dist * sin(h);
+-  float newgy = ry + front_dist * cos(h);
++  // ROS yaw is measured from +X toward +Y, so the forward unit vector is
++  // (cos(yaw), sin(yaw)). The previous swapped components placed the goal to
++  // the robot's left when yaw was zero instead of in front of it.
++  float newgx = rx + front_dist * cos(h);
++  float newgy = ry + front_dist * sin(h);
+   sfm::Goal g;
+   g.center.set(newgx, newgy);
+   g.radius = 0.05;  // robot_.sfmAgent.radius;
