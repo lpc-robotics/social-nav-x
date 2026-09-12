@@ -36,6 +36,7 @@ colcon --log-base "$STAGE/log" build \
         -DBUILD_TESTING=OFF \
         -DAMENT_CMAKE_SYMLINK_INSTALL=OFF \
         -Dcasadi_DIR="$CASADI_CMAKE" \
+        "-DCMAKE_CXX_FLAGS=-ffile-prefix-map=$MPC_WS=/usr/src/arena_mpc -fmacro-prefix-map=$MPC_WS=/usr/src/arena_mpc -fdebug-prefix-map=$MPC_WS=/usr/src/arena_mpc -ffile-prefix-map=$STAGE=/usr/src/arena_mpc_build -fdebug-prefix-map=$STAGE=/usr/src/arena_mpc_build" \
         -DCMAKE_CXX_COMPILER="$STABLE_WS/.conda/arena_ros/bin/x86_64-conda-linux-gnu-c++" \
         -DPython3_EXECUTABLE="$STABLE_WS/.conda/arena_ros/bin/python"
 
@@ -48,9 +49,9 @@ if find "$STAGE/release" -type l -print -quit | grep -q .; then
     find "$STAGE/release" -type l -print >&2
     exit 1
 fi
-if rg -l --text "$MPC_WS" "$STAGE/release" | grep -q .; then
-    echo "release contains a development-workspace absolute path" >&2
-    rg -l --text "$MPC_WS" "$STAGE/release" >&2
+if rg -l --text -e "$MPC_WS" -e "$STAGE" "$STAGE/release" | grep -q .; then
+    echo "release contains a development or staging absolute path" >&2
+    rg -l --text -e "$MPC_WS" -e "$STAGE" "$STAGE/release" >&2
     exit 1
 fi
 
