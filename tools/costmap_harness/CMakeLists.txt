@@ -1,0 +1,7 @@
+cmake_minimum_required(VERSION 3.16)
+project(costmap_clearing_harness)
+find_package(ament_cmake REQUIRED)
+find_package(nav2_costmap_2d REQUIRED)
+find_package(rclcpp REQUIRED)
+add_executable(costmap_harness main.cpp)
+ament_target_dependencies(costmap_harness nav2_costmap_2d rclcpp)

@@ -1,11 +1,46 @@
 # Costmap clearing: isolated development
 
-用户要求继续修复后，已在独立目录恢复工作。原始 RTX 对照实验确认：
-空旷、超量程以及小于最小量程的遮挡均可能输出 distance=0、flags=0；
-因此不会直接将 LaserScan 的 -1/0/NaN 转换为 +Inf。
-开发环境已独立复制并重定位，ROS_DOMAIN_ID 默认为 151，日志和缓存均在本目录。
-原目录 11,438 个源文件/配置和 11 个仓库状态再次验证一致。
-正在验证能够提供明确几何命中信息的上游清除射线来源。
+已在独立目录实现可选的渲染深度辅助 clearing 源，原 LaserScan 保留。
+不能安全地把 -1/0 转为 +Inf：RTX 原始对照中，空旷、超量程以及近距离遮挡
+均可输出 distance=0、flags=0。
+
+## Validated controlled comparison
+
+`tools/test_depth_clearing_scene.py` uses two real installed Nav2 Humble VoxelLayer
+masters with identical LaserScan marking input. The stationary sensor observes
+a moving box representing an occluder, a static wall, and a below-range occluder.
+The candidate receives extra render-depth endpoints, with marking=false.
+This controlled test uses synthetic LaserScan marking and real rendered depth;
+it is not yet an animated-human or DWB end-to-end benchmark.
+
+| Final region | Baseline | Candidate |
+|---|---:|---:|
+| Old obstacle lethal cells | 8 | 0 |
+| Old obstacle maximum cost | 254 | 0 |
+| Inflation cells around old position | 156 | 0 |
+| Static wall lethal cells | 20 | 20 |
+| Remembered cells behind close occluder | 2 | 2 |
+
+The candidate is clear at the first sample 0.5 simulated seconds after departure.
+The baseline remains occupied 5.83 simulated seconds after departure.
+Wall marking is intentionally stopped for the last 2.83 simulated seconds:
+the retained wall is not an artifact of immediate re-marking.
+Two geometry unit tests and isolated compilation pass.
+Evidence: `audit/depth_clearing_comparison.json`, master-grid NPY files and
+`audit/costmap_before_after.png`. Full Jackal/HuNav scene verification is ongoing.
+
+The new local source is `/lidar_clearing` (PointCloud2), clearing=true,
+marking=false, raytrace_max_range=3.0. It is separate from `/lidar` because the
+LaserScan cannot identify safe no-hit rays. Four co-located 90-degree depth
+cameras preserve geometry occlusion; finite endpoints stop 0.05 m before a hit.
+Only explicit positive infinity in the installed depth renderer becomes a
+finite range_max endpoint. Zero, negative, NaN and negative infinity are ignored.
+No direct LaserScan sentinel conversion and no LiDAR frequency change is made.
+
+Development branch: `fix/costmap-clearing` in the root and source repositories.
+Implementation commit: arena-isaac `3d86b95`.
+Configuration commit: simulation-setup `388e546`.
+Original workspace verification passed again: 11,438 files and 11 Git repositories.
 
 ## Source evidence
 

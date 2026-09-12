@@ -1,0 +1,102 @@
+[
+  {
+    "tick": 270,
+    "sim_time": 4.51666690222919,
+    "masters": {
+      "baseline": {
+        "old_lethal_cells": 8,
+        "old_max_cost": 254,
+        "inflated_cells": 156,
+        "wall_lethal_cells": 20,
+        "occluded_lethal_cells": 2
+      },
+      "fixed": {
+        "old_lethal_cells": 8,
+        "old_max_cost": 254,
+        "inflated_cells": 160,
+        "wall_lethal_cells": 20,
+        "occluded_lethal_cells": 2
+      }
+    }
+  },
+  {
+    "tick": 330,
+    "sim_time": 5.516666954383254,
+    "masters": {
+      "baseline": {
+        "old_lethal_cells": 8,
+        "old_max_cost": 254,
+        "inflated_cells": 156,
+        "wall_lethal_cells": 20,
+        "occluded_lethal_cells": 2
+      },
+      "fixed": {
+        "old_lethal_cells": 0,
+        "old_max_cost": 0,
+        "inflated_cells": 0,
+        "wall_lethal_cells": 20,
+        "occluded_lethal_cells": 2
+      }
+    }
+  },
+  {
+    "tick": 390,
+    "sim_time": 6.516667006537318,
+    "masters": {
+      "baseline": {
+        "old_lethal_cells": 8,
+        "old_max_cost": 254,
+        "inflated_cells": 156,
+        "wall_lethal_cells": 20,
+        "occluded_lethal_cells": 2
+      },
+      "fixed": {
+        "old_lethal_cells": 0,
+        "old_max_cost": 0,
+        "inflated_cells": 0,
+        "wall_lethal_cells": 20,
+        "occluded_lethal_cells": 2
+      }
+    }
+  },
+  {
+    "tick": 510,
+    "sim_time": 8.516667110845447,
+    "masters": {
+      "baseline": {
+        "old_lethal_cells": 8,
+        "old_max_cost": 254,
+        "inflated_cells": 156,
+        "wall_lethal_cells": 20,
+        "occluded_lethal_cells": 2
+      },
+      "fixed": {
+        "old_lethal_cells": 0,
+        "old_max_cost": 0,
+        "inflated_cells": 0,
+        "wall_lethal_cells": 20,
+        "occluded_lethal_cells": 2
+      }
+    }
+  },
+  {
+    "tick": 650,
+    "sim_time": 10.850000565871596,
+    "masters": {
+      "baseline": {
+        "old_lethal_cells": 8,
+        "old_max_cost": 254,
+        "inflated_cells": 156,
+        "wall_lethal_cells": 20,
+        "occluded_lethal_cells": 2
+      },
+      "fixed": {
+        "old_lethal_cells": 0,
+        "old_max_cost": 0,
+        "inflated_cells": 0,
+        "wall_lethal_cells": 20,
+        "occluded_lethal_cells": 2
+      }
+    }
+  }
+]
