@@ -9,3 +9,4 @@
 /audit/final.diff
 __pycache__/
 *.pyc
+/tools/python_deps/

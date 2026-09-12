@@ -31,7 +31,7 @@ export ROS_DISTRO=humble
 export ROS_VERSION=2
 export ROS_PYTHON_VERSION=3
 export RMW_IMPLEMENTATION="${RMW_IMPLEMENTATION:-rmw_fastrtps_cpp}"
-export ROS_DOMAIN_ID="${ROS_DOMAIN_ID:-51}"
+export ROS_DOMAIN_ID="${ROS_DOMAIN_ID:-151}"
 export ROS2CLI_DISABLE_DAEMON="${ROS2CLI_DISABLE_DAEMON:-1}"
 export OMNI_KIT_ACCEPT_EULA=YES
 export RENDER_PRESET="${RENDER_PRESET:-boring}"
@@ -41,6 +41,8 @@ export XDG_CONFIG_HOME="$ARENA_WS/.cache/xdg-config"
 export XDG_DATA_HOME="$ARENA_WS/.cache/xdg-data"
 export PIP_CACHE_DIR="$ARENA_WS/.cache/pip"
 export CONDA_PKGS_DIRS="$ARENA_WS/.cache/conda-pkgs"
+export ROS_LOG_DIR="$ARENA_WS/logs/ros"
+export PYTHONDONTWRITEBYTECODE=1
 export CPLUS_INCLUDE_PATH="$ARENA_WS/install/lightsfm/include${CPLUS_INCLUDE_PATH:+:$CPLUS_INCLUDE_PATH}"
 
 # Isaac 5.1 embeds Python 3.11 while the local ROS environment also uses
@@ -54,10 +56,10 @@ if [[ ":${LD_PRELOAD:-}:" != *":$ARENA_ROS_ENV/lib/libstdc++.so.6:"* ]]; then
     export LD_PRELOAD="$ARENA_ROS_ENV/lib/libstdc++.so.6${LD_PRELOAD:+:$LD_PRELOAD}"
 fi
 
-export ARENA_WEBRTC_SIGNAL_PORT="${ARENA_WEBRTC_SIGNAL_PORT:-49100}"
-export ARENA_WEBRTC_MEDIA_PORT="${ARENA_WEBRTC_MEDIA_PORT:-47998}"
+export ARENA_WEBRTC_SIGNAL_PORT="${ARENA_WEBRTC_SIGNAL_PORT:-49220}"
+export ARENA_WEBRTC_MEDIA_PORT="${ARENA_WEBRTC_MEDIA_PORT:-48020}"
 export ARENA_FOXGLOVE_ADDRESS="${ARENA_FOXGLOVE_ADDRESS:-127.0.0.1}"
-export ARENA_FOXGLOVE_PORT="${ARENA_FOXGLOVE_PORT:-8765}"
+export ARENA_FOXGLOVE_PORT="${ARENA_FOXGLOVE_PORT:-8875}"
 export ARENA_FOXGLOVE_CAPABILITIES="${ARENA_FOXGLOVE_CAPABILITIES:-[clientPublish,connectionGraph,assets]}"
 if [[ -z "${ARENA_FOXGLOVE_ASSET_ALLOWLIST:-}" ]]; then
     export ARENA_FOXGLOVE_ASSET_ALLOWLIST="['^package://[A-Za-z0-9_%./-]+[.](dae|fbx|glb|gltf|jpeg|jpg|mtl|obj|png|stl|tif|tiff|urdf|webp|xacro)$', '^file://$ARENA_WS/src/arena/simulation-setup/entities/robots/jackal/urdf/meshes/[A-Za-z0-9_.-]+[.]stl$']"

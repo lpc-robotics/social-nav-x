@@ -1,17 +1,11 @@
-# Costmap clearing: stopped before implementation
+# Costmap clearing: isolated development
 
-本次未完成运行时修复，已停在修改前：NVIDIA 5.1 源码表明 `-1` 是 FlatScan
-未填槽位的初始值，不能等价为“已正常扫描、确认无命中”；`0` 的无命中语义也
-没有得到证实。按照“方案失败即停止”的要求，没有新增 adapter、修改 Nav2
-参数或进行仿真部署。原目录的 11,438 个源文件/配置及 11 个仓库 Git 状态
-一致性检查通过。以下报告明确区分已确认事实、未完成验证和后续上游修复前提。
-
-The requested conservative `/lidar -> scan_adapter -> /lidar_nav2` repair
-cannot be implemented from the current LaserScan values alone. The prerequisite
-that `-1` identifies a normally emitted ray with no hit is disproved by NVIDIA's
-Isaac Sim 5.1.0 FlatScan source. No adapter or Nav2 parameter change was applied.
-No simulation, build, or navigation test was started for an unverified repair.
-The user's instruction to stop on failure is applied at this semantic gate.
+用户要求继续修复后，已在独立目录恢复工作。原始 RTX 对照实验确认：
+空旷、超量程以及小于最小量程的遮挡均可能输出 distance=0、flags=0；
+因此不会直接将 LaserScan 的 -1/0/NaN 转换为 +Inf。
+开发环境已独立复制并重定位，ROS_DOMAIN_ID 默认为 151，日志和缓存均在本目录。
+原目录 11,438 个源文件/配置和 11 个仓库状态再次验证一致。
+正在验证能够提供明确几何命中信息的上游清除射线来源。
 
 ## Source evidence
 
