@@ -1,0 +1,45 @@
+{
+  "real_baseline": {
+    "after_departure_sim_seconds": 7.500000391,
+    "movement_m": 1.7450484566774431,
+    "old_lethal_cells": 2,
+    "old_max_cost": 254
+  },
+  "real_fixed": {
+    "clearing_latency_sim_seconds": 2.000000104999998,
+    "movement_m": 1.6309179051505815,
+    "old_lethal_cells": 0,
+    "old_max_cost": 0
+  },
+  "controlled_final": {
+    "baseline": {
+      "old_lethal_cells": 8,
+      "old_max_cost": 254,
+      "inflated_cells": 156,
+      "wall_lethal_cells": 20,
+      "occluded_lethal_cells": 2
+    },
+    "fixed": {
+      "old_lethal_cells": 0,
+      "old_max_cost": 0,
+      "inflated_cells": 0,
+      "wall_lethal_cells": 20,
+      "occluded_lethal_cells": 2
+    }
+  },
+  "stream": {
+    "pointcloud_points": 1284,
+    "sim_frequency": 9.999999500000197,
+    "lidar_sim_frequency": 9.999999500000197,
+    "all_frames_lidar_link": true,
+    "all_points_finite": true,
+    "all_ranges_safe": true
+  },
+  "metadata": {
+    "resolution": 0.1,
+    "robot_position": [
+      3.0,
+      3.0
+    ]
+  }
+}

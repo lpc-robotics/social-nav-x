@@ -136,6 +136,7 @@ export ARENA_SCREENSHOT_DELAY="${ARENA_SCREENSHOT_DELAY:-25}"
     printf 'arena_humble_compat_prefix=%s\n' "$ARENA_COMPAT_PREFIX"
     printf 'person_sha256=%s\n' "$(sha256sum "$INSTALLED_PERSON" | awk '{print $1}')"
     printf 'character_forward_conversion=%s\n' 'ros_plus_x_to_isaac_minus_y'
+    printf 'depth_clearing=%s\n' "$ARENA_DEPTH_CLEARING"
 } > "$RUN_DIR/runtime_manifest.txt"
 
 echo "Starting HuNav six-behavior demo on host GPU $GPU_ID (Isaac internal cuda:0)"
@@ -145,6 +146,7 @@ echo "Navigation: $NAVIGATION (map_empty + NavFn + DWB)"
 echo "Ideal D6 chassis: $ARENA_IDEAL_CHASSIS (physics_dt=$ARENA_PHYSICS_DT)"
 echo "Runtime package mode: $RUNTIME_MODE"
 echo "arena_isaac: $ARENA_ISAAC_PREFIX"
+echo "Render-depth costmap clearing: $ARENA_DEPTH_CLEARING"
 echo "Logs: $RUN_DIR"
 
 exec ros2 launch arena_bringup isaac_six_behaviors.launch.py \

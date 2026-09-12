@@ -1,0 +1,11 @@
+{
+  "passed": false,
+  "files_checked": 11439,
+  "repositories_checked": 11,
+  "changed_files": [
+    "scripts/run_six_behaviors_mpc.sh"
+  ],
+  "changed_git_states": [],
+  "scope": "src, scripts, config; Git branch, HEAD, status and both diffs; excludes logs/build/cache and __pycache__",
+  "note": "The earlier resumed verification passed for 11438 files. A different process later added this single file to the original workspace; this task did not create or modify it. All 11 recorded Git states still match."
+}
