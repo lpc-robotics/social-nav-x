@@ -44,6 +44,30 @@ cp "$MPC_WS/scripts/run_mpc_release.sh" "$STAGE/release/run_mpc_release.sh"
 cp "$MPC_WS/config/stable_protected.sha256" "$STAGE/release/stable_protected.sha256"
 chmod +x "$STAGE/release/run_mpc_release.sh"
 
+# Colcon's Bash entry points are relocatable, but generated POSIX fallback
+# scripts and parent-prefix resources retain the build-time install path.  The
+# release runner uses local_setup.bash, which supplies COLCON_CURRENT_PREFIX to
+# these package scripts.  Replace their unused fallback and remove this
+# overlay's old self-prefix from parent metadata before the relocation scan.
+python - "$STAGE/release/install" <<'PY'
+import sys
+from pathlib import Path
+
+prefix = Path(sys.argv[1])
+needle = str(prefix)
+for path in prefix.rglob("*.sh"):
+    text = path.read_text(encoding="utf-8")
+    if needle in text:
+        path.write_text(
+            text.replace(needle, "${COLCON_CURRENT_PREFIX}"), encoding="utf-8"
+        )
+parent_index = prefix / "share/ament_index/resource_index/parent_prefix_path"
+if parent_index.is_dir():
+    for path in parent_index.iterdir():
+        entries = path.read_text(encoding="utf-8").split(":")
+        path.write_text(":".join(item for item in entries if item != needle), encoding="utf-8")
+PY
+
 if find "$STAGE/release" -type l -print -quit | grep -q .; then
     echo "release contains symlinks" >&2
     find "$STAGE/release" -type l -print >&2
