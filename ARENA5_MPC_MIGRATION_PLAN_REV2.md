@@ -8,7 +8,7 @@
 - **设计决定**：实施必须遵守的方案。
 - **实施前仍需验证**：必须在对应阶段用实际运行证据关闭，不能由源码默认值代替。
 
-当前执行状态：**P0～P6 已全部通过，迁移和增量发布完成**。DWB baseline、实际 topic/QoS/时序、C++ 依赖闭包、独立数学核心、数值对照、容量 benchmark、Nav2 接口与故障停车、静态导航、动态行人避障、性能/耐久、DWB 交错对照、可重定位发布和原 DWB 回退均已有实机证据。阶段证据保存在 `/home/lpc/workspace/arena5_mpc_ws/evidence/p0` 至 `evidence/p6`。2026-09-15 又完成了不进入控制链的 Foxglove 可视化增量，证据位于 `evidence/visualization`；当前不可变发布为 `/home/lpc/workspace/arena5_ws/optional/mpc/releases/20260915-c021977`，原发布 `20260912-58cd661` 保留用于回退。
+当前执行状态：**P0～P6 已全部通过，迁移和增量发布完成**。DWB baseline、实际 topic/QoS/时序、C++ 依赖闭包、独立数学核心、数值对照、容量 benchmark、Nav2 接口与故障停车、静态导航、动态行人避障、性能/耐久、DWB 交错对照、可重定位发布和原 DWB 回退均已有实机证据。阶段证据保存在 `/home/lpc/workspace/arena5_mpc_ws/evidence/p0` 至 `evidence/p6`。2026-09-15 又完成了不进入控制链的 Foxglove 可视化增量及 Path frame 修复，证据位于 `evidence/visualization`；当前不可变发布为 `/home/lpc/workspace/arena5_ws/optional/mpc/releases/20260915-df9a55d`，此前发布继续保留用于回退。
 
 ## 1. 不变边界与阶段 gate
 
@@ -196,6 +196,12 @@ odom、HuNav、lidar 分别检查 ROS 数据年龄和墙钟接收间隔。ROS �
 源码提交 `c021977c52b2ac63d4b6de43a3c07facff2d4215` 完成 3 包重建和 8 项测试记录且零失败。新不可变发布 `20260915-c021977` 大小为 45,082,081 bytes，重复通过临时重定位、动态依赖、零符号链接、绝对开发路径、SHA-256 和 7 项稳定保护审计；从发布目录启动的 ROS graph smoke 再次通过。稳定 MPC 包装脚本只改为指向该新版本，旧发布保留，原 DWB 入口未修改。
 
 Foxglove bridge 仍由既有独立 launch 提供，MPC 默认端口为 8775。Windows 远程客户端应在服务器端设置 `ARENA_FOXGLOVE_ADDRESS=0.0.0.0`，并连接 `ws://<server-ip>:8775`；Windows 的 `localhost` 不指向本 Linux 服务器。
+
+**Path frame 在线修复：**当前机器上的实际 Navfn `/plan` 使用 `Path.header.frame_id=map`，但各 `PoseStamped.header.frame_id` 为空。旧可视化适配器原样转发后，Foxglove 报告 `"map" != ""` 并在变换面板显示空 frame。domain 222 的修复前探针确认 25/25 个全局路径 Pose 为空；同次采样检查 3,685 个 `/tf` transform 和 9 个 `/tf_static` transform，父子 frame 均非空，因此不修改 TF 发布链。
+
+设计上，仅在可视化适配器的消息副本中让空 Pose frame 继承非空 Path frame；若 Pose 已给出与 Path 顶层不同的非空 frame，则拒绝该 Path，避免把不同坐标系的数据错误重标。domain 225 的修复后实机探针确认：原 `/plan` 仍为 `map + 23 个空 Pose frame`，`/mpc/global_plan` 已为 `map + 23 个 map Pose`，局部轨迹保持 `odom` 一致，TF 仍无空 frame。同期 MPC action 成功，命令均有限，行人保守净距下界为 0.55696 m。
+
+修复提交 `df9a55d61f68c0eaee5f7d393c8ab771f06a3963` 将可视化单元用例增至 4 个；三包完整结果为 10 tests、0 errors/failures/skips。不可变发布 `20260915-df9a55d` 大小为 45,083,528 bytes，已通过重定位、依赖、零符号链接、绝对路径、SHA-256 和稳定保护审计；从该发布直接运行的严格 smoke 将输入 `<empty>` Pose frames 全部输出为 `map`。原 DWB 入口和哈希保持不变。
 
 ## 5. P0～P6 测试与验收
 

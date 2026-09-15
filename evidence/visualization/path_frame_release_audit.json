@@ -1,0 +1,17 @@
+{
+  "development_path_matches": 0,
+  "dwb_entry_sha256": "9f8d26eae21348e00e6141f95829e51bf5cbc21e0c57d541bd3c8e9df2530836",
+  "file_count_including_manifest": 162,
+  "gate": "PASS",
+  "manifest_sha256": "f80b0f4022fcecd31e48b653b147383afa0118b16a9c7d6ade98ea4f4a7d93d6",
+  "manifest_verified": true,
+  "mpc_entry_sha256": "eadb33e383eb36257e0ac1a384a1a3f92d250b4713fde0b007c405368923dec2",
+  "release_bytes": 45083528,
+  "release_id": "20260915-df9a55d",
+  "release_path": "/home/lpc/workspace/arena5_ws/optional/mpc/releases/20260915-df9a55d",
+  "runtime_dependencies_resolved": true,
+  "source_commit": "df9a55d61f68c0eaee5f7d393c8ab771f06a3963",
+  "stable_protected_files_verified": 7,
+  "symlink_count": 0,
+  "visualizer_sha256": "b684ebf7a9ec60a4804c6941134137c85d6c0132024779668b8a6e5225a07765"
+}

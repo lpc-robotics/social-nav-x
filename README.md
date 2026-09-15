@@ -5,7 +5,7 @@ This repository contains the isolated development, evidence, and eventual additi
 The stable workspace is a read-only underlay during P0-P5. Existing files in it must not be edited, rebuilt, reset, or cleaned. The original DWB entry remains the default.
 
 Current phase: P0 through P6 passed. The current immutable release is installed at
-`/home/lpc/workspace/arena5_ws/optional/mpc/releases/20260915-c021977`, and the
+`/home/lpc/workspace/arena5_ws/optional/mpc/releases/20260915-df9a55d`, and the
 only new stable-workspace entry point is
 `/home/lpc/workspace/arena5_ws/scripts/run_six_behaviors_mpc.sh`.  The original
 `run_six_behaviors.sh` remains the default DWB entry and retains its protected
@@ -49,6 +49,12 @@ topics:
 | `/mpc/global_plan` | `nav_msgs/msg/Path` | Latest Nav2 global plan; transient-local so a new viewer receives the latest plan. |
 | `/mpc/local_trajectory` | `nav_msgs/msg/Path` | The controller's current MPC prediction, normally 26 poses for `N=25`. |
 | `/mpc/human_markers` | `visualization_msgs/msg/MarkerArray` | Human bodies, velocity arrows, constant-velocity predictions, HuNav goals, behavior labels, and the MPC exclusion envelope. |
+
+The visualizer normalizes every `PoseStamped.header.frame_id` to the enclosing
+Path frame when the pose frame is empty. This handles the installed Navfn
+planner's `Path.header.frame_id=map` output without exposing an empty frame to
+Foxglove. A non-empty pose frame that conflicts with the Path header is
+rejected instead of being relabeled.
 
 In a Foxglove 3D panel, set the display frame to `map` and enable those three
 topics. Path colors are viewer settings. Human marker colors encode the HuNav

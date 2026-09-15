@@ -48,7 +48,7 @@ records: four core tests, one controller pluginlib test, one ament test record,
 and the two Python visualization cases inside that ament record. Python,
 launch, XML, shell, and `git diff --check` static checks also passed.
 
-The immutable release is
+The initial visualization release was
 `/home/lpc/workspace/arena5_ws/optional/mpc/releases/20260915-c021977` and is
 bound to source commit `c021977c52b2ac63d4b6de43a3c07facff2d4215`.
 `release_ros_smoke.json` repeats the isolated ROS graph test using the
@@ -56,3 +56,32 @@ installed release script rather than the development overlay. The release has
 zero symlinks, passed the temporary relocation and dynamic dependency audit,
 and its complete SHA-256 manifest verifies. The seven protected stable files
 still match. The original DWB entry was not edited.
+
+## Path frame repair
+
+`path_frame_pre_fix.json` is the online diagnosis against release
+`20260915-c021977` on domain 222. The actual `/plan` had a `map` Path header
+and 25 poses with empty `frame_id`; `/mpc/global_plan` relayed that mismatch.
+At the same time the probe inspected 3,685 dynamic and nine static transforms:
+none had an empty parent or child frame. The Foxglove `""` entry therefore
+came from Path pose metadata, not the TF publishers.
+
+The adapter now copies each Path and makes an empty pose frame inherit the
+non-empty Path header. A genuinely conflicting non-empty pose frame is
+rejected. This is applied to both global and local visualization paths and
+does not modify Nav2's `/plan` or the controller's input.
+
+`path_frame_post_fix.json` is the live development-overlay PASS on domain 225.
+The raw `/plan` still had `map` plus 23 empty pose frames, while the published
+`/mpc/global_plan` had `map` in its header and all 23 poses. The live TF and
+TF-static samples again contained no empty transforms. `navigation_post_fix.json`
+records the simultaneous successful MPC action, finite commands, and a
+`0.55696 m` conservative human-clearance lower bound.
+
+Four visualization unit cases cover inheritance, input immutability, conflict
+rejection, and human markers. The complete workspace result was 10 tests,
+zero errors, failures, or skips. `path_frame_ros_smoke_post_fix.json` verifies
+a synthetic Nav2-style input with empty pose frames. The same strict smoke was
+then repeated from immutable release `20260915-df9a55d` in
+`path_frame_release_smoke_post_fix.json`; both output only `map` pose frames.
+`path_frame_release_audit.json` records the release and stable-protection audit.
