@@ -203,6 +203,27 @@ Foxglove bridge 仍由既有独立 launch 提供，MPC 默认端口为 8775。Wi
 
 修复提交 `df9a55d61f68c0eaee5f7d393c8ab771f06a3963` 将可视化单元用例增至 4 个；三包完整结果为 10 tests、0 errors/failures/skips。不可变发布 `20260915-df9a55d` 大小为 45,083,528 bytes，已通过重定位、依赖、零符号链接、绝对路径、SHA-256 和稳定保护审计；从该发布直接运行的严格 smoke 将输入 `<empty>` Pose frames 全部输出为 `map`。原 DWB 入口和哈希保持不变。
 
+### 4.2 全局代价地图障碍层修正（2026-09-15 已完成）
+
+MPC 模式的 global costmap 固定为 `static_layer + inflation_layer`，不再加载
+global `ObstacleLayer`。RTX 原始 `/lidar` 的无效量测不能稳定形成 free-space
+clearing ray；把它用于全局标记会使瞬态障碍残留为 lethal cell，并可能让 Navfn
+误判无路。静态结构继续来自地图，global inflation 和 `allow_unknown=false` 保持
+不变。
+
+此修正不改变局部避障链：local `VoxelLayer` 的 lidar marking/clearing、局部
+costmap watchdog、MPC 轨迹/制动碰撞复核，以及直接 `/human_states` 动态行人约束
+全部保留。只有在静态地图确实遗漏了需要全局拓扑绕行的障碍，并且传感源具有可信
+clearing 或等价的有界寿命过滤时，才重新评估 global `ObstacleLayer`。
+
+提交 `bf2bc7c31ec1dadd51318b20485eab138744c452` 新增配置契约测试和原子发布
+选择器；三包构建及 12 项测试全部通过。不可变发布 `20260915-bf2bc7c` 的实装
+配置确认 global plugins 仅为 `static_layer,inflation_layer`，无 global obstacle
+override，local lidar 期望更新周期仍为 0.3 s。发布通过重定位、依赖、绝对路径、
+全文件 SHA-256 和 7 项稳定底座保护检查。入口完成
+`20260915-bf2bc7c -> 20260915-df9a55d -> 20260915-bf2bc7c` 回退往返，两个
+方向的校验均成功；原 DWB 入口未修改。
+
 ## 5. P0～P6 测试与验收
 
 | 阶段 | 工作内容 | gate |
