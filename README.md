@@ -35,6 +35,25 @@ cd /home/lpc/workspace/arena5_ws
 GPU_ID=3 ./scripts/run_six_behaviors.sh
 ```
 
+The MPC global costmap intentionally uses only `StaticLayer` and
+`InflationLayer`. Raw lidar remains enabled in the local `VoxelLayer`, and
+dynamic people remain direct `/human_states` inputs to MPC. This prevents
+unreliable raw-lidar clearing rays from leaving stale lethal cells in Navfn's
+global planning map without weakening MPC's local collision checks.
+
+Release selection verifies every file in the target release, the protected
+stable DWB underlay, and overlay package resolution before atomically changing
+the MPC wrapper. To roll back, select any retained immutable release, for
+example:
+
+```bash
+cd /home/lpc/workspace/arena5_mpc_ws
+./scripts/select_mpc_release.sh 20260915-df9a55d
+```
+
+This changes only the next launch; it does not stop or replace an already
+running process.
+
 The governing plan is `ARENA5_MPC_MIGRATION_PLAN_REV2.md` in this repository.
 
 ## Foxglove visualization

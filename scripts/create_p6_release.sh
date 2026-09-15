@@ -6,6 +6,7 @@ STABLE_WS="${ARENA_STABLE_WS:-/home/lpc/workspace/arena5_ws}"
 RELEASE_ID="${1:?usage: create_p6_release.sh RELEASE_ID}"
 DEST_ROOT="$STABLE_WS/optional/mpc/releases/$RELEASE_ID"
 CASADI_CMAKE="$MPC_WS/third_party/casadi-3.8.0-wheel/casadi/cmake"
+COLCON_IGNORE="$STABLE_WS/optional/mpc/COLCON_IGNORE"
 
 if [[ ! "$RELEASE_ID" =~ ^[0-9A-Za-z._-]+$ ]]; then
     echo "release ID contains unsupported characters" >&2
@@ -13,6 +14,10 @@ if [[ ! "$RELEASE_ID" =~ ^[0-9A-Za-z._-]+$ ]]; then
 fi
 if [[ -e "$DEST_ROOT" ]]; then
     echo "immutable release already exists: $DEST_ROOT" >&2
+    exit 1
+fi
+if [[ -e "$COLCON_IGNORE" && (! -f "$COLCON_IGNORE" || -s "$COLCON_IGNORE") ]]; then
+    echo "refusing to replace a non-empty or non-regular COLCON_IGNORE: $COLCON_IGNORE" >&2
     exit 1
 fi
 (cd "$STABLE_WS" && sha256sum --check "$MPC_WS/config/stable_protected.sha256")
@@ -111,15 +116,9 @@ done
 mkdir -p "$(dirname "$DEST_ROOT")"
 cp -a "$STAGE/relocated" "$DEST_ROOT"
 mkdir -p "$STABLE_WS/optional/mpc"
-: >"$STABLE_WS/optional/mpc/COLCON_IGNORE"
-cat >"$STABLE_WS/scripts/run_six_behaviors_mpc.sh" <<EOF
-#!/usr/bin/env bash
-set -Eeuo pipefail
-exec "\$(cd "\$(dirname "\${BASH_SOURCE[0]}")/.." && pwd)/optional/mpc/releases/$RELEASE_ID/run_mpc_release.sh" "\$@"
-EOF
-chmod +x "$STABLE_WS/scripts/run_six_behaviors_mpc.sh"
+touch "$COLCON_IGNORE"
 
 (cd "$DEST_ROOT" && sha256sum --check SHA256SUMS)
 (cd "$STABLE_WS" && sha256sum --check "$MPC_WS/config/stable_protected.sha256")
-"$STABLE_WS/scripts/run_six_behaviors_mpc.sh" --check-runtime-only
+"$MPC_WS/scripts/select_mpc_release.sh" "$RELEASE_ID"
 echo "MPC_RELEASE_CREATED $DEST_ROOT"

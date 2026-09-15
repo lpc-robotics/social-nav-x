@@ -21,6 +21,13 @@ if(BUILD_TESTING)
       MPC_VISUALIZER_PATH=${CMAKE_CURRENT_SOURCE_DIR}/scripts/mpc_visualizer.py
       PYTEST_DISABLE_PLUGIN_AUTOLOAD=1
   )
+  ament_add_pytest_test(
+    nav2_overrides_contract
+    test/test_nav2_overrides.py
+    ENV
+      MPC_NAV2_OVERRIDES_PATH=${CMAKE_CURRENT_SOURCE_DIR}/config/nav2_overrides.yaml
+      PYTEST_DISABLE_PLUGIN_AUTOLOAD=1
+  )
 endif()
 
 ament_package()
