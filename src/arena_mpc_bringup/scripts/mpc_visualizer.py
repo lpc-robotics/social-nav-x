@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Publish MPC and HuNav data in Foxglove/RViz-friendly message types."""
 
+import copy
 import math
 
 import rclpy
@@ -33,6 +34,28 @@ BEHAVIOR_COLORS = {
     5: (0.10, 0.82, 0.76),
     6: (0.95, 0.18, 0.16),
 }
+
+
+def normalize_path_pose_frames(message):
+    """Return a Path whose PoseStamped frames agree with the Path header."""
+    frame_id = message.header.frame_id
+    if not frame_id:
+        raise ValueError("Path header.frame_id is empty")
+    conflicting_frames = sorted(
+        {
+            pose.header.frame_id
+            for pose in message.poses
+            if pose.header.frame_id and pose.header.frame_id != frame_id
+        }
+    )
+    if conflicting_frames:
+        raise ValueError(
+            f"Path pose frame(s) {conflicting_frames} conflict with {frame_id!r}"
+        )
+    normalized = copy.deepcopy(message)
+    for pose in normalized.poses:
+        pose.header.frame_id = frame_id
+    return normalized
 
 
 def color(red, green, blue, alpha=1.0):
@@ -269,10 +292,22 @@ class MpcVisualizer(Node):
         )
 
     def on_global_plan(self, message):
-        self.global_plan_publisher.publish(message)
+        self.publish_normalized_path(
+            message, self.global_plan_publisher, "global plan"
+        )
 
     def on_local_trajectory(self, message):
-        self.local_trajectory_publisher.publish(message)
+        self.publish_normalized_path(
+            message, self.local_trajectory_publisher, "local trajectory"
+        )
+
+    def publish_normalized_path(self, message, publisher, description):
+        try:
+            normalized = normalize_path_pose_frames(message)
+        except ValueError as error:
+            self.get_logger().error(f"Rejecting {description}: {error}")
+            return
+        publisher.publish(normalized)
 
     def on_humans(self, message):
         now = self.get_clock().now()
@@ -306,9 +341,15 @@ def main(args=None):
     except KeyboardInterrupt:
         pass
     finally:
-        node.destroy_node()
-        if rclpy.ok():
-            rclpy.shutdown()
+        try:
+            node.destroy_node()
+            if rclpy.ok():
+                rclpy.shutdown()
+        except KeyboardInterrupt:
+            # ros2 launch may deliver another SIGINT while Python is already
+            # tearing down the node. The visualization process has no state
+            # that needs a second cleanup pass.
+            pass
 
 
 if __name__ == "__main__":

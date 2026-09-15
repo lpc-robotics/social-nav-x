@@ -3,8 +3,9 @@ import math
 import os
 
 from builtin_interfaces.msg import Time
-from geometry_msgs.msg import Pose
+from geometry_msgs.msg import Pose, PoseStamped
 from hunav_msgs.msg import Agent, Agents
+from nav_msgs.msg import Path
 from visualization_msgs.msg import Marker
 
 
@@ -18,6 +19,40 @@ def load_visualizer_module():
 
 def marker_by_namespace(markers, namespace):
     return next(marker for marker in markers if marker.ns == namespace)
+
+
+def test_path_pose_frames_inherit_path_frame_without_mutating_input():
+    visualizer = load_visualizer_module()
+    message = Path()
+    message.header.frame_id = "map"
+    empty_frame_pose = PoseStamped()
+    empty_frame_pose.pose.orientation.w = 1.0
+    matching_frame_pose = PoseStamped()
+    matching_frame_pose.header.frame_id = "map"
+    matching_frame_pose.pose.orientation.w = 1.0
+    message.poses = [empty_frame_pose, matching_frame_pose]
+
+    result = visualizer.normalize_path_pose_frames(message)
+
+    assert result.header.frame_id == "map"
+    assert [pose.header.frame_id for pose in result.poses] == ["map", "map"]
+    assert message.poses[0].header.frame_id == ""
+
+
+def test_path_pose_frame_conflict_is_rejected():
+    visualizer = load_visualizer_module()
+    message = Path()
+    message.header.frame_id = "map"
+    pose = PoseStamped()
+    pose.header.frame_id = "odom"
+    message.poses = [pose]
+
+    try:
+        visualizer.normalize_path_pose_frames(message)
+    except ValueError as error:
+        assert "conflict" in str(error)
+    else:
+        raise AssertionError("conflicting Path frames were accepted")
 
 
 def test_human_marker_geometry_and_semantics():

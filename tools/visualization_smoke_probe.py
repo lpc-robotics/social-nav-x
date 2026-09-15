@@ -59,7 +59,10 @@ class VisualizationProbe(Node):
         global_path.header.stamp = stamp
         for x, y in ((1.0, 1.0), (2.0, 1.5), (3.0, 2.0)):
             pose = PoseStamped()
-            pose.header = global_path.header
+            # Nav2's installed Navfn planner leaves these per-pose frames
+            # empty while setting Path.header.frame_id to map. The visualizer
+            # must normalize this form for strict Foxglove Path validation.
+            pose.header.stamp = stamp
             pose.pose.position.x = x
             pose.pose.position.y = y
             pose.pose.orientation.w = 1.0
@@ -158,6 +161,10 @@ def main():
         passed = (
             node.global_output is not None
             and len(node.global_output.poses) == 3
+            and all(
+                pose.header.frame_id == node.global_output.header.frame_id
+                for pose in node.global_output.poses
+            )
             and node.local_output is not None
             and len(node.local_output.poses) == 3
             and node.human_output is not None
@@ -168,9 +175,19 @@ def main():
         )
         report = {
             "gate": "PASS" if passed else "FAIL",
+            "global_plan_header_frame": (
+                node.global_output.header.frame_id if node.global_output else ""
+            ),
             "global_plan_pose_count": (
                 len(node.global_output.poses) if node.global_output else 0
             ),
+            "global_plan_pose_frames": sorted(
+                {
+                    pose.header.frame_id
+                    for pose in (node.global_output.poses if node.global_output else [])
+                }
+            ),
+            "global_plan_source_fixture_pose_frames": ["<empty>"],
             "local_trajectory_pose_count": (
                 len(node.local_output.poses) if node.local_output else 0
             ),

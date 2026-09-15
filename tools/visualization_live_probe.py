@@ -36,17 +36,22 @@ class LiveVisualizationProbe(Node):
 
 
 def finite_path(path):
-    return bool(path.header.frame_id) and bool(path.poses) and all(
-        math.isfinite(value)
-        for pose in path.poses
-        for value in (
-            pose.pose.position.x,
-            pose.pose.position.y,
-            pose.pose.position.z,
-            pose.pose.orientation.x,
-            pose.pose.orientation.y,
-            pose.pose.orientation.z,
-            pose.pose.orientation.w,
+    return (
+        bool(path.header.frame_id)
+        and bool(path.poses)
+        and all(pose.header.frame_id == path.header.frame_id for pose in path.poses)
+        and all(
+            math.isfinite(value)
+            for pose in path.poses
+            for value in (
+                pose.pose.position.x,
+                pose.pose.position.y,
+                pose.pose.position.z,
+                pose.pose.orientation.x,
+                pose.pose.orientation.y,
+                pose.pose.orientation.z,
+                pose.pose.orientation.w,
+            )
         )
     )
 
