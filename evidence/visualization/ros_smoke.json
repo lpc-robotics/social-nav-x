@@ -1,0 +1,43 @@
+{
+  "expected_safety_diameter_m": 2.052,
+  "gate": "PASS",
+  "global_plan_pose_count": 3,
+  "human_marker_count": 7,
+  "human_marker_namespaces": [
+    "",
+    "human_body",
+    "human_goals",
+    "human_label",
+    "human_mpc_exclusion",
+    "human_prediction",
+    "human_velocity"
+  ],
+  "local_trajectory_pose_count": 3,
+  "publisher_qos": {
+    "/mpc/global_plan": [
+      {
+        "depth": 0,
+        "durability": "TRANSIENT_LOCAL",
+        "node": "mpc_visualizer",
+        "reliability": "RELIABLE"
+      }
+    ],
+    "/mpc/human_markers": [
+      {
+        "depth": 0,
+        "durability": "VOLATILE",
+        "node": "mpc_visualizer",
+        "reliability": "RELIABLE"
+      }
+    ],
+    "/mpc/local_trajectory": [
+      {
+        "depth": 0,
+        "durability": "VOLATILE",
+        "node": "mpc_visualizer",
+        "reliability": "RELIABLE"
+      }
+    ]
+  },
+  "safety_diameter_m": 2.052000023841858
+}

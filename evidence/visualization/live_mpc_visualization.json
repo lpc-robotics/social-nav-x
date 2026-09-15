@@ -1,0 +1,27 @@
+{
+  "gate": "PASS",
+  "global_plan_messages": 2,
+  "global_plan_pose_count": 23,
+  "human_marker_messages": 494,
+  "human_marker_namespaces": [
+    "human_body",
+    "human_goals",
+    "human_label",
+    "human_mpc_exclusion",
+    "human_prediction",
+    "human_velocity"
+  ],
+  "local_trajectory_last_pose_count": 1,
+  "local_trajectory_messages": 5,
+  "publishers": {
+    "/mpc/global_plan": [
+      "mpc_visualizer"
+    ],
+    "/mpc/human_markers": [
+      "mpc_visualizer"
+    ],
+    "/mpc/local_trajectory": [
+      "mpc_visualizer"
+    ]
+  }
+}

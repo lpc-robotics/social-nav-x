@@ -4,8 +4,8 @@ This repository contains the isolated development, evidence, and eventual additi
 
 The stable workspace is a read-only underlay during P0-P5. Existing files in it must not be edited, rebuilt, reset, or cleaned. The original DWB entry remains the default.
 
-Current phase: P0 through P6 passed.  The immutable release is installed at
-`/home/lpc/workspace/arena5_ws/optional/mpc/releases/20260912-58cd661`, and the
+Current phase: P0 through P6 passed. The current immutable release is installed at
+`/home/lpc/workspace/arena5_ws/optional/mpc/releases/20260915-c021977`, and the
 only new stable-workspace entry point is
 `/home/lpc/workspace/arena5_ws/scripts/run_six_behaviors_mpc.sh`.  The original
 `run_six_behaviors.sh` remains the default DWB entry and retains its protected
@@ -16,8 +16,10 @@ locked CasADi SDK evidence, independently implemented `arena_mpc_core`,
 Python/C++ numerical comparisons, and capacity benchmarks.  P2-P4 cover Nav2
 integration, fault handling, static navigation, and dynamic-human safety.  P5
 contains the maximum-load benchmark, paired DWB/MPC comparison, and accepted
-30-minute endurance run.  P6 records the relocatable release audit and final
-MPC/DWB rollback smoke.
+30-minute endurance run. P6 records the relocatable release audit and final
+MPC/DWB rollback smoke. `evidence/visualization` records the later additive
+Foxglove visualization release; the original P6 release remains available for
+rollback.
 
 Run the released controller from the stable workspace with:
 
@@ -33,4 +35,39 @@ cd /home/lpc/workspace/arena5_ws
 GPU_ID=3 ./scripts/run_six_behaviors.sh
 ```
 
-The governing plan is `/home/lpc/workspace/ARENA5_MPC_MIGRATION_PLAN_REV2.md`.
+The governing plan is `ARENA5_MPC_MIGRATION_PLAN_REV2.md` in this repository.
+
+## Foxglove visualization
+
+The MPC launch starts both `foxglove_bridge` and the read-only
+`mpc_visualizer` by default. The visualizer is outside the command path and
+does not publish velocity commands. It exposes these Foxglove/RViz-friendly
+topics:
+
+| Topic | Type | Content |
+|---|---|---|
+| `/mpc/global_plan` | `nav_msgs/msg/Path` | Latest Nav2 global plan; transient-local so a new viewer receives the latest plan. |
+| `/mpc/local_trajectory` | `nav_msgs/msg/Path` | The controller's current MPC prediction, normally 26 poses for `N=25`. |
+| `/mpc/human_markers` | `visualization_msgs/msg/MarkerArray` | Human bodies, velocity arrows, constant-velocity predictions, HuNav goals, behavior labels, and the MPC exclusion envelope. |
+
+In a Foxglove 3D panel, set the display frame to `map` and enable those three
+topics. Path colors are viewer settings. Human marker colors encode the HuNav
+behavior: blue regular, gray impassive, yellow surprised, purple scared,
+turquoise curious, and red threatening. The tall opaque cylinder is the human
+body. The flat translucent cylinder is the center-to-center exclusion area
+used to explain the configured `0.35 m` MPC clearance; it includes the human
+radius, the Jackal circumscribed radius, and the `0.05 m` geometry allowance.
+
+The default MPC Foxglove port is `8775`. From another Windows machine,
+`localhost` refers to Windows itself. Bind the server listener explicitly and
+connect Foxglove to the Linux server address:
+
+```bash
+cd /home/lpc/workspace/arena5_ws
+ARENA_FOXGLOVE_ADDRESS=0.0.0.0 GPU_ID=3 ./scripts/run_six_behaviors_mpc.sh
+```
+
+For this server the current endpoint is `ws://10.16.205.165:8775`; use the
+server's current IP if it changes, and ensure TCP port `8775` is reachable from
+Windows. Set `MPC_VISUALIZATION=false` only when the extra display topics are
+not wanted. This does not disable the Foxglove bridge itself.
