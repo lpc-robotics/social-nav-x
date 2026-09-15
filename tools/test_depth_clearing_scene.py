@@ -10,10 +10,15 @@ import time
 import traceback
 
 ROOT = Path(__file__).resolve().parents[1]
+RESULT_ROOT = Path(os.environ.get("ARENA_TEST_OUTPUT_ROOT", ROOT))
+RESULT_LOGS = RESULT_ROOT / "logs"
+RESULT_AUDIT = RESULT_ROOT / "audit"
+RESULT_LOGS.mkdir(parents=True, exist_ok=True)
+RESULT_AUDIT.mkdir(parents=True, exist_ok=True)
 from isaacsim import SimulationApp
 app = SimulationApp({"headless": True, "active_gpu": 2, "physics_gpu": 0,
                      "multi_gpu": False, "extra_args": [
-                         f"--/log/file={ROOT}/logs/depth_test_kit.log"]})
+                         f"--/log/file={RESULT_LOGS}/depth_test_kit.log"]})
 from isaacsim.core.utils.extensions import enable_extension
 enable_extension("isaacsim.sensors.rtx")
 import omni.kit.commands
@@ -102,9 +107,9 @@ try:
                 "topic": "/lidar_clearing", "data_type": "PointCloud2",
                 "marking": False, "clearing": True, "raytrace_max_range": 3.0,
                 "observation_persistence": 0.0, "max_obstacle_height": 2.0}
-        config = ROOT / f"logs/{name}_costmap.yaml"
+        config = RESULT_LOGS / f"{name}_costmap.yaml"
         config.write_text(yaml.safe_dump({"/**": {"ros__parameters": p}}))
-        log = (ROOT / f"logs/{name}_costmap.log").open("w")
+        log = (RESULT_LOGS / f"{name}_costmap.log").open("w")
         logs.append(log)
         command = [str(ROOT / "build/costmap_harness/costmap_harness"),
                    "--ros-args", "-r", f"__ns:=/{name}", "--params-file", str(config)]
@@ -183,10 +188,10 @@ try:
                     "wall_lethal_cells": int(np.sum(grid[wall] == 254)),
                     "occluded_lethal_cells": int(np.sum(grid[hidden] == 254)),
                 }
-                np.save(ROOT / f"audit/{name}_master_{tick}.npy", grid)
+                np.save(RESULT_AUDIT / f"{name}_master_{tick}.npy", grid)
             results.append(record)
             print("MASTER_RESULT", json.dumps(record), flush=True)
-    (ROOT / "audit/depth_clearing_comparison.json").write_text(json.dumps(results, indent=2))
+    (RESULT_AUDIT / "depth_clearing_comparison.json").write_text(json.dumps(results, indent=2))
     before, after = results[0]["masters"], results[-1]["masters"]
     assert before["fixed"]["old_lethal_cells"] > 0
     assert after["baseline"]["old_lethal_cells"] > 0

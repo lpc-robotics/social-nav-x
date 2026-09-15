@@ -1,0 +1,25 @@
+{
+  "name": "normalized-laserscan-v1",
+  "status": "validated-experimental",
+  "validated_at": "2026-09-15T17:09:00+08:00",
+  "root_tag": "validated/normalized-laserscan-v1",
+  "stable_baseline_tag": "baseline/depth-clearing-v1",
+  "arena_isaac": {
+    "worktree": ".workspaces/laserscan-v1/src/arena-isaac",
+    "branch": "feat/normalized-laserscan-v1",
+    "commit": "116e355cefccca2a97b963bee4462a279109d2cb",
+    "tag": "validated/normalized-laserscan-v1"
+  },
+  "overlay": {
+    "build": ".workspaces/laserscan-v1/build",
+    "install": ".workspaces/laserscan-v1/install",
+    "log": ".workspaces/laserscan-v1/log"
+  },
+  "runtime_defaults": {
+    "ARENA_DEPTH_CLEARING": "true",
+    "ARENA_NORMALIZED_SCAN": "false"
+  },
+  "validation": "audit/normalized_laserscan_validation.json",
+  "contract": "NORMALIZED_LASERSCAN_CONTRACT.md",
+  "report": "NORMALIZED_LASERSCAN_VALIDATION.md"
+}

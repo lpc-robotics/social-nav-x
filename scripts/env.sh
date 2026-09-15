@@ -44,6 +44,9 @@ export CONDA_PKGS_DIRS="$ARENA_WS/.cache/conda-pkgs"
 export ROS_LOG_DIR="$ARENA_WS/logs/ros"
 export PYTHONDONTWRITEBYTECODE=1
 export ARENA_DEPTH_CLEARING="${ARENA_DEPTH_CLEARING:-true}"
+export ARENA_NORMALIZED_SCAN="${ARENA_NORMALIZED_SCAN:-false}"
+export ARENA_NORMALIZED_SCAN_NOISE="${ARENA_NORMALIZED_SCAN_NOISE:-configured}"
+export ARENA_NORMALIZED_SCAN_SEED="${ARENA_NORMALIZED_SCAN_SEED:-0}"
 export CPLUS_INCLUDE_PATH="$ARENA_WS/install/lightsfm/include${CPLUS_INCLUDE_PATH:+:$CPLUS_INCLUDE_PATH}"
 
 # Isaac 5.1 embeds Python 3.11 while the local ROS environment also uses

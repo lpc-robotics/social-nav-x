@@ -79,7 +79,9 @@ DWB freezing 没有直接计数：为了把地图变化与底盘运动分开，�
 
 ## Git 记录与隔离
 
-开发目录：`/home/lpc/workspace/arena5_ws_costmap_fix`；根目录和相关源码仓库分支均为 `fix/costmap-clearing`。
+当前已验证版本另以 `baseline/depth-clearing-v1` 标签冻结在根仓库及全部 11 个源码仓库。提交、运行文件校验值和离线 Git bundle 清单记录在 `baseline/depth-clearing-v1.json`；`scripts/verify_depth_clearing_baseline.py` 用于检查标签、稳定源码、安装文件、既存工作区差异和恢复包。规范 LaserScan 在独立 `.workspaces/laserscan-v1` 工作树开发，不修改该稳定源码目录。
+
+开发目录：`/home/lpc/workspace/arena5_ws_costmap_fix`。根目录当前为 `feat/normalized-laserscan-v1`；稳定源码目录保持在清单记录的 `depth_clearing` 提交，规范雷达源码仅位于独立工作树的同名功能分支。
 
 | 仓库 | 基线 | 修复/验证提交 |
 | --- | --- | --- |

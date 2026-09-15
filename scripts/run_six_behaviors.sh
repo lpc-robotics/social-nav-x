@@ -103,6 +103,18 @@ if [[ "$NAVIGATION" != "true" && "$NAVIGATION" != "false" ]]; then
     echo "NAVIGATION must be true or false." >&2
     exit 2
 fi
+case "$ARENA_DEPTH_CLEARING" in
+    true|false) ;;
+    *) echo "ARENA_DEPTH_CLEARING must be true or false." >&2; exit 2 ;;
+esac
+case "$ARENA_NORMALIZED_SCAN" in
+    true|false) ;;
+    *) echo "ARENA_NORMALIZED_SCAN must be true or false." >&2; exit 2 ;;
+esac
+case "$ARENA_NORMALIZED_SCAN_NOISE" in
+    configured|off) ;;
+    *) echo "ARENA_NORMALIZED_SCAN_NOISE must be configured or off." >&2; exit 2 ;;
+esac
 
 if [[ ! -x "$ARENA_WS/install/arena_humble_compat/lib/arena_humble_compat/hunav_six_behaviors_bridge" ]]; then
     echo "Six-behavior demo is not built. Run ./scripts/build.sh first." >&2
@@ -121,7 +133,8 @@ if [[ "$NAVIGATION" == "true" ]]; then
 fi
 
 RUN_ID="$(date +%Y%m%d_%H%M%S)_six_behaviors_gpu${GPU_ID}"
-RUN_DIR="$ARENA_WS/logs/runs/$RUN_ID"
+ARENA_RUN_LOG_ROOT="${ARENA_RUN_LOG_ROOT:-$ARENA_WS/logs/runs}"
+RUN_DIR="$ARENA_RUN_LOG_ROOT/$RUN_ID"
 mkdir -p "$RUN_DIR"
 export ROS_LOG_DIR="$RUN_DIR/ros"
 export ARENA_KIT_LOG="$RUN_DIR/isaac_kit.log"
@@ -137,6 +150,9 @@ export ARENA_SCREENSHOT_DELAY="${ARENA_SCREENSHOT_DELAY:-25}"
     printf 'person_sha256=%s\n' "$(sha256sum "$INSTALLED_PERSON" | awk '{print $1}')"
     printf 'character_forward_conversion=%s\n' 'ros_plus_x_to_isaac_minus_y'
     printf 'depth_clearing=%s\n' "$ARENA_DEPTH_CLEARING"
+    printf 'normalized_scan=%s\n' "$ARENA_NORMALIZED_SCAN"
+    printf 'normalized_scan_noise=%s\n' "$ARENA_NORMALIZED_SCAN_NOISE"
+    printf 'normalized_scan_seed=%s\n' "$ARENA_NORMALIZED_SCAN_SEED"
 } > "$RUN_DIR/runtime_manifest.txt"
 
 echo "Starting HuNav six-behavior demo on host GPU $GPU_ID (Isaac internal cuda:0)"
@@ -147,6 +163,7 @@ echo "Ideal D6 chassis: $ARENA_IDEAL_CHASSIS (physics_dt=$ARENA_PHYSICS_DT)"
 echo "Runtime package mode: $RUNTIME_MODE"
 echo "arena_isaac: $ARENA_ISAAC_PREFIX"
 echo "Render-depth costmap clearing: $ARENA_DEPTH_CLEARING"
+echo "Normalized LaserScan: $ARENA_NORMALIZED_SCAN (noise=$ARENA_NORMALIZED_SCAN_NOISE seed=$ARENA_NORMALIZED_SCAN_SEED)"
 echo "Logs: $RUN_DIR"
 
 exec ros2 launch arena_bringup isaac_six_behaviors.launch.py \

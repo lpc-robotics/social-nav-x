@@ -10,3 +10,4 @@
 __pycache__/
 *.pyc
 /tools/python_deps/
+/.workspaces/
