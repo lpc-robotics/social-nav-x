@@ -28,6 +28,7 @@ def generate_launch_description():
             ),
             DeclareLaunchArgument("headless", default_value="true"),
             DeclareLaunchArgument("livestream", default_value="true"),
+            DeclareLaunchArgument("mpc_visualization", default_value="true"),
             DeclareLaunchArgument(
                 "webrtc_ip",
                 default_value=EnvironmentVariable("ARENA_WEBRTC_IP", default_value="127.0.0.1"),
@@ -104,7 +105,10 @@ def generate_launch_description():
                 PythonLaunchDescriptionSource(
                     PathJoinSubstitution([mpc_root, "launch", "mpc_nav2.launch.py"])
                 ),
-                launch_arguments={"use_sim_time": use_sim_time}.items(),
+                launch_arguments={
+                    "use_sim_time": use_sim_time,
+                    "mpc_visualization": LaunchConfiguration("mpc_visualization"),
+                }.items(),
             ),
             Node(
                 package="arena_mpc_controller",

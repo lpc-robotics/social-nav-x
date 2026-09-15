@@ -82,3 +82,21 @@ mpc_command_watchdog:
     odom_wall_timeout: 0.4
     lidar_wall_timeout: 1.55
     costmap_wall_timeout: 1.55
+
+mpc_visualizer:
+  ros__parameters:
+    use_sim_time: true
+    global_plan_input_topic: "/plan"
+    local_trajectory_input_topic: "/FollowPath/predicted_path"
+    human_input_topic: "/human_states"
+    global_plan_output_topic: "/mpc/global_plan"
+    local_trajectory_output_topic: "/mpc/local_trajectory"
+    human_markers_output_topic: "/mpc/human_markers"
+    prediction_horizon: 2.5
+    prediction_dt: 0.1
+    robot_circumscribed_radius: 0.326
+    safe_distance: 0.35
+    geometry_uncertainty: 0.05
+    human_body_height: 1.7
+    marker_lifetime: 0.6
+    maximum_measurement_age: 0.3

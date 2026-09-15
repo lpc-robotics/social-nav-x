@@ -93,6 +93,7 @@ echo "Logs: $RUN_DIR"
 exec ros2 launch arena_mpc_bringup "$MPC_LAUNCH" \
     headless:=true \
     livestream:="${LIVESTREAM:-true}" \
+    mpc_visualization:="${MPC_VISUALIZATION:-true}" \
     webrtc_ip:="$ARENA_WEBRTC_IP" \
     webrtc_signal_port:="$ARENA_WEBRTC_SIGNAL_PORT" \
     webrtc_media_port:="$ARENA_WEBRTC_MEDIA_PORT" \

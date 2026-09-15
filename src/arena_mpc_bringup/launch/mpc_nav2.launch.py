@@ -6,6 +6,7 @@ from arena_bringup.substitutions import (
 )
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
+from launch.conditions import IfCondition
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
 from launch_ros.descriptions import ParameterFile
@@ -132,6 +133,7 @@ def generate_launch_description():
             DeclareLaunchArgument("namespace", default_value=""),
             DeclareLaunchArgument("use_sim_time", default_value="true"),
             DeclareLaunchArgument("log_level", default_value="info"),
+            DeclareLaunchArgument("mpc_visualization", default_value="true"),
             Node(
                 package="nav2_controller",
                 executable="controller_server",
@@ -193,6 +195,14 @@ def generate_launch_description():
                     {"autostart": True},
                     {"node_names": lifecycle_nodes},
                 ],
+            ),
+            Node(
+                package="arena_mpc_bringup",
+                executable="mpc_visualizer.py",
+                name="mpc_visualizer",
+                output="screen",
+                condition=IfCondition(LaunchConfiguration("mpc_visualization")),
+                parameters=[configured_parameters],
             ),
         ]
     )
