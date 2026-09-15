@@ -2,12 +2,12 @@
 
 ## 结论
 
-第一版规范雷达已经通过语义、几何、时间、TF、动态场景、生命周期、多机器人隔离和稳定 costmap 回归验收。新功能默认关闭，现有 `/lidar` 与 `/lidar_clearing` 不变；当前 Nav2 继续只消费稳定的 clearing 源。
+规范雷达 v1.1 已经通过语义、几何、时间、TF、动态场景、生命周期、多机器人隔离和稳定 costmap 回归验收。新功能默认关闭，现有 `/lidar` 与 `/lidar_clearing` 不变；当前 Nav2 继续只消费稳定的 clearing 源。v1.1 在不改变接口的前提下补齐 URDF 高斯噪声均值、render 读取失败时“不发布并报错”的行为，以及控制适配器有限值约束。
 
 实现没有修改 NVIDIA Isaac Sim 5.1 源码或 Conda 包。源码位于独立 `.workspaces/laserscan-v1/src/arena-isaac` 工作树，构建、安装和日志分别隔离在该目录的 `build`、`install`、`log`。`vendor/IsaacSim` 保持提交 `47d886f2858d1ceed556b21c88927aa67bc81c12` 且工作树洁净，Isaac 环境的 `conda-meta/history` 校验值未变化。
 
 机器可读结果见 `audit/normalized_laserscan_validation.json`。
-验证版本入口记录在 `baseline/normalized-laserscan-v1.json`，根仓库和独立 `arena-isaac` 工作树均使用 `validated/normalized-laserscan-v1` 标签保护。
+验证版本入口记录在 `baseline/normalized-laserscan-v1.json`，根仓库和独立 `arena-isaac` 工作树当前均使用 `validated/normalized-laserscan-v1.1` 标签保护。原 `validated/normalized-laserscan-v1` 标签保持原指向，未移动或覆盖，可作为上一版本回退点。
 
 ## 接口与边界
 
@@ -27,12 +27,13 @@
 | --- | --- |
 | 独立 overlay 构建 | `arena_isaac`、`arena_humble_compat` 成功 |
 | stable/离线恢复校验 | runtime 49 项、含 bundle 61 项全部通过 |
-| 几何/语义/噪声确定性测试 | 10/10 通过 |
+| 几何/语义/噪声确定性测试 | 12/12 通过 |
 | 新文件 ament flake8 / pep257 | 通过 |
 | 受控墙体距离 | 期望 2.9 m，实测 2.9000001 m |
 | 动态物体 | 1.8000 m 命中，移走后为 `+Inf` |
 | 过近物体 | `-Inf` |
 | 完整 Jackal + HuNav | 25 帧、640 束、10 Hz、非法有限值 0 |
+| v1.1 实景复验 | 10 帧、640 束、10 Hz、非法有限值 0 |
 | 360° 布局 | `2π/640`，不重复首尾束 |
 | 时间 | `scan_time=0.1 s`、`time_increment=0`、仿真时钟 |
 | 实际 TF | `lidar_link → lidar_link_normalized`，z=0.142 m |
