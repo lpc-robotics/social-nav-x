@@ -1,5 +1,7 @@
 # Arena-Rosnav / Isaac Sim / Nav2 动态障碍清除修复
 
+> 本文记录已冻结的 `/lidar` + `/lidar_clearing` 稳定基线。2026-09-16 用户另已验收隔离的 `/lidar_normalized` 单源 Nav2 方案；两条路径的用途、启动、版本保护与回退统一见 [雷达输入交接](RADAR_INPUT_HANDOFF.md)。此处的稳定配置没有被替换。
+
 ## 最终根因
 
 Isaac Sim 5.1 的 RTX FlatScan 在输出前把每个 range bin 初始化为 `-1`，随后只用通过有效性筛选的 GMO 元素覆盖对应 bin。因此 `/lidar` 中的 `-1` 表示“这个 FlatScan bin 没有被有效元素填充”，不能证明该方向正常发射且量程内无命中。受控 GMO 实验还显示，空旷方向、超量程表面和低于近裁剪距离的遮挡都可能表现为 `distance=0, flags=0`。`-1`、`0`、NaN 都不具备安全的 no-hit 唯一语义。

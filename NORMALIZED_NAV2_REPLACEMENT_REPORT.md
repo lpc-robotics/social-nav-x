@@ -1,5 +1,7 @@
 # `/lidar_normalized` 替代 Nav2 `/lidar` 实验
 
+> 2026-09-16 用户验收通过，作为隔离的已验收版本保存；仍未改动稳定版默认入口。统一交接、版本锚点和回退见 [雷达输入交接](RADAR_INPUT_HANDOFF.md)。
+
 ## 结论
 
 在当前 Jackal + HuNav + Nav2/DWB 的局部 VoxelLayer 中，`/lidar_normalized` 可以独立完成障碍标记和旧障碍清除。在同一受控场景里，启用 `inf_is_valid=true` 后，人形障碍移走时旧位置 `max_cost` 与稳定的 `/lidar` + `/lidar_clearing` 方案一样降为 0，静态墙和被近物体遮挡的墙仍保留。真实 HuNav 场景也验证了标记到清除的完整过程。

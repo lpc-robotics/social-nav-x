@@ -1,5 +1,7 @@
 # 规范化 LaserScan 数据契约
 
+> 2026-09-16 用户已验收基于本契约的隔离 Nav2 单源方案。两套已保护版本与启动方式见 [雷达输入交接](RADAR_INPUT_HANDOFF.md)；契约本身不意味着稳定版 `depth_clearing` 自动迁移。
+
 ## 目的
 
 `/lidar_normalized` 是 Isaac Sim 5.1 中面向 DRL、MPC 和多机器人算法的统一二维雷达接口。它使用独立渲染深度视图重建量程与遮挡关系，不解释 RTX FlatScan 中语义不明的 `-1` 和 `0`。
