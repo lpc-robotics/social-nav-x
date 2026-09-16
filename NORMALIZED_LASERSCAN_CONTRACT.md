@@ -12,7 +12,7 @@
 /lidar_normalized   REP-117 LaserScan，供新算法开发使用
 ```
 
-当前 Nav2 配置不迁移到 `/lidar_normalized`。关闭新话题不会影响 `depth_clearing`。
+稳定 Nav2 配置不迁移到 `/lidar_normalized`。关闭新话题不会影响 `depth_clearing`。另有隔离的 [Nav2 替代实验](NORMALIZED_NAV2_REPLACEMENT_REPORT.md)，仅在其专用启动入口中让新话题成为局部 VoxelLayer 的唯一数据源。
 
 ## 消息语义
 

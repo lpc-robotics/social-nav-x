@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "validated_at": "2026-09-16T16:22:00+08:00",
+  "result": "passed_with_scope_limits",
+  "controlled_voxel_layer_comparison": {
+    "source": "tools/test_normalized_nav2_costmap.py",
+    "raw_evidence": ".workspaces/laserscan-v1/log/normalized_nav2_costmap_comparison.json",
+    "stable_rtx_plus_depth_clearing": {
+      "person_lethal_before": 8,
+      "person_max_after": 0,
+      "wall_lethal_before": 20,
+      "wall_lethal_after": 20,
+      "occluded_lethal_after": 1
+    },
+    "normalized_inf_is_valid_false": {
+      "person_lethal_before": 7,
+      "person_lethal_after": 4,
+      "person_max_after": 254
+    },
+    "normalized_inf_is_valid_true": {
+      "person_lethal_before": 7,
+      "person_max_after": 0,
+      "wall_lethal_before": 28,
+      "wall_lethal_after": 28,
+      "occluded_lethal_before": 4,
+      "occluded_lethal_after": 4,
+      "too_close_beams_after": 95
+    }
+  },
+  "full_jackal_hunav_nav2": {
+    "overlay_simulation_setup": ".workspaces/laserscan-v1/install/arena_simulation_setup",
+    "dwb_plugin": "dwb_core::DWBLocalPlanner",
+    "local_observation_sources": "normalized",
+    "normalized_topic": "/lidar_normalized",
+    "normalized_marking": true,
+    "normalized_clearing": true,
+    "normalized_inf_is_valid": true,
+    "normalized_subscribers": 1,
+    "raw_lidar_subscribers": 0,
+    "depth_clearing_subscribers_with_legacy_publisher_enabled": 0,
+    "final_single_source_depth_clearing_enabled": false,
+    "final_single_source_depth_clearing_topic_present": false,
+    "runtime_manifest": ".workspaces/laserscan-v1/log/runs/20260916_161754_six_behaviors_gpu0/runtime_manifest.txt",
+    "live_pedestrian": {
+      "raw_evidence": ".workspaces/laserscan-v1/log/normalized_nav2_pedestrian_single_source.json",
+      "marked_lethal_cells": 6,
+      "movement_m": 1.6982776291475157,
+      "old_position_max_cost_after": 0,
+      "clearing_latency_sim_s": 2.750000144,
+      "robot_displacement_m": 0.0
+    },
+    "scan_audit_with_unused_legacy_publisher_enabled": {
+      "raw_evidence": ".workspaces/laserscan-v1/log/full_nav2_replacement_scan.json",
+      "messages": 25,
+      "beams": 640,
+      "sim_frequency_hz": 9.999999500000019,
+      "frame_id": "lidar_link_normalized",
+      "tf_offset_z_m": 0.142
+    }
+  },
+  "scope_limits": [
+    "The two scanners have different angular sampling; clearing outcome, not bit-identical whole costmaps, was compared.",
+    "Nav2 does not project REP-117 -Inf into a near-obstacle mark; a separate close-contact safety measure is required for deployment.",
+    "The full navigation scene disabled AMCL; AMCL localization with this scan is not yet validated.",
+    "Four render-depth products per normalized source were already below real-time factor 1.0 in the prior isolated performance audit."
+  ],
+  "environment_guard": {
+    "isaac_sim_source_commit": "47d886f2858d1ceed556b21c88927aa67bc81c12",
+    "isaac_sim_source_clean": true,
+    "isaac_conda_history_sha256": "f1592eb7d8b5a5146c1877dee8940542cae9c8a66062e63625acd33e667cb98b"
+  }
+}
