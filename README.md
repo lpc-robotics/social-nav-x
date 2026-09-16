@@ -5,7 +5,7 @@ This repository contains the isolated development, evidence, and eventual additi
 The stable workspace is a read-only underlay during P0-P5. Existing files in it must not be edited, rebuilt, reset, or cleaned. The original DWB entry remains the default.
 
 Current phase: P0 through P6 passed. The current immutable release is installed at
-`/home/lpc/workspace/arena5_ws/optional/mpc/releases/20260915-bf2bc7c`, and the
+`/home/lpc/workspace/arena5_ws/optional/mpc/releases/20260916-8329398`, and the
 only new stable-workspace entry point is
 `/home/lpc/workspace/arena5_ws/scripts/run_six_behaviors_mpc.sh`.  The original
 `run_six_behaviors.sh` remains the default DWB entry and retains its protected
@@ -37,10 +37,21 @@ GPU_ID=3 ./scripts/run_six_behaviors.sh
 ```
 
 The MPC global costmap intentionally uses only `StaticLayer` and
-`InflationLayer`. Raw lidar remains enabled in the local `VoxelLayer`, and
-dynamic people remain direct `/human_states` inputs to MPC. This prevents
-unreliable raw-lidar clearing rays from leaving stale lethal cells in Navfn's
-global planning map without weakening MPC's local collision checks.
+`InflationLayer`. The local `VoxelLayer` keeps raw `/lidar` as its obstacle
+source and additionally consumes `/lidar_clearing` with `marking=false` and
+`clearing=true`. The clearing topic is derived from conservative render depth;
+it does not rewrite ambiguous RTX `-1`, `0`, or NaN scan bins. Dynamic people
+remain direct `/human_states` inputs to MPC.
+
+The local clearing source is enabled by default in release
+`20260916-8329398`. To disable it for the next launch without modifying the
+release, set `ARENA_DEPTH_CLEARING=false`. To restore the complete preceding
+version, use:
+
+```bash
+cd /home/lpc/workspace/arena5_mpc_ws
+./scripts/select_mpc_release.sh 20260915-bf2bc7c
+```
 
 Release selection verifies every file in the target release, the protected
 stable DWB underlay, and overlay package resolution before atomically changing

@@ -224,6 +224,25 @@ override，local lidar 期望更新周期仍为 0.3 s。发布通过重定位、
 `20260915-bf2bc7c -> 20260915-df9a55d -> 20260915-bf2bc7c` 回退往返，两个
 方向的校验均成功；原 DWB 入口未修改。
 
+### 4.3 局部代价地图动态残留清除（2026-09-16 已发布，待重启实机验收）
+
+在线复现确认，导航目标提前 `ABORTED` 的直接原因不是 Navfn 无路或 progress
+checker：全局路径持续成功，而 MPC 在行人离开后仍检测到局部 VoxelLayer 的致命
+残留。碰撞点为 `(4.1619, 3.00064)`，其前方致命栅格对应的当前 RTX LaserScan
+束为 `-1/0`，不能形成 clearing ray；MPC 在 `costmap_obstacle_wait_limit=1.0 s`
+后连续失败五次并终止 FollowPath。
+
+提交 `832939866ee8809169e31ae446fe3da0e07d62d5` 以不可变运行时叠加方式复用
+已验证的四向渲染深度清除源。原 `/lidar` 不改写且继续负责 marking；新增
+`/lidar_clearing` 为 PointCloud2，只允许 clearing、禁止 marking，有限深度在表面
+前 0.05 m 停止，无效深度不产生清除点。global costmap 仍只加载 static 与
+inflation layer。
+
+三包构建及 16 项测试全部通过。不可变发布 `20260916-8329398` 包含 207 项
+SHA-256 校验、零符号链接、零开发/暂存路径引用，并保持七项稳定底座哈希不变；
+`ARENA_DEPTH_CLEARING=false` 即时禁用检查及新旧发布双向回退均通过。当前旧进程
+未被热修改，最终实机验收须从稳定包装脚本重启后复现同一路径。
+
 ## 5. P0～P6 测试与验收
 
 | 阶段 | 工作内容 | gate |
