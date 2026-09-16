@@ -24,8 +24,22 @@ local_costmap:
       footprint: "[ [0.24, 0.22], [0.24, -0.22], [-0.24, -0.22], [-0.24, 0.22] ]"
       footprint_padding: 0.0
       voxel_layer:
+        # The raw RTX scan remains the marking source. Render-depth endpoints
+        # are clearing-only because RTX invalid bins (-1/0/NaN) do not prove
+        # free space and therefore cannot safely be rewritten in /lidar.
+        observation_sources: "lidar depth_clearing"
         lidar:
           expected_update_rate: 0.3
+        depth_clearing:
+          topic: /lidar_clearing
+          data_type: PointCloud2
+          marking: false
+          clearing: true
+          min_obstacle_height: 0.0
+          max_obstacle_height: 2.0
+          raytrace_min_range: 0.0
+          raytrace_max_range: 3.0
+          observation_persistence: 0.0
 
 global_costmap:
   global_costmap:

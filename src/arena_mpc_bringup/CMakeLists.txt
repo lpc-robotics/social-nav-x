@@ -28,6 +28,13 @@ if(BUILD_TESTING)
       MPC_NAV2_OVERRIDES_PATH=${CMAKE_CURRENT_SOURCE_DIR}/config/nav2_overrides.yaml
       PYTEST_DISABLE_PLUGIN_AUTOLOAD=1
   )
+  ament_add_pytest_test(
+    depth_clearing_geometry
+    test/test_depth_clearing_geometry.py
+    ENV
+      MPC_DEPTH_CLEARING_RUNTIME=${CMAKE_CURRENT_SOURCE_DIR}/../../runtime/isaac_python
+      PYTEST_DISABLE_PLUGIN_AUTOLOAD=1
+  )
 endif()
 
 ament_package()

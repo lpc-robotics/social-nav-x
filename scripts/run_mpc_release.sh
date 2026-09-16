@@ -4,17 +4,38 @@ set -Eeuo pipefail
 RELEASE_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 STABLE_WS="${ARENA_STABLE_WS:-/home/lpc/workspace/arena5_ws}"
 OVERLAY_SETUP="$RELEASE_ROOT/install/local_setup.bash"
+ISAAC_PATCH_ROOT="$RELEASE_ROOT/isaac_python"
 
 if [[ ! -f "$OVERLAY_SETUP" ]]; then
     echo "MPC release overlay is missing: $OVERLAY_SETUP" >&2
     exit 1
 fi
+for required_patch in \
+    arena_isaac/run_isaacsim.py \
+    isaac_utils/clearing_geometry.py \
+    isaac_utils/graphs/sensors/depth_clearing.py \
+    isaac_utils/graphs/sensors/lidar.py; do
+    if [[ ! -f "$ISAAC_PATCH_ROOT/$required_patch" ]]; then
+        echo "MPC release Isaac patch is missing: $ISAAC_PATCH_ROOT/$required_patch" >&2
+        exit 1
+    fi
+done
 (cd "$STABLE_WS" && sha256sum --check "$RELEASE_ROOT/stable_protected.sha256")
 
 set +u
 source "$STABLE_WS/scripts/env.sh"
 source "$OVERLAY_SETUP"
 set -u
+
+case "${ARENA_DEPTH_CLEARING:-true}" in
+    true|TRUE|True) export ARENA_DEPTH_CLEARING=true ;;
+    false|FALSE|False) export ARENA_DEPTH_CLEARING=false ;;
+    *)
+        echo "ARENA_DEPTH_CLEARING must be true or false." >&2
+        exit 2
+        ;;
+esac
+export PYTHONPATH="$ISAAC_PATCH_ROOT${PYTHONPATH:+:$PYTHONPATH}"
 
 if [[ "$(readlink -f "$(ros2 pkg prefix arena_mpc_controller)")" != \
       "$(readlink -f "$RELEASE_ROOT/install")" ]]; then
@@ -32,7 +53,7 @@ if [[ "${1:-}" == "--check-runtime-only" ]]; then
         echo "--check-runtime-only does not accept additional arguments." >&2
         exit 2
     fi
-    echo "MPC_RELEASE_RUNTIME_OK release=$RELEASE_ROOT overlay=$(ros2 pkg prefix arena_mpc_controller) underlay=$(ros2 pkg prefix arena_bringup)"
+    echo "MPC_RELEASE_RUNTIME_OK release=$RELEASE_ROOT overlay=$(ros2 pkg prefix arena_mpc_controller) underlay=$(ros2 pkg prefix arena_bringup) depth_clearing=$ARENA_DEPTH_CLEARING isaac_patch=$ISAAC_PATCH_ROOT"
     exit 0
 fi
 
@@ -67,6 +88,7 @@ export ARENA_KIT_LOG="$RUN_DIR/isaac_kit.log"
 
 echo "Starting immutable Arena MPC release on GPU $GPU_ID (${GPU_FREE_MIB} MiB free)"
 echo "MPC command chain: controller_server -> velocity_smoother -> watchdog -> /cmd_vel"
+echo "Local costmap depth clearing: $ARENA_DEPTH_CLEARING"
 echo "Release: $RELEASE_ROOT"
 echo "Logs: $RUN_DIR"
 

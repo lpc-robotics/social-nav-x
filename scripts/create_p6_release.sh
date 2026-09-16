@@ -7,6 +7,7 @@ RELEASE_ID="${1:?usage: create_p6_release.sh RELEASE_ID}"
 DEST_ROOT="$STABLE_WS/optional/mpc/releases/$RELEASE_ID"
 CASADI_CMAKE="$MPC_WS/third_party/casadi-3.8.0-wheel/casadi/cmake"
 COLCON_IGNORE="$STABLE_WS/optional/mpc/COLCON_IGNORE"
+ISAAC_PATCH_ROOT="$MPC_WS/runtime/isaac_python"
 
 if [[ ! "$RELEASE_ID" =~ ^[0-9A-Za-z._-]+$ ]]; then
     echo "release ID contains unsupported characters" >&2
@@ -20,6 +21,16 @@ if [[ -e "$COLCON_IGNORE" && (! -f "$COLCON_IGNORE" || -s "$COLCON_IGNORE") ]]; 
     echo "refusing to replace a non-empty or non-regular COLCON_IGNORE: $COLCON_IGNORE" >&2
     exit 1
 fi
+for required_patch in \
+    arena_isaac/run_isaacsim.py \
+    isaac_utils/clearing_geometry.py \
+    isaac_utils/graphs/sensors/depth_clearing.py \
+    isaac_utils/graphs/sensors/lidar.py; do
+    if [[ ! -f "$ISAAC_PATCH_ROOT/$required_patch" ]]; then
+        echo "Isaac depth-clearing patch is incomplete: $ISAAC_PATCH_ROOT/$required_patch" >&2
+        exit 1
+    fi
+done
 (cd "$STABLE_WS" && sha256sum --check "$MPC_WS/config/stable_protected.sha256")
 
 STAGE="$(mktemp -d /tmp/arena5-mpc-release.XXXXXX)"
@@ -47,6 +58,10 @@ colcon --log-base "$STAGE/log" build \
 
 cp "$MPC_WS/scripts/run_mpc_release.sh" "$STAGE/release/run_mpc_release.sh"
 cp "$MPC_WS/config/stable_protected.sha256" "$STAGE/release/stable_protected.sha256"
+cp -a "$ISAAC_PATCH_ROOT" "$STAGE/release/isaac_python"
+find "$STAGE/release/isaac_python" -type f \( -name '*.pyc' -o -name '*.pyo' \) -delete
+find "$STAGE/release/isaac_python" -depth -type d \
+    \( -name __pycache__ -o -name .pytest_cache \) -empty -delete
 chmod +x "$STAGE/release/run_mpc_release.sh"
 
 # Colcon's Bash entry points are relocatable, but generated POSIX fallback
@@ -107,6 +122,9 @@ done
     printf 'controller_sha256=%s\n' "$(sha256sum "$MPC_WS/src/arena_mpc_controller/src/mpc_controller.cpp" | awk '{print $1}')"
     printf 'controller_config_sha256=%s\n' "$(sha256sum "$MPC_WS/src/arena_mpc_bringup/config/controller_model.yaml" | awk '{print $1}')"
     printf 'nav2_overrides_sha256=%s\n' "$(sha256sum "$MPC_WS/src/arena_mpc_bringup/config/nav2_overrides.yaml" | awk '{print $1}')"
+    printf 'depth_clearing_upstream_commit=%s\n' 'be8fefce4fdeb238372da923214e478d92bbbc32'
+    printf 'depth_clearing_enabled_default=true\n'
+    printf 'depth_clearing_runtime_sha256=%s\n' "$(sha256sum "$MPC_WS/runtime/isaac_python/isaac_utils/graphs/sensors/depth_clearing.py" | awk '{print $1}')"
     printf 'casadi_version=3.8.0\n'
     printf 'ros_distro=humble\n'
 } >"$STAGE/relocated/RELEASE"
