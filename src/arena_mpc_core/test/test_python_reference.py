@@ -83,7 +83,7 @@ def main():
             [states[k + 1, 0] - expected[0], states[k + 1, 1] - expected[1], wrap(states[k + 1, 2] - expected[2])]
         )
         max_dynamics = max(max_dynamics, float(np.max(np.abs(residual))))
-        max_bounds = max(max_bounds, -controls[k, 0], controls[k, 0] - 0.26, abs(controls[k, 1]) - 1.0)
+        max_bounds = max(max_bounds, -controls[k, 0], controls[k, 0] - 0.8, abs(controls[k, 1]) - 1.5)
         interval = 0.08 if k == 0 else dt
         max_accel = max(
             max_accel,

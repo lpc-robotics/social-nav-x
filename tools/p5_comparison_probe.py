@@ -26,8 +26,8 @@ from sensor_msgs.msg import LaserScan
 ROBOT_HALF_LENGTH = 0.24
 ROBOT_HALF_WIDTH = 0.22
 ROBOT_CORNER_RADIUS = math.hypot(ROBOT_HALF_LENGTH, ROBOT_HALF_WIDTH)
-ROBOT_LINEAR_LIMIT = 0.26
-ROBOT_ANGULAR_LIMIT = 1.0
+ROBOT_LINEAR_LIMIT = 0.8
+ROBOT_ANGULAR_LIMIT = 1.5
 NUMERIC_ALLOWANCE = 0.005
 
 
@@ -302,7 +302,10 @@ class ComparisonProbe(Node):
         costmaps = self.costmap_parameters()
         expected_token = "DWB" if self.args.method == "dwb" else "MpcController"
         plugin_matches = expected_token in parameters["follow_path_plugin"]
-        speed_matches = abs(parameters["configured_max_linear_mps"] - 0.26) <= 1e-9
+        speed_matches = (
+            abs(parameters["configured_max_linear_mps"] - ROBOT_LINEAR_LIMIT)
+            <= 1e-9
+        )
         expected_footprint = "[[0.24,0.22],[0.24,-0.22],[-0.24,-0.22],[-0.24,0.22]]"
         mpc_costmap_matches = self.args.method == "dwb" or (
             costmaps["global"]["plugins"]

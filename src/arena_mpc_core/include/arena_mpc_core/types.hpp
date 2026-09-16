@@ -64,8 +64,8 @@ struct Config
   double terminal_weight{1.0};
   double slack_weight{50.0};
   double min_linear{0.0};
-  double max_linear{0.26};
-  double max_angular{1.0};
+  double max_linear{0.8};
+  double max_angular{1.5};
   double max_linear_accel{2.0};
   double max_angular_accel{3.2};
   double min_axis{1.0e-3};

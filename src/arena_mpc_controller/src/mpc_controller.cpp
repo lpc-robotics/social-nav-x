@@ -437,8 +437,8 @@ void MpcController::configure(
   config_.safe_distance = parameter<double>(node_, prefix + "safe_distance", 0.3);
   config_.terminal_weight = parameter<double>(node_, prefix + "terminal_weight", 1.0);
   config_.slack_weight = parameter<double>(node_, prefix + "slack_weight", 50.0);
-  config_.max_linear = parameter<double>(node_, prefix + "max_linear", 0.26);
-  config_.max_angular = parameter<double>(node_, prefix + "max_angular", 1.0);
+  config_.max_linear = parameter<double>(node_, prefix + "max_linear", 0.8);
+  config_.max_angular = parameter<double>(node_, prefix + "max_angular", 1.5);
   config_.max_linear_accel = parameter<double>(node_, prefix + "max_linear_accel", 2.0);
   config_.max_angular_accel = parameter<double>(node_, prefix + "max_angular_accel", 3.2);
   config_.max_dynamic_obstacles = static_cast<std::size_t>(

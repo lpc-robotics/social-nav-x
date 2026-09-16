@@ -20,8 +20,8 @@ def main():
     states = opti.variable(horizon + 1, 3)
     controls = opti.variable(horizon, 2)
     opti.subject_to(states[0, :] == np.zeros((1, 3)))
-    opti.subject_to(opti.bounded(0.0, controls[:, 0], 0.26))
-    opti.subject_to(opti.bounded(-1.0, controls[:, 1], 1.0))
+    opti.subject_to(opti.bounded(0.0, controls[:, 0], 0.8))
+    opti.subject_to(opti.bounded(-1.5, controls[:, 1], 1.5))
     for k in range(horizon):
         expected = ca.hcat(
             [

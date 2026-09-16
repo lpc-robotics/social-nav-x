@@ -12,8 +12,8 @@ controller_plugins_dict:
     safe_distance: 0.35
     terminal_weight: 1.0
     slack_weight: 50.0
-    max_linear: 0.26
-    max_angular: 1.0
+    max_linear: 0.8
+    max_angular: 1.5
     max_linear_accel: 2.0
     max_angular_accel: 3.2
     max_dynamic_obstacles: 32
@@ -30,8 +30,8 @@ controller_plugins_dict:
     odom_wall_limit: 0.4
     lidar_wall_limit: 1.55
     # Time-indexed path reference: 0.025 m / 0.1 s = 0.25 m/s, within
-    # the configured 0.26 m/s model limit so sharp turns are not cut to
-    # chase an unreachable reference.
+    # a conservative 0.25 m/s nominal reference. The 0.8 m/s bound remains
+    # available to the optimizer without forcing that speed near turns.
     reference_spacing: 0.025
     geometry_uncertainty: 0.05
     # Hard floor used only when the safest available response is to brake to

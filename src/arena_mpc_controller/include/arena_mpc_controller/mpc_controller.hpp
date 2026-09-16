@@ -96,7 +96,7 @@ private:
   std::uint64_t plan_hash_{0U};
   std::atomic<std::uint64_t> path_generation_{0U};
   std::atomic<std::uint64_t> reset_epoch_{0U};
-  std::atomic<double> speed_limit_{0.26};
+  std::atomic<double> speed_limit_{0.8};
   std::atomic<int> consecutive_failures_{0};
   rclcpp::Time last_command_time_{0, 0, RCL_ROS_TIME};
   std::mutex solver_mutex_;

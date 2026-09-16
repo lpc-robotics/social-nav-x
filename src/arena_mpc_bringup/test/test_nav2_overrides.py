@@ -31,3 +31,31 @@ def test_costmap_layer_contract():
 
     watchdog_params = config["mpc_command_watchdog"]["ros__parameters"]
     assert watchdog_params["costmap_topic"] == "/local_costmap/costmap_raw"
+
+
+def test_mpc_speed_limits_match_velocity_smoother():
+    model_path = Path(os.environ["MPC_CONTROLLER_MODEL_PATH"])
+    model = yaml.safe_load(model_path.read_text(encoding="utf-8"))
+    controller = model["controller_plugins_dict"]["FollowPath"]
+
+    overrides_path = Path(os.environ["MPC_NAV2_OVERRIDES_PATH"])
+    overrides = yaml.safe_load(overrides_path.read_text(encoding="utf-8"))
+    smoother = overrides["velocity_smoother"]["ros__parameters"]
+
+    assert controller["max_linear"] == 0.8
+    assert controller["max_angular"] == 1.5
+    assert smoother["max_velocity"] == [0.8, 0.0, 1.5]
+    assert smoother["min_velocity"] == [-0.8, 0.0, -1.5]
+
+
+def test_dwb_speed_limits_match_velocity_smoother():
+    config_path = Path(os.environ["DWB_SPEED_OVERRIDES_PATH"])
+    config = yaml.safe_load(config_path.read_text(encoding="utf-8"))
+    controller = config["controller_server"]["ros__parameters"]["FollowPath"]
+    smoother = config["velocity_smoother"]["ros__parameters"]
+
+    assert controller["max_vel_x"] == 0.8
+    assert controller["max_speed_xy"] == 0.8
+    assert controller["max_vel_theta"] == 1.5
+    assert smoother["max_velocity"] == [0.8, 0.0, 1.5]
+    assert smoother["min_velocity"] == [-0.8, 0.0, -1.5]

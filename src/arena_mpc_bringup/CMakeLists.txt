@@ -26,6 +26,8 @@ if(BUILD_TESTING)
     test/test_nav2_overrides.py
     ENV
       MPC_NAV2_OVERRIDES_PATH=${CMAKE_CURRENT_SOURCE_DIR}/config/nav2_overrides.yaml
+      MPC_CONTROLLER_MODEL_PATH=${CMAKE_CURRENT_SOURCE_DIR}/config/controller_model.yaml
+      DWB_SPEED_OVERRIDES_PATH=${CMAKE_CURRENT_SOURCE_DIR}/config/dwb_speed_overrides.yaml
       PYTEST_DISABLE_PLUGIN_AUTOLOAD=1
   )
   ament_add_pytest_test(

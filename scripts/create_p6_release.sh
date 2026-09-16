@@ -57,12 +57,14 @@ colcon --log-base "$STAGE/log" build \
         -DPython3_EXECUTABLE="$STABLE_WS/.conda/arena_ros/bin/python"
 
 cp "$MPC_WS/scripts/run_mpc_release.sh" "$STAGE/release/run_mpc_release.sh"
+cp "$MPC_WS/scripts/run_dwb_release.sh" "$STAGE/release/run_dwb_release.sh"
 cp "$MPC_WS/config/stable_protected.sha256" "$STAGE/release/stable_protected.sha256"
 cp -a "$ISAAC_PATCH_ROOT" "$STAGE/release/isaac_python"
 find "$STAGE/release/isaac_python" -type f \( -name '*.pyc' -o -name '*.pyo' \) -delete
 find "$STAGE/release/isaac_python" -depth -type d \
     \( -name __pycache__ -o -name .pytest_cache \) -empty -delete
 chmod +x "$STAGE/release/run_mpc_release.sh"
+chmod +x "$STAGE/release/run_dwb_release.sh"
 
 # Colcon's Bash entry points are relocatable, but generated POSIX fallback
 # scripts and parent-prefix resources retain the build-time install path.  The
@@ -101,6 +103,7 @@ fi
 
 mv "$STAGE/release" "$STAGE/relocated"
 "$STAGE/relocated/run_mpc_release.sh" --check-runtime-only
+"$STAGE/relocated/run_dwb_release.sh" --check-runtime-only
 set +u
 source "$STAGE/relocated/install/local_setup.bash"
 set -u
@@ -122,6 +125,7 @@ done
     printf 'controller_sha256=%s\n' "$(sha256sum "$MPC_WS/src/arena_mpc_controller/src/mpc_controller.cpp" | awk '{print $1}')"
     printf 'controller_config_sha256=%s\n' "$(sha256sum "$MPC_WS/src/arena_mpc_bringup/config/controller_model.yaml" | awk '{print $1}')"
     printf 'nav2_overrides_sha256=%s\n' "$(sha256sum "$MPC_WS/src/arena_mpc_bringup/config/nav2_overrides.yaml" | awk '{print $1}')"
+    printf 'dwb_speed_overrides_sha256=%s\n' "$(sha256sum "$MPC_WS/src/arena_mpc_bringup/config/dwb_speed_overrides.yaml" | awk '{print $1}')"
     printf 'depth_clearing_upstream_commit=%s\n' 'be8fefce4fdeb238372da923214e478d92bbbc32'
     printf 'depth_clearing_enabled_default=true\n'
     printf 'depth_clearing_runtime_sha256=%s\n' "$(sha256sum "$MPC_WS/runtime/isaac_python/isaac_utils/graphs/sensors/depth_clearing.py" | awk '{print $1}')"
@@ -139,4 +143,5 @@ touch "$COLCON_IGNORE"
 (cd "$DEST_ROOT" && sha256sum --check SHA256SUMS)
 (cd "$STABLE_WS" && sha256sum --check "$MPC_WS/config/stable_protected.sha256")
 "$MPC_WS/scripts/select_mpc_release.sh" "$RELEASE_ID"
+"$MPC_WS/scripts/select_dwb_release.sh" "$RELEASE_ID"
 echo "MPC_RELEASE_CREATED $DEST_ROOT"
