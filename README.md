@@ -5,9 +5,11 @@ This repository contains the isolated development, evidence, and eventual additi
 The stable workspace is a read-only underlay during P0-P5. Existing files in it must not be edited, rebuilt, reset, or cleaned. The original DWB entry remains the default.
 
 Current phase: P0 through P6 passed. The current immutable release is installed at
-`/home/lpc/workspace/arena5_ws/optional/mpc/releases/20260916-8329398`, and the
-only new stable-workspace entry point is
-`/home/lpc/workspace/arena5_ws/scripts/run_six_behaviors_mpc.sh`.  The original
+`/home/lpc/workspace/arena5_ws/optional/mpc/releases/20260916-4ff2edd`. It
+provides the additive MPC entry point
+`/home/lpc/workspace/arena5_ws/scripts/run_six_behaviors_mpc.sh` and the additive
+DWB 0.8/1.5 profile entry point
+`/home/lpc/workspace/arena5_ws/scripts/run_six_behaviors_dwb_08.sh`. The original
 `run_six_behaviors.sh` remains the default DWB entry and retains its protected
 hash.
 
@@ -29,6 +31,15 @@ cd /home/lpc/workspace/arena5_ws
 GPU_ID=3 ./scripts/run_six_behaviors_mpc.sh
 ```
 
+The MPC controller, its velocity smoother, and the independent DWB speed
+profile use a `0.8 m/s` linear limit and `1.5 rad/s` angular limit. Run that DWB
+profile with:
+
+```bash
+cd /home/lpc/workspace/arena5_ws
+GPU_ID=3 ./scripts/run_six_behaviors_dwb_08.sh
+```
+
 Run the unchanged DWB default with:
 
 ```bash
@@ -44,7 +55,7 @@ it does not rewrite ambiguous RTX `-1`, `0`, or NaN scan bins. Dynamic people
 remain direct `/human_states` inputs to MPC.
 
 The local clearing source is enabled by default in release
-`20260916-8329398`. To disable it for the next launch without modifying the
+`20260916-4ff2edd`. To disable it for the next launch without modifying the
 release, set `ARENA_DEPTH_CLEARING=false`. To restore the complete preceding
 version, use:
 

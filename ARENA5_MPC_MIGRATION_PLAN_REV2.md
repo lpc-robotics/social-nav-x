@@ -1,6 +1,6 @@
 # 将 MPC-Navigation 的 MPC 控制器迁移到 arena5_ws：实施与验收计划（Revision 2）
 
-修订日期：2026-09-12；实施状态及可视化增量更新于 2026-09-15。目标是把 `/home/lpc/MPC-Navigation` 中的 MPC 数学核心迁移到 `/home/lpc/workspace/arena5_ws`，新增与 DWB 独立可选的 ROS 2 Humble Nav2 Controller plugin。`social-nav-x` 仅为历史分支，不是交付目标。
+修订日期：2026-09-12；实施状态、可视化和速度上限增量更新至 2026-09-17。目标是把 `/home/lpc/MPC-Navigation` 中的 MPC 数学核心迁移到 `/home/lpc/workspace/arena5_ws`，新增与 DWB 独立可选的 ROS 2 Humble Nav2 Controller plugin。`social-nav-x` 仅为历史分支，不是交付目标。
 
 本文区分三类结论：
 
@@ -8,14 +8,14 @@
 - **设计决定**：实施必须遵守的方案。
 - **实施前仍需验证**：必须在对应阶段用实际运行证据关闭，不能由源码默认值代替。
 
-当前执行状态：**P0～P6 已全部通过，迁移和增量发布完成**。DWB baseline、实际 topic/QoS/时序、C++ 依赖闭包、独立数学核心、数值对照、容量 benchmark、Nav2 接口与故障停车、静态导航、动态行人避障、性能/耐久、DWB 交错对照、可重定位发布和原 DWB 回退均已有实机证据。阶段证据保存在 `/home/lpc/workspace/arena5_mpc_ws/evidence/p0` 至 `evidence/p6`。2026-09-15 又完成了不进入控制链的 Foxglove 可视化增量及 Path frame 修复，证据位于 `evidence/visualization`；当前不可变发布为 `/home/lpc/workspace/arena5_ws/optional/mpc/releases/20260915-df9a55d`，此前发布继续保留用于回退。
+当前执行状态：**P0～P6 已全部通过，迁移和增量发布完成**。DWB baseline、实际 topic/QoS/时序、C++ 依赖闭包、独立数学核心、数值对照、容量 benchmark、Nav2 接口与故障停车、静态导航、动态行人避障、性能/耐久、DWB 交错对照、可重定位发布和原 DWB 回退均已有实机证据。阶段证据保存在 `/home/lpc/workspace/arena5_mpc_ws/evidence/p0` 至 `evidence/p6`。后续完成了 Foxglove 可视化、Path frame、costmap 清除和速度上限增量。当前不可变发布为 `/home/lpc/workspace/arena5_ws/optional/mpc/releases/20260916-4ff2edd`，速度实机证据位于 `evidence/speed_limits`，此前发布继续保留用于回退。
 
 ## 1. 不变边界与阶段 gate
 
 ### 1.1 稳定工作空间保护
 
 1. `/home/lpc/workspace/arena5_ws` 只允许读取源码和配置、查看状态、运行原生 DWB baseline，以及在 P6 完成增量发布。P0～P5 不编辑其中现有源码、脚本、共享 `build/`、`install/` 或 `.conda/`。
-2. MPC 开发在 `/home/lpc/workspace/arena5_mpc_ws` 独立 Git 仓库的 `feature/mpc-nav2` 分支进行。构建、安装、日志、缓存和求解器依赖均放在该目录。
+2. MPC 开发在 `/home/lpc/workspace/arena5_mpc_ws` 独立 Git 仓库进行；迁移始于 `feature/mpc-nav2`，当前发布增量位于 `fix/local-costmap-depth-clearing`。构建、安装、日志、缓存和求解器依赖均放在该目录。
 3. 稳定工作空间根目录不是 Git 仓库。保护清单必须记录嵌套仓库 HEAD、本地修改、未跟踪文件、关键 install 文件、包解析路径和 SHA-256；不得 reset、clean 或覆盖用户已有修改。
 4. 只新增 `arena_mpc_core`、`arena_mpc_controller`、`arena_mpc_bringup` 三个包。Arena、Isaac、HuNav、Nav2、消息包和 Foxglove 继续来自冻结 underlay。
 5. P0～P6 必须依次通过。发现接口、参数、时序、性能阈值或实现方案与实机不符时，可以同步修正文档和实现，但不得改变总体架构、破坏稳定工作空间或跳过当前 gate。
@@ -33,6 +33,7 @@ GPU 2 和 GPU 3 上已有其他用户计算任务不构成等待条件。启动�
 ### 1.3 最终架构
 
 - 原 `GPU_ID=3 ./scripts/run_six_behaviors.sh` 仍是默认 DWB 入口，原脚本字节不变。
+- DWB 的 `0.8 m/s`、`1.5 rad/s` 版本使用新增的 `run_six_behaviors_dwb_08.sh` 独立入口；不覆盖原 DWB 参数和默认入口。
 - MPC 是独立 Nav2 C++ Controller plugin，通过新增入口启动；首版不支持运行中热切换。
 - 命令链固定为 `controller_server -> velocity_smoother -> 独立 watchdog -> /cmd_vel`。
 - MPC 失败停车并向 Nav2 报告失败，不自动切换 DWB。
@@ -109,10 +110,10 @@ GPU 2 和 GPU 3 上已有其他用户计算任务不构成等待条件。启动�
 - 保留平面非完整运动学：`x += dt*v*cos(yaw)`、`y += dt*v*sin(yaw)`、`yaw += dt*w`；状态 `(x,y,yaw)`，控制 `(v,w)`。
 - 保留原位置/航向跟踪、控制代价、终端代价、椭圆距离和 `h[k+1] >= gamma*h[k] - slack[k]`。`gamma` 沿用原语义。
 - 初始参数：`N=25`、模型步长 `dt=0.1 s` 仿真时间、`gamma=0.2`、净安全间隔 0.30 m、终端权重 1、松弛惩罚 50。
-- 首版约束：`0 <= v <= 0.26 m/s`、`|w| <= 1.0 rad/s`、线/角加速度上限 2.0 m/s² 和 3.2 rad/s²，并支持 Nav2 限速。
+- 首版历史约束为 `0 <= v <= 0.26 m/s`、`|w| <= 1.0 rad/s`；2026-09-17 增量发布将配置上限改为 `0 <= v <= 0.8 m/s`、`|w| <= 1.5 rad/s`。线/角加速度上限仍为 2.0 m/s² 和 3.2 rad/s²，并继续支持 Nav2 限速。
 - 修正固定 `25*j` 索引、末端状态错位、atan2 边界、跨 ±pi 航向、退化椭圆和零距离问题；约束覆盖 `x[N]`。
 - 删除 `exceed_ob()` 目标方向障碍丢弃规则。松弛只能作用于屏障收敛条件，几何碰撞边界保持硬约束；因松弛只受非负下界并仅进入二次罚项，核心将其解析消元为 `max(0, gamma*h[k]-h[k+1])`，输出时恢复同一 slack 值。求解后独立检查。
-- 路径按弧长重采样，处理重复点、短路径、路径替换、目标位置和终点航向，沿用 0.25 m/0.25 rad goal checker 容差。P3 实测否定了每模型步 0.05 m 的初值：它在 `dt=0.1 s` 下对应不可达的 0.5 m/s 并导致急弯切角；适配层现冻结为每步 0.025 m，对应 0.25 m/s 且不超过 0.26 m/s 模型上限，数学核心结构未改变。
+- 路径按弧长重采样，处理重复点、短路径、路径替换、目标位置和终点航向，沿用 0.25 m/0.25 rad goal checker 容差。P3 实测否定了每模型步 0.05 m 的初值：它在 `dt=0.1 s` 下对应 0.5 m/s 并导致急弯切角；适配层冻结为每步 0.025 m，对应 0.25 m/s。该标称参考在 4.4 节扩大控制上限后仍保持不变，数学核心结构未改变。
 
 首控制量加速度约束使用新鲜实际 odom 速度，后续使用相邻控制量差。controller_server 传入的 Twist 没有时间戳，因此 plugin 同时检查对应 odom 数据年龄。P2 实现使用固定模型首段 `dt=0.1 s` 约束实际 odom 到第一控制量；相同仿真时间戳允许重复控制调用，时间戳倒退则停车并锁定本次运行。上一条命令只作为 warm start，不代替失效 odom。
 
@@ -243,6 +244,37 @@ SHA-256 校验、零符号链接、零开发/暂存路径引用，并保持七�
 `ARENA_DEPTH_CLEARING=false` 即时禁用检查及新旧发布双向回退均通过。当前旧进程
 未被热修改，最终实机验收须从稳定包装脚本重启后复现同一路径。
 
+### 4.4 MPC 与独立 DWB 配置的速度上限（2026-09-17 已完成）
+
+**设计决定：**MPC 的控制器约束和 velocity smoother 上限统一改为线速度
+`0.8 m/s`、角速度 `1.5 rad/s`。DWB 使用独立配置叠加层，同时统一
+`FollowPath.max_vel_x`、`FollowPath.max_speed_xy`、`FollowPath.max_vel_theta` 和
+velocity smoother 上下限。原 `run_six_behaviors.sh` 及其参数继续作为默认 DWB
+baseline；新增 `run_six_behaviors_dwb_08.sh` 才选择高速 DWB 配置。MPC 的
+`reference_spacing=0.025 m` 保持原值，因此本次只扩大允许上界，不把标称参考速度
+强制提高到 `0.8 m/s`。
+
+**已验证事实：**提交 `4ff2edd9715e2ee839f055558450dc0297886927` 完成三包
+构建和 18 项测试，零错误、失败或跳过。不可变发布 `20260916-4ff2edd` 的 MPC 与
+DWB runtime-only、重定位、动态依赖、全文件 SHA-256 和稳定保护检查均通过；原
+DWB 脚本 SHA-256 仍为 `9f8d26eae21348e00e6141f95829e51bf5cbc21e0c57d541bd3c8e9df2530836`。
+独立参数探针确认 MPC 的 `max_linear/max_angular=0.8/1.5`、DWB 的
+`max_vel_x/max_speed_xy/max_vel_theta=0.8/0.8/1.5`，两种模式的 smoother 都为
+`max_velocity=[0.8,0,1.5]`、`min_velocity=[-0.8,0,-1.5]`。
+
+同一六行为场景的发布版在线 smoke 均成功：MPC action 成功、763 个命令样本有限，
+位置误差 0.2275 m，测得/保守行人最小净距为 0.5767/0.5201 m；DWB 高速配置
+action 成功、104 个命令样本有限，位置误差 0.2166 m，测得/保守行人最小净距为
+1.1501/1.0940 m。在线探针还确认 MPC 使用统一的 ±0.24/±0.22 m global/local
+footprint，而 DWB 保留自身原 footprint。
+
+**验证阈值修正：**安全探针用最大机器人速度、最大行人速度、human stamp gap 和
+odom bracket 计算采样对齐误差上界。速度上限提高后，同一 25 ms/16.7 ms 采样窗口
+的理论上界为约 0.0566 m，旧的 0.05 m gate 会拒绝安全净距充足的运行。该审计
+gate 因而改为 0.06 m；行人保守净距硬下界仍为 0.30 m，计算方式和安全判据没有
+放宽。探针同时修正了已过期的 global costmap 插件预期，使其与 4.2 节已发布的
+`static_layer + inflation_layer` 合同一致。
+
 ## 5. P0～P6 测试与验收
 
 | 阶段 | 工作内容 | gate |
@@ -310,4 +342,4 @@ P6 于 2026-09-12 通过：候选发布先在临时位置完成重定位、runti
 
 交付内容包括三个新增包、独立依赖锁定和构建工具、新启动入口、MPC/场景配置、Python/C++ 数值对照、集成和故障测试、DWB/MPC 报告、版本化发布包及回退说明。
 
-首版不包含 ROS1 兼容、旧感知链、机器人模型迁移、Nav2/Isaac/HuNav 升级、DWB 调参、方法热切换、高速度优化或新的全局规划器。
+P0～P6 首版不包含 ROS1 兼容、旧感知链、机器人模型迁移、Nav2/Isaac/HuNav 升级、方法热切换、高速度轨迹调优或新的全局规划器。4.4 节是首版完成后的受控上限参数增量；它没有改变求解器结构、标称参考速度或默认 DWB 入口。

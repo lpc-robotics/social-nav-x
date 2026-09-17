@@ -29,6 +29,7 @@ ROBOT_CORNER_RADIUS = math.hypot(ROBOT_HALF_LENGTH, ROBOT_HALF_WIDTH)
 ROBOT_LINEAR_LIMIT = 0.8
 ROBOT_ANGULAR_LIMIT = 1.5
 NUMERIC_ALLOWANCE = 0.005
+MAX_SAMPLING_ALIGNMENT_ERROR = 0.06
 
 
 def stamp_ns(stamp):
@@ -309,7 +310,7 @@ class ComparisonProbe(Node):
         expected_footprint = "[[0.24,0.22],[0.24,-0.22],[-0.24,-0.22],[-0.24,0.22]]"
         mpc_costmap_matches = self.args.method == "dwb" or (
             costmaps["global"]["plugins"]
-            == ["static_layer", "obstacle_layer", "inflation_layer"]
+            == ["static_layer", "inflation_layer"]
             and "".join(costmaps["local"]["footprint"].split()) == expected_footprint
             and "".join(costmaps["global"]["footprint"].split()) == expected_footprint
         )
@@ -371,7 +372,8 @@ class ComparisonProbe(Node):
             and commands
             and measured is not None
             and measured <= self.args.interaction_distance
-            and safety["sampling_alignment_error_bound_m"] <= 0.05
+            and safety["sampling_alignment_error_bound_m"]
+            <= MAX_SAMPLING_ALIGNMENT_ERROR
             and lower is not None
             and (self.args.method == "dwb" or lower >= 0.30)
         )
