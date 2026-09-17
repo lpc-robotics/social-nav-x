@@ -78,6 +78,9 @@ This changes only the next launch; it does not stop or replace an already
 running process.
 
 The governing plan is `ARENA5_MPC_MIGRATION_PLAN_REV2.md` in this repository.
+The equations, objective terms, constraints, runtime parameters, obstacle model,
+postchecks, and tuning implications of the released controller are documented
+in `MPC_METHOD_TECHNICAL_REFERENCE.md`.
 
 ## Foxglove visualization
 
