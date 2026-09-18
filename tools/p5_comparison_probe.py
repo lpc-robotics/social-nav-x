@@ -26,7 +26,6 @@ from sensor_msgs.msg import LaserScan
 ROBOT_HALF_LENGTH = 0.24
 ROBOT_HALF_WIDTH = 0.22
 ROBOT_CORNER_RADIUS = math.hypot(ROBOT_HALF_LENGTH, ROBOT_HALF_WIDTH)
-ROBOT_LINEAR_LIMIT = 0.8
 ROBOT_ANGULAR_LIMIT = 1.5
 NUMERIC_ALLOWANCE = 0.005
 MAX_SAMPLING_ALIGNMENT_ERROR = 0.06
@@ -266,7 +265,10 @@ class ComparisonProbe(Node):
             default=math.inf,
         )
         max_odom_gap = max(odom_gaps, default=math.inf)
-        corner_speed = ROBOT_LINEAR_LIMIT + ROBOT_CORNER_RADIUS * ROBOT_ANGULAR_LIMIT
+        corner_speed = (
+            self.args.expected_max_linear
+            + ROBOT_CORNER_RADIUS * ROBOT_ANGULAR_LIMIT
+        )
         error_bound = (
             0.5 * (corner_speed + max(human_speeds, default=0.0)) * max_human_gap
             + 0.5 * corner_speed * max_odom_gap
@@ -304,7 +306,10 @@ class ComparisonProbe(Node):
         expected_token = "DWB" if self.args.method == "dwb" else "MpcController"
         plugin_matches = expected_token in parameters["follow_path_plugin"]
         speed_matches = (
-            abs(parameters["configured_max_linear_mps"] - ROBOT_LINEAR_LIMIT)
+            abs(
+                parameters["configured_max_linear_mps"]
+                - self.args.expected_max_linear
+            )
             <= 1e-9
         )
         expected_footprint = "[[0.24,0.22],[0.24,-0.22],[-0.24,-0.22],[-0.24,0.22]]"
@@ -417,6 +422,7 @@ class ComparisonProbe(Node):
                 "probe_sha256": self.args.probe_sha256,
                 "source_revision": self.args.source_revision,
                 "launch_log": self.args.launch_log,
+                "expected_max_linear_mps": self.args.expected_max_linear,
             },
         }
 
@@ -431,6 +437,7 @@ def main():
     parser.add_argument("--target-yaw", type=float, default=0.0)
     parser.add_argument("--expected-agents", type=int, default=6)
     parser.add_argument("--interaction-distance", type=float, default=1.5)
+    parser.add_argument("--expected-max-linear", type=float, default=0.8)
     parser.add_argument("--timeout", type=float, default=180.0)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--ros-domain-id", type=int, required=True)

@@ -78,6 +78,7 @@ run_one() (
         --target-y 3.0 \
         --expected-agents 6 \
         --interaction-distance 1.5 \
+        --expected-max-linear "$([[ "$method" == "mpc" ]] && echo 0.8 || echo 0.26)" \
         --output "$output" \
         --ros-domain-id "$domain" \
         --gpu-index "$GPU" \
