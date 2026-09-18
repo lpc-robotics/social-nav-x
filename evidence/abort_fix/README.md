@@ -47,6 +47,11 @@ data errors remain ordinary controller failures.
   It proved that the standard SimpleProgressChecker still counted dynamic
   safety waits and aborted the second return goal despite the 0.05 m/120 s
   parameters. The run was stopped once its gate had irreversibly failed.
+- `endurance_30min_rejected_rotation_progress.json` is the rejected second
+  formal start. Safety waits were paused and eight goals succeeded, but the
+  first SafetyAwareProgressChecker revision counted translation only. Near the
+  XY goal tolerance it failed to recognize terminal yaw progress. The accepted
+  revision also treats 0.1 rad of rotation as progress.
 - `six_behaviors_persistent_block.json` holds an intentionally non-passing
   run in which the fixed six-behavior layout kept the robot at its start for
   the full 360 wall seconds. Nav2 did not abort the action; the probe timed out.

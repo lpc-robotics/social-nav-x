@@ -308,7 +308,8 @@ DWB。
 可能大于 0.25 m goal tolerance 后短回程的剩余距离；机器人即使继续接近目标也无法
 刷新进度。先改成 0.05 m/120 s 后，实机第二个回程仍在动态安全等待累计到时限后
 失败，否定了单纯延长 SimpleProgressChecker 的方案。MPC overlay 因此新增
-`SafetyAwareProgressChecker`：`required_movement_radius=0.05 m`；只有 1.0 s 内
+`SafetyAwareProgressChecker`：`required_movement_radius=0.05 m`、
+`required_movement_angle=0.1 rad`；平移或终点旋转都能刷新进度。只有 1.0 s 内
 收到的新鲜 `human_wait/safety_wait` 状态才暂停 120 s 的**活动跟踪**预算，恢复
 `track` 后继续累计。状态断流或普通跟踪停滞不会无限等待。这只决定 action 是否继续
 等待，不放宽 MPC、costmap、footprint 或 watchdog 的任何运动安全条件。
@@ -319,8 +320,9 @@ goal 恢复运动并以 `STATUS_SUCCEEDED=4` 到达。第一轮 5 分钟自然�
 进度半径导致的一次 `FailedToMakeProgress`；修正半径和时限后的第二轮记录零
 ABORTED，但旧探针在 180 墙钟秒主动取消一个仍活动的目标，因而不计正式通过。随后
 正式预跑确认 SimpleProgressChecker 即使配置 0.05 m/120 s 仍会把安全等待计入时限，
-该运行被拒绝并停止。SafetyAwareProgressChecker 的 pluginlib、普通停滞/安全等待
-计时单元测试和解除覆盖后的同目标到达均已通过。正式
+该运行被拒绝并停止。首版 SafetyAwareProgressChecker 又在终点位置附近因只统计
+平移、未统计转向而失败，实机否定后增加 0.1 rad 角度进展。pluginlib、普通停滞/
+安全等待/终点转向计时单元测试和解除覆盖后的同目标到达均已通过。正式
 替代耐久把单目标墙钟上限改为 600 s，并同时要求至少十次成功、零 ABORTED、零测试
 超时；详细接受/拒绝关系见 `evidence/abort_fix/README.md`。
 

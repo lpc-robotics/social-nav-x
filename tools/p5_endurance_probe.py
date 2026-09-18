@@ -52,6 +52,7 @@ class EnduranceProbe(Node):
             GetParameters, "/controller_server/get_parameters"
         )
         self.progress_required_movement_radius_m = None
+        self.progress_required_movement_angle_rad = None
         self.progress_movement_time_allowance_s = None
         self.progress_checker_plugin = None
         self.progress_status_timeout_s = None
@@ -187,6 +188,7 @@ class EnduranceProbe(Node):
         request.names = [
             "progress_checker.plugin",
             "progress_checker.required_movement_radius",
+            "progress_checker.required_movement_angle",
             "progress_checker.movement_time_allowance",
             "progress_checker.status_timeout",
         ]
@@ -194,12 +196,13 @@ class EnduranceProbe(Node):
         if not self.spin_until(future.done, 5.0):
             raise RuntimeError("controller_server parameter request timed out")
         response = future.result()
-        if response is None or len(response.values) != 4:
+        if response is None or len(response.values) != 5:
             raise RuntimeError("controller_server parameter response was invalid")
         self.progress_checker_plugin = response.values[0].string_value
         self.progress_required_movement_radius_m = response.values[1].double_value
-        self.progress_movement_time_allowance_s = response.values[2].double_value
-        self.progress_status_timeout_s = response.values[3].double_value
+        self.progress_required_movement_angle_rad = response.values[2].double_value
+        self.progress_movement_time_allowance_s = response.values[3].double_value
+        self.progress_status_timeout_s = response.values[4].double_value
 
     def run(self):
         ready = self.spin_until(
@@ -389,6 +392,7 @@ class EnduranceProbe(Node):
             and self.progress_checker_plugin
             == "arena_mpc_controller::SafetyAwareProgressChecker"
             and abs(self.progress_required_movement_radius_m - 0.05) <= 1.0e-9
+            and abs(self.progress_required_movement_angle_rad - 0.1) <= 1.0e-9
             and abs(self.progress_movement_time_allowance_s - 120.0) <= 1.0e-9
             and abs(self.progress_status_timeout_s - 1.0) <= 1.0e-9
             and finite
@@ -432,6 +436,9 @@ class EnduranceProbe(Node):
             "progress_checker_plugin": self.progress_checker_plugin,
             "progress_required_movement_radius_m": (
                 self.progress_required_movement_radius_m
+            ),
+            "progress_required_movement_angle_rad": (
+                self.progress_required_movement_angle_rad
             ),
             "progress_movement_time_allowance_s": (
                 self.progress_movement_time_allowance_s

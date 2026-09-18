@@ -31,9 +31,11 @@ void SafetyAwareProgressChecker::initialize(
       return node->get_parameter(full_name).as_double();
     };
   required_movement_radius_ = declare_double("required_movement_radius", 0.05);
+  required_movement_angle_ = declare_double("required_movement_angle", 0.1);
   const double allowance = declare_double("movement_time_allowance", 120.0);
   const double status_timeout = declare_double("status_timeout", 1.0);
   if (!std::isfinite(required_movement_radius_) || required_movement_radius_ <= 0.0 ||
+    !std::isfinite(required_movement_angle_) || required_movement_angle_ <= 0.0 ||
     !std::isfinite(allowance) || allowance <= 0.0 ||
     !std::isfinite(status_timeout) || status_timeout <= 0.0)
   {
@@ -65,7 +67,9 @@ bool SafetyAwareProgressChecker::check(geometry_msgs::msg::PoseStamped & current
     reset_baseline(pose, now);
     return true;
   }
-  if (pose_distance(pose, baseline_pose_) > required_movement_radius_) {
+  if (pose_distance(pose, baseline_pose_) > required_movement_radius_ ||
+    pose_angle_distance(pose, baseline_pose_) > required_movement_angle_)
+  {
     reset_baseline(pose, now);
     return true;
   }
@@ -100,6 +104,14 @@ double SafetyAwareProgressChecker::pose_distance(
   const geometry_msgs::msg::Pose2D & second)
 {
   return std::hypot(first.x - second.x, first.y - second.y);
+}
+
+double SafetyAwareProgressChecker::pose_angle_distance(
+  const geometry_msgs::msg::Pose2D & first,
+  const geometry_msgs::msg::Pose2D & second)
+{
+  const double difference = first.theta - second.theta;
+  return std::abs(std::atan2(std::sin(difference), std::cos(difference)));
 }
 
 void SafetyAwareProgressChecker::reset_baseline(

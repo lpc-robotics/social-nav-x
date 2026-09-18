@@ -35,6 +35,7 @@ def test_costmap_layer_contract():
     progress = config["controller_server"]["ros__parameters"]["progress_checker"]
     assert progress["plugin"] == "arena_mpc_controller::SafetyAwareProgressChecker"
     assert progress["required_movement_radius"] == 0.05
+    assert progress["required_movement_angle"] == 0.1
     assert progress["movement_time_allowance"] == 120.0
     assert progress["status_topic"] == "/FollowPath/status"
     assert progress["status_timeout"] == 1.0

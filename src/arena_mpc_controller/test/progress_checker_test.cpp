@@ -1,4 +1,5 @@
 #include <chrono>
+#include <cmath>
 #include <iostream>
 #include <memory>
 #include <thread>
@@ -45,18 +46,24 @@ int main(int argc, char ** argv)
     std::cerr << "ordinary tracking stall did not exhaust its allowance" << std::endl;
     return 2;
   }
+  pose.pose.orientation.z = std::sin(0.11 / 2.0);
+  pose.pose.orientation.w = std::cos(0.11 / 2.0);
+  if (!checker.check(pose)) {
+    std::cerr << "terminal yaw motion was not counted as progress" << std::endl;
+    return 3;
+  }
 
   checker.reset();
   if (!checker.check(pose)) {
     std::cerr << "progress reset failed" << std::endl;
-    return 3;
+    return 4;
   }
   arena_mpc_controller::SafetyAwareProgressCheckerTestAccess::set_status(
     checker, "stop recoverable=1 mode=safety_wait reason=test");
   std::this_thread::sleep_for(80ms);
   if (!checker.check(pose)) {
     std::cerr << "fresh safety wait consumed the active tracking allowance" << std::endl;
-    return 4;
+    return 5;
   }
 
   arena_mpc_controller::SafetyAwareProgressCheckerTestAccess::set_status(
@@ -64,7 +71,7 @@ int main(int argc, char ** argv)
   std::this_thread::sleep_for(80ms);
   if (checker.check(pose)) {
     std::cerr << "track status did not resume the active tracking allowance" << std::endl;
-    return 5;
+    return 6;
   }
 
   rclcpp::shutdown();

@@ -684,8 +684,9 @@ yaw_goal_tolerance = 0.25 rad
 动态行人等待可能持续较长时间，因此 MPC 模式使用
 `arena_mpc_controller::SafetyAwareProgressChecker`，参数为
 `movement_time_allowance=120 s`、`required_movement_radius=0.05 m`、
+`required_movement_angle=0.1 rad`、
 `status_timeout=1.0 s`。0.05 m 小于短回程在 goal tolerance 外可能剩余的有效
-距离，使真实进展能够刷新时限；120 s 只累计普通 `track` 时间。只有持续收到新鲜
+距离；0.1 rad 让终点原地转向也能刷新时限；120 s 只累计普通 `track` 时间。只有持续收到新鲜
 `human_wait/safety_wait` 状态时暂停计时，状态断流或普通跟踪停滞仍会有界失败。
 
 ### 11.2 velocity smoother
@@ -735,7 +736,8 @@ watchdog 每 20 ms，也就是 50 Hz 发布一次 `/cmd_vel`。只有以下条�
 plugin 在求解开始前和命令提交前都检查输入新鲜度。行人在求解期间更新时，还会用最新快照再次验证候选轨迹或实测制动轨迹。
 
 Nav2 使用本包的 `SafetyAwareProgressChecker`，配置
-`required_movement_radius=0.05 m`、`movement_time_allowance=120 s` 和
+`required_movement_radius=0.05 m`、`required_movement_angle=0.1 rad`、
+`movement_time_allowance=120 s` 和
 `status_timeout=1.0 s`。原继承值 0.5 m 大于若干短回程目标的实际剩余距离；标准
 SimpleProgressChecker 还会把安全等待计入时限。新插件只在 MPC 持续报告新鲜
 `human_wait/safety_wait` 时暂停活动跟踪计时。该修订只影响 action 是否继续等待，

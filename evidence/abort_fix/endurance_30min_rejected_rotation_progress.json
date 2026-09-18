@@ -1,0 +1,45 @@
+{
+  "classification": "rejected_translation_only_progress_checker",
+  "completed_before_interruption": {
+    "failed_to_make_progress": 1,
+    "goal_failed": 1,
+    "successful_goals": 8
+  },
+  "disposition": "run stopped after gate failed; add angular progress equivalent to Nav2 PoseProgressChecker",
+  "failed_goal": {
+    "abort_sim_time_s": 1789701361.5617983,
+    "elapsed_sim_time_s": 460.10045996,
+    "last_reported_xy": [
+      3.21,
+      3.16
+    ],
+    "start_sim_time_s": 1789700901.4613383,
+    "start_xy": [
+      3.4,
+      2.9
+    ],
+    "target_xy": [
+      3.0,
+      3.0
+    ]
+  },
+  "pass": false,
+  "reason": "safety waits were paused, but translation-only progress missed terminal yaw progress near the xy tolerance",
+  "run_metadata": {
+    "controller_source_sha256": "ee096d55f3238ff8a630263b0c10f56f63c97b12b3a6499d0a77e82c63d9cad5",
+    "git_head": "93e09fc",
+    "gpu_index": 1,
+    "launch_log": "/home/lpc/workspace/arena5_mpc_ws/evidence/abort_fix/endurance_30min_rejected_rotation_progress_launch.log",
+    "nav2_overrides_sha256": "278507b5be79eceaefb2a028121c8eec8d426da7fdbd3b4aad0c699c560e27f4",
+    "probe_sha256": "f2c893dadad8c9ea03c90a920135c726eddbb4d0cbc1a80e31dabc11006d6982",
+    "progress_checker_source_sha256": "20ae2d69357d41524d181c4e7bf4d17622c109eef5f194b6d53983ec7f368414",
+    "ros_domain_id": 205
+  },
+  "runtime_parameters": {
+    "movement_time_allowance_s": 120.0,
+    "progress_checker_plugin": "arena_mpc_controller::SafetyAwareProgressChecker",
+    "required_movement_angle_rad": "not implemented in rejected revision",
+    "required_movement_radius_m": 0.05,
+    "status_timeout_s": 1.0
+  }
+}

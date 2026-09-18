@@ -32,6 +32,9 @@ private:
   static double pose_distance(
     const geometry_msgs::msg::Pose2D & first,
     const geometry_msgs::msg::Pose2D & second);
+  static double pose_angle_distance(
+    const geometry_msgs::msg::Pose2D & first,
+    const geometry_msgs::msg::Pose2D & second);
   void reset_baseline(
     const geometry_msgs::msg::Pose2D & pose, const rclcpp::Time & now);
   void on_status(const std_msgs::msg::String::SharedPtr message);
@@ -46,6 +49,7 @@ private:
   rclcpp::Duration time_allowance_{0, 0};
   rclcpp::Duration status_timeout_{0, 0};
   double required_movement_radius_{0.05};
+  double required_movement_angle_{0.1};
   bool baseline_pose_set_{false};
   bool status_received_{false};
   bool safety_wait_active_{false};

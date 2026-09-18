@@ -15,6 +15,7 @@ controller_server:
       # status pauses the active-tracking timer; an ordinary tracking stall is
       # still bounded by 120 simulated seconds.
       required_movement_radius: 0.05
+      required_movement_angle: 0.1
       movement_time_allowance: 120.0
       status_topic: "/FollowPath/status"
       status_timeout: 1.0
