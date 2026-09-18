@@ -573,7 +573,12 @@ brake_dt = 0.05 s
 
 ### 8.3 紧急停车安全下界
 
-如果 IPOPT timeout/infeasible，或者候选轨迹动态检查不安全，控制器倾向发布零速等待，但只有当前实测运动的制动轨迹仍然安全时才允许这样做。
+如果 IPOPT timeout/infeasible，或者候选轨迹动态检查不安全，控制器发布零速等待。
+当当前实测运动的制动轨迹仍满足下述下界时，零速命令按正常
+`human_wait` 链路经过 velocity smoother；如果机器人已经进入保守制动包络，任何
+新的非零控制都不能在本周期恢复净距，此时控制器发布
+`stop recoverable=1 mode=safety_wait`，由 watchdog 立即强制 `/cmd_vel=0`，同时正常
+返回本周期，使原 FollowPath 目标保持活动并在下一周期重新求解。
 
 紧急制动检查使用真实矩形 footprint，而不是 NLP 中的机器人外接圆；其净安全下界为：
 
@@ -581,7 +586,9 @@ brake_dt = 0.05 s
 emergency_safe_distance = 0.30 m
 ```
 
-正常规划使用 0.35 m，紧急停车允许较小但仍为硬性的 0.30 m 下界。
+正常规划使用 0.35 m，紧急停车检查使用 0.30 m。若检查通过，它是制动过程的硬
+下界；若检查发现机器人已经位于该包络内，状态会明确报告违反该下界，立即零速是
+当时风险最小的动作，不能把已经存在的几何冲突描述为仍满足 0.30 m。
 
 ### 8.4 动态行人留下的 costmap 残留
 
@@ -674,7 +681,12 @@ xy_goal_tolerance  = 0.25 m
 yaw_goal_tolerance = 0.25 rad
 ```
 
-动态行人等待可能持续较长时间，因此 progress checker 的 `movement_time_allowance` 在 MPC 模式设为 30 s，`required_movement_radius` 继承 0.5 m。
+动态行人等待可能持续较长时间，因此 MPC 模式使用
+`arena_mpc_controller::SafetyAwareProgressChecker`，参数为
+`movement_time_allowance=120 s`、`required_movement_radius=0.05 m`、
+`status_timeout=1.0 s`。0.05 m 小于短回程在 goal tolerance 外可能剩余的有效
+距离，使真实进展能够刷新时限；120 s 只累计普通 `track` 时间。只有持续收到新鲜
+`human_wait/safety_wait` 状态时暂停计时，状态断流或普通跟踪停滞仍会有界失败。
 
 ### 11.2 velocity smoother
 
@@ -722,6 +734,13 @@ watchdog 每 20 ms，也就是 50 Hz 发布一次 `/cmd_vel`。只有以下条�
 
 plugin 在求解开始前和命令提交前都检查输入新鲜度。行人在求解期间更新时，还会用最新快照再次验证候选轨迹或实测制动轨迹。
 
+Nav2 使用本包的 `SafetyAwareProgressChecker`，配置
+`required_movement_radius=0.05 m`、`movement_time_allowance=120 s` 和
+`status_timeout=1.0 s`。原继承值 0.5 m 大于若干短回程目标的实际剩余距离；标准
+SimpleProgressChecker 还会把安全等待计入时限。新插件只在 MPC 持续报告新鲜
+`human_wait/safety_wait` 时暂停活动跟踪计时。该修订只影响 action 是否继续等待，
+不放宽 MPC、costmap 或 watchdog 的任何运动安全条件。
+
 ### 12.2 watchdog 检查
 
 | 参数 | 当前值 |
@@ -740,12 +759,17 @@ plugin 和 watchdog 的检查互相独立。plugin 卡在 costmap 等待或求�
 
 普通失败时，plugin 先发布 `stop` 状态并返回零速度。连续第 5 次失败时抛出 `nav2_core::PlannerException`，Nav2 FollowPath 终止。MPC 不自动切换到 DWB。
 
-以下两类情况属于安全等待，不立即累计普通失败：
+以下情况属于安全等待，不累计普通失败：
 
 - 路径在求解期间更新：发布带 `ok` 状态的零速 retry；
 - solver timeout/infeasible 或候选动态轨迹不安全，但当前实测制动轨迹仍安全：发布零速 `human_wait`。
+- solver timeout/infeasible、候选后检查失败或最新 HuNav 更新到达，且实测制动轨迹
+  已进入动态/静态保守包络：发布可恢复 `safety_wait`，watchdog 立即强制零速；不抛
+  `PlannerException`，障碍移除后继续同一目标。
 
-长期无进展最终仍受 30 s progress checker、持续碰撞失败或其他 Nav2 行为约束。
+输入断流、非法数据、TF/路径错误、不可归因于动态行人的持续静态碰撞等仍是普通
+失败。普通跟踪状态的长期无进展仍受 120 s 活动跟踪预算、持续碰撞失败或其他 Nav2
+行为约束；动态安全等待本身不再终止尚未到达的目标。
 
 ## 13. 全部当前 MPC 核心参数
 
@@ -911,6 +935,13 @@ mode=human_wait wait_reason=dynamic_postcheck
 mode=human_wait wait_reason=costmap_postcheck
 ```
 
+已经进入保守制动包络时使用非 `ok` 的可恢复停车状态，使 watchdog 绕过平滑链并
+立即输出零速，但不会终止 action：
+
+```text
+stop recoverable=1 mode=safety_wait reason=<diagnostic>
+```
+
 这些状态能够区分“优化器主动输出较低速度”“动态安全等待”“costmap 残留等待”和“输入/命令链故障停车”。
 
 ## 18. 公式与实现位置对照
@@ -926,6 +957,6 @@ mode=human_wait wait_reason=costmap_postcheck
 | HuNav 常速度预测和几何膨胀 | 同上，`build_human_obstacles` lambda |
 | 矩形 footprint 和扫掠检查 | `pose_collision_free()`、`swept_trajectory_collision_free()` |
 | 动态连续检查和制动检查 | `dynamic_trajectory_collision_free()`、`measured_braking_dynamic_collision_free()` |
-| 失败、零速等待和结果世代检查 | `MpcController::computeVelocityCommands()`、`fail()`、`retry_stale_path()` |
+| 失败、零速等待和结果世代检查 | `MpcController::computeVelocityCommands()`、`fail()`、`recoverable_stop()`、`retry_stale_path()` |
 | 命令链 lease 和输入 watchdog | `src/arena_mpc_controller/src/mpc_command_watchdog.cpp` |
 | 发布参数 | `src/arena_mpc_bringup/config/controller_model.yaml`、`nav2_overrides.yaml` |

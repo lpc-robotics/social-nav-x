@@ -36,7 +36,8 @@ GPU 2 和 GPU 3 上已有其他用户计算任务不构成等待条件。启动�
 - DWB 的 `0.8 m/s`、`1.5 rad/s` 版本使用新增的 `run_six_behaviors_dwb_08.sh` 独立入口；不覆盖原 DWB 参数和默认入口。
 - MPC 是独立 Nav2 C++ Controller plugin，通过新增入口启动；首版不支持运行中热切换。
 - 命令链固定为 `controller_server -> velocity_smoother -> 独立 watchdog -> /cmd_vel`。
-- MPC 失败停车并向 Nav2 报告失败，不自动切换 DWB。
+- MPC 不可恢复失败时停车并向 Nav2 报告失败，不自动切换 DWB；动态行人冲突和
+  有界求解超时属于可恢复安全停车，保持原目标并继续重算。
 - 不迁移 ROS1、`local_map`、深度相机检测、`obs_param`、Kalman、旧 controller、Scout/Gazebo 模型或旧全局路径发布器。
 
 ## 2. 已验证环境事实与待验证项
@@ -52,7 +53,12 @@ GPU 2 和 GPU 3 上已有其他用户计算任务不构成等待条件。启动�
 - 向 `computeVelocityCommands()` 传入 odom 速度。
 - 捕获 `PlannerException`，根据 `failure_tolerance` 返回零速重试或终止 FollowPath。
 
-**设计决定：**保留 `PlannerException`。MPC 专用 `failure_tolerance=0`；插件单次失败立即返回零速和无效诊断，连续五次实际被调用且均失败后抛出 `PlannerException`。costmap 等待或求解卡住时五次调用可能不会发生，独立 watchdog 负责停车，不能声称 action 一定在五个墙钟周期内终止。
+**设计决定：**保留 `PlannerException`，但只用于输入断流、非法数据、TF/路径错误、
+不可归因于动态行人的持续静态碰撞等不可恢复控制器失败。MPC 专用
+`failure_tolerance=0`；普通失败先返回零速和无效诊断，连续五次实际被调用且均失败
+后抛出异常。行人冲突、timeout/infeasible 后的零速等待以及求解期间 HuNav 世代更新
+不累计该计数。costmap 等待或求解卡住时五次调用可能不会发生，独立 watchdog 负责
+停车，不能声称 action 一定在五个墙钟周期内终止。
 
 ### 2.2 CasADi/IPOPT
 
@@ -151,6 +157,12 @@ odom、HuNav、lidar 分别检查 ROS 数据年龄和墙钟接收间隔。ROS �
 **已验证事实：**watchdog 对 odom、HuNav、lidar 和 costmap 都在回调写缓存前拒绝陈旧/未来时间戳，时钟回退永久锁定到进程重启。Isaac `ResetWorld` 服务源码只删除环境的墙、门、地板和电梯，不会回退 `/clock`；P2 的 5 s 时钟回退用隔离 domain 上额外 `/clock` publisher 主动注入，约 20 ms 内触发持续零速和 reset latch。
 
 **已验证事实（P5）：**30 分钟正式运行得到 16,494 个有效求解/控制周期。solver p95/p99/max 为 81.167/83.266/89.416 ms，plugin cycle 为 81.486/83.658/89.721 ms。由于 IPOPT 的 `max_wall_time=0.075 s` 不是线程硬抢占，solver 外部墙钟可以略高于 75 ms；安全合同由 90 ms plugin 提交检查和 watchdog 共同强制。跨 headerless status/raw topic 不能依赖 DDS 回调先后顺序，正式探针改为在 25 ms 窗口内双向最近邻匹配，覆盖 16,494/16,494，边界偏差 p99 为 1.014 ms。将该偏差保守加到每个 plugin 周期后，完整处理 p95/p99/max 为 82.500/84.672/90.735 ms，超过 100 ms 为 0，满足 gate。
+
+**已验证事实（2026-09-17 纠正审计）：**上述运行的时序和输出安全统计仍有效，
+但原耐久通过判据有缺陷：276 个结束目标中只有 15 个成功、259 个 ABORTED、2 个
+由探针超时取消；旧判据只要求成功数不少于 10，没有拒绝 ABORTED，因而错误地把
+目标连续性标为通过。修订后的探针明确要求 `aborted_goal_count == 0` 且
+`timed_out_goal_count == 0`；旧报告只保留为性能和缺陷复现证据，不再作为到达 gate。
 
 同一耐久运行的 HuNav、odom、lidar、raw costmap 最大墙钟间隔为 0.480/0.414/0.763/0.801 s，均在预先冻结的持续断流判据内。watchdog 仍使用更紧的运动 lease，短暂超限时停车而不是放宽命令有效期；正式运行记录到 `controller_status`、`command_sequence`、`status_lease` 和一次 `odom_input` 安全停车。
 
@@ -275,6 +287,43 @@ gate 因而改为 0.06 m；行人保守净距硬下界仍为 0.30 m，计算方�
 放宽。探针同时修正了已过期的 global costmap 插件预期，使其与 4.2 节已发布的
 `static_layer + inflation_layer` 合同一致。
 
+### 4.5 未到达目标时提前 ABORTED 修正（2026-09-18）
+
+**已验证事实：**对用户保留的 domain 51 实例只读取证后，排除了 GoalChecker
+误判。旧发布 `20260916-4ff2edd` 在 IPOPT 超时后发现实测制动轨迹进入 HuNav
+保守包络，会连续报告
+`measured braking trajectory failed swept HuNav check`；第五次把同一动态安全状态通过
+`PlannerException` 交给 controller_server，FollowPath 随即失败，行为树再把尚未
+到达的 NavigateToPose 标为 ABORTED。原 P5 耐久探针又只要求成功数不少于 10，未
+拒绝 259 个 ABORTED，因此旧的“目标连续性通过”结论无效。
+
+**设计决定：**动态行人冲突、timeout/infeasible 后的安全等待、求解期间 HuNav
+更新导致的候选失效属于可恢复控制决策。plugin 返回零命令并发布
+`stop recoverable=1 mode=safety_wait`；watchdog 立即强制 `/cmd_vel=0`，但 plugin
+不抛异常，保留同一 FollowPath action 并在下一周期重算。输入断流、非法数据、
+TF/路径错误和不可归因于动态行人的静态碰撞仍使用原失败计数和异常链，不自动切换
+DWB。
+
+另一个独立原因是继承的 `SimpleProgressChecker.required_movement_radius=0.5 m`
+可能大于 0.25 m goal tolerance 后短回程的剩余距离；机器人即使继续接近目标也无法
+刷新进度。先改成 0.05 m/120 s 后，实机第二个回程仍在动态安全等待累计到时限后
+失败，否定了单纯延长 SimpleProgressChecker 的方案。MPC overlay 因此新增
+`SafetyAwareProgressChecker`：`required_movement_radius=0.05 m`；只有 1.0 s 内
+收到的新鲜 `human_wait/safety_wait` 状态才暂停 120 s 的**活动跟踪**预算，恢复
+`track` 后继续累计。状态断流或普通跟踪停滞不会无限等待。这只决定 action 是否继续
+等待，不放宽 MPC、costmap、footprint 或 watchdog 的任何运动安全条件。
+
+**已验证事实：**强制把一个行人覆盖到机器人上并保持超过五个控制周期时，watchdog
+在 0.03745 s 内开始零输出，覆盖期间无非零反弹且 action 未结束；移除覆盖后，同一
+goal 恢复运动并以 `STATUS_SUCCEEDED=4` 到达。第一轮 5 分钟自然耐久复现旧 0.5 m
+进度半径导致的一次 `FailedToMakeProgress`；修正半径和时限后的第二轮记录零
+ABORTED，但旧探针在 180 墙钟秒主动取消一个仍活动的目标，因而不计正式通过。随后
+正式预跑确认 SimpleProgressChecker 即使配置 0.05 m/120 s 仍会把安全等待计入时限，
+该运行被拒绝并停止。SafetyAwareProgressChecker 的 pluginlib、普通停滞/安全等待
+计时单元测试和解除覆盖后的同目标到达均已通过。正式
+替代耐久把单目标墙钟上限改为 600 s，并同时要求至少十次成功、零 ABORTED、零测试
+超时；详细接受/拒绝关系见 `evidence/abort_fix/README.md`。
+
 ## 5. P0～P6 测试与验收
 
 | 阶段 | 工作内容 | gate |
@@ -284,7 +333,7 @@ gate 因而改为 0.06 m；行人保守净距硬下界仍为 0.30 m，计算方�
 | P2：接口、时序与故障（已通过） | 实际 server 装载；路径替换、非单位 TF、限速、朝向、取消、生命周期；断流、陈旧/未来时间戳、costmap 不 current、暂停、时钟回退、真实 HuNav 迟到结果和 solver 故障。 | 17 份 JSON 证据全部通过；仅 watchdog 发布 `/cmd_vel`，TF/odom 无竞争；迟到/非法数据不产生非零反弹；各 lease 达到冻结时限；仿真恢复后机器人满足停车阈值。 |
 | P3：导航与静态避障（已通过） | 直线、转弯、终点朝向、墙边、窄通道、90度拐角、内部小障碍、旋转扫掠、未知区、完全封堵。 | 十类场景各五次达到预期；可达用例最大仿真时间 18.151 s、位置/朝向均在 0.25 m/0.25 rad 内；精确 footprint 监测碰撞为 0；未知区和封堵均失败停车且无非零回弹。 |
 | P4：行人避障（已通过） | 单人横穿/迎面/同向、多人交叉、停止/转向、ID变化、时序积压和六行为回归。 | 8 类场景各 5 次、共 40/40 正式运行通过；动作均成功、输出有限，保守净距离下界最小 0.4232 m，采样对齐误差上界最大 0.04220 m；完整 plugin 周期最大 89.89 ms。 |
-| P5：性能和 DWB 对照（已通过） | 最大规模每类 1000 次；GPU 2 上完成 5 组新进程 `AB、BA、AB、BA、AB` 对照；GPU 3 上完成 1800.529 s MPC 六行为耐久。 | 最大规模可行/临界各 1000/1000 接受，不可行 1000/1000 有界拒绝；DWB/MPC 各 5/5 到达；完整处理 p95/p99 为 82.500/84.672 ms，超 100 ms 为 0/16,494；无崩溃、非有限命令或指令竞争。 |
+| P5：性能和 DWB 对照（性能与对照已通过；目标连续性旧结论作废） | 最大规模每类 1000 次；GPU 2 上完成 5 组新进程 `AB、BA、AB、BA、AB` 对照；旧 1800.529 s 耐久只保留为性能证据，目标连续性由 4.5 节正式替代耐久重新验收。 | 最大规模和 DWB/MPC 各 5/5 到达结论保留；旧耐久的完整处理 p95/p99 82.500/84.672 ms、超 100 ms 为 0/16,494 结论保留；替代耐久必须至少十次成功且 ABORTED/测试超时均为 0。 |
 | P6：发布和回归（已通过） | 完成依赖闭包、临时重定位、绝对路径和校验和审计；增量安装；依次验证发布版 MPC 入口和原 DWB 入口。 | 发布不引用开发目录且零符号链接；MPC/DWB action 均成功，到达误差 0.2248/0.2195 m；既有 7 项保护文件一致。 |
 
 ### 5.1 P0 运行数据
@@ -297,7 +346,11 @@ gate 因而改为 0.06 m；行人保守净距硬下界仍为 0.30 m，计算方�
 
 `d_measured` 定义为时间对齐后机器人 footprint 与 HuNav 行人圆的最小有符号净距离；`d<=0` 表示接触或重叠。0.30 m 是要求净间隔，0.05 m 是采样、测量和时间对齐的总不确定度上限，不能从安全距离中扣掉。
 
-通过条件：`d_lower = d_measured - e_total >= 0.30 m` 且 `e_total <= 0.05 m`。无法界定误差或误差超限时标为未能判定，不能计作通过。外接圆模型距离、真实 footprint 距离和 Isaac 显示滞后分别记录。
+通过条件：`d_lower = d_measured - e_total >= 0.30 m`。初始 `e_total <= 0.05 m`
+审计上限已在 0.8 m/s 速度增量后依据实测采样周期修订为 `e_total <= 0.06 m`；
+这只扩大可被量化的时间对齐误差范围，0.30 m 保守净距下界不变。无法界定误差或
+误差超限时标为未能判定，不能计作通过。外接圆模型距离、真实 footprint 距离和
+Isaac 显示滞后分别记录。
 
 ### 5.3 DWB/MPC 对照
 
@@ -313,7 +366,7 @@ DWB 原 footprint 和参数保持不变；报告必须披露与 MPC 保守 footp
 
 | 审查项 | 结论 |
 |---|---|
-| `PlannerException` | 确认适用，保留原方案。 |
+| `PlannerException` | 确认是 Humble Controller 的真实失败接口；修订使用语义，只让不可恢复错误进入异常链，动态安全等待正常返回零命令并保留 action。 |
 | CasADi/IPOPT C++ plugin 可用性 | 确认。standalone C++ SDK、ABI、IPOPT、最小重定位闭包、pluginlib、实际 controller_server 装载及最终发布树重定位均已通过。 |
 | `/human_states` 实际 QoS、频率、时间和 reset | QoS offer、频率、frame、时间戳和正常运行由 P0 确认；P2 已确认断流、陈旧/未来样本、整套重启和真实桥暂停后的迟到响应。单独 HuNav 热重启透明恢复被明确排除。 |
 | 80 ms solver 与 p95 80 ms | 确认原定义不一致；冻结为 75 ms IPOPT 选项、90 ms plugin 提交上限、100 ms 完整 deadline 和 250 ms 命令 lease。P5 完整处理 p95/p99 为 82.500/84.672 ms，超 100 ms 为 0。 |
@@ -322,13 +375,13 @@ DWB 原 footprint 和参数保持不变；报告必须披露与 MPC 保守 footp
 | 首控制加速度基于 odom | 确认。 |
 | fixed-size NLP + active mask | 确认为 8 动态槽；否定把 32 dynamic + 128 static 全部放入固定 NLP。输入容量、可达筛选和全量后检查保留。 |
 | 最大规模 benchmark 提前到 P1 | 确认并已完成；最大输入为 32 dynamic + 128 static，每类 1000 次。 |
-| 0.30 m 与 0.05 m 定义 | 确认原表述有歧义，改为保守下界。 |
+| 0.30 m 与采样误差定义 | 确认原表述有歧义，改为 0.30 m 保守净距下界；0.8 m/s 配置下实测推导的采样对齐误差 gate 为 0.06 m。 |
 | DWB/MPC 交错运行 | 确认。 |
 | path/data/reset generation | 确认路径和 reset 隔离；否定每条数据更新都使在途结果失效。 |
 
-P0 已于 2026-09-07 通过：原 DWB 入口五次导航 smoke 全部成功，机器人位移为 1.775～1.859 m；`NAVIGATION=false` 六行为验证通过；60 秒运行数据和参数已冻结。P1 同日通过：独立 C++ SDK 与依赖闭包、数学核心、数值对照、缺陷用例、CMake consumer 和容量 benchmark 全部达到 gate。P2 于 2026-09-08 通过：17 份接口、时序、命令链和故障注入证据均满足修订后的分层时限，真实六行为桥迟到响应路径也已覆盖。P3 同日通过：十类最终场景各完成五次，所有可达场景满足目标容差和 150 s gate，全部静态碰撞样本为 0，未知区和完全封堵均安全失败。P3 依据实测修正了参考路径推进、生成墙体后的输入等待、遮挡障碍可见性、拐角/旋转 fixture 净空和 action 结束后的 odom 测量时序；被否定的 fixture 和日志均保留在 `evidence/p3`。P4 于 2026-09-10 通过：横穿、迎面、同向、多人交叉、停止/转向、ID 变化、积压和六行为共 40/40 正式运行通过；完整汇总和被拒绝试验保存在 `evidence/p4`。实测促使正常规划安全距离设为 0.35 m、紧急制动硬下限保留 0.30 m，并增加精确矩形制动检查、路径世代丢弃重试、动态行人残留 costmap 标记的 1.0 s 有界零速等待和 30 s progress allowance。
+P0 已于 2026-09-07 通过：原 DWB 入口五次导航 smoke 全部成功，机器人位移为 1.775～1.859 m；`NAVIGATION=false` 六行为验证通过；60 秒运行数据和参数已冻结。P1 同日通过：独立 C++ SDK 与依赖闭包、数学核心、数值对照、缺陷用例、CMake consumer 和容量 benchmark 全部达到 gate。P2 于 2026-09-08 通过：17 份接口、时序、命令链和故障注入证据均满足修订后的分层时限，真实六行为桥迟到响应路径也已覆盖。P3 同日通过：十类最终场景各完成五次，所有可达场景满足目标容差和 150 s gate，全部静态碰撞样本为 0，未知区和完全封堵均安全失败。P3 依据实测修正了参考路径推进、生成墙体后的输入等待、遮挡障碍可见性、拐角/旋转 fixture 净空和 action 结束后的 odom 测量时序；被否定的 fixture 和日志均保留在 `evidence/p3`。P4 于 2026-09-10 通过：横穿、迎面、同向、多人交叉、停止/转向、ID 变化、积压和六行为共 40/40 正式运行通过；完整汇总和被拒绝试验保存在 `evidence/p4`。实测促使正常规划安全距离设为 0.35 m、紧急制动硬下限保留 0.30 m，并增加精确矩形制动检查、路径世代丢弃重试、动态行人残留 costmap 标记的 1.0 s 有界零速等待。后续 4.5 节纠正审计再把 progress checker 修订为 0.05 m/120 s。
 
-2026-09-11 的 P5 前置检查发现稳定 install 被独立重建；当前实际 DWB 原生入口复验通过后，只在开发目录重新冻结该 install 哈希，旧/新哈希与来源证据完整保留。P5 随后通过：最大负载三类各执行 1000 次；五组 DWB/MPC 新进程交错对照共 10/10 到达；正式 MPC 耐久持续 1800.529 s，完成 15 个目标并在两个 180 s 目标超时后成功取消和继续，所有 90,025 个输出样本有限，`/mpc_command_watchdog` 是唯一 `/cmd_vel` 发布者。GPU 2/3 的其他用户任务没有被干扰，正式运行均记录可用显存和 GPU UUID。
+2026-09-11 的 P5 前置检查发现稳定 install 被独立重建；当前实际 DWB 原生入口复验通过后，只在开发目录重新冻结该 install 哈希，旧/新哈希与来源证据完整保留。最大负载三类各执行 1000 次、五组 DWB/MPC 新进程交错对照共 10/10 到达，性能和命令链统计有效。纠正审计确认旧耐久还包含 259 个 ABORTED 和两个测试超时，旧接受规则遗漏了这两个拒绝条件；因此该运行不再证明目标连续性，只保留 90,025 个有限输出、唯一 `/cmd_vel` 发布者和时序分位数等性能证据。GPU 2/3 的其他用户任务没有被干扰，正式运行均记录可用显存和 GPU UUID。
 
 P6 于 2026-09-12 通过：候选发布先在临时位置完成重定位、runtime、benchmark、路径和依赖审计，再增量写入稳定目录。发布版 MPC 和原始 DWB 分别在 domain 200/201、GPU 3 上完成独立 action smoke，两者加载预期 plugin，均满足 0.25 m 到达容差和 0.30 m 保守行人净距下界。最终重建的 5 项测试、shell/Python 静态检查、发布校验和、运行依赖和稳定保护清单全部通过。
 

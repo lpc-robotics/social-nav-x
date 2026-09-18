@@ -831,6 +831,8 @@ geometry_msgs::msg::TwistStamped MpcController::computeVelocityCommands(
     config_.max_linear_accel, config_.max_angular_accel);
   auto * costmap = costmap_ros_->getCostmap();
   const auto footprint = costmap_ros_->getRobotFootprint();
+  bool emergency_stop = false;
+  std::string emergency_stop_reason;
   if (wait_for_human) {
     if (!measured_braking_dynamic_collision_free(
         measured_braking, kBrakeDt, problem.obstacles, config_.dt, footprint,
@@ -841,7 +843,14 @@ geometry_msgs::msg::TwistStamped MpcController::computeVelocityCommands(
       if (solver_wait_allowed) {
         reason << " after MPC solve rejected: " << result.status;
       }
-      return fail(reason.str(), output_header);
+      // The robot is already inside the conservative braking envelope.  No
+      // newly computed motion can repair that condition in this cycle; the
+      // safest command is an immediate watchdog-enforced zero.  Keep the
+      // FollowPath action alive so the controller can solve again after the
+      // moving obstacle clears instead of turning a transient safety stop into
+      // an aborted navigation goal.
+      emergency_stop = true;
+      emergency_stop_reason = reason.str();
     }
   }
 
@@ -859,7 +868,11 @@ geometry_msgs::msg::TwistStamped MpcController::computeVelocityCommands(
         reason << "measured braking trajectory failed full-footprint costmap check at x="
                << collision_state.x << " y=" << collision_state.y
                << " yaw=" << collision_state.yaw;
-        return fail(reason.str(), output_header);
+        emergency_stop = true;
+        if (!emergency_stop_reason.empty()) {
+          emergency_stop_reason += "; ";
+        }
+        emergency_stop_reason += reason.str();
       }
     } else {
       std::string candidate_collision_reason;
@@ -884,28 +897,32 @@ geometry_msgs::msg::TwistStamped MpcController::computeVelocityCommands(
       }
       if (!candidate_collision_reason.empty()) {
         if (!measured_braking_static_safe) {
-          return fail(candidate_collision_reason + "; measured braking is unsafe", output_header);
-        }
-        if (!costmap_collision_matches_human(
+          wait_for_human = true;
+          emergency_stop = true;
+          emergency_stop_reason = candidate_collision_reason +
+            "; measured braking is unsafe";
+          costmap_wait_started_.reset();
+        } else if (!costmap_collision_matches_human(
             collision_state, problem.obstacles, config_.dt, config_.safe_distance,
             costmap_obstacle_wait_limit_))
         {
           return fail(candidate_collision_reason, output_header);
+        } else {
+          if (!costmap_wait_started_) {
+            costmap_wait_started_ = cycle_start;
+          }
+          const double wait_age = std::chrono::duration<double>(
+            cycle_start - *costmap_wait_started_).count();
+          if (wait_age > costmap_obstacle_wait_limit_) {
+            std::ostringstream reason;
+            reason << candidate_collision_reason
+                   << "; persisted beyond costmap wait limit "
+                   << costmap_obstacle_wait_limit_ << " s";
+            return fail(reason.str(), output_header);
+          }
+          wait_for_human = true;
+          costmap_wait_allowed = true;
         }
-        if (!costmap_wait_started_) {
-          costmap_wait_started_ = cycle_start;
-        }
-        const double wait_age = std::chrono::duration<double>(
-          cycle_start - *costmap_wait_started_).count();
-        if (wait_age > costmap_obstacle_wait_limit_) {
-          std::ostringstream reason;
-          reason << candidate_collision_reason
-                 << "; persisted beyond costmap wait limit "
-                 << costmap_obstacle_wait_limit_ << " s";
-          return fail(reason.str(), output_header);
-        }
-        wait_for_human = true;
-        costmap_wait_allowed = true;
       } else {
         costmap_wait_started_.reset();
       }
@@ -975,18 +992,19 @@ geometry_msgs::msg::TwistStamped MpcController::computeVelocityCommands(
       config_.safe_distance) && dynamic_trajectory_collision_free(
       braking, kBrakeDt, latest_obstacles, config_.dt, config_.safe_distance);
     if (wait_for_human && !latest_measured_braking_safe) {
-      return fail(
-        "latest HuNav update invalidated measured braking trajectory", output_header);
+      emergency_stop = true;
+      emergency_stop_reason = "latest HuNav update invalidated measured braking trajectory";
     }
     if (!wait_for_human && !latest_candidate_safe) {
       if (!latest_measured_braking_safe || !measured_braking_static_safe) {
-        return fail("latest HuNav update failed swept postcheck", output_header);
+        emergency_stop = true;
+        emergency_stop_reason = "latest HuNav update failed swept postcheck";
       }
       wait_for_human = true;
     }
     std::lock_guard<std::mutex> lock(input_mutex_);
     if (inputs_.human_sequence != final_inputs.human_sequence) {
-      return fail("HuNav input changed during final postcheck", output_header);
+      return recoverable_stop("HuNav input changed during final postcheck", output_header);
     }
   }
   if (epoch != reset_epoch_.load()) {
@@ -998,6 +1016,9 @@ geometry_msgs::msg::TwistStamped MpcController::computeVelocityCommands(
   const double elapsed_ms = std::chrono::duration<double, std::milli>(
     SteadyClock::now() - cycle_start).count();
   if (elapsed_ms > plugin_commit_limit_ms_) {
+    if (wait_for_human) {
+      return recoverable_stop("plugin commit deadline exceeded while waiting", output_header);
+    }
     return fail("plugin commit deadline exceeded", output_header);
   }
 
@@ -1028,6 +1049,9 @@ geometry_msgs::msg::TwistStamped MpcController::computeVelocityCommands(
     predicted_path.poses.push_back(std::move(predicted));
   }
   trajectory_publisher_->publish(predicted_path);
+  if (emergency_stop) {
+    return recoverable_stop(emergency_stop_reason, output_header);
+  }
   std::ostringstream status;
   status << "ok generation=" << generation << " epoch=" << epoch
          << " solve_ms=" << result.timing.solve_ms << " cycle_ms=" << elapsed_ms
@@ -1063,6 +1087,19 @@ geometry_msgs::msg::TwistStamped MpcController::fail(
   if (failures >= failure_limit_) {
     throw nav2_core::PlannerException(reason);
   }
+  return zero_command(header);
+}
+
+geometry_msgs::msg::TwistStamped MpcController::recoverable_stop(
+  const std::string & reason, const std_msgs::msg::Header & header)
+{
+  // A safety stop is a valid control decision, not a controller failure.  The
+  // non-"ok" status makes the downstream watchdog publish zero immediately,
+  // while returning normally keeps Nav2's FollowPath action active.  A future
+  // valid cycle can therefore resume the same goal after the obstacle clears.
+  consecutive_failures_.store(0);
+  last_command_time_ = node_->now();
+  publish_status("stop recoverable=1 mode=safety_wait reason=" + reason);
   return zero_command(header);
 }
 

@@ -32,6 +32,13 @@ def test_costmap_layer_contract():
     watchdog_params = config["mpc_command_watchdog"]["ros__parameters"]
     assert watchdog_params["costmap_topic"] == "/local_costmap/costmap_raw"
 
+    progress = config["controller_server"]["ros__parameters"]["progress_checker"]
+    assert progress["plugin"] == "arena_mpc_controller::SafetyAwareProgressChecker"
+    assert progress["required_movement_radius"] == 0.05
+    assert progress["movement_time_allowance"] == 120.0
+    assert progress["status_topic"] == "/FollowPath/status"
+    assert progress["status_timeout"] == 1.0
+
 
 def test_mpc_speed_limits_match_velocity_smoother():
     model_path = Path(os.environ["MPC_CONTROLLER_MODEL_PATH"])

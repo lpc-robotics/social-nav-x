@@ -7,12 +7,13 @@ GPU="${GPU_ID:-0}"
 DOMAIN="${P5_DOMAIN:-190}"
 DURATION="${P5_DURATION:-1800}"
 OUTPUT_DIR="$MPC_WS/evidence/p5/endurance"
-OUTPUT="$OUTPUT_DIR/endurance_30min.json"
-LAUNCH_LOG="$OUTPUT_DIR/endurance_30min_launch.log"
+OUTPUT="${P5_OUTPUT:-$OUTPUT_DIR/endurance_30min.json}"
+LAUNCH_LOG="${P5_LAUNCH_LOG:-$OUTPUT_DIR/endurance_30min_launch.log}"
 CONFIG="$STABLE_WS/install/arena_bringup/share/arena_bringup/configs/hunav_agents/isaac_six_behaviors_warehouse.yaml"
 GPU_SNAPSHOT="$(nvidia-smi --query-gpu=index,uuid,memory.total,memory.used,memory.free --format=csv,noheader,nounits | sed -n "$((GPU + 1))p")"
 CONFIG_SHA256="$(sha256sum "$CONFIG" | awk '{print $1}')"
 CONTROLLER_SHA256="$(sha256sum "$MPC_WS/src/arena_mpc_controller/src/mpc_controller.cpp" | awk '{print $1}')"
+PROGRESS_CHECKER_SHA256="$(sha256sum "$MPC_WS/src/arena_mpc_controller/src/safety_aware_progress_checker.cpp" | awk '{print $1}')"
 CONTROLLER_CONFIG_SHA256="$(sha256sum "$MPC_WS/src/arena_mpc_bringup/config/controller_model.yaml" | awk '{print $1}')"
 NAV2_OVERRIDES_SHA256="$(sha256sum "$MPC_WS/src/arena_mpc_bringup/config/nav2_overrides.yaml" | awk '{print $1}')"
 PROBE_SHA256="$(sha256sum "$MPC_WS/tools/p5_endurance_probe.py" | awk '{print $1}')"
@@ -52,7 +53,7 @@ set -u
 python "$MPC_WS/tools/p5_endurance_probe.py" \
     --duration "$DURATION" \
     --startup-timeout "${P5_STARTUP_TIMEOUT:-180}" \
-    --goal-timeout 180 \
+    --goal-timeout "${P5_GOAL_TIMEOUT:-600}" \
     --minimum-goals "${P5_MINIMUM_GOALS:-10}" \
     --output "$OUTPUT" \
     --ros-domain-id "$DOMAIN" \
@@ -61,6 +62,7 @@ python "$MPC_WS/tools/p5_endurance_probe.py" \
     --config-path "$CONFIG" \
     --config-sha256 "$CONFIG_SHA256" \
     --controller-sha256 "$CONTROLLER_SHA256" \
+    --progress-checker-sha256 "$PROGRESS_CHECKER_SHA256" \
     --controller-config-sha256 "$CONTROLLER_CONFIG_SHA256" \
     --nav2-overrides-sha256 "$NAV2_OVERRIDES_SHA256" \
     --probe-sha256 "$PROBE_SHA256" \

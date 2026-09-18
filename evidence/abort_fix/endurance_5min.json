@@ -1,0 +1,110 @@
+{
+  "aborted_goal_count": 1,
+  "cancelled_active_goal_at_end": true,
+  "clock_rollbacks": 0,
+  "cmd_vel_publishers": [
+    "/mpc_command_watchdog"
+  ],
+  "completed_goal_count": 5,
+  "completed_goals": [
+    {
+      "elapsed_wall_s": 7.904078316409141,
+      "status": 4,
+      "target_x": 3.6
+    },
+    {
+      "elapsed_wall_s": 85.00708116730675,
+      "status": 4,
+      "target_x": 3.0
+    },
+    {
+      "elapsed_wall_s": 90.91022400325164,
+      "status": 4,
+      "target_x": 3.6
+    },
+    {
+      "elapsed_wall_s": 171.91335482522845,
+      "status": 6,
+      "target_x": 3.0
+    },
+    {
+      "elapsed_wall_s": 225.61664690822363,
+      "status": 4,
+      "target_x": 3.6
+    }
+  ],
+  "controller_failure_counts": {},
+  "controller_recoverable_stop_counts": {
+    "HuNav input changed during final postcheck": 2,
+    "latest HuNav update invalidated measured braking trajectory": 509,
+    "measured braking trajectory failed swept HuNav check after MPC solve rejected: Maximum_WallTime_Exceeded": 42
+  },
+  "cross_boundary_samples": 2416,
+  "full_command_measurement": "plugin cycle plus p99 absolute callback skew from nearest same-cycle ok-status/raw pairs within 25 ms",
+  "full_command_ms_max": 89.23683180112242,
+  "full_command_ms_p95": 82.25643180112243,
+  "full_command_ms_p99": 83.58153180112242,
+  "full_command_over_100ms_fraction": 0.0,
+  "full_command_samples": 2416,
+  "matched_status_raw_samples": 2416,
+  "non_successful_goal_count": 1,
+  "observed_wall_duration_s": 300.5148276332766,
+  "ok_status_samples": 2416,
+  "output_samples": 15026,
+  "outputs_finite": true,
+  "pass": false,
+  "plugin_cycle_ms_max": 88.3016,
+  "plugin_cycle_ms_p50": 77.93555,
+  "plugin_cycle_ms_p95": 81.3212,
+  "plugin_cycle_ms_p99": 82.6463,
+  "requested_wall_duration_s": 300.0,
+  "run_metadata": {
+    "config_path": "/home/lpc/workspace/arena5_ws/install/arena_bringup/share/arena_bringup/configs/hunav_agents/isaac_six_behaviors_warehouse.yaml",
+    "config_sha256": "ac77047d69256d71fadca0aa958848cb9b30a0b15e3fcf91275514fc1a748b67",
+    "controller_config_sha256": "7db5330adb67381e2e7ee3bc4a625350f411fd86bd5561cedd844bfa192ff29b",
+    "controller_source_sha256": "ee096d55f3238ff8a630263b0c10f56f63c97b12b3a6499d0a77e82c63d9cad5",
+    "git_head": "97be364133116a17fab19a645bed2df52530a2de",
+    "gpu_index": 1,
+    "gpu_snapshot_csv": "1, GPU-53d85912-c9ed-9472-9577-51d5871ed813, 24564, 45, 24037",
+    "launch_log": "/home/lpc/workspace/arena5_mpc_ws/evidence/abort_fix/endurance_5min_launch.log",
+    "nav2_overrides_sha256": "e671d0bba13df1c744a2a7272d581c93d504d5f634ee45bca384679fc545da3e",
+    "probe_sha256": "4dab67cadb4d2df4e90e74fa29db5515adda63fe0dd2c96b4f690ee626f4b915",
+    "ros_domain_id": 198
+  },
+  "simulation_duration_s": 106.533338889,
+  "solver_ms_max": 85.711,
+  "solver_ms_p50": 77.67735,
+  "solver_ms_p95": 81.0063,
+  "solver_ms_p99": 82.3859,
+  "solver_samples": 2416,
+  "status_raw_match_coverage": 1.0,
+  "status_to_raw_ms_max": 5.430044140666723,
+  "status_to_raw_ms_p95": 0.75563695281744,
+  "status_to_raw_ms_p99": 0.935231801122427,
+  "stream_gap_limits_s": {
+    "human_states": 1.2,
+    "lidar": 3.1,
+    "local_costmap": 3.1,
+    "odom": 1.2
+  },
+  "stream_maximum_wall_gap_s": {
+    "human_states": 0.14080672292038798,
+    "lidar": 0.40737156197428703,
+    "local_costmap": 0.40122915524989367,
+    "odom": 0.07875809026882052
+  },
+  "stream_message_counts": {
+    "human_states": 4262,
+    "lidar": 1069,
+    "local_costmap": 995,
+    "odom": 6392
+  },
+  "streams_healthy": true,
+  "successful_goal_count": 4,
+  "timed_out_goal_count": 0,
+  "watchdog_stop_counts": {
+    "command_sequence": 6,
+    "controller_status": 5,
+    "status_lease": 6
+  }
+}

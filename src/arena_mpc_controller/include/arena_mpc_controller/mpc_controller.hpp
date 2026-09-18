@@ -68,6 +68,8 @@ private:
 
   geometry_msgs::msg::TwistStamped fail(
     const std::string & reason, const std_msgs::msg::Header & header);
+  geometry_msgs::msg::TwistStamped recoverable_stop(
+    const std::string & reason, const std_msgs::msg::Header & header);
   geometry_msgs::msg::TwistStamped retry_stale_path(
     const std::string & reason, const std_msgs::msg::Header & header);
   void publish_status(const std::string & text);

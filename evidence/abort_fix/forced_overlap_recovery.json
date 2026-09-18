@@ -1,0 +1,26 @@
+{
+  "aborted_during_overlap": false,
+  "action_status": 4,
+  "controller_failure_statuses": [],
+  "controller_recoverable_status_count": 20,
+  "controller_recoverable_status_samples": [
+    "stop recoverable=1 mode=safety_wait reason=latest HuNav update failed swept postcheck",
+    "stop recoverable=1 mode=safety_wait reason=latest HuNav update invalidated measured braking trajectory",
+    "stop recoverable=1 mode=safety_wait reason=latest HuNav update invalidated measured braking trajectory",
+    "stop recoverable=1 mode=safety_wait reason=latest HuNav update invalidated measured braking trajectory",
+    "stop recoverable=1 mode=safety_wait reason=latest HuNav update invalidated measured braking trajectory",
+    "stop recoverable=1 mode=safety_wait reason=latest HuNav update invalidated measured braking trajectory",
+    "stop recoverable=1 mode=safety_wait reason=latest HuNav update invalidated measured braking trajectory",
+    "stop recoverable=1 mode=safety_wait reason=latest HuNav update invalidated measured braking trajectory",
+    "stop recoverable=1 mode=safety_wait reason=latest HuNav update invalidated measured braking trajectory",
+    "stop recoverable=1 mode=safety_wait reason=latest HuNav update invalidated measured braking trajectory"
+  ],
+  "first_zero_latency_s": 0.037445482797920704,
+  "mode": "forced_overlap_recoverable_stop",
+  "nonzero_during_overlap": 0,
+  "pass": true,
+  "physical_stop_sim_time_s": 0.0,
+  "watchdog_stop_statuses": [
+    "stop reason=controller_status"
+  ]
+}

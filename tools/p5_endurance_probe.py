@@ -20,6 +20,7 @@ from lifecycle_msgs.srv import GetState
 from nav2_msgs.action import NavigateToPose
 from nav2_msgs.msg import Costmap
 from nav_msgs.msg import Odometry
+from rcl_interfaces.srv import GetParameters
 from rclpy.action import ActionClient
 from rclpy.node import Node
 from rclpy.qos import DurabilityPolicy, HistoryPolicy, QoSProfile, ReliabilityPolicy
@@ -47,6 +48,13 @@ class EnduranceProbe(Node):
             self.create_client(GetState, f"/{name}/get_state")
             for name in ("bt_navigator", "planner_server", "controller_server")
         ]
+        self.controller_parameters = self.create_client(
+            GetParameters, "/controller_server/get_parameters"
+        )
+        self.progress_required_movement_radius_m = None
+        self.progress_movement_time_allowance_s = None
+        self.progress_checker_plugin = None
+        self.progress_status_timeout_s = None
         self.latest_odom = None
         self.latest_humans = None
         self.latest_lidar = None
@@ -172,6 +180,27 @@ class EnduranceProbe(Node):
         goal.pose.pose.orientation.w = 1.0
         return goal
 
+    def read_progress_parameters(self):
+        if not self.controller_parameters.wait_for_service(timeout_sec=30.0):
+            raise RuntimeError("controller_server parameter service unavailable")
+        request = GetParameters.Request()
+        request.names = [
+            "progress_checker.plugin",
+            "progress_checker.required_movement_radius",
+            "progress_checker.movement_time_allowance",
+            "progress_checker.status_timeout",
+        ]
+        future = self.controller_parameters.call_async(request)
+        if not self.spin_until(future.done, 5.0):
+            raise RuntimeError("controller_server parameter request timed out")
+        response = future.result()
+        if response is None or len(response.values) != 4:
+            raise RuntimeError("controller_server parameter response was invalid")
+        self.progress_checker_plugin = response.values[0].string_value
+        self.progress_required_movement_radius_m = response.values[1].double_value
+        self.progress_movement_time_allowance_s = response.values[2].double_value
+        self.progress_status_timeout_s = response.values[3].double_value
+
     def run(self):
         ready = self.spin_until(
             lambda: self.latest_odom is not None
@@ -195,6 +224,7 @@ class EnduranceProbe(Node):
         if not self.navigation.wait_for_server(timeout_sec=60.0):
             raise RuntimeError("navigate_to_pose server unavailable")
         self.wait_navigation_active()
+        self.read_progress_parameters()
 
         initial_stamp = self.latest_odom.header.stamp
         initial_ns = initial_stamp.sec * 1_000_000_000 + initial_stamp.nanosec
@@ -301,7 +331,12 @@ class EnduranceProbe(Node):
         failure_reasons = Counter(
             text.split(" reason=", 1)[1].split(" solve_ms=", 1)[0]
             for _, text in self.status
-            if text.startswith("stop ") and " reason=" in text
+            if text.startswith("stop failure=") and " reason=" in text
+        )
+        recoverable_stops = Counter(
+            text.split(" reason=", 1)[1]
+            for _, text in self.status
+            if text.startswith("stop recoverable=1 ") and " reason=" in text
         )
         watchdog_reasons = Counter(
             text.removeprefix("stop reason=")
@@ -326,6 +361,9 @@ class EnduranceProbe(Node):
         success_count = sum(
             item["status"] == GoalStatus.STATUS_SUCCEEDED for item in completed
         )
+        aborted_count = sum(
+            item["status"] == GoalStatus.STATUS_ABORTED for item in completed
+        )
         non_success_count = len(completed) - success_count
         stream_limits = {
             "human_states": 1.2,
@@ -346,6 +384,13 @@ class EnduranceProbe(Node):
         passed = (
             wall_duration >= self.args.duration
             and success_count >= self.args.minimum_goals
+            and aborted_count == 0
+            and timed_out_goals == 0
+            and self.progress_checker_plugin
+            == "arena_mpc_controller::SafetyAwareProgressChecker"
+            and abs(self.progress_required_movement_radius_m - 0.05) <= 1.0e-9
+            and abs(self.progress_movement_time_allowance_s - 120.0) <= 1.0e-9
+            and abs(self.progress_status_timeout_s - 1.0) <= 1.0e-9
             and finite
             and len(self.outputs) > 0
             and full_p95 is not None
@@ -368,6 +413,7 @@ class EnduranceProbe(Node):
                 "config_path": self.args.config_path,
                 "config_sha256": self.args.config_sha256,
                 "controller_source_sha256": self.args.controller_sha256,
+                "progress_checker_source_sha256": self.args.progress_checker_sha256,
                 "controller_config_sha256": self.args.controller_config_sha256,
                 "nav2_overrides_sha256": self.args.nav2_overrides_sha256,
                 "probe_sha256": self.args.probe_sha256,
@@ -380,13 +426,23 @@ class EnduranceProbe(Node):
             "completed_goals": completed,
             "completed_goal_count": len(completed),
             "successful_goal_count": success_count,
+            "aborted_goal_count": aborted_count,
             "non_successful_goal_count": non_success_count,
             "timed_out_goal_count": timed_out_goals,
+            "progress_checker_plugin": self.progress_checker_plugin,
+            "progress_required_movement_radius_m": (
+                self.progress_required_movement_radius_m
+            ),
+            "progress_movement_time_allowance_s": (
+                self.progress_movement_time_allowance_s
+            ),
+            "progress_status_timeout_s": self.progress_status_timeout_s,
             "cancelled_active_goal_at_end": cancelled_at_end,
             "outputs_finite": finite,
             "output_samples": len(self.outputs),
             "cmd_vel_publishers": output_publishers,
             "controller_failure_counts": dict(failure_reasons),
+            "controller_recoverable_stop_counts": dict(recoverable_stops),
             "watchdog_stop_counts": dict(watchdog_reasons),
             "solver_samples": len(self.solve_ms),
             "solver_ms_p50": statistics.median(self.solve_ms) if self.solve_ms else None,
@@ -433,7 +489,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--duration", type=float, default=1800.0)
     parser.add_argument("--startup-timeout", type=float, default=180.0)
-    parser.add_argument("--goal-timeout", type=float, default=180.0)
+    parser.add_argument("--goal-timeout", type=float, default=600.0)
     parser.add_argument("--minimum-goals", type=int, default=10)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--ros-domain-id", type=int, required=True)
@@ -442,6 +498,7 @@ def main():
     parser.add_argument("--config-path", required=True)
     parser.add_argument("--config-sha256", required=True)
     parser.add_argument("--controller-sha256", required=True)
+    parser.add_argument("--progress-checker-sha256", required=True)
     parser.add_argument("--controller-config-sha256", required=True)
     parser.add_argument("--nav2-overrides-sha256", required=True)
     parser.add_argument("--probe-sha256", required=True)

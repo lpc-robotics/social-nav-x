@@ -17,8 +17,11 @@ Phase evidence is under `evidence/p0` through `evidence/p6`.  P1 contains the
 locked CasADi SDK evidence, independently implemented `arena_mpc_core`,
 Python/C++ numerical comparisons, and capacity benchmarks.  P2-P4 cover Nav2
 integration, fault handling, static navigation, and dynamic-human safety.  P5
-contains the maximum-load benchmark, paired DWB/MPC comparison, and accepted
-30-minute endurance run. P6 records the relocatable release audit and final
+contains the maximum-load benchmark and paired DWB/MPC comparison. Its original
+30-minute endurance report remains performance evidence but its goal-continuity
+verdict was superseded because the old gate did not reject aborted goals.
+`evidence/abort_fix` contains the corrective root cause, recovery and replacement
+endurance evidence. P6 records the relocatable release audit and final
 MPC/DWB rollback smoke. `evidence/visualization` records the later additive
 Foxglove visualization release, and `evidence/costmap_fix` records the global
 costmap policy correction and release rollback drill. All earlier immutable

@@ -1,0 +1,34 @@
+{
+  "observed_release": "20260916-4ff2edd",
+  "ros_domain_id": 51,
+  "gpu_id": 0,
+  "run_directory": "/home/lpc/workspace/arena5_ws/logs/runs/20260917_192315_mpc_release_gpu0",
+  "controller_log": "/home/lpc/workspace/arena5_ws/logs/runs/20260917_192315_mpc_release_gpu0/ros/controller_server_219840_1789644196942.log",
+  "controller_log_sha256": "b352c5b0cdc939d95f4f570d8f719040007305919e57f5ad77be77576d388488",
+  "bt_log": "/home/lpc/workspace/arena5_ws/logs/runs/20260917_192315_mpc_release_gpu0/ros/bt_navigator_219848_1789644196969.log",
+  "bt_log_sha256": "f9b1475348592371c2c3f36c2e65df6ca6b854a339b25ec3da05ad10571e1dd2",
+  "root_cause": "measured braking trajectory failed swept HuNav check after MPC solve rejected: Maximum_WallTime_Exceeded",
+  "matching_controller_exceptions": 8,
+  "follow_path_abort_count": 8,
+  "navigate_to_pose_abort_count": 7,
+  "matching_exception_lines": [
+    "[ERROR] [1789646704.375817614] [controller_server]: measured braking trajectory failed swept HuNav check after MPC solve rejected: Maximum_WallTime_Exceeded",
+    "[ERROR] [1789647205.068545283] [controller_server]: measured braking trajectory failed swept HuNav check after MPC solve rejected: Maximum_WallTime_Exceeded",
+    "[ERROR] [1789647205.170552554] [controller_server]: measured braking trajectory failed swept HuNav check after MPC solve rejected: Maximum_WallTime_Exceeded",
+    "[ERROR] [1789647274.958361801] [controller_server]: measured braking trajectory failed swept HuNav check after MPC solve rejected: Maximum_WallTime_Exceeded",
+    "[ERROR] [1789647326.636474683] [controller_server]: measured braking trajectory failed swept HuNav check after MPC solve rejected: Maximum_WallTime_Exceeded",
+    "[ERROR] [1789647385.449438487] [controller_server]: measured braking trajectory failed swept HuNav check after MPC solve rejected: Maximum_WallTime_Exceeded",
+    "[ERROR] [1789647441.814976260] [controller_server]: measured braking trajectory failed swept HuNav check after MPC solve rejected: Maximum_WallTime_Exceeded",
+    "[ERROR] [1789647612.773356023] [controller_server]: measured braking trajectory failed swept HuNav check after MPC solve rejected: Maximum_WallTime_Exceeded"
+  ],
+  "navigate_to_pose_abort_lines": [
+    "[WARN] [1789646704.691087879] [bt_navigator]: [navigate_to_pose] [ActionServer] Aborting handle.",
+    "[WARN] [1789647205.484616694] [bt_navigator]: [navigate_to_pose] [ActionServer] Aborting handle.",
+    "[WARN] [1789647275.275019419] [bt_navigator]: [navigate_to_pose] [ActionServer] Aborting handle.",
+    "[WARN] [1789647326.954219256] [bt_navigator]: [navigate_to_pose] [ActionServer] Aborting handle.",
+    "[WARN] [1789647385.767287390] [bt_navigator]: [navigate_to_pose] [ActionServer] Aborting handle.",
+    "[WARN] [1789647442.133449681] [bt_navigator]: [navigate_to_pose] [ActionServer] Aborting handle.",
+    "[WARN] [1789647613.090041450] [bt_navigator]: [navigate_to_pose] [ActionServer] Aborting handle."
+  ],
+  "conclusion": "Repeated transient solver-timeout plus unsafe measured-braking states reached failure_limit and threw PlannerException; this was not a GoalChecker success or arrival event."
+}

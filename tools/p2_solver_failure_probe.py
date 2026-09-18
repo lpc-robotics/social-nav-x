@@ -133,6 +133,10 @@ class SolverFailureProbe(Node):
         if not self.navigation.wait_for_server(timeout_sec=30.0):
             raise RuntimeError("navigate_to_pose server unavailable")
         self.wait_navigation_active()
+        # Lifecycle state becomes active before every managed node has
+        # completed its bond/activation callback.  Let that transition settle
+        # so the regression goal cannot be mistaken for a startup preemption.
+        self.spin_until(lambda: False, 1.0)
 
         goal = NavigateToPose.Goal()
         goal.pose.header.frame_id = "map"
@@ -174,9 +178,6 @@ class SolverFailureProbe(Node):
 
         if not self.spin_until(stopped, 2.0):
             raise RuntimeError("solver failure did not produce a zero command")
-        if not self.spin_until(result.done, 5.0):
-            raise RuntimeError("solver failure did not terminate FollowPath")
-        action_status = result.result().status
 
         stopped_ros = None
 
@@ -199,10 +200,14 @@ class SolverFailureProbe(Node):
 
         if not self.spin_until(physically_stopped, 5.0):
             raise RuntimeError("robot did not physically stop after solver failure")
-        hold_end = time.monotonic() + 0.3
+        # Hold the overlap for many more cycles than failure_limit.  A dynamic
+        # safety stop must keep the same action active instead of accumulating
+        # five PlannerExceptions and aborting FollowPath.
+        hold_end = time.monotonic() + 2.0
         while rclpy.ok() and time.monotonic() < hold_end:
             rclpy.spin_once(self, timeout_sec=0.02)
-        rebound = sum(
+        aborted_during_overlap = result.done()
+        nonzero_during_overlap = sum(
             1
             for event in self.output_events
             if first_zero <= event[0] <= hold_end and not self.is_zero(event)
@@ -212,6 +217,12 @@ class SolverFailureProbe(Node):
             for stamp, text in self.controller_events
             if stamp >= injection_start and text.startswith("stop failure=")
         ]
+        recoverable_statuses = [
+            text
+            for stamp, text in self.controller_events
+            if stamp >= injection_start
+            and text.startswith("stop recoverable=1 mode=safety_wait")
+        ]
         watchdog_stops = [
             text
             for stamp, text in self.watchdog_events
@@ -219,20 +230,44 @@ class SolverFailureProbe(Node):
         ]
         self.overlap_active = False
         self.enable_empty_source(True)
+
+        recovery_start = time.monotonic()
+        if not self.spin_until(
+            lambda: result.done()
+            or any(
+                event[0] >= recovery_start and not self.is_zero(event)
+                for event in self.output_events
+            ),
+            15.0,
+        ):
+            raise RuntimeError("controller did not resume after overlap was removed")
+        if result.done() and result.result().status != GoalStatus.STATUS_SUCCEEDED:
+            raise RuntimeError(
+                "navigation terminated before recovery with status "
+                f"{result.result().status}"
+            )
+        if not self.spin_until(result.done, 45.0):
+            raise RuntimeError("recovered navigation did not reach the goal")
+        action_status = result.result().status
         physical_stop_delay = max(0.0, stopped_ros - first_zero_ros)
         return {
-            "mode": "forced_overlap_solver_failure",
+            "mode": "forced_overlap_recoverable_stop",
             "action_status": action_status,
+            "aborted_during_overlap": aborted_during_overlap,
             "first_zero_latency_s": first_zero - injection_start,
             "physical_stop_sim_time_s": physical_stop_delay,
-            "nonzero_after_first_zero": rebound,
+            "nonzero_during_overlap": nonzero_during_overlap,
             "controller_failure_statuses": failure_statuses,
+            "controller_recoverable_status_count": len(recoverable_statuses),
+            "controller_recoverable_status_samples": recoverable_statuses[:10],
             "watchdog_stop_statuses": watchdog_stops,
-            "pass": action_status == GoalStatus.STATUS_ABORTED
+            "pass": action_status == GoalStatus.STATUS_SUCCEEDED
+            and not aborted_during_overlap
             and first_zero - injection_start <= 0.27
             and physical_stop_delay <= 0.6
-            and rebound == 0
-            and len(failure_statuses) >= 5,
+            and nonzero_during_overlap == 0
+            and len(failure_statuses) == 0
+            and len(recoverable_statuses) >= 5,
         }
 
 
@@ -255,7 +290,7 @@ def main():
         except Exception:
             pass
         report = {
-            "mode": "forced_overlap_solver_failure",
+            "mode": "forced_overlap_recoverable_stop",
             "error": str(error),
             "pass": False,
         }

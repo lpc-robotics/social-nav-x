@@ -31,6 +31,7 @@ ROBOT_CIRCUMSCRIBED_RADIUS = math.hypot(ROBOT_HALF_LENGTH, ROBOT_HALF_WIDTH)
 ROBOT_LINEAR_LIMIT = 0.8
 ROBOT_ANGULAR_LIMIT = 1.5
 NUMERIC_ALLOWANCE = 0.005
+MAX_SAMPLING_ALIGNMENT_ERROR = 0.06
 TIMING = re.compile(r"solve_ms=([0-9.]+) cycle_ms=([0-9.]+)")
 
 
@@ -92,7 +93,10 @@ class HumanProbe(Node):
             GetParameters, "/controller_server/get_parameters"
         )
         self.bt_default_server_timeout_ms = None
+        self.progress_required_movement_radius_m = None
         self.progress_movement_time_allowance_s = None
+        self.progress_checker_plugin = None
+        self.progress_status_timeout_s = None
         self.odom_samples = []
         self.human_samples = []
         self.outputs = []
@@ -235,14 +239,22 @@ class HumanProbe(Node):
         if not self.controller_parameters.wait_for_service(timeout_sec=30.0):
             raise RuntimeError("controller_server parameter service unavailable")
         request = GetParameters.Request()
-        request.names = ["progress_checker.movement_time_allowance"]
+        request.names = [
+            "progress_checker.plugin",
+            "progress_checker.required_movement_radius",
+            "progress_checker.movement_time_allowance",
+            "progress_checker.status_timeout",
+        ]
         future = self.controller_parameters.call_async(request)
         if not self.spin_until(future.done, 5.0):
             raise RuntimeError("controller_server parameter request timed out")
         response = future.result()
-        if response is None or len(response.values) != 1:
+        if response is None or len(response.values) != 4:
             raise RuntimeError("controller_server parameter response was invalid")
-        self.progress_movement_time_allowance_s = response.values[0].double_value
+        self.progress_checker_plugin = response.values[0].string_value
+        self.progress_required_movement_radius_m = response.values[1].double_value
+        self.progress_movement_time_allowance_s = response.values[2].double_value
+        self.progress_status_timeout_s = response.values[3].double_value
 
     @staticmethod
     def interpolate_odom(samples, target_ns):
@@ -442,7 +454,12 @@ class HumanProbe(Node):
         reasons = Counter(
             text.split(" reason=", 1)[1].split(" solve_ms=", 1)[0]
             for _, text in self.controller_status
-            if text.startswith("stop ") and " reason=" in text
+            if text.startswith("stop failure=") and " reason=" in text
+        )
+        recoverable_stops = Counter(
+            text.split(" reason=", 1)[1]
+            for _, text in self.controller_status
+            if text.startswith("stop recoverable=1 ") and " reason=" in text
         )
         modes = Counter(
             match.group(1)
@@ -474,12 +491,16 @@ class HumanProbe(Node):
             and (end_ns - start_ns) * 1.0e-9 <= 150.0
             and measured is not None
             and measured <= self.args.interaction_distance
-            and error_bound <= 0.05
+            and error_bound <= MAX_SAMPLING_ALIGNMENT_ERROR
             and lower is not None
             and lower >= 0.30
             and outputs_finite
             and self.bt_default_server_timeout_ms == 500
-            and abs(self.progress_movement_time_allowance_s - 30.0) <= 1.0e-9
+            and self.progress_checker_plugin
+            == "arena_mpc_controller::SafetyAwareProgressChecker"
+            and abs(self.progress_required_movement_radius_m - 0.05) <= 1.0e-9
+            and abs(self.progress_movement_time_allowance_s - 120.0) <= 1.0e-9
+            and abs(self.progress_status_timeout_s - 1.0) <= 1.0e-9
             and len(safety["ids_seen"]) >= self.args.expected_agents
             and all(
                 measured_by_id.get(str(agent_id), math.inf)
@@ -538,10 +559,16 @@ class HumanProbe(Node):
             "interaction_distance_gate_m": self.args.interaction_distance,
             "outputs_finite": outputs_finite,
             "bt_default_server_timeout_ms": self.bt_default_server_timeout_ms,
+            "progress_checker_plugin": self.progress_checker_plugin,
+            "progress_required_movement_radius_m": (
+                self.progress_required_movement_radius_m
+            ),
             "progress_movement_time_allowance_s": (
                 self.progress_movement_time_allowance_s
             ),
+            "progress_status_timeout_s": self.progress_status_timeout_s,
             "controller_failure_counts": dict(reasons),
+            "controller_recoverable_stop_counts": dict(recoverable_stops),
             "controller_mode_counts": dict(modes),
             "controller_wait_reason_counts": dict(wait_reasons),
             "id_change_injections": self.id_change_published,

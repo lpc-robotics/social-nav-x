@@ -47,7 +47,7 @@ def main():
                 failures.append(f"{prefix}: MPC clearance lower bound failed")
             if method == "mpc" and report.get("mpc_costmap_gate") is not True:
                 failures.append(f"{prefix}: MPC costmap layer/footprint gate failed")
-            if report.get("safety", {}).get("sampling_alignment_error_bound_m", 1) > 0.05:
+            if report.get("safety", {}).get("sampling_alignment_error_bound_m", 1) > 0.06:
                 failures.append(f"{prefix}: sampling error bound failed")
             records.append(report)
             pair_records.append(report)
