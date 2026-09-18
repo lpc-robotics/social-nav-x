@@ -1,72 +1,41 @@
 # P6 immutable release and rollback gate
 
-P6 passed on 2026-09-12.  It published the additive release
-`20260912-58cd661`, exercised that exact release through the stable-workspace
-MPC entry, and then exercised the original DWB entry in a fresh ROS domain.
-The protected stable-file manifest passed before publication, after each smoke,
-and during the final audit.
+The latest P6 corrective release passed on 2026-09-18. It published the
+additive release `20260918-bd63612`, exercised that exact release through the
+stable-workspace MPC entry, and then exercised the original protected DWB
+entry in a fresh ROS domain. Earlier immutable releases remain available.
 
-## Published layout
+The 45,964,467-byte release is at
+`/home/lpc/workspace/arena5_ws/optional/mpc/releases/20260918-bd63612`. Its
+`RELEASE` file binds controller/configuration hashes to source commit
+`bd63612de9ca5ae28986a063257a2bf4a37c073a`. `SHA256SUMS` covers every file.
+The release has no symlinks, development path, staging path, or unresolved
+runtime dependency after loading the Arena underlay.
 
-The immutable 45,067,655-byte release is at
-`/home/lpc/workspace/arena5_ws/optional/mpc/releases/20260912-58cd661`.  Its
-`RELEASE` file binds controller source and configuration hashes to source commit
-`58cd661d8de076a114484757a5b6ef1c4b3521d4`.  `SHA256SUMS` covers every release
-file.  The release contains no symlinks and no reference to the development or
-temporary build prefixes.
-
-The stable workspace received only additive paths:
-
-- `optional/mpc/releases/20260912-58cd661`;
-- `optional/mpc/COLCON_IGNORE`, which prevents an outer colcon scan from
-  treating the release as source;
-- `scripts/run_six_behaviors_mpc.sh`, a small wrapper bound to this release.
-
-The seven pre-existing protected files still match
-`config/stable_protected.sha256`.  In particular, the original
-`scripts/run_six_behaviors.sh` hash remains
+The candidate was built with tests disabled in a temporary prefix, moved to a
+different temporary path, and passed runtime, benchmark, dependency, and path
+checks before the stable workspace was touched. Publication added the new
+immutable directory and atomically selected it through the independent MPC and
+DWB08 wrappers. The original `run_six_behaviors.sh` remains unchanged at SHA-256
 `9f8d26eae21348e00e6141f95829e51bf5cbc21e0c57d541bd3c8e9df2530836`.
 
-## Relocation and dependency audit
+The final development build passed all 20 model, solver, reference, plugin,
+progress, terminal-reference, visualization, costmap, and configuration tests.
+The published checksum manifest, runtime-only check, three binary dependency
+checks, zero-path scan, and protected stable manifest all passed.
 
-The release was first built with `BUILD_TESTING=OFF` in a temporary prefix,
-moved to a different directory, and checked there before any stable-workspace
-write.  The relocated benchmark completed, plugin/core/watchdog binaries had no
-unresolved dependency after loading the real Arena underlay, and the runtime
-check resolved the three MPC packages from the release while resolving Arena
-from the stable install.  The same checksum, path scan, runtime, and dependency
-checks passed again against the published tree.  `release_audit.json` records
-the compact result.
+`formal_summary.json` records the release smoke:
 
-Two earlier release candidates were rejected before stable publication.  The
-first retained source/build paths through compiler `__FILE__` strings.  The
-second removed those strings but retained colcon's temporary install prefix in
-generated POSIX fallback and parent-prefix metadata.  Compiler prefix maps and
-metadata relocation fixed both findings; neither rejected candidate wrote into
-the stable workspace.
+| Entry | Runtime controller | Configured linear limit | Action | Position error | Clearance lower bound |
+|---|---|---:|---:|---:|---:|
+| released MPC | `arena_mpc_controller::MpcController` | 0.8 m/s | success | 0.2254 m | 0.5224 m |
+| original DWB | `dwb_core::DWBLocalPlanner` | 0.26 m/s | success | 0.2265 m | 0.4869 m |
 
-The final development rebuild also passed all five model, solver, Python/C++
-reference, and pluginlib tests with zero errors, failures, or skips.  Shell and
-Python launch/tool syntax checks passed.
+The original DWB limit is intentionally unchanged; the separate DWB08 wrapper
+provides the 0.8/1.5 profile. Both smoke results used GPU 3, 1/60 s physics,
+the same six-behavior input, and independent domains 214 and 215. Commands were
+finite and each result met the 0.25 m goal tolerance.
 
-## Released MPC and original DWB smoke
-
-`formal_summary.json` accepts exactly one released MPC result and one native DWB
-rollback result.  Both used GPU 3 with 23,516 MiB free at capture, 1/60 s
-physics, the same six-behavior input hash, and independent domains 200 and 201.
-
-| Entry | Runtime controller | Action | Position error | Clearance lower bound |
-|---|---|---:|---:|---:|
-| released MPC | `arena_mpc_controller::MpcController` | success | 0.2248 m | 0.5371 m |
-| original DWB | `dwb_core::DWBLocalPlanner` | success | 0.2195 m | 0.5175 m |
-
-The MPC result confirms the unified ±0.24 m by ±0.22 m local/global footprint
-and global static+obstacle+inflation layers.  The rollback result confirms DWB
-still uses its stable ±0.1 m footprint and global static+inflation layers.  All
-commands were finite and each result met the 0.25 m goal tolerance and 0.30 m
-conservative human-clearance gate.
-
-Launch logs are retained locally and ignored by Git.  The accepted JSON files
-contain the controller identity, effective geometry, safety alignment bounds,
-GPU/domain metadata, input hashes, action result, and motion metrics used by the
-gate.
+Launch logs remain local and are ignored by Git. The accepted JSON files bind
+controller identity, effective geometry, safety alignment bounds, GPU/domain
+metadata, input hashes, action result, and motion metrics.

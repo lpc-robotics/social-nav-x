@@ -10,21 +10,21 @@
     "unit_and_plugin_tests": {
       "errors": 0,
       "failures": 0,
-      "passed": 5,
+      "passed": 20,
       "skipped": 0
     }
   },
   "gate": "PASS",
   "protected_manifest_sha256": "e9207fbf03c66883458f2f394f06bea2530f6ccf0f838514a5cca1bf2a8075a4",
-  "release_id": "20260912-58cd661",
-  "release_path": "/home/lpc/workspace/arena5_ws/optional/mpc/releases/20260912-58cd661",
-  "release_size_bytes": 45067655,
-  "source_commit": "58cd661d8de076a114484757a5b6ef1c4b3521d4",
+  "release_id": "20260918-bd63612",
+  "release_path": "/home/lpc/workspace/arena5_ws/optional/mpc/releases/20260918-bd63612",
+  "release_size_bytes": 45964467,
+  "source_commit": "bd63612de9ca5ae28986a063257a2bf4a37c073a",
   "verified_binaries": [
     "install/lib/libarena_mpc_core.so",
     "install/lib/libarena_mpc_controller.so",
     "install/lib/arena_mpc_controller/mpc_command_watchdog"
   ],
   "wrapper_path": "/home/lpc/workspace/arena5_ws/scripts/run_six_behaviors_mpc.sh",
-  "wrapper_sha256": "94791a7930880caaadc52fb7e87ddf424101a6e20d428956df67528e3b749fa8"
+  "wrapper_sha256": "fd826a474bbb6953e8a44df595b84f97c78552325465a6de0cf54dc65cefe654"
 }
