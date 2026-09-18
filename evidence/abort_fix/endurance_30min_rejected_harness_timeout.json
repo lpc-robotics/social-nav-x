@@ -1,0 +1,164 @@
+{
+  "aborted_goal_count": 0,
+  "cancelled_active_goal_at_end": true,
+  "clock_rollbacks": 0,
+  "cmd_vel_publishers": [
+    "/mpc_command_watchdog"
+  ],
+  "completed_goal_count": 13,
+  "completed_goals": [
+    {
+      "elapsed_wall_s": 9.102542364038527,
+      "status": 4,
+      "target_x": 3.6
+    },
+    {
+      "elapsed_wall_s": 609.2067141756415,
+      "status": 5,
+      "target_x": 3.0,
+      "timed_out": true
+    },
+    {
+      "elapsed_wall_s": 627.9091419586912,
+      "status": 4,
+      "target_x": 3.6
+    },
+    {
+      "elapsed_wall_s": 697.6124561126344,
+      "status": 4,
+      "target_x": 3.0
+    },
+    {
+      "elapsed_wall_s": 709.8151177098043,
+      "status": 4,
+      "target_x": 3.6
+    },
+    {
+      "elapsed_wall_s": 749.6177595029585,
+      "status": 4,
+      "target_x": 3.0
+    },
+    {
+      "elapsed_wall_s": 755.3209576527588,
+      "status": 4,
+      "target_x": 3.6
+    },
+    {
+      "elapsed_wall_s": 868.624537545722,
+      "status": 4,
+      "target_x": 3.0
+    },
+    {
+      "elapsed_wall_s": 874.3282938469201,
+      "status": 4,
+      "target_x": 3.6
+    },
+    {
+      "elapsed_wall_s": 1126.7316270587035,
+      "status": 4,
+      "target_x": 3.0
+    },
+    {
+      "elapsed_wall_s": 1132.9356027436443,
+      "status": 4,
+      "target_x": 3.6
+    },
+    {
+      "elapsed_wall_s": 1269.1394489207305,
+      "status": 4,
+      "target_x": 3.0
+    },
+    {
+      "elapsed_wall_s": 1276.4439575667493,
+      "status": 4,
+      "target_x": 3.6
+    }
+  ],
+  "controller_failure_counts": {
+    "input expired before command commit human_age=0.432666 odom_age=0.434972 lidar_age=0.44933": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.487204 odom_age=0.48951 lidar_age=0.503868": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.5872 odom_age=0.589506 lidar_age=0.603865": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.687209 odom_age=0.00967064 lidar_age=0.703873": 1
+  },
+  "controller_recoverable_stop_counts": {
+    "HuNav input changed during final postcheck": 4,
+    "latest HuNav update invalidated measured braking trajectory": 607,
+    "measured braking trajectory failed swept HuNav check after MPC solve rejected: Maximum_WallTime_Exceeded": 164,
+    "plugin commit deadline exceeded while waiting": 4
+  },
+  "cross_boundary_samples": 17133,
+  "full_command_measurement": "plugin cycle plus p99 absolute callback skew from nearest same-cycle ok-status/raw pairs within 25 ms",
+  "full_command_ms_max": 90.50564612634778,
+  "full_command_ms_p95": 82.35404612634778,
+  "full_command_ms_p99": 84.11484612634779,
+  "full_command_over_100ms_fraction": 0.0,
+  "full_command_samples": 17133,
+  "matched_status_raw_samples": 17133,
+  "non_successful_goal_count": 1,
+  "observed_wall_duration_s": 1800.5083970408887,
+  "ok_status_samples": 17133,
+  "output_samples": 90025,
+  "outputs_finite": true,
+  "pass": false,
+  "plugin_cycle_ms_max": 89.1568,
+  "plugin_cycle_ms_p50": 51.075,
+  "plugin_cycle_ms_p95": 81.0052,
+  "plugin_cycle_ms_p99": 82.766,
+  "progress_checker_plugin": "arena_mpc_controller::SafetyAwareProgressChecker",
+  "progress_movement_time_allowance_s": 120.0,
+  "progress_required_movement_angle_rad": 0.1,
+  "progress_required_movement_radius_m": 0.05,
+  "progress_status_timeout_s": 1.0,
+  "requested_wall_duration_s": 1800.0,
+  "run_metadata": {
+    "config_path": "/home/lpc/workspace/arena5_ws/install/arena_bringup/share/arena_bringup/configs/hunav_agents/isaac_six_behaviors_warehouse.yaml",
+    "config_sha256": "ac77047d69256d71fadca0aa958848cb9b30a0b15e3fcf91275514fc1a748b67",
+    "controller_config_sha256": "7db5330adb67381e2e7ee3bc4a625350f411fd86bd5561cedd844bfa192ff29b",
+    "controller_source_sha256": "ee096d55f3238ff8a630263b0c10f56f63c97b12b3a6499d0a77e82c63d9cad5",
+    "git_head": "f470b084e794db4af9dc6302dfe4c1dab42f7414",
+    "gpu_index": 1,
+    "gpu_snapshot_csv": "1, GPU-53d85912-c9ed-9472-9577-51d5871ed813, 24564, 451, 23631",
+    "launch_log": "/home/lpc/workspace/arena5_mpc_ws/evidence/abort_fix/endurance_30min_corrected_launch.log",
+    "nav2_overrides_sha256": "ec5640173bd56930ca2aec6ac97368354a973f486210f4634ae6621a30841fe0",
+    "probe_sha256": "e02e2b90cb699f54e9c305bcba4882eb0be3429b53e789c5766273173c25cde9",
+    "progress_checker_source_sha256": "3ad2f4cc54fa2ba54a5523a0d805cfc76d59bd7aa8916bf4eaa9fef75a1bb727",
+    "ros_domain_id": 206
+  },
+  "simulation_duration_s": 519.433360424,
+  "solver_ms_max": 88.516,
+  "solver_ms_p50": 50.6076,
+  "solver_ms_p95": 80.6489,
+  "solver_ms_p99": 82.3778,
+  "solver_samples": 17133,
+  "status_raw_match_coverage": 1.0,
+  "status_to_raw_ms_max": 5.831162910908461,
+  "status_to_raw_ms_p95": 0.9512817487120628,
+  "status_to_raw_ms_p99": 1.3488461263477802,
+  "stream_gap_limits_s": {
+    "human_states": 1.2,
+    "lidar": 3.1,
+    "local_costmap": 3.1,
+    "odom": 1.2
+  },
+  "stream_maximum_wall_gap_s": {
+    "human_states": 0.729905666783452,
+    "lidar": 0.9370484529063106,
+    "local_costmap": 0.9997843382880092,
+    "odom": 0.6796582103706896
+  },
+  "stream_message_counts": {
+    "human_states": 20777,
+    "lidar": 5210,
+    "local_costmap": 4915,
+    "odom": 31166
+  },
+  "streams_healthy": true,
+  "successful_goal_count": 12,
+  "timed_out_goal_count": 1,
+  "watchdog_stop_counts": {
+    "command_sequence": 18,
+    "controller_status": 18,
+    "odom_input": 1,
+    "status_lease": 14
+  }
+}

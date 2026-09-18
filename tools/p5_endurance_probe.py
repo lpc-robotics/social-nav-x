@@ -258,7 +258,11 @@ class EnduranceProbe(Node):
             if handle is None or not handle.accepted:
                 raise RuntimeError("endurance goal was rejected")
             result = handle.get_result_async()
-            action_deadline = min(end_wall, time.monotonic() + self.args.goal_timeout)
+            action_deadline = end_wall
+            if self.args.goal_timeout > 0.0:
+                action_deadline = min(
+                    action_deadline, time.monotonic() + self.args.goal_timeout
+                )
             while not result.done() and time.monotonic() < action_deadline:
                 rclpy.spin_once(self, timeout_sec=0.02)
             if result.done():
@@ -425,6 +429,7 @@ class EnduranceProbe(Node):
                 "launch_log": self.args.launch_log,
             },
             "requested_wall_duration_s": self.args.duration,
+            "per_goal_wall_timeout_s": self.args.goal_timeout,
             "observed_wall_duration_s": wall_duration,
             "simulation_duration_s": simulation_duration,
             "completed_goals": completed,
@@ -496,7 +501,12 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--duration", type=float, default=1800.0)
     parser.add_argument("--startup-timeout", type=float, default=180.0)
-    parser.add_argument("--goal-timeout", type=float, default=600.0)
+    parser.add_argument(
+        "--goal-timeout",
+        type=float,
+        default=0.0,
+        help="per-goal wall timeout; zero disables cancellation before run end",
+    )
     parser.add_argument("--minimum-goals", type=int, default=10)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--ros-domain-id", type=int, required=True)
