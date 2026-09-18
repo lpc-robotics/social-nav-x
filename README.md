@@ -21,7 +21,8 @@ contains the maximum-load benchmark and paired DWB/MPC comparison. Its original
 30-minute endurance report remains performance evidence but its goal-continuity
 verdict was superseded because the old gate did not reject aborted goals.
 `evidence/abort_fix` contains the corrective root cause, recovery and replacement
-endurance evidence. P6 records the relocatable release audit and final
+endurance evidence. Its accepted 30-minute replacement completed 31/31 goals
+with zero aborts or per-goal timeouts. P6 records the relocatable release audit and final
 MPC/DWB rollback smoke. `evidence/visualization` records the later additive
 Foxglove visualization release, and `evidence/costmap_fix` records the global
 costmap policy correction and release rollback drill. All earlier immutable

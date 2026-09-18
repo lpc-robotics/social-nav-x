@@ -80,6 +80,14 @@ accepted only when at least ten goals succeed and both
 `aborted_goal_count` and `timed_out_goal_count` are zero. It also reads the
 actual progress-checker parameters from the live controller server.
 
+The accepted domain-211 run lasted 1800.514 wall seconds. All 31 completed
+goals succeeded, with zero aborts and zero per-goal timeouts; the harness
+cancelled one still-active goal only after the fixed run ended. All 90,029
+outputs were finite, the watchdog was the sole `/cmd_vel` publisher, and all
+input streams were healthy. Across 15,557 matched command cycles, complete
+processing p95/p99/max was 83.615/84.913/90.433 ms with no sample above
+100 ms. The report binds these results to source commit `04c8f30`.
+
 Launch logs are intentionally ignored by Git. Every JSON report binds its
 source/config hashes, ROS domain, GPU snapshot and corresponding local log
 path where applicable.

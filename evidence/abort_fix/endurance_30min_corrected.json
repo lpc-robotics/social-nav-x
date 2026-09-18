@@ -1,0 +1,256 @@
+{
+  "aborted_goal_count": 0,
+  "cancelled_active_goal_at_end": true,
+  "clock_rollbacks": 0,
+  "cmd_vel_publishers": [
+    "/mpc_command_watchdog"
+  ],
+  "completed_goal_count": 31,
+  "completed_goals": [
+    {
+      "elapsed_wall_s": 10.104371666908264,
+      "status": 4,
+      "target_x": 3.6
+    },
+    {
+      "elapsed_wall_s": 212.21840876992792,
+      "status": 4,
+      "target_x": 3.0
+    },
+    {
+      "elapsed_wall_s": 220.92117303656414,
+      "status": 4,
+      "target_x": 3.6
+    },
+    {
+      "elapsed_wall_s": 384.22451886488125,
+      "status": 4,
+      "target_x": 3.0
+    },
+    {
+      "elapsed_wall_s": 390.127563317772,
+      "status": 4,
+      "target_x": 3.6
+    },
+    {
+      "elapsed_wall_s": 444.7307598446496,
+      "status": 4,
+      "target_x": 3.0
+    },
+    {
+      "elapsed_wall_s": 452.93371550599113,
+      "status": 4,
+      "target_x": 3.6
+    },
+    {
+      "elapsed_wall_s": 487.03683852776885,
+      "status": 4,
+      "target_x": 3.0
+    },
+    {
+      "elapsed_wall_s": 492.74018289987,
+      "status": 4,
+      "target_x": 3.6
+    },
+    {
+      "elapsed_wall_s": 553.8433336829767,
+      "status": 4,
+      "target_x": 3.0
+    },
+    {
+      "elapsed_wall_s": 563.1466916138306,
+      "status": 4,
+      "target_x": 3.6
+    },
+    {
+      "elapsed_wall_s": 820.0502402335405,
+      "status": 4,
+      "target_x": 3.0
+    },
+    {
+      "elapsed_wall_s": 825.9539033407345,
+      "status": 4,
+      "target_x": 3.6
+    },
+    {
+      "elapsed_wall_s": 881.6574788535945,
+      "status": 4,
+      "target_x": 3.0
+    },
+    {
+      "elapsed_wall_s": 896.3608959745616,
+      "status": 4,
+      "target_x": 3.6
+    },
+    {
+      "elapsed_wall_s": 974.1644578515552,
+      "status": 4,
+      "target_x": 3.0
+    },
+    {
+      "elapsed_wall_s": 980.1667902707122,
+      "status": 4,
+      "target_x": 3.6
+    },
+    {
+      "elapsed_wall_s": 1059.97010149993,
+      "status": 4,
+      "target_x": 3.0
+    },
+    {
+      "elapsed_wall_s": 1065.773741493933,
+      "status": 4,
+      "target_x": 3.6
+    },
+    {
+      "elapsed_wall_s": 1130.578245246783,
+      "status": 4,
+      "target_x": 3.0
+    },
+    {
+      "elapsed_wall_s": 1139.9822440035641,
+      "status": 4,
+      "target_x": 3.6
+    },
+    {
+      "elapsed_wall_s": 1213.6844173148274,
+      "status": 4,
+      "target_x": 3.0
+    },
+    {
+      "elapsed_wall_s": 1219.4889202346094,
+      "status": 4,
+      "target_x": 3.6
+    },
+    {
+      "elapsed_wall_s": 1277.8933459036052,
+      "status": 4,
+      "target_x": 3.0
+    },
+    {
+      "elapsed_wall_s": 1298.097041664645,
+      "status": 4,
+      "target_x": 3.6
+    },
+    {
+      "elapsed_wall_s": 1480.302074726671,
+      "status": 4,
+      "target_x": 3.0
+    },
+    {
+      "elapsed_wall_s": 1497.0070370836183,
+      "status": 4,
+      "target_x": 3.6
+    },
+    {
+      "elapsed_wall_s": 1667.312332260888,
+      "status": 4,
+      "target_x": 3.0
+    },
+    {
+      "elapsed_wall_s": 1673.517359255813,
+      "status": 4,
+      "target_x": 3.6
+    },
+    {
+      "elapsed_wall_s": 1733.7198662827723,
+      "status": 4,
+      "target_x": 3.0
+    },
+    {
+      "elapsed_wall_s": 1742.0247386828996,
+      "status": 4,
+      "target_x": 3.6
+    }
+  ],
+  "controller_failure_counts": {
+    "input expired before command commit human_age=0.419377 odom_age=0.42828 lidar_age=0.627238": 1,
+    "input expired before command commit human_age=0.671786 odom_age=0.38437 lidar_age=0.403381": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.691423 odom_age=0.404008 lidar_age=0.423018": 1
+  },
+  "controller_recoverable_stop_counts": {
+    "HuNav input changed during final postcheck": 6,
+    "latest HuNav update invalidated measured braking trajectory": 1937,
+    "measured braking trajectory failed swept HuNav check after MPC solve rejected: Maximum_WallTime_Exceeded": 294,
+    "plugin commit deadline exceeded while waiting": 2
+  },
+  "cross_boundary_samples": 15557,
+  "full_command_measurement": "plugin cycle plus p99 absolute callback skew from nearest same-cycle ok-status/raw pairs within 25 ms",
+  "full_command_ms_max": 90.43332005241513,
+  "full_command_ms_p95": 83.61452005241513,
+  "full_command_ms_p99": 84.91312005241514,
+  "full_command_over_100ms_fraction": 0.0,
+  "full_command_samples": 15557,
+  "matched_status_raw_samples": 15557,
+  "non_successful_goal_count": 0,
+  "observed_wall_duration_s": 1800.5137778478675,
+  "ok_status_samples": 15557,
+  "output_samples": 90029,
+  "outputs_finite": true,
+  "pass": true,
+  "per_goal_wall_timeout_s": 0.0,
+  "plugin_cycle_ms_max": 89.344,
+  "plugin_cycle_ms_p50": 78.9414,
+  "plugin_cycle_ms_p95": 82.5252,
+  "plugin_cycle_ms_p99": 83.8238,
+  "progress_checker_plugin": "arena_mpc_controller::SafetyAwareProgressChecker",
+  "progress_movement_time_allowance_s": 120.0,
+  "progress_required_movement_angle_rad": 0.1,
+  "progress_required_movement_radius_m": 0.05,
+  "progress_status_timeout_s": 1.0,
+  "requested_wall_duration_s": 1800.0,
+  "run_metadata": {
+    "config_path": "/home/lpc/workspace/arena5_ws/install/arena_bringup/share/arena_bringup/configs/hunav_agents/isaac_six_behaviors_warehouse.yaml",
+    "config_sha256": "ac77047d69256d71fadca0aa958848cb9b30a0b15e3fcf91275514fc1a748b67",
+    "controller_config_sha256": "f975cf7e5bb04b19b36d7644329fc64a779c2837ad773269cad7ab865c0e38d1",
+    "controller_source_sha256": "e9001a09f1d7f205d63ee1132505ce306f648aed3f7e980260f7668d702d1a27",
+    "git_head": "04c8f303396aec69bc6a13d5999c37b3669ba7ab",
+    "gpu_index": 3,
+    "gpu_snapshot_csv": "3, GPU-6fc79961-8650-6bf3-08e6-3f1701399bef, 24564, 258, 23824",
+    "launch_log": "/home/lpc/workspace/arena5_mpc_ws/evidence/abort_fix/endurance_30min_corrected_launch.log",
+    "maximum_completed_goals": 0,
+    "nav2_overrides_sha256": "ec5640173bd56930ca2aec6ac97368354a973f486210f4634ae6621a30841fe0",
+    "probe_sha256": "a913142bf280beea53d3e30eaeb890a32a232ae7923f28f82b8486322bfd59e4",
+    "progress_checker_source_sha256": "3ad2f4cc54fa2ba54a5523a0d805cfc76d59bd7aa8916bf4eaa9fef75a1bb727",
+    "ros_domain_id": 211
+  },
+  "simulation_duration_s": 610.4666985040001,
+  "solver_ms_max": 88.8513,
+  "solver_ms_p50": 78.6142,
+  "solver_ms_p95": 82.2384,
+  "solver_ms_p99": 83.5096,
+  "solver_samples": 15557,
+  "status_raw_match_coverage": 1.0,
+  "status_to_raw_ms_max": 4.455140791833401,
+  "status_to_raw_ms_p95": 0.8298470638692379,
+  "status_to_raw_ms_p99": 1.0893200524151325,
+  "stream_gap_limits_s": {
+    "human_states": 1.2,
+    "lidar": 3.1,
+    "local_costmap": 3.1,
+    "odom": 1.2
+  },
+  "stream_maximum_wall_gap_s": {
+    "human_states": 0.7209918312728405,
+    "lidar": 0.7254499448463321,
+    "local_costmap": 0.9998023360967636,
+    "odom": 0.4313275767490268
+  },
+  "stream_message_counts": {
+    "human_states": 24419,
+    "lidar": 6124,
+    "local_costmap": 5662,
+    "odom": 36628
+  },
+  "streams_healthy": true,
+  "successful_goal_count": 31,
+  "timed_out_goal_count": 0,
+  "watchdog_stop_counts": {
+    "command_sequence": 28,
+    "controller_status": 28,
+    "odom_input": 1,
+    "raw_lease": 1,
+    "smooth_lease": 1,
+    "status_lease": 32
+  }
+}

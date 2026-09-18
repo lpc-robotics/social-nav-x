@@ -611,6 +611,12 @@ action，因此上限修订为有限 120 s。等待期间 watchdog 保持零速�
 SafetyAwareProgressChecker 暂停活动跟踪预算；超过 120 s 仍未清除就转为失败。
 无法与当前行人关联的静态碰撞不会进入这条等待路径。
 
+2026-09-18 的正式六行人耐久运行持续 1800.514 s，31 个已结束目标全部成功，
+ABORTED 和单目标测试超时均为 0。它覆盖了 1,937 次最新 HuNav 更新使实测制动轨迹
+失效后的可恢复停车和 294 次 solver wall-time 超限后的安全等待；没有把这些瞬态状态
+转换成 action failure。完整结构化结果见
+`evidence/abort_fix/endurance_30min_corrected.json`。
+
 ## 9. 求解器和 warm start
 
 ### 9.1 CasADi/IPOPT 设置
