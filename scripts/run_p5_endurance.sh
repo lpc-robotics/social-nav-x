@@ -55,6 +55,7 @@ python "$MPC_WS/tools/p5_endurance_probe.py" \
     --startup-timeout "${P5_STARTUP_TIMEOUT:-180}" \
     --goal-timeout "${P5_GOAL_TIMEOUT:-0}" \
     --minimum-goals "${P5_MINIMUM_GOALS:-10}" \
+    --maximum-completed-goals "${P5_MAXIMUM_COMPLETED_GOALS:-0}" \
     --output "$OUTPUT" \
     --ros-domain-id "$DOMAIN" \
     --gpu-index "$GPU" \

@@ -21,9 +21,11 @@ controller_plugins_dict:
     max_iterations: 100
     solver_budget_ms: 75.0
     plugin_commit_limit_ms: 90.0
-    # Permit a short zero-command interval for lidar marks left by a moving
-    # HuNav agent. Persistent costmap collisions still fail after this bound.
-    costmap_obstacle_wait_limit: 1.0
+    # A costmap collision is eligible for this bounded wait only when it also
+    # matches a current HuNav agent. Online evidence showed such cells can need
+    # about 12 wall seconds to clear; keep the action active while stopped, but
+    # retain a finite bound for a genuinely stuck costmap.
+    costmap_obstacle_wait_limit: 120.0
     transform_tolerance: 0.2
     ros_age_limit: 0.3
     human_wall_limit: 0.6
@@ -33,6 +35,9 @@ controller_plugins_dict:
     # a conservative 0.25 m/s nominal reference. The 0.8 m/s bound remains
     # available to the optimizer without forcing that speed near turns.
     reference_spacing: 0.025
+    # Queried from the active Nav2 GoalChecker at runtime. This value is used
+    # only if a custom checker cannot report its XY tolerance.
+    goal_position_tolerance_fallback: 0.25
     geometry_uncertainty: 0.05
     # Hard floor used only when the safest available response is to brake to
     # zero; normal planning retains the larger safe_distance above.

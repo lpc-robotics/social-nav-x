@@ -98,6 +98,7 @@ private:
   std::uint64_t plan_hash_{0U};
   std::atomic<std::uint64_t> path_generation_{0U};
   std::atomic<std::uint64_t> reset_epoch_{0U};
+  std::atomic<bool> goal_position_latched_{false};
   std::atomic<double> speed_limit_{0.8};
   std::atomic<int> consecutive_failures_{0};
   rclcpp::Time last_command_time_{0, 0, RCL_ROS_TIME};
@@ -110,8 +111,9 @@ private:
   double odom_wall_limit_{0.40};
   double lidar_wall_limit_{1.55};
   double plugin_commit_limit_ms_{90.0};
-  double costmap_obstacle_wait_limit_{1.0};
+  double costmap_obstacle_wait_limit_{120.0};
   double reference_spacing_{0.025};
+  double goal_position_tolerance_fallback_{0.25};
   double geometry_uncertainty_{0.05};
   double emergency_safe_distance_{0.30};
   double robot_circumscribed_radius_{0.326};

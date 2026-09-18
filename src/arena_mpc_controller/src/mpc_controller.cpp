@@ -1,4 +1,5 @@
 #include "arena_mpc_controller/mpc_controller.hpp"
+#include "arena_mpc_controller/reference_builder.hpp"
 
 #include <pluginlib/class_list_macros.hpp>
 
@@ -55,12 +56,6 @@ std::int64_t stamp_nanoseconds(const builtin_interfaces::msg::Time & stamp)
 bool valid_stamp(const builtin_interfaces::msg::Time & stamp)
 {
   return stamp.sec != 0 || stamp.nanosec != 0U;
-}
-
-double point_distance(
-  const geometry_msgs::msg::Point & first, const geometry_msgs::msg::Point & second)
-{
-  return std::hypot(first.x - second.x, first.y - second.y);
 }
 
 void hash_bytes(std::uint64_t & hash, const void * data, std::size_t size)
@@ -460,8 +455,18 @@ void MpcController::configure(
   lidar_wall_limit_ = parameter<double>(node_, prefix + "lidar_wall_limit", 1.55);
   plugin_commit_limit_ms_ = parameter<double>(node_, prefix + "plugin_commit_limit_ms", 90.0);
   costmap_obstacle_wait_limit_ = parameter<double>(
-    node_, prefix + "costmap_obstacle_wait_limit", 1.0);
+    node_, prefix + "costmap_obstacle_wait_limit", 120.0);
+  if (!std::isfinite(costmap_obstacle_wait_limit_) || costmap_obstacle_wait_limit_ <= 0.0) {
+    throw std::runtime_error("costmap_obstacle_wait_limit must be positive and finite");
+  }
   reference_spacing_ = parameter<double>(node_, prefix + "reference_spacing", 0.025);
+  goal_position_tolerance_fallback_ = parameter<double>(
+    node_, prefix + "goal_position_tolerance_fallback", 0.25);
+  if (!std::isfinite(goal_position_tolerance_fallback_) ||
+    goal_position_tolerance_fallback_ <= 0.0)
+  {
+    throw std::runtime_error("goal_position_tolerance_fallback must be positive and finite");
+  }
   geometry_uncertainty_ = parameter<double>(node_, prefix + "geometry_uncertainty", 0.05);
   emergency_safe_distance_ = parameter<double>(
     node_, prefix + "emergency_safe_distance", 0.30);
@@ -505,6 +510,7 @@ void MpcController::configure(
 
   reset_epoch_.fetch_add(1U);
   consecutive_failures_.store(0);
+  goal_position_latched_.store(false);
   RCLCPP_INFO(
     node_->get_logger(),
     "Configured %s: CasADi graph N=%zu dynamic_slots=%zu build occurs outside control loop",
@@ -534,6 +540,7 @@ void MpcController::activate()
   reset_epoch_.fetch_add(1U);
   solver_->reset();
   consecutive_failures_.store(0);
+  goal_position_latched_.store(false);
   costmap_wait_started_.reset();
   publish_status("active; waiting for fresh path, odom, HuNav, lidar, and costmap");
 }
@@ -557,6 +564,7 @@ void MpcController::setPlan(const nav_msgs::msg::Path & path)
   const std::uint64_t hash = path_hash(path);
   std::lock_guard<std::mutex> lock(plan_mutex_);
   plan_ = path;
+  goal_position_latched_.store(false);
   if (hash != plan_hash_) {
     plan_hash_ = hash;
     path_generation_.fetch_add(1U);
@@ -569,7 +577,6 @@ geometry_msgs::msg::TwistStamped MpcController::computeVelocityCommands(
   nav2_core::GoalChecker * goal_checker)
 {
   (void)velocity;
-  (void)goal_checker;
   const auto cycle_start = SteadyClock::now();
   std_msgs::msg::Header output_header = pose.header;
   output_header.stamp = node_->now();
@@ -660,23 +667,6 @@ geometry_msgs::msg::TwistStamped MpcController::computeVelocityCommands(
     return fail(std::string("path transform failed: ") + error.what(), output_header);
   }
 
-  std::size_t nearest = 0U;
-  double nearest_distance = std::numeric_limits<double>::infinity();
-  for (std::size_t index = 0U; index < transformed_plan.size(); ++index) {
-    const double distance = point_distance(
-      robot_pose.pose.position, transformed_plan[index].pose.position);
-    if (distance < nearest_distance) {
-      nearest_distance = distance;
-      nearest = index;
-    }
-  }
-  std::vector<double> cumulative(transformed_plan.size() - nearest, 0.0);
-  for (std::size_t index = 1U; index < cumulative.size(); ++index) {
-    cumulative[index] = cumulative[index - 1U] + point_distance(
-      transformed_plan[nearest + index - 1U].pose.position,
-      transformed_plan[nearest + index].pose.position);
-  }
-
   arena_mpc_core::Problem problem;
   problem.initial_state = {
     robot_pose.pose.position.x, robot_pose.pose.position.y,
@@ -693,34 +683,31 @@ geometry_msgs::msg::TwistStamped MpcController::computeVelocityCommands(
     }
   }
 
-  problem.reference.reserve(config_.horizon + 1U);
-  for (std::size_t step_index = 0U; step_index <= config_.horizon; ++step_index) {
-    const double wanted = reference_spacing_ * static_cast<double>(step_index);
-    const auto upper = std::lower_bound(cumulative.begin(), cumulative.end(), wanted);
-    std::size_t local_index = upper == cumulative.end() ? cumulative.size() - 1U :
-      static_cast<std::size_t>(std::distance(cumulative.begin(), upper));
-    arena_mpc_core::State reference;
-    if (local_index == 0U || cumulative[local_index] <= wanted) {
-      const auto & selected = transformed_plan[nearest + local_index].pose;
-      reference.x = selected.position.x;
-      reference.y = selected.position.y;
-    } else {
-      const double lower_distance = cumulative[local_index - 1U];
-      const double segment = cumulative[local_index] - lower_distance;
-      const double ratio = segment > 1.0e-9 ? (wanted - lower_distance) / segment : 0.0;
-      const auto & first = transformed_plan[nearest + local_index - 1U].pose.position;
-      const auto & second = transformed_plan[nearest + local_index].pose.position;
-      reference.x = first.x + ratio * (second.x - first.x);
-      reference.y = first.y + ratio * (second.y - first.y);
-    }
-    const std::size_t tangent_index = std::min(local_index + 1U, cumulative.size() - 1U);
-    const auto & tangent_target = transformed_plan[nearest + tangent_index].pose.position;
-    const double dx = tangent_target.x - reference.x;
-    const double dy = tangent_target.y - reference.y;
-    reference.yaw = std::hypot(dx, dy) > 1.0e-9 ?
-      std::atan2(dy, dx) : tf2::getYaw(transformed_plan.back().pose.orientation);
-    problem.reference.push_back(reference);
+  double xy_goal_tolerance = goal_position_tolerance_fallback_;
+  geometry_msgs::msg::Pose pose_tolerance;
+  geometry_msgs::msg::Twist velocity_tolerance;
+  if (goal_checker != nullptr && goal_checker->getTolerances(pose_tolerance, velocity_tolerance) &&
+    std::isfinite(pose_tolerance.position.x) && pose_tolerance.position.x > 0.0 &&
+    std::isfinite(pose_tolerance.position.y) && pose_tolerance.position.y > 0.0)
+  {
+    xy_goal_tolerance = std::min(
+      pose_tolerance.position.x, pose_tolerance.position.y);
   }
+  std::vector<arena_mpc_core::State> reference_path;
+  reference_path.reserve(transformed_plan.size());
+  for (const auto & path_pose : transformed_plan) {
+    reference_path.push_back({
+        path_pose.pose.position.x,
+        path_pose.pose.position.y,
+        tf2::getYaw(path_pose.pose.orientation)});
+  }
+  const auto reference = build_path_reference(
+    reference_path, problem.initial_state, config_.horizon, reference_spacing_,
+    xy_goal_tolerance, goal_position_latched_.load());
+  if (reference.position_latched) {
+    goal_position_latched_.store(true);
+  }
+  problem.reference = reference.states;
 
   const auto build_human_obstacles = [this, &target_frame](
     const hunav_msgs::msg::Agents & humans, double age,
@@ -1056,7 +1043,9 @@ geometry_msgs::msg::TwistStamped MpcController::computeVelocityCommands(
   status << "ok generation=" << generation << " epoch=" << epoch
          << " solve_ms=" << result.timing.solve_ms << " cycle_ms=" << elapsed_ms
          << " humans=" << problem.obstacles.size()
-         << " mode=" << (wait_for_human ? "human_wait" : "track");
+         << " mode=" << (wait_for_human ? "human_wait" : "track")
+         << " goal_phase=" << (reference.position_latched ? "orientation" : "position")
+         << " goal_distance=" << reference.goal_distance;
   if (costmap_wait_allowed) {
     status << " wait_reason=costmap_postcheck";
   } else if (solver_wait_allowed) {

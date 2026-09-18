@@ -129,9 +129,17 @@ wrap(delta_theta) = atan2(sin(delta_theta), cos(delta_theta))
 3. 用欧氏距离寻找距离机器人最近的路径点；
 4. 从该点开始计算路径累计弧长；
 5. 按固定弧长间隔线性插值出 `N+1` 个参考位置；
-6. 用路径切线生成参考航向；路径末端没有有效切线时使用全局路径终点航向。
+6. 用路径切线生成参考航向；位置尚未进入 GoalChecker 的 XY 容差时，路径末端重复点
+   使用最后一个非退化路径段的切向；进入容差并锁存后，全部参考切换到精确终点和
+   全局路径终点航向。
 
 路径短于预测范围时，后续参考位置会重复路径终点。因此 terminal cost 跟踪的是“预测窗口末端参考”，只有当最终导航目标落入窗口时，它才等同于最终导航目标。
+
+终点使用两个阶段。位置阶段保持驶入路径的航向，避免不能侧移、不能倒车的单轮车
+同时追踪终点位置和不相容的最终航向而停在容差外。机器人进入 active GoalChecker
+报告的 XY 容差后，位置阶段锁存，26 个参考都设为终点位置和最终航向，使优化器原地
+完成姿态。当前 GoalChecker 提供 0.25 m；只有 checker 无法返回有效容差时才使用
+`goal_position_tolerance_fallback=0.25 m`。新路径或生命周期切换会清除锁存。
 
 ### 3.2 当前隐含参考速度
 
@@ -592,13 +600,16 @@ emergency_safe_distance = 0.30 m
 
 ### 8.4 动态行人留下的 costmap 残留
 
-如果候选轨迹只在 costmap 中碰撞，同时碰撞点能与当前行人及其 1 s 内运动范围关联，并且当前实测制动轨迹安全，控制器会保持零速等待 costmap clearing：
+如果候选轨迹只在 costmap 中碰撞，同时碰撞点能与当前行人及其运动范围关联，并且当前实测制动轨迹安全，控制器会保持零速等待 costmap clearing：
 
 ```text
-costmap_obstacle_wait_limit = 1.0 s
+costmap_obstacle_wait_limit = 120.0 s
 ```
 
-超过 1 s 仍未清除就转为失败。无法与行人关联的静态碰撞不会进入这条等待路径。
+在线六行人运行已观测到约 12 s 后才清除的关联占用，原 1 s 假设会先错误终止
+action，因此上限修订为有限 120 s。等待期间 watchdog 保持零速，且
+SafetyAwareProgressChecker 暂停活动跟踪预算；超过 120 s 仍未清除就转为失败。
+无法与当前行人关联的静态碰撞不会进入这条等待路径。
 
 ## 9. 求解器和 warm start
 
@@ -674,7 +685,7 @@ controller_frequency = 10 Hz
 failure_tolerance    = 0
 ```
 
-Nav2 `computeVelocityCommands()` 传入的 `velocity` 参数在当前 plugin 中没有直接使用；plugin 使用自己订阅并检查新鲜度的 `/odom` 速度。`goal_checker` 参数也不在 plugin 内使用，最终到达判断由 Nav2 controller server 的 stateful SimpleGoalChecker 完成：
+Nav2 `computeVelocityCommands()` 传入的 `velocity` 参数在当前 plugin 中没有直接使用；plugin 使用自己订阅并检查新鲜度的 `/odom` 速度。plugin 通过 `goal_checker->getTolerances()` 让终点参考的两阶段切换与实际 XY 容差一致；是否正式到达仍由 Nav2 controller server 的 stateful SimpleGoalChecker 判断：
 
 ```text
 xy_goal_tolerance  = 0.25 m
@@ -783,6 +794,7 @@ plugin 和 watchdog 的检查互相独立。plugin 卡在 costmap 等待或求�
 | `dt` | 0.1 s | YAML | 模型步长 |
 | prediction horizon | 2.5 s | 派生 | `N*dt` |
 | `reference_spacing` | 0.025 m | YAML | 相邻路径参考点弧长 |
+| `goal_position_tolerance_fallback` | 0.25 m | YAML | GoalChecker 无有效 XY 容差时的后备值 |
 | nominal reference speed | 0.25 m/s | 派生 | `spacing/dt` |
 | path lookahead | 0.625 m | 派生 | `N*spacing` |
 | `min_linear` | 0.0 m/s | C++ 默认 | 禁止倒车 |
@@ -837,7 +849,7 @@ plugin 和 watchdog 的检查互相独立。plugin 卡在 costmap 等待或求�
 | global inflation radius | 0.55 m |
 | lidar expected update rate | 0.3 s |
 | depth clearing raytrace max range | 3.0 m |
-| costmap obstacle wait limit | 1.0 s |
+| costmap obstacle wait limit | 120.0 s |
 | 制动轨迹采样步长 | 0.05 s |
 
 ## 14. 为什么当前不会自然跑到 0.8 m/s

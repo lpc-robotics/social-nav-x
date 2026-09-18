@@ -21,6 +21,7 @@ find_package(tf2_ros REQUIRED)
 
 add_library(${PROJECT_NAME} SHARED
   src/mpc_controller.cpp
+  src/reference_builder.cpp
   src/safety_aware_progress_checker.cpp
 )
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
@@ -86,6 +87,13 @@ if(BUILD_TESTING)
   set_tests_properties(
     safety_aware_progress_checker
     PROPERTIES ENVIRONMENT "ROS_LOG_DIR=${CMAKE_CURRENT_BINARY_DIR}/test_ros_logs")
+
+  add_executable(reference_builder_test test/reference_builder_test.cpp src/reference_builder.cpp)
+  target_compile_features(reference_builder_test PRIVATE cxx_std_17)
+  target_compile_options(reference_builder_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+  target_include_directories(reference_builder_test PRIVATE include)
+  target_link_libraries(reference_builder_test PRIVATE arena_mpc_core::arena_mpc_core)
+  add_test(NAME terminal_reference_builder COMMAND reference_builder_test)
 endif()
 
 install(DIRECTORY include/ DESTINATION include)

@@ -20,6 +20,11 @@ This directory records the 2026-09-17/18 investigation of a live MPC
   SafetyAwareProgressChecker loaded by controller_server. It again keeps the
   action active through 20 recoverable stops and reaches the same goal after
   the overlap is removed.
+- `terminal_convergence_validation.json` is the accepted focused arrival
+  regression. Both the outbound `x=3.6` and return `x=3.0` goals succeeded;
+  the return completed after the controller changed from path-arrival heading
+  to final orientation inside the live 0.25 m GoalChecker tolerance. It records
+  zero aborts, timeouts, and controller failures.
 
 The controller therefore treats a transient dynamic safety conflict as a
 recoverable zero-command decision. Input, TF, path, static-map and malformed
@@ -57,6 +62,11 @@ data errors remain ordinary controller failures.
   the harness itself cancelled the first long return at exactly its 600 s wall
   timeout. A fixed-duration endurance must not replace an otherwise active
   goal mid-run, so the accepted harness disables per-goal wall cancellation.
+- `endurance_30min_rejected_goal_convergence.json` describes the rejected
+  fourth start. With harness cancellation disabled, the controller stayed in
+  ordinary track mode but converged to essentially zero command 0.25982 m from
+  a 0.25 m XY tolerance. The accepted reference builder keeps the final path
+  tangent until XY entry, then locks position and requests final yaw.
 - `six_behaviors_persistent_block.json` holds an intentionally non-passing
   run in which the fixed six-behavior layout kept the robot at its start for
   the full 360 wall seconds. Nav2 did not abort the action; the probe timed out.

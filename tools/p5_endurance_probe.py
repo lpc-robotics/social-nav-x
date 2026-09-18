@@ -249,6 +249,7 @@ class EnduranceProbe(Node):
         goal_index = 0
         timed_out_goals = 0
         cancelled_at_end = False
+        completed_limit_reached = False
         while time.monotonic() < end_wall:
             target_x = (3.6, 3.0)[goal_index % 2]
             sent = self.navigation.send_goal_async(self.make_goal(target_x))
@@ -274,6 +275,12 @@ class EnduranceProbe(Node):
                     }
                 )
                 goal_index += 1
+                if (
+                    self.args.maximum_completed_goals > 0
+                    and len(completed) >= self.args.maximum_completed_goals
+                ):
+                    completed_limit_reached = True
+                    break
                 continue
             cancel = handle.cancel_goal_async()
             if not self.spin_until(cancel.done, 5.0):
@@ -388,8 +395,13 @@ class EnduranceProbe(Node):
             if self.clock_first_ns is not None and self.clock_last_ns is not None
             else None
         )
-        passed = (
+        duration_or_goal_limit_met = (
             wall_duration >= self.args.duration
+            if self.args.maximum_completed_goals == 0
+            else completed_limit_reached
+        )
+        passed = (
+            duration_or_goal_limit_met
             and success_count >= self.args.minimum_goals
             and aborted_count == 0
             and timed_out_goals == 0
@@ -427,6 +439,7 @@ class EnduranceProbe(Node):
                 "probe_sha256": self.args.probe_sha256,
                 "git_head": self.args.git_head,
                 "launch_log": self.args.launch_log,
+                "maximum_completed_goals": self.args.maximum_completed_goals,
             },
             "requested_wall_duration_s": self.args.duration,
             "per_goal_wall_timeout_s": self.args.goal_timeout,
@@ -508,6 +521,7 @@ def main():
         help="per-goal wall timeout; zero disables cancellation before run end",
     )
     parser.add_argument("--minimum-goals", type=int, default=10)
+    parser.add_argument("--maximum-completed-goals", type=int, default=0)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--ros-domain-id", type=int, required=True)
     parser.add_argument("--gpu-index", type=int, required=True)

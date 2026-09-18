@@ -51,6 +51,8 @@ def test_mpc_speed_limits_match_velocity_smoother():
     smoother = overrides["velocity_smoother"]["ros__parameters"]
 
     assert controller["max_linear"] == 0.8
+    assert controller["costmap_obstacle_wait_limit"] == 120.0
+    assert controller["goal_position_tolerance_fallback"] == 0.25
     assert controller["max_angular"] == 1.5
     assert smoother["max_velocity"] == [0.8, 0.0, 1.5]
     assert smoother["min_velocity"] == [-0.8, 0.0, -1.5]
