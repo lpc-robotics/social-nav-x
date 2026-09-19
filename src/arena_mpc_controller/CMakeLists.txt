@@ -20,6 +20,7 @@ find_package(tf2_geometry_msgs REQUIRED)
 find_package(tf2_ros REQUIRED)
 
 add_library(${PROJECT_NAME} SHARED
+  src/clearance_recovery.cpp
   src/mpc_controller.cpp
   src/reference_builder.cpp
   src/safety_aware_progress_checker.cpp
@@ -94,6 +95,16 @@ if(BUILD_TESTING)
   target_include_directories(reference_builder_test PRIVATE include)
   target_link_libraries(reference_builder_test PRIVATE arena_mpc_core::arena_mpc_core)
   add_test(NAME terminal_reference_builder COMMAND reference_builder_test)
+
+  add_executable(
+    clearance_recovery_test test/clearance_recovery_test.cpp src/clearance_recovery.cpp)
+  target_compile_features(clearance_recovery_test PRIVATE cxx_std_17)
+  target_compile_options(clearance_recovery_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+  target_include_directories(clearance_recovery_test PRIVATE include)
+  ament_target_dependencies(clearance_recovery_test geometry_msgs)
+  target_link_libraries(clearance_recovery_test arena_mpc_core::arena_mpc_core)
+  add_test(NAME clearance_recovery_geometry COMMAND clearance_recovery_test)
+
 endif()
 
 install(DIRECTORY include/ DESTINATION include)

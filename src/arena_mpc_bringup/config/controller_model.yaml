@@ -10,6 +10,14 @@ controller_plugins_dict:
     # Enforce 0.35 m internally so the measured 0.30 m net-clearance gate
     # retains 0.05 m for prediction and command-application uncertainty.
     safe_distance: 0.35
+    # The odometry-fixed first state may lie just inside the conservative
+    # circumscribed-circle set even while the oriented footprint is safe.
+    # Permit at most 5 cm of that pre-existing mismatch and require every
+    # predicted step to preserve or increase clearance until fully recovered.
+    max_initial_clearance_violation: 0.05
+    clearance_recovery_exit: 0.10
+    clearance_recovery_linear: 0.40
+    clearance_recovery_angular: 1.0
     terminal_weight: 1.0
     slack_weight: 50.0
     max_linear: 0.8

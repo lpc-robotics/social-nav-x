@@ -99,6 +99,20 @@ int main()
     return 4;
   }
 
+  auto recoverable_clearance = base;
+  recoverable_clearance.obstacles.push_back(
+    repeated_obstacle(config, 0.58, 0.0, 0.3, 0.3, 0.0));
+  const auto recovery_result = solver.solve(recoverable_clearance, false);
+  if (!require(
+      recovery_result.code == SolveCode::Success,
+      "bounded initial-clearance recovery: " + recovery_result.status) ||
+    !require(
+      recovery_result.evaluation.max_geometry_violation <= config.acceptable_tolerance,
+      "initial-clearance recovery violated the non-worsening envelope"))
+  {
+    return 10;
+  }
+
   auto degenerate = base;
   degenerate.obstacles.push_back(repeated_obstacle(config, 2.0, 1.0, 0.0, 0.2, 0.0));
   const auto degenerate_result = solver.solve(degenerate, false);

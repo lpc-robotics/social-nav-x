@@ -116,9 +116,13 @@ private:
   double goal_position_tolerance_fallback_{0.25};
   double geometry_uncertainty_{0.05};
   double emergency_safe_distance_{0.30};
+  double clearance_recovery_exit_{0.10};
+  double clearance_recovery_linear_{0.40};
+  double clearance_recovery_angular_{1.0};
   double robot_circumscribed_radius_{0.326};
   int failure_limit_{5};
   std::optional<SteadyClock::time_point> costmap_wait_started_;
+  bool clearance_recovery_active_{false};
   bool active_{false};
 };
 

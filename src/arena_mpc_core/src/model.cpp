@@ -85,6 +85,8 @@ void validate_problem(const Config & config, const Problem & problem)
   if (config.horizon == 0U || !std::isfinite(config.dt) || config.dt <= 0.0 ||
     !std::isfinite(config.gamma) || config.gamma < 0.0 || config.gamma > 1.0 ||
     !std::isfinite(config.safe_distance) || config.safe_distance < 0.0 ||
+    !std::isfinite(config.max_initial_clearance_violation) ||
+    config.max_initial_clearance_violation < 0.0 ||
     !std::isfinite(config.min_axis) || config.min_axis <= 0.0 ||
     config.max_linear < config.min_linear || config.max_angular <= 0.0 ||
     config.max_linear_accel <= 0.0 || config.max_angular_accel <= 0.0)
@@ -200,7 +202,10 @@ Evaluation evaluate(
     const auto & obstacle = problem.obstacles[obstacle_index];
     double previous_clearance = ellipse_clearance(
       trajectory.states.front(), obstacle.samples.front(), config.safe_distance, config.min_axis);
-    result.max_geometry_violation = std::max(result.max_geometry_violation, -previous_clearance);
+    const double recovery_floor = std::min(previous_clearance, 0.0);
+    result.max_geometry_violation = std::max(
+      result.max_geometry_violation,
+      -config.max_initial_clearance_violation - previous_clearance);
     for (std::size_t k = 0; k < config.horizon; ++k) {
       const double next_clearance = ellipse_clearance(
         trajectory.states[k + 1U], obstacle.samples[k + 1U], config.safe_distance,
@@ -209,7 +214,8 @@ Evaluation evaluate(
       if (!std::isfinite(slack)) {
         throw std::invalid_argument("trajectory contains non-finite slack");
       }
-      result.max_geometry_violation = std::max(result.max_geometry_violation, -next_clearance);
+      result.max_geometry_violation = std::max(
+        result.max_geometry_violation, recovery_floor - next_clearance);
       result.max_barrier_violation = std::max(
         result.max_barrier_violation,
         config.gamma * previous_clearance - next_clearance - slack);

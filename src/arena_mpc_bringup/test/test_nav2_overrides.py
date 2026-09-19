@@ -54,6 +54,10 @@ def test_mpc_speed_limits_match_velocity_smoother():
     assert controller["costmap_obstacle_wait_limit"] == 120.0
     assert controller["goal_position_tolerance_fallback"] == 0.25
     assert controller["max_angular"] == 1.5
+    assert controller["max_initial_clearance_violation"] == 0.05
+    assert controller["clearance_recovery_exit"] == 0.10
+    assert controller["clearance_recovery_linear"] == 0.40
+    assert controller["clearance_recovery_angular"] == 1.0
     assert smoother["max_velocity"] == [0.8, 0.0, 1.5]
     assert smoother["min_velocity"] == [-0.8, 0.0, -1.5]
 

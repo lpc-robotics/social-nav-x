@@ -377,11 +377,23 @@ h = b * (
 epsilon = 1e-12
 ```
 
-硬约束为：
+正常状态的硬约束为：
 
 ```text
 h_i,k >= 0
 ```
+
+外接圆是对矩形 footprint 的保守近似。若 odom 固定的 `k=0` 状态已经轻微进入
+外接圆集合，而定向矩形仍满足正常净距，把不可控制的 `h_i,0` 强制为非负会使整个
+NLP 永久不可行。当前核心允许：
+
+```text
+h_i,0 >= -0.05 m
+h_i,k >= min(h_i,0, 0),  k=1...N
+```
+
+这只容许最多 5 cm 的既存初始近似误差，预测不能进入更深的外接圆违反；真正下发
+命令还必须通过原始行人圆和定向矩形 footprint 检查。更深的初始违反仍不可行。
 
 当前 HuNav 障碍实际构造成圆，因此 `a=b=R`，该函数近似等价于：
 
@@ -617,6 +629,23 @@ ABORTED 和单目标测试超时均为 0。它覆盖了 1,937 次最新 HuNav �
 转换成 action failure。完整结构化结果见
 `evidence/abort_fix/endurance_30min_corrected.json`。
 
+### 8.5 外接圆假不可行恢复
+
+若最紧约束行人的 NLP 外接圆 clearance 小于 0、但不低于 `-0.05 m`，且机器人
+定向矩形对全部行人仍满足正常 `0.35 m` 净距，plugin 进入
+`mode=clearance_recovery`。它朝最紧约束行人的反方向生成加速度受限弧线控制：
+
+```text
+clearance_recovery_linear  = 0.40 m/s
+clearance_recovery_angular = 1.0 rad/s
+```
+
+实际第一控制量仍受 odom 锚定的 `2.0 m/s²`、`3.2 rad/s²` 约束。从该控制量开始的
+完整制动轨迹必须同时通过原始 HuNav 几何的定向 footprint 检查和 costmap 扫掠检查，
+提交前还会用最新行人快照重查。任一检查失败即输出零速。外接圆 clearance 达到
+`0.10 m` 后退出该模式并重新使用普通 MPC。该恢复只处理外接圆与矩形的近似差异，
+不会在真实 footprint 低于 0.35 m 时主动运动。
+
 ## 9. 求解器和 warm start
 
 ### 9.1 CasADi/IPOPT 设置
@@ -649,6 +678,9 @@ IPOPT 的 wall timer 不是线程硬抢占，因此求解返回后还会再用 s
 5. 同时按速度上限和相邻控制加速度约束钳制；
 6. 用运动学模型重新 rollout 状态。
 
+若初始外接圆 clearance 位于 `[-0.05, 0)`，冷启动改为朝最紧约束行人的反方向构造
+加速度受限轨迹，避免从明确违反恢复约束的路径跟踪猜测开始。
+
 ### 9.3 warm start
 
 求解成功并通过独立检查后保存完整解。下一周期：
@@ -658,7 +690,10 @@ IPOPT 的 wall timer 不是线程硬抢占，因此求解返回后还会再用 s
 3. 第一控制量重新以最新 odom 速度为基准施加加速度钳制；
 4. 从最新机器人状态重新 rollout 全部状态。
 
-失败解不会保存为 warm start。plugin 激活、停用、清理、时钟 reset epoch 变化时都会清空 warm start。
+普通 infeasible、输入错误和后检查失败解不会保存。IPOPT 因 wall-time 截止时，有限且
+尺寸正确的 primal 迭代不会作为命令，但会原样作为下一周期初值；若 IPOPT 报告成功
+但实测返回晚于 75 ms，也执行同一处理。成功解仍按上述左移方式使用。plugin 激活、
+停用、清理、时钟 reset epoch 变化时都会清空两类初值。
 
 ## 10. 独立数值后检查
 
@@ -814,6 +849,10 @@ plugin 和 watchdog 的检查互相独立。plugin 卡在 costmap 等待或求�
 | `safe_distance` | 0.35 m | YAML | 正常动态避障净距 |
 | `emergency_safe_distance` | 0.30 m | YAML | 实测制动硬下界 |
 | `geometry_uncertainty` | 0.05 m | YAML | 行人几何额外膨胀 |
+| `max_initial_clearance_violation` | 0.05 m | YAML | 可恢复的既存外接圆近似违反上限 |
+| `clearance_recovery_exit` | 0.10 m | YAML | 退出受控制动恢复模式的外接圆余量 |
+| `clearance_recovery_linear` | 0.40 m/s | YAML | 恢复模式目标线速度，仍受加速度约束 |
+| `clearance_recovery_angular` | 1.0 rad/s | YAML | 恢复模式目标角速度上限，仍受加速度约束 |
 | `min_axis` | `1e-3` m | C++ 默认 | 最小有效椭圆轴 |
 
 ### 13.2 目标函数中硬编码的系数
@@ -953,6 +992,7 @@ mode=human_wait wait_reason=solver_timeout
 mode=human_wait wait_reason=solver_infeasible
 mode=human_wait wait_reason=dynamic_postcheck
 mode=human_wait wait_reason=costmap_postcheck
+mode=clearance_recovery limiting_human=<id> circle_clearance=<m>
 ```
 
 已经进入保守制动包络时使用非 `ok` 的可恢复停车状态，使 watchdog 绕过平滑链并

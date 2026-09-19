@@ -61,6 +61,7 @@ struct Config
   double dt{0.1};
   double gamma{0.2};
   double safe_distance{0.3};
+  double max_initial_clearance_violation{0.05};
   double terminal_weight{1.0};
   double slack_weight{50.0};
   double min_linear{0.0};

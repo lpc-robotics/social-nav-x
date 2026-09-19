@@ -108,6 +108,7 @@ struct Graph
   std::vector<double> lower_constraint;
   std::vector<double> upper_constraint;
   std::vector<double> last_solution;
+  bool last_solution_is_partial{false};
   double build_ms{0.0};
 };
 
@@ -235,12 +236,20 @@ std::unique_ptr<Graph> build_graph(const Config & config, std::size_t slots)
     casadi::MX previous_clearance = symbolic_clearance(
       config, variables(state_index(0U, 0U)), variables(state_index(0U, 1U)),
       parameters, obstacle_index, 0U);
-    append_constraint(active * previous_clearance + (1.0 - active), 0.0, casadi::inf);
+    // State 0 is fixed by odometry. Admit only a bounded pre-existing
+    // circumscribed-circle violation, then prevent the predicted trajectory
+    // from entering any deeper violation than that immutable starting state.
+    append_constraint(
+      active * (previous_clearance + config.max_initial_clearance_violation) +
+      (1.0 - active), 0.0, casadi::inf);
+    const casadi::MX recovery_floor = casadi::MX::fmin(previous_clearance, 0.0);
     for (std::size_t k = 0; k < config.horizon; ++k) {
       const casadi::MX next_clearance = symbolic_clearance(
         config, variables(state_index(k + 1U, 0U)), variables(state_index(k + 1U, 1U)),
         parameters, obstacle_index, k + 1U);
-      append_constraint(active * next_clearance + (1.0 - active), 0.0, casadi::inf);
+      append_constraint(
+        active * (next_clearance - recovery_floor) +
+        (1.0 - active), 0.0, casadi::inf);
       const casadi::MX required_slack = casadi::MX::fmax(
         config.gamma * previous_clearance - next_clearance, 0.0);
       objective += active * config.slack_weight * required_slack * required_slack;
@@ -281,6 +290,25 @@ std::vector<double> initial_guess(const Config & config, const Problem & problem
   std::vector<double> guess(control_base(config) + 2U * config.horizon, 0.0);
   State state = problem.initial_state;
   Control previous = problem.measured_control;
+  bool clearance_recovery = false;
+  double recovery_yaw = state.yaw;
+  double worst_clearance = 0.0;
+  for (const auto & obstacle : problem.obstacles) {
+    if (!obstacle.dynamic || obstacle.samples.empty()) {
+      continue;
+    }
+    const double clearance = ellipse_clearance(
+      state, obstacle.samples.front(), config.safe_distance, config.min_axis);
+    if (clearance < worst_clearance &&
+      clearance >= -config.max_initial_clearance_violation)
+    {
+      worst_clearance = clearance;
+      clearance_recovery = true;
+      recovery_yaw = std::atan2(
+        state.y - obstacle.samples.front().y,
+        state.x - obstacle.samples.front().x);
+    }
+  }
   for (std::size_t k = 0; k < config.horizon; ++k) {
     guess[state_index(k, 0U)] = state.x;
     guess[state_index(k, 1U)] = state.y;
@@ -289,17 +317,21 @@ std::vector<double> initial_guess(const Config & config, const Problem & problem
     const double dx = target.x - state.x;
     const double dy = target.y - state.y;
     const double distance = std::hypot(dx, dy);
-    const double desired_yaw = distance > 1.0e-9 ? std::atan2(dy, dx) : target.yaw;
+    const double desired_yaw = clearance_recovery ? recovery_yaw :
+      (distance > 1.0e-9 ? std::atan2(dy, dx) : target.yaw);
+    const double yaw_error = wrap_angle(desired_yaw - state.yaw);
+    const double desired_linear = clearance_recovery ?
+      std::min(0.2, effective_linear_limit(config, problem)) : distance / config.dt;
     const double interval = k == 0U ? problem.first_interval : config.dt;
     Control control;
     control.linear = clamp(
-      distance / config.dt,
+      desired_linear,
       std::max(config.min_linear, previous.linear - config.max_linear_accel * interval),
       std::min(
         effective_linear_limit(config, problem),
         previous.linear + config.max_linear_accel * interval));
     control.angular = clamp(
-      wrap_angle(desired_yaw - state.yaw) / config.dt,
+      yaw_error / config.dt,
       std::max(-config.max_angular, previous.angular - config.max_angular_accel * interval),
       std::min(config.max_angular, previous.angular + config.max_angular_accel * interval));
     guess[control_index(config, k, 0U)] = control.linear;
@@ -522,9 +554,11 @@ public:
     upper_constraint[graph.first_angular_acceleration_constraint] =
       config_.max_angular_accel * problem.first_interval;
 
-    const std::vector<double> guess =
-      use_warm_start && graph.last_solution.size() == graph.variable_count ?
-      warm_start_guess(config_, problem, graph.last_solution) : initial_guess(config_, problem);
+    const bool have_warm_start =
+      use_warm_start && graph.last_solution.size() == graph.variable_count;
+    const std::vector<double> guess = !have_warm_start ? initial_guess(config_, problem) :
+      (graph.last_solution_is_partial ? graph.last_solution :
+      warm_start_guess(config_, problem, graph.last_solution));
     result.timing.parameter_update_ms = milliseconds(parameter_start, Clock::now());
 
     try {
@@ -543,21 +577,37 @@ public:
       result.status = stat_string(stats, "return_status");
       result.iterations = stat_int(stats, "iter_count");
 
+      const std::vector<double> values = output.at("x").nonzeros();
+      const bool finite_iterate = values.size() == graph.variable_count &&
+        std::all_of(values.begin(), values.end(), [](double value) {return std::isfinite(value);});
+
       if (!stat_bool(stats, "success")) {
+        // A wall-time-limited IPOPT iterate is never a command, but it is a
+        // materially better primal starting point for the next control cycle.
+        // Keeping only finite, correctly sized iterates lets difficult but
+        // feasible scenes converge across bounded solves instead of restarting
+        // from the same cold guess forever.
+        if (finite_iterate && result.status.find("Time") != std::string::npos) {
+          graph.last_solution = values;
+          graph.last_solution_is_partial = true;
+        }
         result.code = result.status.find("Time") != std::string::npos ?
           SolveCode::Timeout : SolveCode::Infeasible;
         return result;
       }
       if (result.timing.solve_ms > config_.solver_budget_seconds * 1000.0) {
+        if (finite_iterate) {
+          graph.last_solution = values;
+          graph.last_solution_is_partial = true;
+        }
         result.code = SolveCode::Timeout;
         result.status += ": measured solver budget exceeded";
         return result;
       }
 
-      const std::vector<double> values = output.at("x").nonzeros();
-      if (values.size() != graph.variable_count) {
+      if (!finite_iterate) {
         result.code = SolveCode::SolverError;
-        result.status = "solver returned an unexpected decision vector size";
+        result.status = "solver returned an invalid decision vector";
         return result;
       }
       result.trajectory = unpack_trajectory(config_, problem, values);
@@ -571,6 +621,7 @@ public:
       }
 
       graph.last_solution = values;
+      graph.last_solution_is_partial = false;
       result.code = SolveCode::Success;
       result.command_valid = true;
       return result;
@@ -590,9 +641,11 @@ public:
   {
     for (auto & item : exact_graphs_) {
       item.second->last_solution.clear();
+      item.second->last_solution_is_partial = false;
     }
     if (fixed_graph_) {
       fixed_graph_->last_solution.clear();
+      fixed_graph_->last_solution_is_partial = false;
     }
   }
 

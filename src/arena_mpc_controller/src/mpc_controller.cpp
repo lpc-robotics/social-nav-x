@@ -1,4 +1,5 @@
 #include "arena_mpc_controller/mpc_controller.hpp"
+#include "arena_mpc_controller/clearance_recovery.hpp"
 #include "arena_mpc_controller/reference_builder.hpp"
 
 #include <pluginlib/class_list_macros.hpp>
@@ -251,59 +252,6 @@ bool costmap_collision_matches_human(
   return false;
 }
 
-bool dynamic_trajectory_collision_free(
-  const std::vector<arena_mpc_core::State> & states, double state_dt,
-  const std::vector<arena_mpc_core::ObstaclePrediction> & obstacles,
-  double obstacle_dt, double safe_distance)
-{
-  if (states.empty() || !(state_dt > 0.0) || !(obstacle_dt > 0.0)) {
-    return false;
-  }
-  for (const auto & obstacle : obstacles) {
-    if (!obstacle.dynamic || obstacle.samples.empty()) {
-      continue;
-    }
-    if (states.size() == 1U) {
-      const auto sample = obstacle_at(obstacle, 0.0, obstacle_dt);
-      if (std::hypot(states.front().x - sample.x, states.front().y - sample.y) <
-        std::max(sample.semi_major, sample.semi_minor) + safe_distance)
-      {
-        return false;
-      }
-      continue;
-    }
-    for (std::size_t index = 1U; index < states.size(); ++index) {
-      const double first_time = state_dt * static_cast<double>(index - 1U);
-      const double second_time = state_dt * static_cast<double>(index);
-      const auto first_obstacle = obstacle_at(obstacle, first_time, obstacle_dt);
-      const auto second_obstacle = obstacle_at(obstacle, second_time, obstacle_dt);
-      const double relative_x = states[index - 1U].x - first_obstacle.x;
-      const double relative_y = states[index - 1U].y - first_obstacle.y;
-      const double relative_delta_x =
-        (states[index].x - second_obstacle.x) - relative_x;
-      const double relative_delta_y =
-        (states[index].y - second_obstacle.y) - relative_y;
-      const double relative_motion_squared =
-        relative_delta_x * relative_delta_x + relative_delta_y * relative_delta_y;
-      const double closest_ratio = relative_motion_squared > 1.0e-12 ?
-        std::clamp(
-          -(relative_x * relative_delta_x + relative_y * relative_delta_y) /
-          relative_motion_squared,
-          0.0, 1.0) : 0.0;
-      const double closest_distance = std::hypot(
-        relative_x + closest_ratio * relative_delta_x,
-        relative_y + closest_ratio * relative_delta_y);
-      const double required_distance = safe_distance + std::max({
-          first_obstacle.semi_major, first_obstacle.semi_minor,
-          second_obstacle.semi_major, second_obstacle.semi_minor});
-      if (closest_distance + 1.0e-9 < required_distance) {
-        return false;
-      }
-    }
-  }
-  return true;
-}
-
 double point_to_polygon_signed_distance(
   double x, double y, const std::vector<geometry_msgs::msg::Point> & polygon)
 {
@@ -354,12 +302,10 @@ double footprint_circle_clearance(
   return point_to_polygon_signed_distance(local_x, local_y, footprint) - circle_radius;
 }
 
-// The NLP uses a circumscribed robot circle.  During an emergency stop that
-// approximation can report a collision even though the configured polygon can
-// still brake safely.  Check the measured braking motion against the polygon,
-// and subtract a Lipschitz bound for motion between samples so the test remains
-// conservative over the complete swept interval.
-bool measured_braking_dynamic_collision_free(
+// Check a complete motion against the oriented footprint and time-indexed
+// pedestrian circles. Subtract a Lipschitz motion bound so the test remains
+// conservative between discrete samples.
+bool footprint_dynamic_collision_free(
   const std::vector<arena_mpc_core::State> & states, double state_dt,
   const std::vector<arena_mpc_core::ObstaclePrediction> & obstacles,
   double obstacle_dt, const std::vector<geometry_msgs::msg::Point> & footprint,
@@ -430,6 +376,8 @@ void MpcController::configure(
   config_.dt = parameter<double>(node_, prefix + "dt", 0.1);
   config_.gamma = parameter<double>(node_, prefix + "gamma", 0.2);
   config_.safe_distance = parameter<double>(node_, prefix + "safe_distance", 0.3);
+  config_.max_initial_clearance_violation = parameter<double>(
+    node_, prefix + "max_initial_clearance_violation", 0.05);
   config_.terminal_weight = parameter<double>(node_, prefix + "terminal_weight", 1.0);
   config_.slack_weight = parameter<double>(node_, prefix + "slack_weight", 50.0);
   config_.max_linear = parameter<double>(node_, prefix + "max_linear", 0.8);
@@ -474,6 +422,20 @@ void MpcController::configure(
     throw std::runtime_error(
             "emergency_safe_distance must be non-negative and no greater than safe_distance");
   }
+  clearance_recovery_exit_ = parameter<double>(
+    node_, prefix + "clearance_recovery_exit", 0.10);
+  clearance_recovery_linear_ = parameter<double>(
+    node_, prefix + "clearance_recovery_linear", 0.40);
+  clearance_recovery_angular_ = parameter<double>(
+    node_, prefix + "clearance_recovery_angular", 1.0);
+  if (!std::isfinite(clearance_recovery_exit_) || clearance_recovery_exit_ <= 0.0 ||
+    !std::isfinite(clearance_recovery_linear_) || clearance_recovery_linear_ <= 0.0 ||
+    clearance_recovery_linear_ > config_.max_linear ||
+    !std::isfinite(clearance_recovery_angular_) || clearance_recovery_angular_ <= 0.0 ||
+    clearance_recovery_angular_ > config_.max_angular)
+  {
+    throw std::runtime_error("invalid clearance recovery parameters");
+  }
   failure_limit_ = static_cast<int>(parameter<std::int64_t>(node_, prefix + "failure_limit", 5));
   const std::string humans_topic = parameter<std::string>(node_, prefix + "humans_topic", "/human_states");
   const std::string odom_topic = parameter<std::string>(node_, prefix + "odom_topic", "/odom");
@@ -511,6 +473,7 @@ void MpcController::configure(
   reset_epoch_.fetch_add(1U);
   consecutive_failures_.store(0);
   goal_position_latched_.store(false);
+  clearance_recovery_active_ = false;
   RCLCPP_INFO(
     node_->get_logger(),
     "Configured %s: CasADi graph N=%zu dynamic_slots=%zu build occurs outside control loop",
@@ -520,6 +483,7 @@ void MpcController::configure(
 void MpcController::cleanup()
 {
   active_ = false;
+  clearance_recovery_active_ = false;
   reset_epoch_.fetch_add(1U);
   solver_.reset();
   humans_subscription_.reset();
@@ -542,6 +506,7 @@ void MpcController::activate()
   consecutive_failures_.store(0);
   goal_position_latched_.store(false);
   costmap_wait_started_.reset();
+  clearance_recovery_active_ = false;
   publish_status("active; waiting for fresh path, odom, HuNav, lidar, and costmap");
 }
 
@@ -552,6 +517,7 @@ void MpcController::deactivate()
   solver_->reset();
   consecutive_failures_.store(0);
   costmap_wait_started_.reset();
+  clearance_recovery_active_ = false;
   trajectory_publisher_->on_deactivate();
   status_publisher_->on_deactivate();
 }
@@ -777,17 +743,25 @@ geometry_msgs::msg::TwistStamped MpcController::computeVelocityCommands(
     return fail(human_error, output_header);
   }
 
+  auto * costmap = costmap_ros_->getCostmap();
+  const auto footprint = costmap_ros_->getRobotFootprint();
+  const auto recovery = make_clearance_recovery_decision(
+    config_, problem, footprint, robot_circumscribed_radius_, clearance_recovery_exit_,
+    clearance_recovery_linear_, clearance_recovery_angular_, clearance_recovery_active_);
+  const bool recovery_candidate_valid = recovery.active && recovery.admissible;
+  clearance_recovery_active_ = recovery_candidate_valid;
   arena_mpc_core::Result result;
-  {
+  if (!recovery_candidate_valid) {
     std::lock_guard<std::mutex> lock(solver_mutex_);
     result = solver_->solve(problem, true);
   }
   const bool solver_candidate_valid =
     result.command_valid && !result.trajectory.controls.empty();
-  const bool solver_wait_allowed = !solver_candidate_valid &&
+  const bool candidate_valid = recovery_candidate_valid || solver_candidate_valid;
+  const bool solver_wait_allowed = !recovery_candidate_valid && !solver_candidate_valid &&
     (result.code == arena_mpc_core::SolveCode::Timeout ||
     result.code == arena_mpc_core::SolveCode::Infeasible);
-  if (!solver_candidate_valid && !solver_wait_allowed) {
+  if (!candidate_valid && !solver_wait_allowed) {
     std::ostringstream reason;
     reason << "MPC solve rejected: " << result.status
            << " solve_ms=" << result.timing.solve_ms;
@@ -802,26 +776,32 @@ geometry_msgs::msg::TwistStamped MpcController::computeVelocityCommands(
   }
 
   std::vector<arena_mpc_core::State> braking;
+  const std::vector<arena_mpc_core::State> * candidate_states = nullptr;
+  double candidate_state_dt = config_.dt;
   bool wait_for_human = solver_wait_allowed;
-  if (solver_candidate_valid) {
+  if (candidate_valid) {
+    const auto & candidate_control = recovery_candidate_valid ?
+      recovery.control : result.trajectory.controls.front();
     braking = braking_trajectory(
-      problem.initial_state, result.trajectory.controls.front(),
+      problem.initial_state, candidate_control,
       config_.max_linear_accel, config_.max_angular_accel);
-    const bool candidate_dynamic_safe = dynamic_trajectory_collision_free(
-        result.trajectory.states, config_.dt, problem.obstacles, config_.dt,
-        config_.safe_distance) && dynamic_trajectory_collision_free(
-        braking, kBrakeDt, problem.obstacles, config_.dt, config_.safe_distance);
+    candidate_states = recovery_candidate_valid ? &braking : &result.trajectory.states;
+    candidate_state_dt = recovery_candidate_valid ? kBrakeDt : config_.dt;
+    const bool candidate_dynamic_safe = footprint_dynamic_collision_free(
+        *candidate_states, candidate_state_dt, problem.obstacles, config_.dt,
+        footprint, robot_circumscribed_radius_, config_.safe_distance) &&
+      footprint_dynamic_collision_free(
+        braking, kBrakeDt, problem.obstacles, config_.dt, footprint,
+        robot_circumscribed_radius_, config_.safe_distance);
     wait_for_human = !candidate_dynamic_safe;
   }
   const auto measured_braking = braking_trajectory(
     problem.initial_state, problem.measured_control,
     config_.max_linear_accel, config_.max_angular_accel);
-  auto * costmap = costmap_ros_->getCostmap();
-  const auto footprint = costmap_ros_->getRobotFootprint();
   bool emergency_stop = false;
   std::string emergency_stop_reason;
   if (wait_for_human) {
-    if (!measured_braking_dynamic_collision_free(
+    if (!footprint_dynamic_collision_free(
         measured_braking, kBrakeDt, problem.obstacles, config_.dt, footprint,
         robot_circumscribed_radius_, emergency_safe_distance_))
     {
@@ -864,7 +844,7 @@ geometry_msgs::msg::TwistStamped MpcController::computeVelocityCommands(
     } else {
       std::string candidate_collision_reason;
       if (!swept_trajectory_collision_free(
-          *costmap, footprint, result.trajectory.states, robot_circumscribed_radius_,
+          *costmap, footprint, *candidate_states, robot_circumscribed_radius_,
           &collision_state))
       {
         std::ostringstream reason;
@@ -970,14 +950,16 @@ geometry_msgs::msg::TwistStamped MpcController::computeVelocityCommands(
     {
       return fail(human_error, output_header);
     }
-    const bool latest_measured_braking_safe = measured_braking_dynamic_collision_free(
+    const bool latest_measured_braking_safe = footprint_dynamic_collision_free(
       measured_braking, kBrakeDt, latest_obstacles, config_.dt, footprint,
       robot_circumscribed_radius_, emergency_safe_distance_);
-    const bool latest_candidate_safe = solver_candidate_valid &&
-      dynamic_trajectory_collision_free(
-      result.trajectory.states, config_.dt, latest_obstacles, config_.dt,
-      config_.safe_distance) && dynamic_trajectory_collision_free(
-      braking, kBrakeDt, latest_obstacles, config_.dt, config_.safe_distance);
+    const bool latest_candidate_safe = candidate_valid &&
+      footprint_dynamic_collision_free(
+      *candidate_states, candidate_state_dt, latest_obstacles, config_.dt,
+      footprint, robot_circumscribed_radius_, config_.safe_distance) &&
+      footprint_dynamic_collision_free(
+      braking, kBrakeDt, latest_obstacles, config_.dt, footprint,
+      robot_circumscribed_radius_, config_.safe_distance);
     if (wait_for_human && !latest_measured_braking_safe) {
       emergency_stop = true;
       emergency_stop_reason = "latest HuNav update invalidated measured braking trajectory";
@@ -1011,9 +993,11 @@ geometry_msgs::msg::TwistStamped MpcController::computeVelocityCommands(
 
   geometry_msgs::msg::TwistStamped command;
   command.header = output_header;
-  if (!wait_for_human && solver_candidate_valid) {
-    command.twist.linear.x = result.trajectory.controls.front().linear;
-    command.twist.angular.z = result.trajectory.controls.front().angular;
+  if (!wait_for_human && candidate_valid) {
+    const auto & candidate_control = recovery_candidate_valid ?
+      recovery.control : result.trajectory.controls.front();
+    command.twist.linear.x = candidate_control.linear;
+    command.twist.angular.z = candidate_control.angular;
   }
   if (!std::isfinite(command.twist.linear.x) || !std::isfinite(command.twist.angular.z)) {
     return fail("solver produced a non-finite command", output_header);
@@ -1024,7 +1008,7 @@ geometry_msgs::msg::TwistStamped MpcController::computeVelocityCommands(
   nav_msgs::msg::Path predicted_path;
   predicted_path.header = output_header;
   predicted_path.header.frame_id = target_frame;
-  const auto & published_states = wait_for_human ? measured_braking : result.trajectory.states;
+  const auto & published_states = wait_for_human ? measured_braking : *candidate_states;
   for (const auto & state : published_states) {
     geometry_msgs::msg::PoseStamped predicted;
     predicted.header = predicted_path.header;
@@ -1041,11 +1025,18 @@ geometry_msgs::msg::TwistStamped MpcController::computeVelocityCommands(
   }
   std::ostringstream status;
   status << "ok generation=" << generation << " epoch=" << epoch
-         << " solve_ms=" << result.timing.solve_ms << " cycle_ms=" << elapsed_ms
+         << " solve_ms=" << (recovery_candidate_valid ? 0.0 : result.timing.solve_ms)
+         << " cycle_ms=" << elapsed_ms
          << " humans=" << problem.obstacles.size()
-         << " mode=" << (wait_for_human ? "human_wait" : "track")
+         << " mode=" << (wait_for_human ? "human_wait" :
+    (recovery_candidate_valid ? "clearance_recovery" : "track"))
          << " goal_phase=" << (reference.position_latched ? "orientation" : "position")
          << " goal_distance=" << reference.goal_distance;
+  if (recovery_candidate_valid) {
+    status << " limiting_human=" << recovery.limiting_obstacle_id
+           << " circle_clearance=" << recovery.minimum_circle_clearance
+           << " recovery_heading_error=" << recovery.heading_error;
+  }
   if (costmap_wait_allowed) {
     status << " wait_reason=costmap_postcheck";
   } else if (solver_wait_allowed) {
