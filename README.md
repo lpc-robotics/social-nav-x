@@ -5,7 +5,7 @@ This repository contains the isolated development, evidence, and eventual additi
 The stable workspace is a read-only underlay during P0-P5. Existing files in it must not be edited, rebuilt, reset, or cleaned. The original DWB entry remains the default.
 
 Current phase: P0 through P6 passed. The current immutable release is installed at
-`/home/lpc/workspace/arena5_ws/optional/mpc/releases/20260919-5d32739`. It
+`/home/lpc/workspace/arena5_ws/optional/mpc/releases/20260920-94f4de6`. It
 provides the additive MPC entry point
 `/home/lpc/workspace/arena5_ws/scripts/run_six_behaviors_mpc.sh` and the additive
 DWB 0.8/1.5 profile entry point
@@ -26,7 +26,9 @@ with zero aborts or per-goal timeouts. P6 records the relocatable release audit 
 MPC/DWB rollback smoke. `evidence/visualization` records the later additive
 Foxglove visualization release, and `evidence/costmap_fix` records the global
 costmap policy correction and release rollback drill. All earlier immutable
-releases remain available for rollback.
+releases remain available for rollback. `evidence/zero_velocity_fix` records the
+solver-timeout zero-command root cause, the goal-biased recovery correction, and
+the final immutable-release arrival run for the original fault goal.
 
 Run the released controller from the stable workspace with:
 
@@ -59,7 +61,7 @@ it does not rewrite ambiguous RTX `-1`, `0`, or NaN scan bins. Dynamic people
 remain direct `/human_states` inputs to MPC.
 
 The local clearing source is enabled by default in release
-`20260919-5d32739`. To disable it for the next launch without modifying the
+`20260920-94f4de6`. To disable it for the next launch without modifying the
 release, set `ARENA_DEPTH_CLEARING=false`. To restore the complete preceding
 version, use:
 
