@@ -18,6 +18,7 @@ controller_plugins_dict:
     clearance_recovery_exit: 0.10
     clearance_recovery_linear: 0.40
     clearance_recovery_angular: 1.0
+    clearance_recovery_min_outward_cos: 0.10
     terminal_weight: 1.0
     slack_weight: 50.0
     max_linear: 0.8

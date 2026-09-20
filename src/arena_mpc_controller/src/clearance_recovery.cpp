@@ -83,6 +83,7 @@ ClearanceRecoveryDecision make_clearance_recovery_decision(
   double exit_clearance,
   double desired_linear,
   double maximum_angular,
+  double minimum_outward_cosine,
   bool recovery_was_active)
 {
   ClearanceRecoveryDecision decision;
@@ -125,10 +126,27 @@ ClearanceRecoveryDecision make_clearance_recovery_decision(
   const auto & obstacle = limiting_obstacle->samples.front();
   const double escape_yaw = std::atan2(
     problem.initial_state.y - obstacle.y, problem.initial_state.x - obstacle.x);
-  decision.heading_error = arena_mpc_core::wrap_angle(escape_yaw - problem.initial_state.yaw);
+  double recovery_yaw = escape_yaw;
+  if (!problem.reference.empty()) {
+    const auto & target = problem.reference.back();
+    const double target_x = target.x - problem.initial_state.x;
+    const double target_y = target.y - problem.initial_state.y;
+    if (std::hypot(target_x, target_y) > 1.0e-9) {
+      const double goal_yaw = std::atan2(target_y, target_x);
+      const double maximum_deviation = std::acos(clamp(minimum_outward_cosine, 0.0, 1.0));
+      const double goal_from_escape = arena_mpc_core::wrap_angle(goal_yaw - escape_yaw);
+      recovery_yaw = escape_yaw + clamp(
+        goal_from_escape, -maximum_deviation, maximum_deviation);
+    }
+  }
+  decision.heading_error = arena_mpc_core::wrap_angle(recovery_yaw - problem.initial_state.yaw);
   const double interval = problem.first_interval;
   const double linear_limit = effective_linear_limit(config, problem);
-  const double target_linear = std::min(desired_linear, linear_limit);
+  // Turn before translating when the selected escape direction is outside the
+  // forward half-plane. This prevents the acceleration ramp from initially
+  // driving toward the limiting human while the robot is still reorienting.
+  const double heading_scale = std::max(0.0, std::cos(decision.heading_error));
+  const double target_linear = std::min(desired_linear, linear_limit) * heading_scale;
   const double target_angular = clamp(
     decision.heading_error / config.dt, -maximum_angular, maximum_angular);
   decision.control.linear = clamp(

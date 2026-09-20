@@ -47,6 +47,8 @@ class Probe(Node):
         self.odom = None
         self.humans = None
         self.start = None
+        self.start_odom_stamp = None
+        self.run_started_wall = None
         self.solve_ms = []
         self.cycle_ms = []
         self.timed_cycles = []
@@ -138,6 +140,10 @@ class Probe(Node):
             self.odom.pose.pose.position.x,
             self.odom.pose.pose.position.y,
         )
+        self.start_odom_stamp = (
+            self.odom.header.stamp.sec + 1.0e-9 * self.odom.header.stamp.nanosec
+        )
+        self.run_started_wall = time.monotonic()
         if not self.navigation.wait_for_server(timeout_sec=30.0):
             raise RuntimeError("navigate_to_pose server unavailable")
 
@@ -159,8 +165,14 @@ class Probe(Node):
             raise RuntimeError("navigation timed out")
         return result.result().status
 
-    def report(self, status):
-        end = (self.odom.pose.pose.position.x, self.odom.pose.pose.position.y)
+    def report(self, status, error=None):
+        end = None
+        end_odom_stamp = None
+        if self.odom is not None:
+            end = (self.odom.pose.pose.position.x, self.odom.pose.pose.position.y)
+            end_odom_stamp = (
+                self.odom.header.stamp.sec + 1.0e-9 * self.odom.header.stamp.nanosec
+            )
         raw_intervals = [b - a for a, b in zip(self.raw_times, self.raw_times[1:])]
         output_intervals = [b - a for a, b in zip(self.output_times, self.output_times[1:])]
         controller_reasons = Counter(
@@ -190,7 +202,12 @@ class Probe(Node):
             status_to_raw_ms.append(boundary_ms)
             full_command_ms.append(cycle_ms + boundary_ms)
             raw_index += 1
-        displacement = math.dist(self.start, end)
+        displacement = (
+            math.dist(self.start, end) if self.start is not None and end is not None else None
+        )
+        final_goal_error = (
+            math.dist((self.goal_x, self.goal_y), end) if end is not None else None
+        )
         full_p99 = percentile(full_command_ms, 0.99)
         full_over_fraction = (
             sum(value > 100.0 for value in full_command_ms) / len(full_command_ms)
@@ -199,6 +216,7 @@ class Probe(Node):
         )
         passed = (
             status == GoalStatus.STATUS_SUCCEEDED
+            and displacement is not None
             and displacement >= 0.5
             and bool(full_command_ms)
             and full_p99 <= 100.0
@@ -208,9 +226,21 @@ class Probe(Node):
             "goal": [self.goal_x, self.goal_y],
             "action_status": status,
             "succeeded": status == GoalStatus.STATUS_SUCCEEDED,
-            "start": list(self.start),
-            "end": list(end),
+            "error": error,
+            "start": list(self.start) if self.start is not None else None,
+            "end": list(end) if end is not None else None,
             "displacement_m": displacement,
+            "final_goal_error_m": final_goal_error,
+            "elapsed_wall_s": (
+                time.monotonic() - self.run_started_wall
+                if self.run_started_wall is not None
+                else None
+            ),
+            "elapsed_odom_stamp_s": (
+                end_odom_stamp - self.start_odom_stamp
+                if end_odom_stamp is not None and self.start_odom_stamp is not None
+                else None
+            ),
             "minimum_sampled_footprint_human_clearance_m": (
                 self.minimum_clearance if math.isfinite(self.minimum_clearance) else None
             ),
@@ -252,13 +282,15 @@ def main():
     rclpy.init()
     probe = Probe(args.goal_x, args.goal_y, args.timeout)
     exit_code = 0
+    error_text = None
     try:
         status = probe.run()
     except Exception as error:
         status = GoalStatus.STATUS_UNKNOWN
         exit_code = 1
+        error_text = str(error)
         print(f"P2_NAVIGATION_PROBE_ERROR {error}", file=sys.stderr)
-    report = probe.report(status)
+    report = probe.report(status, error_text)
     if status != GoalStatus.STATUS_UNKNOWN and not report["pass"]:
         exit_code = 2
     rendered = json.dumps(report, indent=2, sort_keys=True)

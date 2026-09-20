@@ -581,12 +581,44 @@ public:
       const bool finite_iterate = values.size() == graph.variable_count &&
         std::all_of(values.begin(), values.end(), [](double value) {return std::isfinite(value);});
 
+      const auto accept_independently_feasible_iterate = [&](bool mark_nonoptimal) -> bool {
+          if (!finite_iterate) {
+            return false;
+          }
+          try {
+            result.trajectory = unpack_trajectory(config_, problem, values);
+            const auto postcheck_start = Clock::now();
+            result.evaluation = evaluate(config_, problem, result.trajectory);
+            result.timing.postcheck_ms = milliseconds(postcheck_start, Clock::now());
+            if (!postcheck_passes(result.evaluation, config_.acceptable_tolerance)) {
+              return false;
+            }
+          } catch (const std::exception &) {
+            return false;
+          }
+          // IPOPT convergence is an optimality result, not the safety gate.
+          // A time-limited iterate may already satisfy every independently
+          // evaluated NLP constraint.  Expose only such an iterate; the Nav2
+          // plugin still applies swept footprint, current HuNav, costmap,
+          // generation, deadline, and watchdog checks before publication.
+          graph.last_solution = values;
+          graph.last_solution_is_partial = false;
+          result.code = SolveCode::Success;
+          result.command_valid = true;
+          result.accepted_nonoptimal_iterate = mark_nonoptimal;
+          if (mark_nonoptimal) {
+            result.status += ": independently feasible iterate";
+          }
+          return true;
+        };
+
       if (!stat_bool(stats, "success")) {
-        // A wall-time-limited IPOPT iterate is never a command, but it is a
-        // materially better primal starting point for the next control cycle.
-        // Keeping only finite, correctly sized iterates lets difficult but
-        // feasible scenes converge across bounded solves instead of restarting
-        // from the same cold guess forever.
+        if (accept_independently_feasible_iterate(true)) {
+          return result;
+        }
+        // A rejected wall-time-limited IPOPT iterate is never a command, but it
+        // is a materially better primal starting point for the next control
+        // cycle when its independent constraint check does not yet pass.
         if (finite_iterate && result.status.find("Time") != std::string::npos) {
           graph.last_solution = values;
           graph.last_solution_is_partial = true;
@@ -596,6 +628,9 @@ public:
         return result;
       }
       if (result.timing.solve_ms > config_.solver_budget_seconds * 1000.0) {
+        if (accept_independently_feasible_iterate(true)) {
+          return result;
+        }
         if (finite_iterate) {
           graph.last_solution = values;
           graph.last_solution_is_partial = true;
@@ -610,20 +645,11 @@ public:
         result.status = "solver returned an invalid decision vector";
         return result;
       }
-      result.trajectory = unpack_trajectory(config_, problem, values);
-      const auto postcheck_start = Clock::now();
-      result.evaluation = evaluate(config_, problem, result.trajectory);
-      result.timing.postcheck_ms = milliseconds(postcheck_start, Clock::now());
-      if (!postcheck_passes(result.evaluation, config_.acceptable_tolerance)) {
+      if (!accept_independently_feasible_iterate(false)) {
         result.code = SolveCode::PostcheckFailed;
         result.status += ": independent postcheck failed";
         return result;
       }
-
-      graph.last_solution = values;
-      graph.last_solution_is_partial = false;
-      result.code = SolveCode::Success;
-      result.command_valid = true;
       return result;
     } catch (const std::exception & error) {
       result.code = SolveCode::SolverError;

@@ -428,11 +428,16 @@ void MpcController::configure(
     node_, prefix + "clearance_recovery_linear", 0.40);
   clearance_recovery_angular_ = parameter<double>(
     node_, prefix + "clearance_recovery_angular", 1.0);
+  clearance_recovery_min_outward_cos_ = parameter<double>(
+    node_, prefix + "clearance_recovery_min_outward_cos", 0.10);
   if (!std::isfinite(clearance_recovery_exit_) || clearance_recovery_exit_ <= 0.0 ||
     !std::isfinite(clearance_recovery_linear_) || clearance_recovery_linear_ <= 0.0 ||
     clearance_recovery_linear_ > config_.max_linear ||
     !std::isfinite(clearance_recovery_angular_) || clearance_recovery_angular_ <= 0.0 ||
-    clearance_recovery_angular_ > config_.max_angular)
+    clearance_recovery_angular_ > config_.max_angular ||
+    !std::isfinite(clearance_recovery_min_outward_cos_) ||
+    clearance_recovery_min_outward_cos_ < 0.0 ||
+    clearance_recovery_min_outward_cos_ >= 1.0)
   {
     throw std::runtime_error("invalid clearance recovery parameters");
   }
@@ -747,7 +752,8 @@ geometry_msgs::msg::TwistStamped MpcController::computeVelocityCommands(
   const auto footprint = costmap_ros_->getRobotFootprint();
   const auto recovery = make_clearance_recovery_decision(
     config_, problem, footprint, robot_circumscribed_radius_, clearance_recovery_exit_,
-    clearance_recovery_linear_, clearance_recovery_angular_, clearance_recovery_active_);
+    clearance_recovery_linear_, clearance_recovery_angular_,
+    clearance_recovery_min_outward_cos_, clearance_recovery_active_);
   const bool recovery_candidate_valid = recovery.active && recovery.admissible;
   clearance_recovery_active_ = recovery_candidate_valid;
   arena_mpc_core::Result result;
@@ -1036,6 +1042,8 @@ geometry_msgs::msg::TwistStamped MpcController::computeVelocityCommands(
     status << " limiting_human=" << recovery.limiting_obstacle_id
            << " circle_clearance=" << recovery.minimum_circle_clearance
            << " recovery_heading_error=" << recovery.heading_error;
+  } else if (result.accepted_nonoptimal_iterate) {
+    status << " solver_acceptance=independently_feasible_iterate";
   }
   if (costmap_wait_allowed) {
     status << " wait_reason=costmap_postcheck";

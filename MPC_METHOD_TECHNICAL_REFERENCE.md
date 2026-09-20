@@ -1,8 +1,10 @@
 # Arena5 当前 MPC 控制器方法与参数说明
 
-文档日期：2026-09-17  
-适用运行发布：`20260916-4ff2edd`  
-运行源码提交：`4ff2edd9715e2ee839f055558450dc0297886927`  
+文档日期：2026-09-20
+
+当前选中发布：`20260919-5d32739`
+
+本文还记录 2026-09-20 已通过离线检查和最终在线到达 gate、尚待不可变发布入口复验的零速闭锁修正；该增量在新不可变发布生成前不能视为已发布。
 目标环境：ROS 2 Humble、Nav2、Arena-Rosnav 5.0、Isaac Sim 5.1、HuNavSim、Jackal D6
 
 本文描述当前已经实现和发布的 MPC，而不是原 ROS 1 参考项目的原始实现，也不是后续拟议方案。主要代码和配置来源为：
@@ -578,22 +580,28 @@ brake_dt = 0.05 s
 
 正常提交非零控制量前，必须通过：
 
-1. IPOPT 报告成功；
-2. 实测求解时间不超过 75 ms；
-3. 独立 C++ 残差检查全部不超过 `1e-3`；
-4. 完整 MPC 预测轨迹通过动态行人连续线段检查；
-5. 从候选第一控制量开始的完整制动轨迹通过动态行人检查；
-6. 完整 MPC 预测轨迹通过矩形 footprint costmap 扫掠检查；
-7. 候选制动轨迹通过矩形 footprint costmap 扫掠检查；
-8. 输入在提交前仍然新鲜；
-9. 求解期间没有 path generation 或 reset epoch 变化；
-10. 从 plugin 入口到提交的完整周期不超过 90 ms。
+1. IPOPT 返回尺寸正确且全部有限的决策向量；
+2. 独立 C++ 残差检查全部不超过 `1e-3`；求解器未报告最优或在 75 ms 停止请求后
+   才返回时也不能跳过此项；
+3. 完整 MPC 预测轨迹通过动态行人连续线段检查；
+4. 从候选第一控制量开始的完整制动轨迹通过动态行人检查；
+5. 完整 MPC 预测轨迹通过矩形 footprint costmap 扫掠检查；
+6. 候选制动轨迹通过矩形 footprint costmap 扫掠检查；
+7. 输入在提交前仍然新鲜；
+8. 求解期间没有 path generation 或 reset epoch 变化；
+9. 从 plugin 入口到提交的完整周期不超过 90 ms。
+
+`75 ms` 是传给 IPOPT 的停止预算。IPOPT 的 wall timer 不是线程硬抢占，现场常在
+约 78～81 ms 才返回；因此 75 ms 本身不是命令提交硬边界。只要返回迭代通过上述
+独立约束检查，它仍可进入后续候选安全链；plugin 的 90 ms gate 才是非零命令提交
+硬边界，controller/watchdog 的完整周期 deadline 为 100 ms。
 
 动态行人连续检查不是只检查离散端点。它计算机器人与行人在相邻样本之间的相对线段最近点，并用两端最大障碍半径作为要求距离。
 
 ### 8.3 紧急停车安全下界
 
-如果 IPOPT timeout/infeasible，或者候选轨迹动态检查不安全，控制器发布零速等待。
+如果 IPOPT timeout/infeasible 且返回迭代未通过独立检查，或者候选轨迹动态检查不安全，
+控制器发布零速等待。
 当当前实测运动的制动轨迹仍满足下述下界时，零速命令按正常
 `human_wait` 链路经过 velocity smoother；如果机器人已经进入保守制动包络，任何
 新的非零控制都不能在本周期恢复净距，此时控制器发布
@@ -633,18 +641,33 @@ ABORTED 和单目标测试超时均为 0。它覆盖了 1,937 次最新 HuNav �
 
 若最紧约束行人的 NLP 外接圆 clearance 小于 0、但不低于 `-0.05 m`，且机器人
 定向矩形对全部行人仍满足正常 `0.35 m` 净距，plugin 进入
-`mode=clearance_recovery`。它朝最紧约束行人的反方向生成加速度受限弧线控制：
+`mode=clearance_recovery`。它先求最紧约束行人的背离方向，再在保持安全向外分量的
+方向锥内选取最接近路径参考的方向：
 
 ```text
 clearance_recovery_linear  = 0.40 m/s
 clearance_recovery_angular = 1.0 rad/s
+clearance_recovery_min_outward_cos = 0.10
 ```
+
+也就是恢复方向与背离方向夹角最多约 `acos(0.10)=84.26°`。当选定方向不在机器人
+当前前半平面时，线速度目标乘以 `max(0, cos(heading_error))`，先转向而不朝行人
+平移；对准后再加速。这保留正的径向远离分量，同时避免 threatening 行人持续追赶时
+纯背离控制把机器人无限带离导航目标。
 
 实际第一控制量仍受 odom 锚定的 `2.0 m/s²`、`3.2 rad/s²` 约束。从该控制量开始的
 完整制动轨迹必须同时通过原始 HuNav 几何的定向 footprint 检查和 costmap 扫掠检查，
 提交前还会用最新行人快照重查。任一检查失败即输出零速。外接圆 clearance 达到
 `0.10 m` 后退出该模式并重新使用普通 MPC。该恢复只处理外接圆与矩形的近似差异，
 不会在真实 footprint 低于 0.35 m 时主动运动。
+
+2026-09-20 对用户报告的全零实例复现后确认：旧逻辑在保守外接圆初始违反和 IPOPT
+wall-time 返回之间循环，命令链按安全设计保持零速，但无法自行离开。上述恢复策略与
+独立可行迭代验收加入后，最终在全新进程和重置场景中以单次 action 从 `(3,3)` 到达
+同一目标 `(8.1907,5.7491)`，返回 `STATUS_SUCCEEDED=4`。运行耗时 311.01 s 墙钟、
+90.48 s odom 仿真时间，位移 5.8368 m，最终位置误差 0.1325 m；最小采样定向
+footprint—行人净距为 0.4018 m，完整命令 p95/p99 为 82.79/84.82 ms，超过 100 ms
+为 0/3,087。action 在 solver、costmap 和动态行人等待期间保持活动，没有 ABORTED。
 
 ## 9. 求解器和 warm start
 
@@ -665,7 +688,9 @@ clearance_recovery_angular = 1.0 rad/s
 | 图布局 | FixedMasked |
 | OpenBLAS/OMP 线程 | 各 1 |
 
-IPOPT 的 wall timer 不是线程硬抢占，因此求解返回后还会再用 steady clock 测量。实测求解时间超过 75 ms 时，即使 IPOPT 给出解也标记为 timeout。
+IPOPT 的 wall timer 不是线程硬抢占，因此求解返回后还会再用 steady clock 测量。
+75 ms 到期或实测返回晚于 75 ms 时，结果标记为非最优候选；它只有通过独立 C++
+约束重算并在 plugin 90 ms 提交上限内完成全部安全后检查时才可能发布。
 
 ### 9.2 初始猜测
 
@@ -683,17 +708,18 @@ IPOPT 的 wall timer 不是线程硬抢占，因此求解返回后还会再用 s
 
 ### 9.3 warm start
 
-求解成功并通过独立检查后保存完整解。下一周期：
+求解器成功，或非最优迭代通过独立检查后，保存完整可行解。下一周期：
 
 1. 将上一控制序列左移一步；
 2. 最后一步重复上一解末端控制；
 3. 第一控制量重新以最新 odom 速度为基准施加加速度钳制；
 4. 从最新机器人状态重新 rollout 全部状态。
 
-普通 infeasible、输入错误和后检查失败解不会保存。IPOPT 因 wall-time 截止时，有限且
-尺寸正确的 primal 迭代不会作为命令，但会原样作为下一周期初值；若 IPOPT 报告成功
-但实测返回晚于 75 ms，也执行同一处理。成功解仍按上述左移方式使用。plugin 激活、
-停用、清理、时钟 reset epoch 变化时都会清空两类初值。
+普通输入错误和非有限结果不会保存。IPOPT 因 wall-time 截止或未报告成功时，有限且
+尺寸正确的 primal 迭代先经过独立 evaluator：通过全部 gate 的迭代可成为候选命令，
+并作为完整可行解按上述左移方式 warm start；未通过 gate 的 wall-time 迭代绝不作为
+命令，但会原样作为下一周期初值，帮助后续有界求解继续收敛。plugin 激活、停用、
+清理、时钟 reset epoch 变化时都会清空两类初值。
 
 ## 10. 独立数值后检查
 
@@ -781,7 +807,7 @@ watchdog 每 20 ms，也就是 50 Hz 发布一次 `/cmd_vel`。只有以下条�
 | `human_wall_limit` | 0.6 s | human 最大墙钟断流时间 |
 | `odom_wall_limit` | 0.4 s | odom 最大墙钟断流时间 |
 | `lidar_wall_limit` | 1.55 s | lidar 最大墙钟断流时间 |
-| `solver_budget_ms` | 75 ms | IPOPT 和实测求解上限 |
+| `solver_budget_ms` | 75 ms | IPOPT 停止预算；非硬抢占，返回迭代仍需独立验收 |
 | `plugin_commit_limit_ms` | 90 ms | plugin 完整周期提交上限 |
 | `failure_limit` | 5 次 | 连续普通失败后抛出 Nav2 异常 |
 
@@ -853,6 +879,7 @@ plugin 和 watchdog 的检查互相独立。plugin 卡在 costmap 等待或求�
 | `clearance_recovery_exit` | 0.10 m | YAML | 退出受控制动恢复模式的外接圆余量 |
 | `clearance_recovery_linear` | 0.40 m/s | YAML | 恢复模式目标线速度，仍受加速度约束 |
 | `clearance_recovery_angular` | 1.0 rad/s | YAML | 恢复模式目标角速度上限，仍受加速度约束 |
+| `clearance_recovery_min_outward_cos` | 0.10 | YAML | 目标偏置恢复方向必须保留的最小径向远离分量 |
 | `min_axis` | `1e-3` m | C++ 默认 | 最小有效椭圆轴 |
 
 ### 13.2 目标函数中硬编码的系数
@@ -959,7 +986,8 @@ reference_spacing(k) = v_ref(k) * dt
 - 第一控制加速度区间固定使用 0.1 s，没有使用实际正向控制调用间隔；
 - plugin 忽略 Nav2 传入的 velocity 参数，依赖自己订阅的 `/odom`；
 - 当前无倒车控制、无 jerk 约束、无轮胎动力学和执行器时延模型；
-- IPOPT 的 75 ms wall timer 不是线程硬抢占，最终安全依赖实测超时拒绝和 watchdog。
+- IPOPT 的 75 ms wall timer 不是线程硬抢占，最终安全依赖独立迭代验收、90 ms plugin
+  提交 gate 和 watchdog。
 
 这些边界不表示当前验证场景失败，而是说明后续扩展速度、行人密度、机器人动力学或复杂静态绕障时需要重新设计和验证的部分。
 
@@ -993,6 +1021,7 @@ mode=human_wait wait_reason=solver_infeasible
 mode=human_wait wait_reason=dynamic_postcheck
 mode=human_wait wait_reason=costmap_postcheck
 mode=clearance_recovery limiting_human=<id> circle_clearance=<m>
+mode=track solver_acceptance=independently_feasible_iterate
 ```
 
 已经进入保守制动包络时使用非 `ok` 的可恢复停车状态，使 watchdog 绕过平滑链并

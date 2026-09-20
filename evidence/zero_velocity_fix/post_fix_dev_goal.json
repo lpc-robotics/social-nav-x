@@ -1,0 +1,76 @@
+{
+  "action_status": 0,
+  "controller_failure_counts": {
+    "HuNav input changed during final postcheck": 1,
+    "latest HuNav update invalidated measured braking trajectory": 22,
+    "measured braking trajectory failed swept HuNav check after MPC solve rejected: Infeasible_Problem_Detected": 4,
+    "measured braking trajectory failed swept HuNav check after MPC solve rejected: Maximum_WallTime_Exceeded": 7,
+    "plugin commit deadline exceeded while waiting": 78
+  },
+  "controller_status_tail": [
+    "ok generation=106 epoch=2 solve_ms=51.3885 cycle_ms=51.9933 humans=6 mode=human_wait goal_phase=position goal_distance=2.38249 wait_reason=solver_infeasible",
+    "ok generation=106 epoch=2 solve_ms=64.537 cycle_ms=65.5434 humans=6 mode=human_wait goal_phase=position goal_distance=2.38249 wait_reason=solver_infeasible",
+    "ok generation=106 epoch=2 solve_ms=89.8892 cycle_ms=90.5729 humans=6 mode=human_wait goal_phase=position goal_distance=2.38249 wait_reason=solver_timeout",
+    "ok generation=106 epoch=2 solve_ms=71.6158 cycle_ms=72.1814 humans=6 mode=human_wait goal_phase=position goal_distance=2.38249 wait_reason=solver_infeasible",
+    "ok generation=106 epoch=2 solve_ms=79.7498 cycle_ms=80.3815 humans=6 mode=human_wait goal_phase=position goal_distance=2.38249 wait_reason=solver_infeasible",
+    "ok generation=106 epoch=2 solve_ms=74.5218 cycle_ms=75.0957 humans=6 mode=human_wait goal_phase=position goal_distance=2.38249 wait_reason=solver_infeasible",
+    "ok generation=106 epoch=2 solve_ms=78.522 cycle_ms=79.1041 humans=6 mode=human_wait goal_phase=position goal_distance=2.38249 wait_reason=solver_infeasible",
+    "ok generation=106 epoch=2 solve_ms=88.7057 cycle_ms=89.3579 humans=6 mode=human_wait goal_phase=position goal_distance=2.38249 wait_reason=solver_timeout",
+    "stop recoverable=1 mode=safety_wait reason=plugin commit deadline exceeded while waiting",
+    "stop recoverable=1 mode=safety_wait reason=plugin commit deadline exceeded while waiting",
+    "ok generation=106 epoch=2 solve_ms=89.2974 cycle_ms=89.939 humans=6 mode=human_wait goal_phase=position goal_distance=2.38249 wait_reason=solver_timeout",
+    "ok generation=106 epoch=2 solve_ms=44.4793 cycle_ms=45.0395 humans=6 mode=human_wait goal_phase=position goal_distance=2.38249 wait_reason=solver_infeasible"
+  ],
+  "cross_boundary_samples": 2886,
+  "cycle_ms_max": 94.9961,
+  "cycle_ms_p95": 92.8517,
+  "displacement_m": 4.11450684209495,
+  "end": [
+    5.820907115936279,
+    5.9952712059021
+  ],
+  "full_command_ms_max": 97.32314893628359,
+  "full_command_ms_p95": 93.49223302391171,
+  "full_command_ms_p99": 94.79935732347369,
+  "full_command_over_100ms_fraction": 0.0,
+  "goal": [
+    8.1906501,
+    5.7491006
+  ],
+  "minimum_sampled_footprint_human_clearance_m": 0.3371625877983617,
+  "output_interval_p95_s": 0.021933421026915312,
+  "output_linear_max": 0.39999924302101136,
+  "output_nonzero_fraction": 0.30812791472351764,
+  "pass": false,
+  "raw_interval_p95_s": 0.13910254184156656,
+  "raw_linear_max": 0.39999924302101136,
+  "solver_ms_max": 94.3966,
+  "solver_ms_p50": 78.78225,
+  "solver_ms_p95": 91.8569,
+  "start": [
+    3.0,
+    3.0
+  ],
+  "status_to_raw_ms_max": 5.9143793769180775,
+  "status_to_raw_ms_p95": 1.0045208036899567,
+  "succeeded": false,
+  "successful_solves": 2886,
+  "watchdog_status_tail": [
+    "stop reason=command_sequence",
+    "ok forwarding",
+    "stop reason=controller_status",
+    "ok forwarding",
+    "stop reason=controller_status",
+    "stop reason=command_sequence",
+    "ok forwarding",
+    "stop reason=controller_status",
+    "stop reason=command_sequence",
+    "ok forwarding",
+    "stop reason=controller_status",
+    "ok forwarding"
+  ],
+  "watchdog_stop_counts": {
+    "command_sequence": 43,
+    "controller_status": 74
+  }
+}

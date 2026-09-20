@@ -1,6 +1,6 @@
 # 将 MPC-Navigation 的 MPC 控制器迁移到 arena5_ws：实施与验收计划（Revision 2）
 
-修订日期：2026-09-12；实施状态、可视化和速度上限增量更新至 2026-09-17。目标是把 `/home/lpc/MPC-Navigation` 中的 MPC 数学核心迁移到 `/home/lpc/workspace/arena5_ws`，新增与 DWB 独立可选的 ROS 2 Humble Nav2 Controller plugin。`social-nav-x` 仅为历史分支，不是交付目标。
+修订日期：2026-09-12；实施状态、可视化、速度上限和零速故障分析增量更新至 2026-09-20。目标是把 `/home/lpc/MPC-Navigation` 中的 MPC 数学核心迁移到 `/home/lpc/workspace/arena5_ws`，新增与 DWB 独立可选的 ROS 2 Humble Nav2 Controller plugin。`social-nav-x` 仅为历史分支，不是交付目标。
 
 本文区分三类结论：
 
@@ -8,7 +8,7 @@
 - **设计决定**：实施必须遵守的方案。
 - **实施前仍需验证**：必须在对应阶段用实际运行证据关闭，不能由源码默认值代替。
 
-当前执行状态：**P0～P6 已全部通过，迁移和增量发布完成**。DWB baseline、实际 topic/QoS/时序、C++ 依赖闭包、独立数学核心、数值对照、容量 benchmark、Nav2 接口与故障停车、静态导航、动态行人避障、性能/耐久、DWB 交错对照、可重定位发布和原 DWB 回退均已有实机证据。阶段证据保存在 `/home/lpc/workspace/arena5_mpc_ws/evidence/p0` 至 `evidence/p6`。后续完成了 Foxglove 可视化、Path frame、costmap 清除、速度上限和目标连续性修正。当前不可变发布为 `/home/lpc/workspace/arena5_ws/optional/mpc/releases/20260918-bd63612`，此前发布继续保留用于回退。
+当前执行状态：**P0～P6 已全部通过，迁移和增量发布完成**。DWB baseline、实际 topic/QoS/时序、C++ 依赖闭包、独立数学核心、数值对照、容量 benchmark、Nav2 接口与故障停车、静态导航、动态行人避障、性能/耐久、DWB 交错对照、可重定位发布和原 DWB 回退均已有实机证据。阶段证据保存在 `/home/lpc/workspace/arena5_mpc_ws/evidence/p0` 至 `evidence/p6`。后续完成了 Foxglove 可视化、Path frame、costmap 清除、速度上限和目标连续性修正。当前选中的不可变发布为 `/home/lpc/workspace/arena5_ws/optional/mpc/releases/20260919-5d32739`，此前发布继续保留用于回退。2026-09-20 的零速闭锁增量已通过构建、21 项测试和从 `(3,3)` 到原故障目标的单次 action 在线到达 gate，下一步是生成新不可变发布并复验发布入口。
 
 ## 1. 不变边界与阶段 gate
 
@@ -129,11 +129,13 @@ GPU 2 和 GPU 3 上已有其他用户计算任务不构成等待条件。启动�
 
 **已验证事实：**P1 否定了字面上的 32 dynamic + 128 static 固定 NLP。带 4000 个显式 slack 的 160 槽 pilot 建图约 8～9 s，求解约 98～151 ms；解析消元后另一 pilot 建图最高约 28 s，求解仍约 290～407 ms。该结构不满足 10 Hz 合同。
 
-**设计决定：**采用参数化 fixed-size NLP + active mask，但固定的是 8 个动态槽，不是全部 160 个输入对象。非活动槽使用有限、非退化的远处占位椭圆并由 mask 解除约束；图在 solver 构造/插件配置阶段建立约 0.35 s，控制周期只更新参数。warm start 将上一成功解控制序列左移一段，再以当前 odom 速度和加速度边界钳制并重新 rollout 状态。2026-09-19 在线故障复现表明，持续 wall-time 超时时每周期丢弃 IPOPT 有限迭代会重复同一冷启动；修订后超时迭代绝不作为命令，但在尺寸正确且全部有限时保留为下一次求解的原始 primal 初值。成功解仍使用原左移规则，生命周期/reset epoch 变化仍清空全部初值。
+**设计决定：**采用参数化 fixed-size NLP + active mask，但固定的是 8 个动态槽，不是全部 160 个输入对象。非活动槽使用有限、非退化的远处占位椭圆并由 mask 解除约束；图在 solver 构造/插件配置阶段建立约 0.35 s，控制周期只更新参数。warm start 将上一完整可行解控制序列左移一段，再以当前 odom 速度和加速度边界钳制并重新 rollout 状态。2026-09-19 在线故障复现表明，持续 wall-time 超时时每周期丢弃 IPOPT 有限迭代会重复同一冷启动。修订后，尺寸正确且全部有限的超时/非最优迭代先由独立 C++ evaluator 重算全部初始、动力学、几何、barrier、加速度和边界残差；只有全部通过 `1e-3` gate 时才成为候选命令，并继续经过 plugin 的定向 footprint、完整制动、最新 HuNav、costmap、世代、90 ms 提交和 watchdog 检查。未通过独立检查的 wall-time 迭代绝不作为命令，只保留为下一周期的原始 primal 初值。完整可行解使用原左移规则，生命周期/reset epoch 变化仍清空全部初值。
 
 **已验证事实：**P1 在 `N=25` 下比较 exact-active 与 fixed-mask，覆盖 0 障碍、典型六行人，以及输入 32 dynamic + 128 static 的可行、临界和不可行问题，每行 1000 次。选定 fixed-mask 的可行组全部 1000/1000 成功，最坏 p95/p99 为 26.03/26.56 ms，残差不超过 `2e-6`，全输入后检查冷样本不超过 0.17 ms。初始重叠组均返回无效命令；IPOPT 60 ms CPU 限制对应最坏墙钟 p95 约 65.19 ms，证明该限制不是硬墙钟抢占。
 
-**2026-09-19 运行修正：**在线实例在机器人 `(5.7315, 6.0521, 2.3493)`、行人 3 `(6.5265, 6.8227)` 时持续报告 `solver_timeout`。中心距为 1.1072 m；NLP 外接圆阈值为 1.1256 m，固定初始状态因此违反 0.0184 m，但定向矩形 footprint 的实际净距约 0.437 m，仍高于正常 0.35 m。为防止这种近似误差造成永久零速，NLP 只容许最多 0.05 m 的既存初始外接圆违反，并禁止预测轨迹进入比该初始值更深的违反；深于 0.05 m 的初始冲突仍不可行。plugin 另增加 `clearance_recovery` 子模式：仅当原始定向 footprint 对全部行人仍满足 0.35 m 时，沿最紧约束行人的反方向产生加速度受限控制，目标上限为 0.40 m/s、1.0 rad/s；每周期只提交通过原始 HuNav 几何、完整制动轨迹和 costmap footprint 检查的第一控制量。外接圆净空恢复到 0.10 m 后立即回到普通 MPC。该模式不降低 0.35/0.30 m 安全阈值，也不绕过 watchdog、输入新鲜度、path generation 或 90 ms 提交 gate。
+**2026-09-19～20 运行修正：**在线实例在机器人 `(5.7315, 6.0521, 2.3493)`、行人 3 `(6.5265, 6.8227)` 时持续报告 `solver_timeout`。中心距为 1.1072 m；NLP 外接圆阈值为 1.1256 m，固定初始状态因此违反 0.0184 m，但定向矩形 footprint 的实际净距约 0.437 m，仍高于正常 0.35 m。为防止这种近似误差造成永久零速，NLP 只容许最多 0.05 m 的既存初始外接圆违反，并禁止预测轨迹进入比该初始值更深的违反；深于 0.05 m 的初始冲突仍不可行。plugin 另增加 `clearance_recovery` 子模式：仅当原始定向 footprint 对全部行人仍满足 0.35 m 时，从“背离最紧约束行人”的方向朝路径参考方向偏转，但强制方向与背离向量的点积余弦至少为 `0.10`。若该方向还不在机器人前半平面，先原地转向；对准后才产生目标上限 0.40 m/s、1.0 rad/s 的加速度受限控制。这避免直接背离策略被 threatening 行人持续追赶并把机器人带离目标。每周期只提交通过原始 HuNav 几何、完整制动轨迹和 costmap footprint 检查的第一控制量。外接圆净空恢复到 0.10 m 后立即回到普通 MPC。该模式不降低 0.35/0.30 m 安全阈值，也不绕过 watchdog、输入新鲜度、path generation 或 90 ms 提交 gate。
+
+**已验证事实（2026-09-20 在线增量检查）：**旧发布在上述目标附近会持续全零；第一轮修正虽能恢复运动，但直接背离恢复会被 threatening 行人追赶，180 s 墙钟探针仍无法到达。加入目标偏置恢复和独立可行迭代验收后，首轮同一目标从 `(3,3)` 连续推进至 `(7.6857,5.4257)`，位移 5.2764 m；420 s 墙钟上限到达时状态仍是 `mode=track`，探针主动取消而非 Nav2 abort。随后从剩余位置重发同一目标，38.61 s 墙钟内返回 `STATUS_SUCCEEDED=4`，最终误差 0.0398 m。最终在全新进程和重置场景中，从 `(3,3)` 以单次不中断 action 到达同一目标：311.01 s 墙钟对应 90.48 s odom 仿真时间，`STATUS_SUCCEEDED=4`，位移 5.8368 m，最终误差 0.1325 m，最小采样定向 footprint—行人净距 0.4018 m，完整命令 p95/p99 为 82.79/84.82 ms，超过 100 ms 为 0/3,087。该结果关闭开发 overlay 的最终到达 gate；仍须在不可变发布入口复验。
 
 ### 3.3 时间预算和 watchdog
 
@@ -143,7 +145,7 @@ P2 后冻结的分层预算如下；P5 只在新负载证据证明不成立时�
 
 | 项目 | P2 后合同与实测 |
 |---|---|
-| 求解 | `max_wall_time=0.075 s`、`max_iter=100`；结果只有在求解器成功且全部残差/几何检查通过时才接受。P2 正常空场景 solve p95 63.25 ms、max 67.22 ms；故障用例约 78～81 ms 返回 `Maximum_WallTime_Exceeded` 并被拒绝。旧 P1 的 60 ms CPU 限制只保留为历史 benchmark，不能作为硬墙钟合同。 |
+| 求解 | `max_wall_time=0.075 s`、`max_iter=100`；75 ms 是请求 IPOPT 停止的求解预算，不是线程硬抢占。求解器成功结果及 wall-time/非最优有限迭代都必须通过独立残差/几何检查；未通过的非最优迭代只可作为下一周期初值。P2 正常空场景 solve p95 63.25 ms、max 67.22 ms；在线负载下 IPOPT 常在约 78～81 ms 才从 75 ms 请求返回，因此实际发布硬边界由 90 ms plugin 提交 gate 承担。旧 P1 的 60 ms CPU 限制只保留为历史 benchmark。 |
 | 快照、适配和后检查 | 与求解共享 plugin 的 90 ms 提交上限；不再把不可独立强制的 15+15 ms 子项伪装成硬 deadline。 |
 | server/发布余量 | 100 ms 完整 deadline 与 90 ms plugin 提交上限之间保留至少 10 ms。 |
 | 完整处理 | deadline 100 ms；目标 p95 <=90 ms、p99 <=100 ms、超过 100 ms比例 <=1%。P2 跨 `controller_server` 边界实测 p95 63.82 ms、p99/max 69.37 ms、超限 0/58。 |

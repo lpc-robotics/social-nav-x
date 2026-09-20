@@ -28,6 +28,7 @@ ClearanceRecoveryDecision make_clearance_recovery_decision(
   double exit_clearance,
   double desired_linear,
   double maximum_angular,
+  double minimum_outward_cosine,
   bool recovery_was_active);
 
 }  // namespace arena_mpc_controller

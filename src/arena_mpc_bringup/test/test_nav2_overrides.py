@@ -58,6 +58,9 @@ def test_mpc_speed_limits_match_velocity_smoother():
     assert controller["clearance_recovery_exit"] == 0.10
     assert controller["clearance_recovery_linear"] == 0.40
     assert controller["clearance_recovery_angular"] == 1.0
+    assert controller["clearance_recovery_min_outward_cos"] == 0.10
+    assert controller["solver_budget_ms"] == 75.0
+    assert controller["plugin_commit_limit_ms"] == 90.0
     assert smoother["max_velocity"] == [0.8, 0.0, 1.5]
     assert smoother["min_velocity"] == [-0.8, 0.0, -1.5]
 

@@ -1,0 +1,79 @@
+{
+  "action_status": 4,
+  "controller_failure_counts": {
+    "HuNav input changed during final postcheck": 2,
+    "plugin commit deadline exceeded": 1,
+    "plugin commit deadline exceeded while waiting": 2
+  },
+  "controller_status_tail": [
+    "ok generation=136 epoch=2 solve_ms=77.5803 cycle_ms=78.0032 humans=6 mode=track goal_phase=orientation goal_distance=0.133144 solver_acceptance=independently_feasible_iterate",
+    "ok generation=136 epoch=2 solve_ms=45.8571 cycle_ms=46.271 humans=6 mode=track goal_phase=orientation goal_distance=0.133054",
+    "ok generation=136 epoch=2 solve_ms=72.6703 cycle_ms=73.1514 humans=6 mode=track goal_phase=orientation goal_distance=0.132946",
+    "ok generation=136 epoch=2 solve_ms=53.808 cycle_ms=54.1453 humans=6 mode=track goal_phase=orientation goal_distance=0.132895",
+    "ok generation=136 epoch=2 solve_ms=80.9682 cycle_ms=81.3046 humans=6 mode=human_wait goal_phase=orientation goal_distance=0.132895 wait_reason=solver_timeout",
+    "ok generation=136 epoch=2 solve_ms=60.9381 cycle_ms=61.2898 humans=6 mode=track goal_phase=orientation goal_distance=0.132816",
+    "ok generation=136 epoch=2 solve_ms=53.6864 cycle_ms=54.1308 humans=6 mode=track goal_phase=orientation goal_distance=0.132748",
+    "ok generation=136 epoch=2 solve_ms=51.2333 cycle_ms=51.6861 humans=6 mode=track goal_phase=orientation goal_distance=0.132718",
+    "ok generation=136 epoch=2 solve_ms=53.8758 cycle_ms=54.2553 humans=6 mode=track goal_phase=orientation goal_distance=0.132691",
+    "ok generation=136 epoch=2 solve_ms=47.9648 cycle_ms=48.4139 humans=6 mode=track goal_phase=orientation goal_distance=0.132666",
+    "ok generation=136 epoch=2 solve_ms=81.2595 cycle_ms=81.5942 humans=6 mode=human_wait goal_phase=orientation goal_distance=0.132624 wait_reason=solver_timeout",
+    "ok generation=136 epoch=2 solve_ms=58.5042 cycle_ms=59.0002 humans=6 mode=track goal_phase=orientation goal_distance=0.132591"
+  ],
+  "cross_boundary_samples": 3087,
+  "cycle_ms_max": 88.2,
+  "cycle_ms_p95": 82.2286,
+  "displacement_m": 5.836769695455067,
+  "elapsed_odom_stamp_s": 90.483338052,
+  "elapsed_wall_s": 311.01277890475467,
+  "end": [
+    8.21617603302002,
+    5.619043350219727
+  ],
+  "error": null,
+  "final_goal_error_m": 0.1325385282736724,
+  "full_command_ms_max": 88.47649197727442,
+  "full_command_ms_p95": 82.78629684692025,
+  "full_command_ms_p99": 84.8230922113955,
+  "full_command_over_100ms_fraction": 0.0,
+  "goal": [
+    8.1906501,
+    5.7491006
+  ],
+  "minimum_sampled_footprint_human_clearance_m": 0.4017909590756171,
+  "output_interval_p95_s": 0.02048252196982503,
+  "output_linear_max": 0.2600559995248646,
+  "output_nonzero_fraction": 0.5452786377708978,
+  "pass": true,
+  "raw_interval_p95_s": 0.13042640825733542,
+  "raw_linear_max": 0.2600559995248646,
+  "solver_ms_max": 87.6998,
+  "solver_ms_p50": 53.7618,
+  "solver_ms_p95": 81.1695,
+  "start": [
+    3.0,
+    3.0
+  ],
+  "status_to_raw_ms_max": 4.00822889059782,
+  "status_to_raw_ms_p95": 0.9393822401762009,
+  "succeeded": true,
+  "successful_solves": 3087,
+  "watchdog_status_tail": [
+    "stop reason=command_sequence",
+    "ok forwarding",
+    "stop reason=controller_status",
+    "stop reason=command_sequence",
+    "ok forwarding",
+    "stop reason=controller_status",
+    "stop reason=command_sequence",
+    "ok forwarding",
+    "stop reason=controller_status",
+    "stop reason=command_sequence",
+    "ok forwarding",
+    "stop reason=status_lease"
+  ],
+  "watchdog_stop_counts": {
+    "command_sequence": 5,
+    "controller_status": 4,
+    "status_lease": 1
+  }
+}

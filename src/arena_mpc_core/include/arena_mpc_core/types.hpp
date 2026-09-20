@@ -136,6 +136,7 @@ struct Result
   Timing timing;
   int iterations{0};
   bool command_valid{false};
+  bool accepted_nonoptimal_iterate{false};
 };
 
 }  // namespace arena_mpc_core

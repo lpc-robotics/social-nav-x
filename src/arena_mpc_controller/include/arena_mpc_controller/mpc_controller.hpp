@@ -119,6 +119,7 @@ private:
   double clearance_recovery_exit_{0.10};
   double clearance_recovery_linear_{0.40};
   double clearance_recovery_angular_{1.0};
+  double clearance_recovery_min_outward_cos_{0.10};
   double robot_circumscribed_radius_{0.326};
   int failure_limit_{5};
   std::optional<SteadyClock::time_point> costmap_wait_started_;

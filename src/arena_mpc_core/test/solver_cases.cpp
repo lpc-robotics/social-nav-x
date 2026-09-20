@@ -71,6 +71,22 @@ int main()
     return 2;
   }
 
+  auto tight_budget_config = config;
+  tight_budget_config.solver_budget_seconds = 0.001;
+  arena_mpc_core::Solver tight_budget_solver(tight_budget_config);
+  const auto tight_budget = tight_budget_solver.solve(
+    straight_problem(tight_budget_config), false);
+  if (!require(tight_budget.code == SolveCode::Success,
+      "independently feasible time-limited iterate: " + tight_budget.status) ||
+    !require(tight_budget.command_valid, "feasible time-limited command invalid") ||
+    !require(tight_budget.accepted_nonoptimal_iterate,
+      "time-limited iterate was not identified as nonoptimal") ||
+    !require(tight_budget.evaluation.max_dynamics_residual <= 1.0e-3,
+      "time-limited iterate failed independent dynamics check"))
+  {
+    return 11;
+  }
+
   auto limited = base;
   limited.linear_speed_limit = 0.05;
   const auto limited_result = solver.solve(limited, false);
