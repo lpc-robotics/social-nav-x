@@ -52,8 +52,8 @@ The following previously local-only histories are reachable from `main`:
 | Area | Imported tip | Location |
 |---|---|---|
 | Formal social automata Phase 4 | `0d9ec67` | `src/formal_social_behavior/` |
-| Arena5 MPC and DWB comparison | `75d300f` | `components/arena5_mpc/` |
-| Accepted radar input | `3855b33` | `components/radar_input/` |
+| Arena5 MPC and DWB comparison | `29edf7b` | `components/arena5_mpc/` |
+| Accepted radar input | `6d2773b` | `components/radar_input/` |
 
 The component imports retain their original commits as merge parents. Generated
 MPC releases under `arena5_ws/optional`, colcon products, NvStreamer traces,
