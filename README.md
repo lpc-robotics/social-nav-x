@@ -82,20 +82,6 @@ entry points are documented in `FORMAL_SOCIAL_AUTOMATA_DEVELOPMENT_PLAN.md` and
 configuration over the stable default; use the isolated procedure in
 `components/radar_input/RADAR_INPUT_HANDOFF.md`.
 
-## Validated result
-
-- isolated velocity matrix and hold-outs: 22/22 valid;
-- maximum mean error: 0.086511% linear, 0.313368% angular;
-- frontal, oblique, and combined-turn collision tests: 3/3 valid with no wall
-  penetration;
-- Nav2: `SMOKE_NAVIGATION_OK`, 1.811 m motion;
-- HuNav: `SIX_BEHAVIORS_VERIFY_OK types=1,2,3,4,5,6`;
-- WebRTC, Foxglove, odom, TF, lidar, point cloud, and joint states verified;
-- final default instance stable for approximately 5 h 46 min and shut down
-  cleanly.
-
-See `CHASSIS_CONTROL.md` for complete before/after tables and exact evidence.
-
 ## Licensing
 
 Vendored upstream source retains its original license files and notices. This
