@@ -1,6 +1,8 @@
 # Archive manifest
 
-Archive date: 2026-08-29 (Asia/Shanghai)
+Initial archive date: 2026-08-29 (Asia/Shanghai)
+
+Consolidation date: 2026-09-23 (Asia/Shanghai)
 
 Source workspace: `/home/lpc/workspace/arena5_ws`
 
@@ -14,6 +16,9 @@ Target repository: `https://github.com/lpc-robotics/social-nav-x`
   documentation.
 - Regenerated `git diff --binary HEAD` patches for all five modified nested
   repositories.
+- The committed Phase 4 formal-social implementation and tests.
+- The complete source histories of the validated Arena5 MPC work and accepted
+  radar-input work, imported below `components/` with merge ancestry preserved.
 - Compact final D6 validation evidence from
   `backups/20260828_162000_d6_final/evidence`.
 
@@ -34,6 +39,8 @@ local modifications have matching patches in `patches/`.
 
 - `.conda`, `.cache`, build/install/log spaces, runtime logs, old backup
   archives, and NvStreamer traces;
+- deployed MPC binary releases under `arena5_ws/optional` (their rebuildable
+  source is stored in `components/arena5_mpc`);
 - nested Git object databases;
 - external Isaac Sim installation and NVIDIA driver/toolkit.
 

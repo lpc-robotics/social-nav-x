@@ -1,0 +1,238 @@
+diff --git a/arena_isaac/arena_isaac/run_isaacsim.py b/arena_isaac/arena_isaac/run_isaacsim.py
+index 3d89e37..043ff23 100644
+--- a/arena_isaac/arena_isaac/run_isaacsim.py
++++ b/arena_isaac/arena_isaac/run_isaacsim.py
+@@ -557,6 +557,9 @@ def main(args=None):
+                     was_playing = True
+                 controller.apply_ideal_chassis(PHYSICS_DT)
+                 world.step(render=True)
++                if os.environ.get("ARENA_DEPTH_CLEARING", "false").lower() == "true":
++                    from isaac_utils.graphs.sensors.depth_clearing import DepthClearing
++                    DepthClearing.update_all(world.current_time)
+                 stepped_this_iteration = True
+             else:
+                 if was_playing:
+diff --git a/arena_isaac/isaac_utils/clearing_geometry.py b/arena_isaac/isaac_utils/clearing_geometry.py
+new file mode 100644
+index 0000000..14008a3
+--- /dev/null
++++ b/arena_isaac/isaac_utils/clearing_geometry.py
+@@ -0,0 +1,26 @@
++"""Conservative endpoints from rendered radial depth, never from lidar sentinels."""
++import numpy as np
++
++
++def horizontal_directions(width, yaw):
++    """Pixel-centre rays for a 90 degree pinhole camera, ROS x-forward/z-up."""
++    lateral = 1.0 - 2.0 * (np.arange(width) + 0.5) / width
++    angle = yaw + np.arctan(lateral)
++    return np.column_stack((np.cos(angle), np.sin(angle), np.zeros(width)))
++
++
++def clearing_endpoints(depth, directions, range_min, range_max, margin=0.05):
++    """Only positive finite depth and explicit +Inf from the depth renderer.
++
++    Zero, negative values, NaN and -Inf remain unobserved. Finite rays stop
++    before the measured surface; +Inf means no rendered surface inside the
++    camera clipping volume and ends at range_max. These points MUST only be
++    used by an observation source with marking=false.
++    """
++    depth = np.asarray(depth, dtype=np.float64)
++    directions = np.asarray(directions, dtype=np.float64)
++    if depth.ndim != 1 or directions.shape != (depth.size, 3):
++        raise ValueError("Expected one radial depth per 3D unit direction")
++    valid = (np.isfinite(depth) & (depth > range_min + margin)) | np.isposinf(depth)
++    distance = np.minimum(depth[valid] - margin, range_max)
++    return (directions[valid] * distance[:, None]).astype(np.float32)
+diff --git a/arena_isaac/isaac_utils/graphs/sensors/depth_clearing.py b/arena_isaac/isaac_utils/graphs/sensors/depth_clearing.py
+new file mode 100644
+index 0000000..575ba69
+--- /dev/null
++++ b/arena_isaac/isaac_utils/graphs/sensors/depth_clearing.py
+@@ -0,0 +1,113 @@
++"""Optional render-geometry clearing source for Isaac 5.1 RTX lidar gaps.
++
++Four co-located narrow depth cameras see render geometry, including animated
++people without PhysX colliders. The RTX LaserScan remains the marking source.
++"""
++import math
++import weakref
++
++import carb
++import numpy as np
++import omni.replicator.core as rep
++import omni.usd
++from pxr import Gf, UsdGeom
++from rclpy.node import Node
++from rclpy.qos import qos_profile_sensor_data
++from sensor_msgs.msg import PointCloud2
++from sensor_msgs_py.point_cloud2 import create_cloud_xyz32
++from std_msgs.msg import Header
++
++from isaac_utils.clearing_geometry import clearing_endpoints, horizontal_directions
++
++
++class DepthClearing:
++    _instances = weakref.WeakSet()
++    WIDTH = 321
++    HEIGHT = 3
++
++    def __init__(self, prim_path, frame_id, topic, range_min, range_max, rate):
++        self.frame_id = frame_id
++        self.topic = topic
++        self.range_min = range_min
++        self.range_max = range_max
++        self.period = 1.0 / rate
++        self.last_time = None
++        self.frames = 0
++        self.published_once = False
++        self.cameras = []
++        self.node = Node("depth_clearing_" + str(id(self)), use_global_arguments=False)
++        self.publisher = self.node.create_publisher(PointCloud2, topic, qos_profile_sensor_data)
++        stage = omni.usd.get_context().get_stage()
++        try:
++            for quadrant in range(4):
++                yaw = quadrant * math.pi / 2
++                camera = UsdGeom.Camera.Define(stage, f"{prim_path}/clearing_{quadrant}")
++                camera.CreateFocalLengthAttr(10.0)
++                camera.CreateHorizontalApertureAttr(20.0)
++                camera.CreateVerticalApertureAttr(20.0 * self.HEIGHT / self.WIDTH)
++                camera.CreateClippingRangeAttr(Gf.Vec2f(0.001, range_max))
++                direction = Gf.Vec3d(math.cos(yaw), math.sin(yaw), 0)
++                pose = Gf.Matrix4d().SetLookAt(Gf.Vec3d(0), direction, Gf.Vec3d(0, 0, 1)).GetInverse()
++                camera.AddTransformOp().Set(pose)
++                product = rep.create.render_product(camera.GetPath(), [self.WIDTH, self.HEIGHT])
++                annotator = rep.AnnotatorRegistry.get_annotator("distance_to_camera")
++                annotator.attach([product.path])
++                self.cameras.append((product, annotator, horizontal_directions(self.WIDTH, yaw)))
++        except Exception:
++            self.destroy()
++            raise
++        self._instances.add(self)
++        carb.log_info(
++            f"Depth clearing ready: topic={topic} frame={frame_id} "
++            f"rate={rate:.3f} range=[{range_min:.3f}, {range_max:.3f}]"
++        )
++
++    @classmethod
++    def update_all(cls, simulation_time):
++        # Called after world.step(render=True), so depth and timestamp refer to
++        # the completed frame. Paused renders never generate clearing messages.
++        for instance in list(cls._instances):
++            instance.update(simulation_time)
++
++    def update(self, simulation_time):
++        self.frames += 1
++        if self.last_time is not None and simulation_time < self.last_time:
++            self.frames = 0
++            self.last_time = None
++        if self.frames < 6 or (self.last_time is not None and
++                              simulation_time - self.last_time < self.period - 1e-6):
++            return
++        points = []
++        for _, annotator, directions in self.cameras:
++            depth = np.asarray(annotator.get_data())
++            if depth.shape != (self.HEIGHT, self.WIDTH):
++                return  # incomplete render is not free space
++            points.append(clearing_endpoints(depth[self.HEIGHT // 2], directions,
++                                             self.range_min, self.range_max))
++        header = Header(frame_id=self.frame_id)
++        ns = round(simulation_time * 1e9)
++        header.stamp.sec, header.stamp.nanosec = divmod(ns, 10**9)
++        cloud = np.concatenate(points)
++        self.publisher.publish(create_cloud_xyz32(header, cloud))
++        if not self.published_once:
++            carb.log_info(
++                f"Depth clearing first frame: topic={self.topic} "
++                f"points={len(cloud)} stamp={header.stamp.sec}.{header.stamp.nanosec:09d}"
++            )
++            self.published_once = True
++        self.last_time = simulation_time
++
++    def destroy(self):
++        self._instances.discard(self)
++        for product, annotator, _ in self.cameras:
++            try:
++                annotator.detach([product.path])
++            except Exception as error:
++                carb.log_warn(f"Depth clearing annotator teardown: {error}")
++        for product, _, _ in self.cameras:
++            try:
++                product.destroy()
++            except Exception as error:
++                carb.log_warn(f"Depth clearing render-product teardown: {error}")
++        self.cameras.clear()
++        self.node.destroy_node()
+diff --git a/arena_isaac/isaac_utils/graphs/sensors/lidar.py b/arena_isaac/isaac_utils/graphs/sensors/lidar.py
+index 7f030ef..4b10628 100644
+--- a/arena_isaac/isaac_utils/graphs/sensors/lidar.py
++++ b/arena_isaac/isaac_utils/graphs/sensors/lidar.py
+@@ -204,6 +204,7 @@ class SensorLidar(SensorBase):
+         # Render products and writers we own, for symmetric teardown.
+         self._render_products: list = []
+         self._writers: list = []
++        self._depth_clearing = None
+ 
+     def _set_prim_attribute(self, prim, prim_path: str, key: str, value: object) -> bool:
+         candidate_keys = [key]
+@@ -478,6 +479,9 @@ class SensorLidar(SensorBase):
+         return (self.prim_path_points, self.prim_path_scan)
+ 
+     def destroy(self) -> None:
++        if self._depth_clearing is not None:
++            self._depth_clearing.destroy()
++            self._depth_clearing = None
+         # Canonical NVIDIA inverse: detach writers, then destroy render products. Prims handled by caller.
+         for writer in self._writers:
+             try:
+@@ -525,4 +529,11 @@ class SensorLidar(SensorBase):
+             publish_type='laser_scan',
+         )
+ 
++        if scan_ok and os.environ.get("ARENA_DEPTH_CLEARING", "false").lower() == "true":
++            from .depth_clearing import DepthClearing
++            self._depth_clearing = DepthClearing(
++                scan_prim_path, frame_id, scan_topic + "_clearing",
++                float(self.config.range.min), float(self.config.range.max),
++                float(self.config.update_rate))
++
+         return points_ok and scan_ok
+diff --git a/arena_isaac/package.xml b/arena_isaac/package.xml
+index 16d59f8..6a83f3e 100644
+--- a/arena_isaac/package.xml
++++ b/arena_isaac/package.xml
+@@ -10,6 +10,8 @@
+   <depend>rclpy</depend>
+   <depend>std_msgs</depend>
+   <depend>geometry_msgs</depend>
++  <depend>sensor_msgs</depend>
++  <exec_depend>sensor_msgs_py</exec_depend>
+   <depend>arena_people_msgs</depend>
+ 
+   <test_depend>ament_copyright</test_depend>
+diff --git a/arena_isaac/test/test_clearing_geometry.py b/arena_isaac/test/test_clearing_geometry.py
+new file mode 100644
+index 0000000..5d4a57f
+--- /dev/null
++++ b/arena_isaac/test/test_clearing_geometry.py
+@@ -0,0 +1,20 @@
++import math
++import numpy as np
++from isaac_utils.clearing_geometry import clearing_endpoints, horizontal_directions
++
++
++def test_invalid_depth_cannot_clear_and_positive_infinity_is_bounded():
++    values = [-1, 0, np.nan, -np.inf, 0.03, 0.08, 2.0, np.inf, 100.0]
++    rays = np.tile([1, 0, 0], (len(values), 1))
++    points = clearing_endpoints(values, rays, 0.08, 12)
++    np.testing.assert_allclose(points, [[1.95, 0, 0], [12, 0, 0], [12, 0, 0]])
++
++
++def test_projection_preserves_radial_distance_and_camera_axes():
++    for quadrant in range(4):
++        yaw = quadrant * math.pi / 2
++        rays = horizontal_directions(321, yaw)
++        np.testing.assert_allclose(np.linalg.norm(rays, axis=1), 1)
++        np.testing.assert_allclose(rays[160], [math.cos(yaw), math.sin(yaw), 0], atol=1e-15)
++        points = clearing_endpoints(np.full(321, 3.0), rays, .08, 12)
++        np.testing.assert_allclose(np.linalg.norm(points, axis=1), 2.95, rtol=1e-6)

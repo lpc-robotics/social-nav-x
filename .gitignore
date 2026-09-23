@@ -9,6 +9,7 @@
 /.colcon/
 /.colcon-*/
 /NvStreamer-*.etli
+/command.txt
 
 # Upstream repositories recreated by scripts/fetch_upstreams.sh
 /src/arena/evaluation/
@@ -19,6 +20,7 @@
 # Python/editor noise
 **/__pycache__/
 **/.pytest_cache/
+**/.ipynb_checkpoints/
 *.py[cod]
 *.swp
 *~

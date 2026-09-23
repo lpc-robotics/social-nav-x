@@ -1,0 +1,4 @@
+*.patch -whitespace
+*.log -whitespace
+*.md -whitespace
+*.urdf -whitespace

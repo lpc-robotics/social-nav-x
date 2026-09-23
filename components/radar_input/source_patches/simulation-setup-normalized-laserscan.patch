@@ -1,0 +1,44 @@
+diff --git a/entities/robots/jackal/model_params.yaml b/entities/robots/jackal/model_params.yaml
+index a203a9b..b564a26 100644
+--- a/entities/robots/jackal/model_params.yaml
++++ b/entities/robots/jackal/model_params.yaml
+@@ -1,26 +1,22 @@
+-observation_sources_string: lidar # massive bullshit, costmaps still need string param
+-local_observation_sources_string: lidar depth_clearing
+-local_extra_observation_sources_dict:
+-  depth_clearing:
+-    # Optional Isaac render-depth endpoints; never mark these as obstacles.
+-    topic: ${namespace}/lidar_clearing
+-    data_type: PointCloud2
+-    marking: False
+-    clearing: True
+-    min_obstacle_height: 0.0
++observation_sources_string: normalized
++local_observation_sources_string: normalized
++local_extra_observation_sources_dict: {}
++observation_sources:
++  - normalized
++observation_sources_dict:
++  normalized:
++    topic: ${namespace}/lidar_normalized
++    data_type: LaserScan
+     max_obstacle_height: 2.0
++    obstacle_max_range: 2.5
+     raytrace_min_range: 0.0
+     raytrace_max_range: 3.0
+     observation_persistence: 0.0
+-observation_sources:
+-  - lidar
+-observation_sources_dict:
+-  lidar:
+-    topic: ${namespace}/lidar
+-    max_obstacle_height: 2.0
++    # REP-117 +Inf is a valid no-return ray. Nav2 must project it to range_max
++    # for clearing; NaN and -Inf remain invalid for ray tracing.
++    inf_is_valid: True
+     clearing: True
+     marking: True
+-    data_type: "LaserScan"
+ 
+ polygons:
+   - StopPolygon

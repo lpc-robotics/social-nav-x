@@ -1,0 +1,721 @@
+diff --git a/arena_isaac/arena_isaac/run_isaacsim.py b/arena_isaac/arena_isaac/run_isaacsim.py
+index 043ff23..89ec80c 100644
+--- a/arena_isaac/arena_isaac/run_isaacsim.py
++++ b/arena_isaac/arena_isaac/run_isaacsim.py
+@@ -560,6 +560,9 @@ def main(args=None):
+                 if os.environ.get("ARENA_DEPTH_CLEARING", "false").lower() == "true":
+                     from isaac_utils.graphs.sensors.depth_clearing import DepthClearing
+                     DepthClearing.update_all(world.current_time)
++                if os.environ.get("ARENA_NORMALIZED_SCAN", "false").lower() == "true":
++                    from isaac_utils.graphs.sensors.normalized_scan import NormalizedScan
++                    NormalizedScan.update_all(world.current_time)
+                 stepped_this_iteration = True
+             else:
+                 if was_playing:
+diff --git a/arena_isaac/isaac_utils/graphs/sensors/lidar.py b/arena_isaac/isaac_utils/graphs/sensors/lidar.py
+index 4b10628..7a97dc2 100644
+--- a/arena_isaac/isaac_utils/graphs/sensors/lidar.py
++++ b/arena_isaac/isaac_utils/graphs/sensors/lidar.py
+@@ -205,6 +205,7 @@ class SensorLidar(SensorBase):
+         self._render_products: list = []
+         self._writers: list = []
+         self._depth_clearing = None
++        self._normalized_scan = None
+ 
+     def _set_prim_attribute(self, prim, prim_path: str, key: str, value: object) -> bool:
+         candidate_keys = [key]
+@@ -479,6 +480,9 @@ class SensorLidar(SensorBase):
+         return (self.prim_path_points, self.prim_path_scan)
+ 
+     def destroy(self) -> None:
++        if self._normalized_scan is not None:
++            self._normalized_scan.destroy()
++            self._normalized_scan = None
+         if self._depth_clearing is not None:
+             self._depth_clearing.destroy()
+             self._depth_clearing = None
+@@ -536,4 +540,46 @@ class SensorLidar(SensorBase):
+                 float(self.config.range.min), float(self.config.range.max),
+                 float(self.config.update_rate))
+ 
++        normalized_enabled = (
++            os.environ.get("ARENA_NORMALIZED_SCAN", "false").lower() == "true"
++        )
++        if scan_ok and normalized_enabled:
++            from .normalized_scan import NormalizedScan
++
++            noise_mode = os.environ.get(
++                "ARENA_NORMALIZED_SCAN_NOISE", "configured"
++            ).lower()
++            if noise_mode not in ("configured", "off"):
++                raise ValueError(
++                    "ARENA_NORMALIZED_SCAN_NOISE must be 'configured' or 'off'"
++                )
++            noise_mean = 0.0
++            noise_stddev = 0.0
++            configured_gaussian = (
++                noise_mode == "configured"
++                and str(self.config.noise.type).lower() == "gaussian"
++            )
++            if configured_gaussian:
++                noise_mean = float(self.config.noise.mean)
++                noise_stddev = float(self.config.noise.stddev)
++            normalized_frame_id = frame_id + "_normalized"
++            self._normalized_scan = NormalizedScan(
++                scan_prim_path,
++                frame_id,
++                normalized_frame_id,
++                scan_topic + "_normalized",
++                self.translation,
++                self.rotation,
++                int(self.config.horizontal.samples),
++                float(self.config.horizontal.min_angle),
++                float(self.config.horizontal.max_angle),
++                float(self.config.range.min),
++                float(self.config.range.max),
++                float(self.config.update_rate),
++                noise_mean=noise_mean,
++                noise_stddev=noise_stddev,
++                range_resolution=float(self.config.range.resolution),
++                seed=int(os.environ.get("ARENA_NORMALIZED_SCAN_SEED", "0")),
++            )
++
+         return points_ok and scan_ok
+diff --git a/arena_isaac/isaac_utils/graphs/sensors/normalized_scan.py b/arena_isaac/isaac_utils/graphs/sensors/normalized_scan.py
+new file mode 100644
+index 0000000..e3e0f5e
+--- /dev/null
++++ b/arena_isaac/isaac_utils/graphs/sensors/normalized_scan.py
+@@ -0,0 +1,276 @@
++"""Optional REP-117 LaserScan reconstructed from independent render-depth views."""
++
++import itertools
++import math
++import weakref
++import zlib
++
++import carb
++from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus, KeyValue
++from geometry_msgs.msg import TransformStamped
++import numpy as np
++import omni.replicator.core as rep
++import omni.usd
++from pxr import Gf, UsdGeom
++from rclpy.node import Node
++from rclpy.qos import qos_profile_sensor_data
++from sensor_msgs.msg import LaserScan
++from tf2_ros.static_transform_broadcaster import StaticTransformBroadcaster
++
++from isaac_utils.scan_geometry import (
++    camera_sample_map,
++    depth_views_to_ranges,
++    normalized_scan_layout,
++    scan_state_masks,
++)
++
++
++class NormalizedScan:
++    """Publish a geometry-based planar scan without interpreting RTX sentinels."""
++
++    _instances = weakref.WeakSet()
++    _serials = itertools.count(1)
++    WIDTH = 1025
++    HEIGHT = 3
++
++    def __init__(
++        self,
++        prim_path,
++        parent_frame_id,
++        frame_id,
++        topic,
++        translation,
++        rotation,
++        samples,
++        angle_min,
++        angle_max,
++        range_min,
++        range_max,
++        rate,
++        noise_mean=0.0,
++        noise_stddev=0.0,
++        range_resolution=0.0,
++        seed=0,
++    ):
++        self.parent_frame_id = parent_frame_id
++        self.frame_id = frame_id
++        self.topic = topic
++        self.range_min = float(range_min)
++        self.range_max = float(range_max)
++        self.period = 1.0 / float(rate)
++        self.noise_mean = float(noise_mean)
++        self.noise_stddev = float(noise_stddev)
++        self.range_resolution = float(range_resolution)
++        self.last_time = None
++        self.last_diagnostic_time = None
++        self.frames = 0
++        self.published_once = False
++        self.cameras = []
++        self._destroyed = False
++
++        self.layout = normalized_scan_layout(samples, angle_min, angle_max)
++        self.view_index, self.pixel_index, sampled_angles = camera_sample_map(
++            self.layout.angles, self.WIDTH
++        )
++        angular_error = np.abs(
++            (sampled_angles - self.layout.angles + math.pi) % (2.0 * math.pi) - math.pi
++        )
++        self.max_angular_error = float(angular_error.max(initial=0.0))
++        topic_seed = zlib.crc32(topic.encode("utf-8"))
++        self.rng = np.random.default_rng((int(seed) + topic_seed) % (2**32))
++
++        node_suffix = str(next(self._serials))
++        self.node = Node("normalized_scan_" + node_suffix, use_global_arguments=False)
++        self.publisher = self.node.create_publisher(LaserScan, topic, qos_profile_sensor_data)
++        self.diagnostic_publisher = self.node.create_publisher(
++            DiagnosticArray, topic + "/diagnostics", 10
++        )
++        self.tf_broadcaster = StaticTransformBroadcaster(self.node)
++        self._publish_static_transform(translation, rotation)
++
++        stage = omni.usd.get_context().get_stage()
++        try:
++            for quadrant in range(4):
++                yaw = quadrant * math.pi / 2.0
++                camera = UsdGeom.Camera.Define(stage, f"{prim_path}/normalized_scan_{quadrant}")
++                camera.CreateFocalLengthAttr(10.0)
++                camera.CreateHorizontalApertureAttr(20.0)
++                camera.CreateVerticalApertureAttr(20.0 * self.HEIGHT / self.WIDTH)
++                camera.CreateClippingRangeAttr(Gf.Vec2f(0.001, self.range_max))
++                direction = Gf.Vec3d(math.cos(yaw), math.sin(yaw), 0.0)
++                pose = Gf.Matrix4d().SetLookAt(
++                    Gf.Vec3d(0.0), direction, Gf.Vec3d(0.0, 0.0, 1.0)
++                ).GetInverse()
++                camera.AddTransformOp().Set(pose)
++                # A robot can be deleted and respawned at the same USD path.  Do
++                # not let Replicator hand the new sensor a cached render product
++                # whose Hydra texture was destroyed with the previous robot.
++                product = rep.create.render_product(
++                    camera.GetPath(),
++                    [self.WIDTH, self.HEIGHT],
++                    force_new=True,
++                    name=f"NormalizedScan_{node_suffix}_{quadrant}",
++                )
++                annotator = rep.AnnotatorRegistry.get_annotator("distance_to_camera")
++                annotator.attach([product.path])
++                self.cameras.append((product, annotator))
++        except Exception:
++            self.destroy()
++            raise
++
++        self._instances.add(self)
++        carb.log_info(
++            f"Normalized scan ready: topic={topic} frame={frame_id} "
++            f"beams={len(self.layout.angles)} rate={rate:.3f} "
++            f"range=[{self.range_min:.3f}, {self.range_max:.3f}] "
++            f"max_angular_error={self.max_angular_error:.8f}"
++        )
++
++    def _publish_static_transform(self, translation, rotation):
++        transform = TransformStamped()
++        transform.header.frame_id = self.parent_frame_id
++        transform.child_frame_id = self.frame_id
++        transform.transform.translation.x = float(translation.x)
++        transform.transform.translation.y = float(translation.y)
++        transform.transform.translation.z = float(translation.z)
++        transform.transform.rotation.w = float(rotation.w)
++        transform.transform.rotation.x = float(rotation.x)
++        transform.transform.rotation.y = float(rotation.y)
++        transform.transform.rotation.z = float(rotation.z)
++        self.tf_broadcaster.sendTransform(transform)
++
++    @classmethod
++    def update_all(cls, simulation_time):
++        for instance in list(cls._instances):
++            instance.update(simulation_time)
++
++    @staticmethod
++    def _stamp(message, simulation_time):
++        nanoseconds = round(simulation_time * 1e9)
++        message.header.stamp.sec, message.header.stamp.nanosec = divmod(nanoseconds, 10**9)
++
++    def _publish_diagnostic(self, simulation_time, level, reason, masks=None):
++        if (
++            self.last_diagnostic_time is not None
++            and simulation_time - self.last_diagnostic_time < self.period - 1e-6
++        ):
++            return
++        array = DiagnosticArray()
++        self._stamp(array, simulation_time)
++        status = DiagnosticStatus()
++        status.level = level
++        status.name = self.topic
++        status.hardware_id = "isaac-render-depth-normalized-scan"
++        status.message = reason
++        values = {
++            "source": "distance_to_camera",
++            "frame_id": self.frame_id,
++            "beams": str(len(self.layout.angles)),
++            "range_min": str(self.range_min),
++            "range_max": str(self.range_max),
++            "scan_age_s": (
++                "inf"
++                if self.last_time is None
++                else f"{max(0.0, simulation_time - self.last_time):.9f}"
++            ),
++            "max_angular_error_rad": f"{self.max_angular_error:.9f}",
++        }
++        if masks is not None:
++            values.update({name: str(int(mask.sum())) for name, mask in masks.items()})
++        status.values = [KeyValue(key=key, value=value) for key, value in values.items()]
++        array.status = [status]
++        self.diagnostic_publisher.publish(array)
++        self.last_diagnostic_time = simulation_time
++
++    def update(self, simulation_time):
++        self.frames += 1
++        if self.last_time is not None and simulation_time < self.last_time:
++            self.frames = 0
++            self.last_time = None
++            self.last_diagnostic_time = None
++        if self.frames < 6:
++            return
++        if self.last_time is not None and simulation_time - self.last_time < self.period - 1e-6:
++            return
++
++        rows = []
++        try:
++            for _, annotator in self.cameras:
++                depth = np.asarray(annotator.get_data(do_array_copy=True))
++                if depth.shape != (self.HEIGHT, self.WIDTH):
++                    self._publish_diagnostic(
++                        simulation_time,
++                        DiagnosticStatus.WARN,
++                        f"incomplete render shape {depth.shape}",
++                    )
++                    return
++                rows.append(depth[self.HEIGHT // 2])
++        except Exception as error:
++            self._publish_diagnostic(
++                simulation_time, DiagnosticStatus.ERROR, f"render read failed: {error}"
++            )
++            return
++
++        try:
++            ranges = depth_views_to_ranges(
++                np.stack(rows),
++                self.view_index,
++                self.pixel_index,
++                self.range_min,
++                self.range_max,
++                noise_mean=self.noise_mean,
++                noise_stddev=self.noise_stddev,
++                range_resolution=self.range_resolution,
++                rng=self.rng,
++            )
++        except Exception as error:
++            self._publish_diagnostic(
++                simulation_time, DiagnosticStatus.ERROR, f"conversion failed: {error}"
++            )
++            return
++
++        message = LaserScan()
++        message.header.frame_id = self.frame_id
++        self._stamp(message, simulation_time)
++        message.angle_min = self.layout.angle_min
++        message.angle_max = self.layout.angle_max
++        message.angle_increment = self.layout.angle_increment
++        message.time_increment = 0.0
++        message.scan_time = self.period
++        message.range_min = self.range_min
++        message.range_max = self.range_max
++        message.ranges = ranges.tolist()
++        message.intensities = []
++        self.publisher.publish(message)
++
++        masks = scan_state_masks(ranges, self.range_min, self.range_max)
++        self.last_time = simulation_time
++        self._publish_diagnostic(simulation_time, DiagnosticStatus.OK, "scan published", masks)
++        if not self.published_once:
++            carb.log_info(
++                f"Normalized scan first frame: topic={self.topic} "
++                f"hit={int(masks['hit'].sum())} no_return={int(masks['no_return'].sum())} "
++                f"too_close={int(masks['too_close'].sum())} "
++                f"unknown={int(masks['unknown'].sum())}"
++            )
++            self.published_once = True
++
++    def destroy(self):
++        if self._destroyed:
++            return
++        self._destroyed = True
++        self._instances.discard(self)
++        for _, annotator in reversed(self.cameras):
++            try:
++                annotator.detach()
++            except Exception as error:
++                carb.log_warn(f"Normalized scan annotator teardown: {error}")
++        for product, _ in reversed(self.cameras):
++            try:
++                product.destroy()
++            except Exception as error:
++                carb.log_warn(f"Normalized scan render-product teardown: {error}")
++        self.cameras.clear()
++        if self.node is not None:
++            self.node.destroy_node()
++            self.node = None
+diff --git a/arena_isaac/isaac_utils/scan_geometry.py b/arena_isaac/isaac_utils/scan_geometry.py
+new file mode 100644
+index 0000000..1b4f8c6
+--- /dev/null
++++ b/arena_isaac/isaac_utils/scan_geometry.py
+@@ -0,0 +1,206 @@
++"""Pure geometry and REP-117 semantics for normalized planar laser scans."""
++
++from dataclasses import dataclass
++import math
++
++import numpy as np
++
++
++@dataclass(frozen=True)
++class ScanLayout:
++    angles: np.ndarray
++    angle_min: float
++    angle_max: float
++    angle_increment: float
++
++
++@dataclass(frozen=True)
++class ScanObservation:
++    """Finite control input plus masks that preserve the source semantics."""
++
++    ranges: np.ndarray
++    hit: np.ndarray
++    no_return: np.ndarray
++    too_close: np.ndarray
++    unknown: np.ndarray
++    usable_ray: np.ndarray
++    obstacle: np.ndarray
++
++
++def normalized_scan_layout(samples: int, angle_min: float, angle_max: float) -> ScanLayout:
++    """Build an equally spaced layout without duplicating a full-circle endpoint."""
++    samples = int(samples)
++    angle_min = float(angle_min)
++    angle_max = float(angle_max)
++    if samples < 1:
++        raise ValueError("samples must be at least one")
++    if not np.isfinite([angle_min, angle_max]).all() or angle_max <= angle_min:
++        raise ValueError("angle_min and angle_max must be finite and increasing")
++
++    span = angle_max - angle_min
++    full_circle = math.isclose(span, 2.0 * math.pi, rel_tol=0.0, abs_tol=1e-3)
++    if samples == 1:
++        increment = 0.0
++    elif full_circle:
++        # Treat near-2pi URDF decimals (for example 6.28318) as the
++        # canonical full circle.  Using exactly 2pi/N avoids a tiny seam and
++        # still omits the duplicated +pi endpoint.
++        increment = 2.0 * math.pi / samples
++    else:
++        increment = span / (samples - 1)
++
++    angles = angle_min + np.arange(samples, dtype=np.float64) * increment
++    return ScanLayout(
++        angles=angles,
++        angle_min=angle_min,
++        angle_max=float(angles[-1]),
++        angle_increment=float(increment),
++    )
++
++
++def camera_sample_map(angles: np.ndarray, width: int) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
++    """Map ROS scan angles to nearest pixel-centre rays in four 90 degree views."""
++    angles = np.asarray(angles, dtype=np.float64)
++    width = int(width)
++    if angles.ndim != 1 or not np.isfinite(angles).all():
++        raise ValueError("angles must be a finite one-dimensional array")
++    if width < 3:
++        raise ValueError("camera width must be at least three")
++
++    quarter_turn = math.pi / 2.0
++    view_index = np.floor(angles / quarter_turn + 0.5).astype(np.int64) % 4
++    view_yaw = view_index.astype(np.float64) * quarter_turn
++    delta = (angles - view_yaw + math.pi) % (2.0 * math.pi) - math.pi
++    if np.any(np.abs(delta) > math.pi / 4.0 + 1e-9):
++        raise ValueError("an angle could not be assigned to a 90 degree view")
++
++    lateral = np.tan(delta)
++    pixel_float = (width * (1.0 - lateral) - 1.0) / 2.0
++    pixel_index = np.clip(np.rint(pixel_float), 0, width - 1).astype(np.int64)
++
++    pixel_lateral = 1.0 - 2.0 * (pixel_index.astype(np.float64) + 0.5) / width
++    sampled_angles = view_yaw + np.arctan(pixel_lateral)
++    sampled_angles = (sampled_angles + math.pi) % (2.0 * math.pi) - math.pi
++    return view_index, pixel_index, sampled_angles
++
++
++def depth_views_to_ranges(
++    depth_views: np.ndarray,
++    view_index: np.ndarray,
++    pixel_index: np.ndarray,
++    range_min: float,
++    range_max: float,
++    *,
++    noise_mean: float = 0.0,
++    noise_stddev: float = 0.0,
++    range_resolution: float = 0.0,
++    rng: np.random.Generator | None = None,
++) -> np.ndarray:
++    """
++    Convert renderer depth into REP-117 hit/no-return/too-close/unknown values.
++
++    The installed ``distance_to_camera`` contract defines zero as no rendered
++    object, while this Isaac 5.1 installation normally emits positive infinity.
++    Negative values, NaN and negative infinity remain unknown.
++    """
++    depth_views = np.asarray(depth_views, dtype=np.float64)
++    view_index = np.asarray(view_index, dtype=np.int64)
++    pixel_index = np.asarray(pixel_index, dtype=np.int64)
++    range_min = float(range_min)
++    range_max = float(range_max)
++    noise_mean = float(noise_mean)
++    noise_stddev = float(noise_stddev)
++    range_resolution = float(range_resolution)
++
++    if depth_views.ndim != 2 or depth_views.shape[0] != 4:
++        raise ValueError("depth_views must contain four centre rows")
++    if view_index.shape != pixel_index.shape or view_index.ndim != 1:
++        raise ValueError("view and pixel maps must be equal one-dimensional arrays")
++    if np.any((view_index < 0) | (view_index >= 4)):
++        raise ValueError("view index outside [0, 3]")
++    if np.any((pixel_index < 0) | (pixel_index >= depth_views.shape[1])):
++        raise ValueError("pixel index outside the depth row")
++    if not 0.0 < range_min < range_max:
++        raise ValueError("expected 0 < range_min < range_max")
++    if not np.isfinite(noise_mean):
++        raise ValueError("noise mean must be finite")
++    if noise_stddev < 0.0 or range_resolution < 0.0:
++        raise ValueError("noise and resolution cannot be negative")
++
++    depth = depth_views[view_index, pixel_index]
++    ranges = np.full(depth.shape, np.nan, dtype=np.float64)
++
++    no_return = (
++        np.isposinf(depth)
++        | (depth == 0.0)
++        | (np.isfinite(depth) & (depth > range_max))
++    )
++    too_close = np.isfinite(depth) & (depth > 0.0) & (depth < range_min)
++    hit = np.isfinite(depth) & (depth >= range_min) & (depth <= range_max)
++    ranges[no_return] = np.inf
++    ranges[too_close] = -np.inf
++
++    hit_ranges = depth[hit].copy()
++    if noise_mean != 0.0 and hit_ranges.size:
++        hit_ranges += noise_mean
++    if noise_stddev > 0.0 and hit_ranges.size:
++        rng = rng if rng is not None else np.random.default_rng(0)
++        hit_ranges += rng.normal(0.0, noise_stddev, hit_ranges.size)
++    if range_resolution > 0.0 and hit_ranges.size:
++        hit_ranges = np.round(hit_ranges / range_resolution) * range_resolution
++
++    hit_indices = np.flatnonzero(hit)
++    below = hit_ranges < range_min
++    above = hit_ranges > range_max
++    in_range = ~(below | above)
++    ranges[hit_indices[below]] = -np.inf
++    ranges[hit_indices[above]] = np.inf
++    ranges[hit_indices[in_range]] = hit_ranges[in_range]
++    return ranges.astype(np.float32)
++
++
++def scan_state_masks(
++    ranges: np.ndarray, range_min: float, range_max: float
++) -> dict[str, np.ndarray]:
++    """Classify normalized scan values and reject unexpected finite sentinels."""
++    ranges = np.asarray(ranges, dtype=np.float32)
++    hit = np.isfinite(ranges) & (ranges >= range_min) & (ranges <= range_max)
++    no_return = np.isposinf(ranges)
++    too_close = np.isneginf(ranges)
++    unknown = ~(hit | no_return | too_close)
++    return {
++        "hit": hit,
++        "no_return": no_return,
++        "too_close": too_close,
++        "unknown": unknown,
++    }
++
++
++def adapt_scan_for_control(
++    ranges: np.ndarray,
++    range_min: float,
++    range_max: float,
++    *,
++    unknown_fill: float = 0.0,
++) -> ScanObservation:
++    """Produce finite DRL/MPC input while retaining a mask for every state."""
++    if (
++        not np.isfinite([range_min, range_max, unknown_fill]).all()
++        or not 0.0 < range_min < range_max
++    ):
++        raise ValueError("control adapter requires finite 0 < range_min < range_max and fill")
++    ranges = np.asarray(ranges, dtype=np.float32)
++    masks = scan_state_masks(ranges, range_min, range_max)
++    finite = np.full(ranges.shape, float(unknown_fill), dtype=np.float32)
++    finite[masks["hit"]] = ranges[masks["hit"]]
++    finite[masks["no_return"]] = float(range_max)
++    finite[masks["too_close"]] = 0.0
++    return ScanObservation(
++        ranges=finite,
++        hit=masks["hit"],
++        no_return=masks["no_return"],
++        too_close=masks["too_close"],
++        unknown=masks["unknown"],
++        usable_ray=masks["hit"] | masks["no_return"],
++        obstacle=masks["hit"] | masks["too_close"],
++    )
+diff --git a/arena_isaac/package.xml b/arena_isaac/package.xml
+index 6a83f3e..c731dc8 100644
+--- a/arena_isaac/package.xml
++++ b/arena_isaac/package.xml
+@@ -10,7 +10,9 @@
+   <depend>rclpy</depend>
+   <depend>std_msgs</depend>
+   <depend>geometry_msgs</depend>
++  <depend>diagnostic_msgs</depend>
+   <depend>sensor_msgs</depend>
++  <depend>tf2_ros</depend>
+   <exec_depend>sensor_msgs_py</exec_depend>
+   <depend>arena_people_msgs</depend>
+ 
+diff --git a/arena_isaac/test/test_scan_geometry.py b/arena_isaac/test/test_scan_geometry.py
+new file mode 100644
+index 0000000..c68bfa9
+--- /dev/null
++++ b/arena_isaac/test/test_scan_geometry.py
+@@ -0,0 +1,124 @@
++import math
++
++import numpy as np
++
++from isaac_utils.scan_geometry import (
++    adapt_scan_for_control,
++    camera_sample_map,
++    depth_views_to_ranges,
++    normalized_scan_layout,
++)
++
++
++def test_full_circle_layout_does_not_duplicate_endpoint():
++    layout = normalized_scan_layout(640, -math.pi, math.pi)
++    assert len(layout.angles) == 640
++    assert layout.angle_max < math.pi
++    assert math.isclose(layout.angle_increment, 2.0 * math.pi / 640)
++    assert not math.isclose(layout.angles[0], layout.angles[-1])
++
++
++def test_rounded_urdf_full_circle_uses_exact_two_pi_increment():
++    layout = normalized_scan_layout(640, -3.14159, 3.14159)
++    assert math.isclose(layout.angle_increment, 2.0 * math.pi / 640)
++    assert math.isclose(layout.angle_max, -3.14159 + 639.0 * 2.0 * math.pi / 640)
++
++
++def test_partial_layout_includes_both_declared_endpoints():
++    layout = normalized_scan_layout(5, -1.0, 1.0)
++    np.testing.assert_allclose(layout.angles, [-1.0, -0.5, 0.0, 0.5, 1.0])
++    assert layout.angle_max == 1.0
++
++
++def test_camera_map_covers_quadrants_with_small_nearest_ray_error():
++    angles = normalized_scan_layout(640, -math.pi, math.pi).angles
++    views, pixels, sampled = camera_sample_map(angles, 1025)
++    assert set(views.tolist()) == {0, 1, 2, 3}
++    assert pixels.min() >= 0
++    assert pixels.max() < 1025
++    error = np.abs((sampled - angles + math.pi) % (2.0 * math.pi) - math.pi)
++    assert error.max() < 0.001
++
++
++def test_rep117_conversion_keeps_all_four_states_distinct():
++    rows = np.full((4, 9), np.nan)
++    rows[0] = [-1.0, 0.0, np.nan, -np.inf, 0.03, 0.08, 2.0, np.inf, 13.0]
++    views = np.zeros(9, dtype=int)
++    pixels = np.arange(9)
++    ranges = depth_views_to_ranges(rows, views, pixels, 0.08, 12.0)
++    assert np.isnan(ranges[0])
++    assert np.isposinf(ranges[1])
++    assert np.isnan(ranges[2])
++    assert np.isnan(ranges[3])
++    assert np.isneginf(ranges[4])
++    assert ranges[5] == np.float32(0.08)
++    assert ranges[6] == np.float32(2.0)
++    assert np.isposinf(ranges[7])
++    assert np.isposinf(ranges[8])
++
++
++def test_sampling_uses_one_pixel_and_never_blends_across_a_depth_edge():
++    rows = np.full((4, 1025), 12.0)
++    rows[0, 511] = 1.0
++    rows[0, 512] = 9.0
++    rows[0, 513] = 2.0
++    angles = np.array([0.001, 0.0, -0.001])
++    views, pixels, _ = camera_sample_map(angles, 1025)
++    ranges = depth_views_to_ranges(rows, views, pixels, 0.08, 12.0)
++    assert set(ranges.tolist()).issubset({1.0, 2.0, 9.0, 12.0})
++
++
++def test_configured_noise_is_repeatable_and_quantized():
++    rows = np.full((4, 8), 2.0)
++    views = np.zeros(8, dtype=int)
++    pixels = np.arange(8)
++    one = depth_views_to_ranges(
++        rows, views, pixels, 0.08, 12.0,
++        noise_mean=0.02, noise_stddev=0.01,
++        range_resolution=0.01, rng=np.random.default_rng(42),
++    )
++    two = depth_views_to_ranges(
++        rows, views, pixels, 0.08, 12.0,
++        noise_mean=0.02, noise_stddev=0.01,
++        range_resolution=0.01, rng=np.random.default_rng(42),
++    )
++    np.testing.assert_array_equal(one, two)
++    np.testing.assert_allclose(one / 0.01, np.round(one / 0.01), atol=2e-5)
++
++
++def test_noise_mean_applies_only_to_finite_hits():
++    rows = [
++        np.array([2.0, np.inf, 0.04, np.nan]),
++        np.ones(4),
++        np.ones(4),
++        np.ones(4),
++    ]
++    ranges = depth_views_to_ranges(
++        rows,
++        np.zeros(4, dtype=np.int64),
++        np.arange(4),
++        0.08,
++        12.0,
++        noise_mean=0.03,
++    )
++
++    np.testing.assert_allclose(ranges[0], 2.03)
++    assert np.isposinf(ranges[1])
++    assert np.isneginf(ranges[2])
++    assert np.isnan(ranges[3])
++
++
++def test_control_adapter_is_conservative_and_preserves_masks():
++    scan = np.array([1.0, np.inf, -np.inf, np.nan, -1.0, 13.0], dtype=np.float32)
++    observation = adapt_scan_for_control(scan, 0.08, 12.0)
++    np.testing.assert_array_equal(observation.ranges, [1.0, 12.0, 0.0, 0.0, 0.0, 0.0])
++    np.testing.assert_array_equal(observation.hit, [1, 0, 0, 0, 0, 0])
++    np.testing.assert_array_equal(observation.no_return, [0, 1, 0, 0, 0, 0])
++    np.testing.assert_array_equal(observation.too_close, [0, 0, 1, 0, 0, 0])
++    np.testing.assert_array_equal(observation.unknown, [0, 0, 0, 1, 1, 1])
++    np.testing.assert_array_equal(observation.usable_ray, [1, 1, 0, 0, 0, 0])
++
++
++def test_control_adapter_rejects_non_finite_fill():
++    with np.testing.assert_raises(ValueError):
++        adapt_scan_for_control([1.0], 0.08, 12.0, unknown_fill=np.nan)

@@ -1,0 +1,62 @@
+diff --git a/configs/nav2/model_params.yaml b/configs/nav2/model_params.yaml
+index b2c8a86..f199e45 100644
+--- a/configs/nav2/model_params.yaml
++++ b/configs/nav2/model_params.yaml
+@@ -1,4 +1,6 @@
+ observation_sources_string: "scan" # massive bullshit, costmaps still need string param
++local_observation_sources_string: ${observation_sources_string}
++local_extra_observation_sources_dict: {}
+ observation_sources:
+   - scan
+ observation_sources_dict:
+@@ -33,4 +35,4 @@ planner_plugins_dict:
+ footprint: "[ [0.1, 0.1], [0.1, -0.1], [-0.1, -0.1], [-0.1, 0.1] ]"
+ 
+ robot_base_frame: 'base_link'
+-robot_odom_frame: 'odom'
+\ No newline at end of file
++robot_odom_frame: 'odom'
+diff --git a/configs/nav2/nav2.yaml b/configs/nav2/nav2.yaml
+index 4617875..31fb8e9 100644
+--- a/configs/nav2/nav2.yaml
++++ b/configs/nav2/nav2.yaml
+@@ -153,8 +153,9 @@ local_costmap:
+         z_voxels: 16
+         max_obstacle_height: 2.0
+         mark_threshold: 0
+-        observation_sources: ${observation_sources_string}
++        observation_sources: ${local_observation_sources_string}
+         "${**observation_sources_dict}": ''
++        "${**local_extra_observation_sources_dict}": ''
+       static_layer:
+         map_subscribe_transient_local: True
+         map_topic: ${task_generator_node}/map
+diff --git a/entities/robots/jackal/model_params.yaml b/entities/robots/jackal/model_params.yaml
+index d5659a2..a203a9b 100644
+--- a/entities/robots/jackal/model_params.yaml
++++ b/entities/robots/jackal/model_params.yaml
+@@ -1,4 +1,17 @@
+ observation_sources_string: lidar # massive bullshit, costmaps still need string param
++local_observation_sources_string: lidar depth_clearing
++local_extra_observation_sources_dict:
++  depth_clearing:
++    # Optional Isaac render-depth endpoints; never mark these as obstacles.
++    topic: ${namespace}/lidar_clearing
++    data_type: PointCloud2
++    marking: False
++    clearing: True
++    min_obstacle_height: 0.0
++    max_obstacle_height: 2.0
++    raytrace_min_range: 0.0
++    raytrace_max_range: 3.0
++    observation_persistence: 0.0
+ observation_sources:
+   - lidar
+ observation_sources_dict:
+@@ -79,4 +92,4 @@ robot_model: jackal
+ robot_radius: 0.267
+ robot_sensor_frame: lidar
+ 
+-z_offset: 0.0635
+\ No newline at end of file
++z_offset: 0.0635

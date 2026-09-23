@@ -1,13 +1,13 @@
 diff --git a/arena_humble_compat/arena_humble_compat/__init__.py b/arena_humble_compat/arena_humble_compat/__init__.py
 new file mode 100644
-index 0000000000000000000000000000000000000000..8b137891791fe96927ad78e64b0aad7bded08bdc
+index 0000000..8b13789
 --- /dev/null
 +++ b/arena_humble_compat/arena_humble_compat/__init__.py
 @@ -0,0 +1 @@
 +
 diff --git a/arena_humble_compat/arena_humble_compat/bridge_validation.py b/arena_humble_compat/arena_humble_compat/bridge_validation.py
 new file mode 100644
-index 0000000000000000000000000000000000000000..3e63548b2eca0952521342336d556d4aeea28ef3
+index 0000000..3e63548
 --- /dev/null
 +++ b/arena_humble_compat/arena_humble_compat/bridge_validation.py
 @@ -0,0 +1,149 @@
@@ -162,7 +162,7 @@ index 0000000000000000000000000000000000000000..3e63548b2eca0952521342336d556d4a
 +    )
 diff --git a/arena_humble_compat/arena_humble_compat/hunav_six_behaviors_bridge.py b/arena_humble_compat/arena_humble_compat/hunav_six_behaviors_bridge.py
 new file mode 100644
-index 0000000000000000000000000000000000000000..efac4faedb979ea37d97728fbd1ccbb2b01ad32d
+index 0000000..efac4fa
 --- /dev/null
 +++ b/arena_humble_compat/arena_humble_compat/hunav_six_behaviors_bridge.py
 @@ -0,0 +1,737 @@
@@ -905,7 +905,7 @@ index 0000000000000000000000000000000000000000..efac4faedb979ea37d97728fbd1ccbb2
 +                rclpy.shutdown()
 diff --git a/arena_humble_compat/arena_humble_compat/scene_bridge.py b/arena_humble_compat/arena_humble_compat/scene_bridge.py
 new file mode 100644
-index 0000000000000000000000000000000000000000..381c2b579fb821846886e6e7d81c797e081a8663
+index 0000000..381c2b5
 --- /dev/null
 +++ b/arena_humble_compat/arena_humble_compat/scene_bridge.py
 @@ -0,0 +1,215 @@
@@ -1126,7 +1126,7 @@ index 0000000000000000000000000000000000000000..381c2b579fb821846886e6e7d81c797e
 +        rclpy.shutdown()
 diff --git a/arena_humble_compat/arena_humble_compat/verify_runtime.py b/arena_humble_compat/arena_humble_compat/verify_runtime.py
 new file mode 100644
-index 0000000000000000000000000000000000000000..4efcd2287cd4d629c7097cf8ef5139e9192075e3
+index 0000000..4efcd22
 --- /dev/null
 +++ b/arena_humble_compat/arena_humble_compat/verify_runtime.py
 @@ -0,0 +1,92 @@
@@ -1224,7 +1224,7 @@ index 0000000000000000000000000000000000000000..4efcd2287cd4d629c7097cf8ef5139e9
 +    raise SystemExit(status)
 diff --git a/arena_humble_compat/arena_humble_compat/verify_six_behaviors.py b/arena_humble_compat/arena_humble_compat/verify_six_behaviors.py
 new file mode 100644
-index 0000000000000000000000000000000000000000..27364f9d89464625c29063a739b348744b7c3ce4
+index 0000000..27364f9
 --- /dev/null
 +++ b/arena_humble_compat/arena_humble_compat/verify_six_behaviors.py
 @@ -0,0 +1,156 @@
@@ -1386,7 +1386,7 @@ index 0000000000000000000000000000000000000000..27364f9d89464625c29063a739b34874
 +        rclpy.shutdown()
 diff --git a/arena_humble_compat/package.xml b/arena_humble_compat/package.xml
 new file mode 100644
-index 0000000000000000000000000000000000000000..f1c58dc4fcee128fee9a68b564cd58d0776169ea
+index 0000000..f1c58dc
 --- /dev/null
 +++ b/arena_humble_compat/package.xml
 @@ -0,0 +1,26 @@
@@ -1418,14 +1418,14 @@ index 0000000000000000000000000000000000000000..f1c58dc4fcee128fee9a68b564cd58d0
 +</package>
 diff --git a/arena_humble_compat/resource/arena_humble_compat b/arena_humble_compat/resource/arena_humble_compat
 new file mode 100644
-index 0000000000000000000000000000000000000000..8b137891791fe96927ad78e64b0aad7bded08bdc
+index 0000000..8b13789
 --- /dev/null
 +++ b/arena_humble_compat/resource/arena_humble_compat
 @@ -0,0 +1 @@
 +
 diff --git a/arena_humble_compat/setup.cfg b/arena_humble_compat/setup.cfg
 new file mode 100644
-index 0000000000000000000000000000000000000000..bf62b8a6b3bdf1e6a26aadd0a253c0e6967fb1ac
+index 0000000..bf62b8a
 --- /dev/null
 +++ b/arena_humble_compat/setup.cfg
 @@ -0,0 +1,4 @@
@@ -1435,7 +1435,7 @@ index 0000000000000000000000000000000000000000..bf62b8a6b3bdf1e6a26aadd0a253c0e6
 +install_scripts=$base/lib/arena_humble_compat
 diff --git a/arena_humble_compat/setup.py b/arena_humble_compat/setup.py
 new file mode 100644
-index 0000000000000000000000000000000000000000..b11567111aed897746b2244e71f0fe3c1e3347fa
+index 0000000..b115671
 --- /dev/null
 +++ b/arena_humble_compat/setup.py
 @@ -0,0 +1,29 @@
@@ -1470,7 +1470,7 @@ index 0000000000000000000000000000000000000000..b11567111aed897746b2244e71f0fe3c
 +)
 diff --git a/arena_humble_compat/test/test_bridge_validation.py b/arena_humble_compat/test/test_bridge_validation.py
 new file mode 100644
-index 0000000000000000000000000000000000000000..71a894f4e540506bebc4d17e79e042170bbb44c1
+index 0000000..71a894f
 --- /dev/null
 +++ b/arena_humble_compat/test/test_bridge_validation.py
 @@ -0,0 +1,162 @@
@@ -1637,7 +1637,7 @@ index 0000000000000000000000000000000000000000..71a894f4e540506bebc4d17e79e04217
 +    with pytest.raises(RuntimeError, match=f"{field_name} must be an integer"):
 +        require_plain_integer(value, field_name)
 diff --git a/arena_isaac/arena_isaac/run_isaacsim.py b/arena_isaac/arena_isaac/run_isaacsim.py
-index 0a10249347c7c88956a24b1c49ba53373b4884b7..3d89e3783364c92860ce1d7167cdb72584e69c54 100644
+index 0a10249..3d89e37 100644
 --- a/arena_isaac/arena_isaac/run_isaacsim.py
 +++ b/arena_isaac/arena_isaac/run_isaacsim.py
 @@ -5,25 +5,60 @@
@@ -1992,7 +1992,7 @@ index 0a10249347c7c88956a24b1c49ba53373b4884b7..3d89e3783364c92860ce1d7167cdb725
                  for _ in range(pending_actions):
                      try:
 diff --git a/arena_isaac/arena_isaac/services/SpawnUrdf.py b/arena_isaac/arena_isaac/services/SpawnUrdf.py
-index f1b80d08856be6cc207bb1cf8a3833240bbf025b..7de8d79010ac8f810336f542eaed663ba4f911c1 100644
+index f1b80d0..7de8d79 100644
 --- a/arena_isaac/arena_isaac/services/SpawnUrdf.py
 +++ b/arena_isaac/arena_isaac/services/SpawnUrdf.py
 @@ -17,7 +17,8 @@ from isaac_utils.utils import geom
@@ -2130,7 +2130,7 @@ index f1b80d08856be6cc207bb1cf8a3833240bbf025b..7de8d79010ac8f810336f542eaed663b
      return prim_path
  
 diff --git a/arena_isaac/arena_isaac/services/UpdatePedestrians.py b/arena_isaac/arena_isaac/services/UpdatePedestrians.py
-index f8989360c542ca3850630af844541710f347e02b..1ab995e025bacee2dcf60511c89b91d17698e66a 100644
+index f898936..1ab995e 100644
 --- a/arena_isaac/arena_isaac/services/UpdatePedestrians.py
 +++ b/arena_isaac/arena_isaac/services/UpdatePedestrians.py
 @@ -19,7 +19,13 @@ def update_pedestrian(pedestrian: Pedestrian, stamp_sec: float) -> int:
@@ -2150,13 +2150,13 @@ index f8989360c542ca3850630af844541710f347e02b..1ab995e025bacee2dcf60511c89b91d1
  
 diff --git a/arena_isaac/isaac_utils/config/__init__.py b/arena_isaac/isaac_utils/config/__init__.py
 new file mode 100644
-index 0000000000000000000000000000000000000000..83a19514ed85321f995290075b19a6db450c3ae4
+index 0000000..83a1951
 --- /dev/null
 +++ b/arena_isaac/isaac_utils/config/__init__.py
 @@ -0,0 +1 @@
 +"""Renderer configuration helpers."""
 diff --git a/arena_isaac/isaac_utils/graphs/odom.py b/arena_isaac/isaac_utils/graphs/odom.py
-index 0ed7bd3bd522d8f3341326d23a86449f093d0059..c96e64af43171a73695d7dc1d250f6854ff9f839 100644
+index 0ed7bd3..c96e64a 100644
 --- a/arena_isaac/isaac_utils/graphs/odom.py
 +++ b/arena_isaac/isaac_utils/graphs/odom.py
 @@ -1,4 +1,5 @@
@@ -2191,20 +2191,20 @@ index 0ed7bd3bd522d8f3341326d23a86449f093d0059..c96e64af43171a73695d7dc1d250f685
      return graph.execute(controller)
 diff --git a/arena_isaac/isaac_utils/managers/__init__.py b/arena_isaac/isaac_utils/managers/__init__.py
 new file mode 100644
-index 0000000000000000000000000000000000000000..0ae488e04b237637cdfd62cf3501e5e70b5e2e6c
+index 0000000..0ae488e
 --- /dev/null
 +++ b/arena_isaac/isaac_utils/managers/__init__.py
 @@ -0,0 +1 @@
 +"""Isaac entity lifecycle managers."""
 diff --git a/arena_isaac/isaac_utils/utils/__init__.py b/arena_isaac/isaac_utils/utils/__init__.py
 new file mode 100644
-index 0000000000000000000000000000000000000000..f5c146cf0e36a0f147bab7ae746b8d7b2277ed29
+index 0000000..f5c146c
 --- /dev/null
 +++ b/arena_isaac/isaac_utils/utils/__init__.py
 @@ -0,0 +1 @@
 +"""Shared Isaac utility modules."""
 diff --git a/arena_isaac/launch/run_isaacsim.launch.py b/arena_isaac/launch/run_isaacsim.launch.py
-index 5d168901e71477837f05b64e18d61abba2ebb5ba..02f210faf53d9da9afb94d0d21c1483879e14070 100644
+index 5d16890..02f210f 100644
 --- a/arena_isaac/launch/run_isaacsim.launch.py
 +++ b/arena_isaac/launch/run_isaacsim.launch.py
 @@ -21,6 +21,26 @@ def generate_launch_description():
@@ -2255,7 +2255,7 @@ index 5d168901e71477837f05b64e18d61abba2ebb5ba..02f210faf53d9da9afb94d0d21c14838
          ),
 diff --git a/arena_isaac/pedestrian/simulator/logic/people/character_frames.py b/arena_isaac/pedestrian/simulator/logic/people/character_frames.py
 new file mode 100644
-index 0000000000000000000000000000000000000000..1434ad9fa38ca47558e685e4352dff381efb30f0
+index 0000000..1434ad9
 --- /dev/null
 +++ b/arena_isaac/pedestrian/simulator/logic/people/character_frames.py
 @@ -0,0 +1,69 @@
@@ -2329,7 +2329,7 @@ index 0000000000000000000000000000000000000000..1434ad9fa38ca47558e685e4352dff38
 +        _multiply_quaternions(rendered, _CHARACTER_TO_ROS_OFFSET)
 +    )
 diff --git a/arena_isaac/pedestrian/simulator/logic/people/person.py b/arena_isaac/pedestrian/simulator/logic/people/person.py
-index 6a9927c9b138e1765029463edd17be79049ceee8..4e41c1a46d1f9e858bfbefad31fa180586a01169 100644
+index 6a9927c..4e41c1a 100644
 --- a/arena_isaac/pedestrian/simulator/logic/people/person.py
 +++ b/arena_isaac/pedestrian/simulator/logic/people/person.py
 @@ -15,6 +15,10 @@ from pxr import Gf, Sdf
@@ -2536,7 +2536,7 @@ index 6a9927c9b138e1765029463edd17be79049ceee8..4e41c1a46d1f9e858bfbefad31fa1805
      def _transverse_prim(stage, stage_prefix):
 diff --git a/arena_isaac/test/test_character_frames.py b/arena_isaac/test/test_character_frames.py
 new file mode 100644
-index 0000000000000000000000000000000000000000..efd7192fea048085d601297b6ffb868f954103f7
+index 0000000..efd7192
 --- /dev/null
 +++ b/arena_isaac/test/test_character_frames.py
 @@ -0,0 +1,74 @@
@@ -2616,7 +2616,7 @@ index 0000000000000000000000000000000000000000..efd7192fea048085d601297b6ffb868f
 +        ros_to_character_quaternion(invalid)
 diff --git a/arena_people_msgs/CMakeLists.txt b/arena_people_msgs/CMakeLists.txt
 new file mode 100644
-index 0000000000000000000000000000000000000000..9ff8deafed961ca6537648f6dcd891364e6829e0
+index 0000000..9ff8dea
 --- /dev/null
 +++ b/arena_people_msgs/CMakeLists.txt
 @@ -0,0 +1,21 @@
@@ -2643,7 +2643,7 @@ index 0000000000000000000000000000000000000000..9ff8deafed961ca6537648f6dcd89136
 +ament_package()
 diff --git a/arena_people_msgs/msg/Pedestrian.msg b/arena_people_msgs/msg/Pedestrian.msg
 new file mode 100644
-index 0000000000000000000000000000000000000000..3ddd1e7a4d2fb94506a26921e004b48d8564f4d4
+index 0000000..3ddd1e7
 --- /dev/null
 +++ b/arena_people_msgs/msg/Pedestrian.msg
 @@ -0,0 +1,4 @@
@@ -2653,7 +2653,7 @@ index 0000000000000000000000000000000000000000..3ddd1e7a4d2fb94506a26921e004b48d
 +string model_uri
 diff --git a/arena_people_msgs/msg/Pedestrians.msg b/arena_people_msgs/msg/Pedestrians.msg
 new file mode 100644
-index 0000000000000000000000000000000000000000..0e5f96be115423f2048cf0158e8c6442d706ef35
+index 0000000..0e5f96b
 --- /dev/null
 +++ b/arena_people_msgs/msg/Pedestrians.msg
 @@ -0,0 +1,2 @@
@@ -2661,7 +2661,7 @@ index 0000000000000000000000000000000000000000..0e5f96be115423f2048cf0158e8c6442
 +Pedestrian[] pedestrians
 diff --git a/arena_people_msgs/msg/SpawnPedestrian.msg b/arena_people_msgs/msg/SpawnPedestrian.msg
 new file mode 100644
-index 0000000000000000000000000000000000000000..ccae71ff1ac2fdaaf4936123460d3af481cf0084
+index 0000000..ccae71f
 --- /dev/null
 +++ b/arena_people_msgs/msg/SpawnPedestrian.msg
 @@ -0,0 +1,2 @@
@@ -2669,7 +2669,7 @@ index 0000000000000000000000000000000000000000..ccae71ff1ac2fdaaf4936123460d3af4
 +string model_ref
 diff --git a/arena_people_msgs/package.xml b/arena_people_msgs/package.xml
 new file mode 100644
-index 0000000000000000000000000000000000000000..4a6a068b377ce739adefad22b0c0b2f23ef07f62
+index 0000000..4a6a068
 --- /dev/null
 +++ b/arena_people_msgs/package.xml
 @@ -0,0 +1,20 @@
@@ -2695,7 +2695,7 @@ index 0000000000000000000000000000000000000000..4a6a068b377ce739adefad22b0c0b2f2
 +</package>
 diff --git a/arena_people_msgs/srv/DeletePedestrians.srv b/arena_people_msgs/srv/DeletePedestrians.srv
 new file mode 100644
-index 0000000000000000000000000000000000000000..5452e51bf87625eac43c1a445d0c123c96279a6f
+index 0000000..5452e51
 --- /dev/null
 +++ b/arena_people_msgs/srv/DeletePedestrians.srv
 @@ -0,0 +1,5 @@
@@ -2706,7 +2706,7 @@ index 0000000000000000000000000000000000000000..5452e51bf87625eac43c1a445d0c123c
 +int8[] results
 diff --git a/arena_people_msgs/srv/MovePedestrians.srv b/arena_people_msgs/srv/MovePedestrians.srv
 new file mode 100644
-index 0000000000000000000000000000000000000000..d9dccce1c88d3b1b09ef63cade15a296b5347a14
+index 0000000..d9dccce
 --- /dev/null
 +++ b/arena_people_msgs/srv/MovePedestrians.srv
 @@ -0,0 +1,5 @@
@@ -2717,7 +2717,7 @@ index 0000000000000000000000000000000000000000..d9dccce1c88d3b1b09ef63cade15a296
 +int8[] results
 diff --git a/arena_people_msgs/srv/SpawnPedestrians.srv b/arena_people_msgs/srv/SpawnPedestrians.srv
 new file mode 100644
-index 0000000000000000000000000000000000000000..b6d94936ca726ac3ae9413a1037efb22ee487a5a
+index 0000000..b6d9493
 --- /dev/null
 +++ b/arena_people_msgs/srv/SpawnPedestrians.srv
 @@ -0,0 +1,5 @@
@@ -2728,7 +2728,7 @@ index 0000000000000000000000000000000000000000..b6d94936ca726ac3ae9413a1037efb22
 +int8[] results
 diff --git a/arena_people_msgs/srv/UpdatePedestrians.srv b/arena_people_msgs/srv/UpdatePedestrians.srv
 new file mode 100644
-index 0000000000000000000000000000000000000000..082318cb2bd98b42e6943b61ac7f2f1e12cc1e45
+index 0000000..082318c
 --- /dev/null
 +++ b/arena_people_msgs/srv/UpdatePedestrians.srv
 @@ -0,0 +1,6 @@
