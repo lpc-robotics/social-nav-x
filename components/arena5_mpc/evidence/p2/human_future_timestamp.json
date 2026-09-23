@@ -1,0 +1,11 @@
+{
+  "action_status": 4,
+  "epoch_after": 4,
+  "epoch_before": 3,
+  "first_zero_latency_s": 0.019163404125720263,
+  "first_zero_observed": true,
+  "mode": "future",
+  "pass": true,
+  "service_ack_latency_s": 0.001876666210591793,
+  "service_response": "published one sample stamped 10 s in the future"
+}

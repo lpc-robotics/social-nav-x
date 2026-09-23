@@ -1,0 +1,132 @@
+{
+  "action_status": 4,
+  "backlog_delay_s": 0.25,
+  "backlog_injections": 0,
+  "bt_default_server_timeout_ms": 500,
+  "controller_failure_counts": {},
+  "controller_mode_counts": {
+    "human_wait": 97,
+    "track": 744
+  },
+  "controller_wait_reason_counts": {
+    "dynamic_postcheck": 96,
+    "solver_timeout": 1
+  },
+  "cycle_ms_max": 78.5012,
+  "cycle_ms_p95": 56.5339,
+  "end": [
+    8.019298553466797,
+    2.9462826251983643,
+    0.23607463341706256
+  ],
+  "expected_agents": 6,
+  "id_change_injections": 0,
+  "interaction_distance_gate_m": 1.5,
+  "outputs_finite": true,
+  "pass": true,
+  "position_error_m": 0.05707880974135873,
+  "run_metadata": {
+    "config_path": "/home/lpc/workspace/arena5_mpc_ws/src/arena_mpc_bringup/config/hunav/p4_multi_crossing.yaml",
+    "config_sha256": "603c99ceec4daac0b309be7d87ebee946871ee88c6ad823f8128dea55ed910b4",
+    "controller_config_sha256": "78f27edd6cc997bcabe90cb3b9c398073ea85265a46a96a7e26d65c323400283",
+    "controller_source_sha256": "9cff9195dc670bbe9845f26b0cb0418f2ac547f8d832d26dfdfbccfd0a343caf",
+    "foxglove_port": 9323,
+    "git_head": "b0a18f0ab89745ec7776c8e0be188471f9a62e73",
+    "gpu_index": 0,
+    "gpu_snapshot_csv": "0, GPU-cff28fa1-3402-3702-126b-d0cb66a69fb6, 24564, 281, 23800",
+    "launch_log": "/home/lpc/workspace/arena5_mpc_ws/evidence/p4/multi_crossing_run1_launch.log",
+    "launch_sha256": "0d0aba0fd223a6ee8552525147d54b993b287cf8f56cb479c7319260c5d0712f",
+    "nav2_overrides_sha256": "25e90bff609542a2c2728dcd49ed2a522d9b132825d8db84c825ce88c536cb43",
+    "probe_sha256": "2d481c028e7f73ed413316b1df5233413eb9dcbe760d964196f092dbf49a7391",
+    "ros_domain_id": 223,
+    "webrtc_media_port": 48723,
+    "webrtc_signal_port": 49723
+  },
+  "safety": {
+    "aligned_human_samples": 1247,
+    "clearance_samples": 7482,
+    "closest_sample": {
+      "human": [
+        5.360110991108074,
+        3.628135083786044,
+        0.4000000059604645
+      ],
+      "human_id": 101,
+      "robot": [
+        4.256129138296404,
+        2.9989490912653416,
+        -0.31414346453787995
+      ],
+      "stamp_ns": 11083333345
+    },
+    "human_speed_bound_mps": 0.25000000000000006,
+    "id_set_change_count": 0,
+    "ids_seen": [
+      101,
+      102,
+      103,
+      104,
+      105,
+      106
+    ],
+    "maximum_human_stamp_gap_s": 0.033334978,
+    "maximum_odom_bracket_s": 0.016666668000000003,
+    "maximum_step_velocity_heading_change_by_id_rad": {
+      "101": 0.012549484038451908,
+      "102": 0.07641885193800446,
+      "103": 3.1395440028441586,
+      "104": 3.0313435820866,
+      "105": 0.9055837900088849,
+      "106": 2.6612407115711942
+    },
+    "maximum_step_velocity_heading_change_rad": 3.1395440028441586,
+    "maximum_velocity_heading_excursion_by_id_rad": {
+      "101": 0.17009419387619729,
+      "102": 0.32012683849987744,
+      "103": 3.1554190017474792,
+      "104": 9.486367498882434,
+      "105": 6.521980376986763,
+      "106": 4.088037472375238
+    },
+    "minimum_clearance_lower_bound_by_id_m": {
+      "101": 0.523084099827604,
+      "102": 0.8405745325100473,
+      "103": 20.940803301312553,
+      "104": 21.398509911223986,
+      "105": 23.71196744670718,
+      "106": 23.61227187244644
+    },
+    "minimum_clearance_lower_bound_m": 0.523084099827604,
+    "minimum_measured_clearance_by_id_m": {
+      "101": 0.5468908643050409,
+      "102": 0.8643812969874842,
+      "103": 20.96461006578999,
+      "104": 21.422316675701424,
+      "105": 23.73577421118462,
+      "106": 23.636078636923877
+    },
+    "minimum_measured_footprint_human_clearance_m": 0.5468908643050409,
+    "sampling_alignment_error_bound_m": 0.02380676447743687,
+    "stopped_after_motion_ids": [
+      101,
+      102,
+      103,
+      104,
+      105,
+      106
+    ]
+  },
+  "scenario": "multi_crossing",
+  "simulation_duration_s": 31.200001627000002,
+  "solver_ms_max": 75.5797,
+  "solver_ms_p50": 41.4264,
+  "solver_ms_p95": 54.6183,
+  "solver_samples": 841,
+  "target": [
+    8.0,
+    3.0,
+    0.0
+  ],
+  "wall_duration_s": 85.16441556625068,
+  "yaw_error_rad": 0.23607463341706253
+}

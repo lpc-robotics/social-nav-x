@@ -1,0 +1,127 @@
+{
+  "action_status": 4,
+  "backlog_delay_s": 0.25,
+  "backlog_injections": 0,
+  "bt_default_server_timeout_ms": 500,
+  "controller_failure_counts": {},
+  "controller_mode_counts": {
+    "track": 538
+  },
+  "controller_wait_reason_counts": {},
+  "cycle_ms_max": 71.703,
+  "cycle_ms_p95": 41.5517,
+  "end": [
+    7.778323173522949,
+    2.9999990463256836,
+    2.2686987332247953e-06
+  ],
+  "expected_agents": 6,
+  "id_change_injections": 0,
+  "interaction_distance_gate_m": 1.5,
+  "outputs_finite": true,
+  "pass": true,
+  "position_error_m": 0.22167682647910217,
+  "run_metadata": {
+    "config_path": "/home/lpc/workspace/arena5_mpc_ws/src/arena_mpc_bringup/config/hunav/p4_stop_turn.yaml",
+    "config_sha256": "802a78254e8f2d54e8b6dec4bce42b11652c02fd6dd372b00e116e48d91bfc11",
+    "controller_config_sha256": "78f27edd6cc997bcabe90cb3b9c398073ea85265a46a96a7e26d65c323400283",
+    "controller_source_sha256": "9cff9195dc670bbe9845f26b0cb0418f2ac547f8d832d26dfdfbccfd0a343caf",
+    "foxglove_port": 9324,
+    "git_head": "b0a18f0ab89745ec7776c8e0be188471f9a62e73",
+    "gpu_index": 0,
+    "gpu_snapshot_csv": "0, GPU-cff28fa1-3402-3702-126b-d0cb66a69fb6, 24564, 45, 24037",
+    "launch_log": "/home/lpc/workspace/arena5_mpc_ws/evidence/p4/stop_turn_run1_launch.log",
+    "launch_sha256": "0d0aba0fd223a6ee8552525147d54b993b287cf8f56cb479c7319260c5d0712f",
+    "nav2_overrides_sha256": "25e90bff609542a2c2728dcd49ed2a522d9b132825d8db84c825ce88c536cb43",
+    "probe_sha256": "2d481c028e7f73ed413316b1df5233413eb9dcbe760d964196f092dbf49a7391",
+    "ros_domain_id": 224,
+    "webrtc_media_port": 48724,
+    "webrtc_signal_port": 49724
+  },
+  "safety": {
+    "aligned_human_samples": 833,
+    "clearance_samples": 4998,
+    "closest_sample": {
+      "human": [
+        5.1805616000644115,
+        4.179841271647998,
+        0.4000000059604645
+      ],
+      "human_id": 103,
+      "robot": [
+        4.78706921720579,
+        2.999854564698291,
+        -0.000284413011772401
+      ],
+      "stamp_ns": 8533333337
+    },
+    "human_speed_bound_mps": 0.25000000000000006,
+    "id_set_change_count": 0,
+    "ids_seen": [
+      101,
+      102,
+      103,
+      104,
+      105,
+      106
+    ],
+    "maximum_human_stamp_gap_s": 0.025,
+    "maximum_odom_bracket_s": 0.016666668000000003,
+    "maximum_step_velocity_heading_change_by_id_rad": {
+      "101": 3.141290254265133,
+      "102": 3.1388195475548493,
+      "103": 0.08006304387180929,
+      "104": 0.27850462729506154,
+      "105": 1.893872516869177,
+      "106": 2.46346385510014
+    },
+    "maximum_step_velocity_heading_change_rad": 3.141290254265133,
+    "maximum_velocity_heading_excursion_by_id_rad": {
+      "101": 3.1435151000009376,
+      "102": 6.285125795229661,
+      "103": 0.365030987475504,
+      "104": 1.4787551933006111,
+      "105": 6.221621454983153,
+      "106": 3.8026917603675567
+    },
+    "minimum_clearance_lower_bound_by_id_m": {
+      "101": 17.255986017371427,
+      "102": 19.374507919616796,
+      "103": 0.5519132467039272,
+      "104": 1.2046754489705318,
+      "105": 23.098298713493016,
+      "106": 24.661007151920856
+    },
+    "minimum_clearance_lower_bound_m": 0.5519132467039272,
+    "minimum_measured_clearance_by_id_m": {
+      "101": 17.27631052634352,
+      "102": 19.394832428588888,
+      "103": 0.5722377556760196,
+      "104": 1.2249999579426243,
+      "105": 23.118623222465107,
+      "106": 24.681331660892948
+    },
+    "minimum_measured_footprint_human_clearance_m": 0.5722377556760196,
+    "sampling_alignment_error_bound_m": 0.020324508972092488,
+    "stopped_after_motion_ids": [
+      101,
+      102,
+      103,
+      105,
+      106
+    ]
+  },
+  "scenario": "stop_turn",
+  "simulation_duration_s": 20.83333442,
+  "solver_ms_max": 69.0658,
+  "solver_ms_p50": 36.449600000000004,
+  "solver_ms_p95": 40.1151,
+  "solver_samples": 538,
+  "target": [
+    8.0,
+    3.0,
+    0.0
+  ],
+  "wall_duration_s": 54.84505735291168,
+  "yaw_error_rad": 2.2686987332247953e-06
+}

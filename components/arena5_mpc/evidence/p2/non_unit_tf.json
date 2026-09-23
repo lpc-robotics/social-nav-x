@@ -1,0 +1,11 @@
+{
+  "action_status": 4,
+  "mode": "transform",
+  "pass": true,
+  "target_error_m": 0.24143060059497415,
+  "transform_translation": [
+    1.0,
+    -0.7
+  ],
+  "transform_yaw_rad": 0.35
+}

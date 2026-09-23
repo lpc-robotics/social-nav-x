@@ -1,0 +1,7 @@
+{
+  "action_status": 4,
+  "end_yaw_error_rad": 0.2258902046659651,
+  "mode": "orientation",
+  "pass": true,
+  "requested_delta_rad": 0.8
+}

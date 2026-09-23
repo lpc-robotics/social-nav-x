@@ -1,0 +1,59 @@
+{
+  "all_action_status_succeeded": true,
+  "all_outputs_finite": true,
+  "common_hashes": {
+    "controller_config_sha256": "78f27edd6cc997bcabe90cb3b9c398073ea85265a46a96a7e26d65c323400283",
+    "controller_source_sha256": "cc2d2b8088a6cc29cb5c2cf9b67efb9a71990ca877e7c8dd1f522dabb46f979e",
+    "launch_sha256": "0d0aba0fd223a6ee8552525147d54b993b287cf8f56cb479c7319260c5d0712f",
+    "nav2_overrides_sha256": "bc6db58746f264c40567968db07463768de4c0dca16c4159d40081d7eae8b794",
+    "probe_sha256": "8b02a78d97ebb82e2ed361355c2b430a2bf0a805a4be444ba1d87d7ed4bd13f0"
+  },
+  "controller_mode_counts": {
+    "human_wait": 2463,
+    "track": 28552
+  },
+  "controller_wait_reason_counts": {
+    "dynamic_postcheck": 2163,
+    "solver_timeout": 300
+  },
+  "cycle_ms": {
+    "maximum": 89.8909,
+    "maximum_run_p95": 83.3879,
+    "p95_of_run_maxima": 88.2745
+  },
+  "expected_formal_result_count": 40,
+  "failures": [],
+  "formal_result_count": 40,
+  "gate": "PASS",
+  "maximum_sampling_alignment_error_bound_m": 0.04219950897209249,
+  "minimum_clearance_lower_bound_m": 0.4232326058360463,
+  "repetitions_per_scenario": 5,
+  "scenario_config_hashes": {
+    "backlog": "632c14eb81230e9450051b6ab1517f7c03e705b3df2e9d0bbe23c467454c8ee4",
+    "crossing": "cf8ffd4714dce884e4ca87e279283dbeb5d4b62d0f585d16e158ac9652106402",
+    "head_on": "a5ba6dccbe970b4267e5a5e40168f49d6c1b28fe65c3a0f8c521b81860fd8c6d",
+    "id_change": "13330f9287e52ce6d7939eda91443abb2cf67f44f8c4e9506de70adf8fa76331",
+    "multi_crossing": "603c99ceec4daac0b309be7d87ebee946871ee88c6ad823f8128dea55ed910b4",
+    "same_direction": "c04dfc67f8e2a997d99bfa8472dccebbea6393425fe8eca80240d516290eaad8",
+    "six_behaviors": "ac77047d69256d71fadca0aa958848cb9b30a0b15e3fcf91275514fc1a748b67",
+    "stop_turn": "802a78254e8f2d54e8b6dec4bce42b11652c02fd6dd372b00e116e48d91bfc11"
+  },
+  "scenarios": [
+    "crossing",
+    "head_on",
+    "same_direction",
+    "multi_crossing",
+    "stop_turn",
+    "id_change",
+    "backlog",
+    "six_behaviors"
+  ],
+  "solver_ms": {
+    "maximum": 88.5242,
+    "maximum_run_p95": 83.0115,
+    "p95_of_run_maxima": 87.8894
+  },
+  "total_simulation_duration_s": 983.566717966,
+  "total_solver_samples": 31015,
+  "total_wall_duration_s": 3154.322753782384
+}

@@ -1,0 +1,35 @@
+{
+  "classification": "rejected_near_goal_convergence_stall",
+  "completed_before_interruption": {
+    "failed_to_make_progress": 0,
+    "goal_failed": 0,
+    "successful_goals": 1
+  },
+  "disposition": "run stopped before gate failure; fix terminal convergence instead of relaxing progress or goal tolerances",
+  "observed_stall": {
+    "cmd_angular_z_radps": 1.2920891957809728e-05,
+    "cmd_linear_x_mps": 5.093184763703797e-05,
+    "controller_mode": "track",
+    "odom_xy": [
+      3.1900522708892822,
+      2.8228094577789307
+    ],
+    "position_error_m": 0.2598202102,
+    "target_xy": [
+      3.0,
+      3.0
+    ]
+  },
+  "pass": false,
+  "reason": "MPC reported track but produced near-zero command about 0.260 m from a 0.25 m goal tolerance",
+  "run_metadata": {
+    "controller_source_sha256": "ee096d55f3238ff8a630263b0c10f56f63c97b12b3a6499d0a77e82c63d9cad5",
+    "git_head": "2069f5e",
+    "gpu_index": 3,
+    "launch_log": "/home/lpc/workspace/arena5_mpc_ws/evidence/abort_fix/endurance_30min_rejected_goal_convergence_launch.log",
+    "nav2_overrides_sha256": "ec5640173bd56930ca2aec6ac97368354a973f486210f4634ae6621a30841fe0",
+    "probe_sha256": "66dd150bca3289e31058b9980704cd411a9916246aabb49ae0d8169c22196939",
+    "progress_checker_source_sha256": "3ad2f4cc54fa2ba54a5523a0d805cfc76d59bd7aa8916bf4eaa9fef75a1bb727",
+    "ros_domain_id": 207
+  }
+}

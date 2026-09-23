@@ -1,0 +1,76 @@
+{
+  "pass": true,
+  "publishers": {
+    "/cmd_vel": [
+      {
+        "durability": "2",
+        "node_name": "mpc_command_watchdog",
+        "node_namespace": "/",
+        "reliability": "1",
+        "topic_type": "geometry_msgs/msg/Twist"
+      }
+    ],
+    "/odom": [
+      {
+        "durability": "2",
+        "node_name": "_World_arena_robot_odom_publisher_publish_odom_topic",
+        "node_namespace": "/",
+        "reliability": "1",
+        "topic_type": "nav_msgs/msg/Odometry"
+      }
+    ],
+    "/tf": [
+      {
+        "durability": "2",
+        "node_name": "_World_arena_robot_odom_publisher_publish_odom",
+        "node_namespace": "/",
+        "reliability": "1",
+        "topic_type": "tf2_msgs/msg/TFMessage"
+      },
+      {
+        "durability": "2",
+        "node_name": "_World_arena_robot_odom_publisher_publish_odom_static",
+        "node_namespace": "/",
+        "reliability": "1",
+        "topic_type": "tf2_msgs/msg/TFMessage"
+      },
+      {
+        "durability": "2",
+        "node_name": "robot_state_publisher",
+        "node_namespace": "/",
+        "reliability": "1",
+        "topic_type": "tf2_msgs/msg/TFMessage"
+      }
+    ],
+    "/tf_static": [
+      {
+        "durability": "1",
+        "node_name": "robot_state_publisher",
+        "node_namespace": "/",
+        "reliability": "1",
+        "topic_type": "tf2_msgs/msg/TFMessage"
+      }
+    ]
+  },
+  "tf_children_with_multiple_parents": {},
+  "tf_parent_by_child": {
+    "base_link": [
+      "odom"
+    ],
+    "front_left_wheel_link": [
+      "chassis_link"
+    ],
+    "front_right_wheel_link": [
+      "chassis_link"
+    ],
+    "odom": [
+      "map"
+    ],
+    "rear_left_wheel_link": [
+      "chassis_link"
+    ],
+    "rear_right_wheel_link": [
+      "chassis_link"
+    ]
+  }
+}

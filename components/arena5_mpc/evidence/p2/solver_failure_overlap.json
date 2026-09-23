@@ -1,0 +1,19 @@
+{
+  "action_status": 6,
+  "controller_failure_statuses": [
+    "stop failure=1 reason=MPC solve rejected: Maximum_WallTime_Exceeded solve_ms=78.7707",
+    "stop failure=2 reason=MPC solve rejected: Maximum_WallTime_Exceeded solve_ms=80.6836",
+    "stop failure=3 reason=MPC solve rejected: Maximum_WallTime_Exceeded solve_ms=78.2925",
+    "stop failure=4 reason=MPC solve rejected: Maximum_WallTime_Exceeded solve_ms=78.668",
+    "stop failure=5 reason=MPC solve rejected: Maximum_WallTime_Exceeded solve_ms=80.511",
+    "stop failure=6 reason=MPC solve rejected: Maximum_WallTime_Exceeded solve_ms=80.1787"
+  ],
+  "first_zero_latency_s": 0.136920346878469,
+  "mode": "forced_overlap_solver_failure",
+  "nonzero_after_first_zero": 0,
+  "pass": true,
+  "physical_stop_sim_time_s": 0.4000000210000003,
+  "watchdog_stop_statuses": [
+    "stop reason=controller_status"
+  ]
+}

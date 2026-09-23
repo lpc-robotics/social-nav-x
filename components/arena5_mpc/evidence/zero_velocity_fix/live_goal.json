@@ -1,0 +1,72 @@
+{
+  "action_status": 0,
+  "controller_failure_counts": {
+    "plugin commit deadline exceeded while waiting": 8
+  },
+  "controller_status_tail": [
+    "ok generation=75 epoch=2 solve_ms=82.6335 cycle_ms=83.2508 humans=6 mode=human_wait goal_phase=position goal_distance=2.73857 wait_reason=solver_infeasible",
+    "ok generation=75 epoch=2 solve_ms=80.5511 cycle_ms=81.2688 humans=6 mode=human_wait goal_phase=position goal_distance=2.73857 wait_reason=solver_timeout",
+    "ok generation=75 epoch=2 solve_ms=85.3867 cycle_ms=86.0045 humans=6 mode=human_wait goal_phase=position goal_distance=2.73857 wait_reason=solver_timeout",
+    "ok generation=75 epoch=2 solve_ms=68.989 cycle_ms=69.6029 humans=6 mode=human_wait goal_phase=position goal_distance=2.73857 wait_reason=solver_infeasible",
+    "ok generation=75 epoch=2 solve_ms=67.8135 cycle_ms=68.4969 humans=6 mode=human_wait goal_phase=position goal_distance=2.73857 wait_reason=solver_infeasible",
+    "ok generation=75 epoch=2 solve_ms=71.8003 cycle_ms=72.4462 humans=6 mode=human_wait goal_phase=position goal_distance=2.73857 wait_reason=solver_infeasible",
+    "ok generation=75 epoch=2 solve_ms=70.6441 cycle_ms=71.3707 humans=6 mode=human_wait goal_phase=position goal_distance=2.73857 wait_reason=solver_infeasible",
+    "ok generation=75 epoch=2 solve_ms=83.2726 cycle_ms=83.9746 humans=6 mode=human_wait goal_phase=position goal_distance=2.73857 wait_reason=solver_infeasible",
+    "ok generation=75 epoch=2 solve_ms=81.4338 cycle_ms=82.0797 humans=6 mode=human_wait goal_phase=position goal_distance=2.73857 wait_reason=solver_timeout",
+    "ok generation=75 epoch=2 solve_ms=80.0471 cycle_ms=81.3349 humans=6 mode=human_wait goal_phase=position goal_distance=2.73857 wait_reason=solver_infeasible",
+    "ok generation=75 epoch=2 solve_ms=78.926 cycle_ms=79.7765 humans=6 mode=human_wait goal_phase=position goal_distance=2.73857 wait_reason=solver_timeout",
+    "ok generation=75 epoch=2 solve_ms=81.5546 cycle_ms=82.2322 humans=6 mode=human_wait goal_phase=position goal_distance=2.73857 wait_reason=solver_timeout"
+  ],
+  "cross_boundary_samples": 1790,
+  "cycle_ms_max": 88.0893,
+  "cycle_ms_p95": 83.6156,
+  "displacement_m": 3.142689103513966,
+  "end": [
+    5.84368371963501,
+    4.337893009185791
+  ],
+  "full_command_ms_max": 88.53819182212352,
+  "full_command_ms_p95": 84.18669809305072,
+  "full_command_ms_p99": 86.57163214402199,
+  "full_command_over_100ms_fraction": 0.0,
+  "goal": [
+    8.1906501,
+    5.7491006
+  ],
+  "minimum_sampled_footprint_human_clearance_m": 0.3832359726167913,
+  "output_interval_p95_s": 0.02041572332382202,
+  "output_linear_max": 0.3002050340175629,
+  "output_nonzero_fraction": 0.3793866932359128,
+  "pass": false,
+  "raw_interval_p95_s": 0.1196469129063189,
+  "raw_linear_max": 0.3002050340175629,
+  "solver_ms_max": 87.3511,
+  "solver_ms_p50": 76.708,
+  "solver_ms_p95": 82.4678,
+  "start": [
+    3.0,
+    3.0
+  ],
+  "status_to_raw_ms_max": 3.4310491755604744,
+  "status_to_raw_ms_p95": 0.8986033499240875,
+  "succeeded": false,
+  "successful_solves": 1790,
+  "watchdog_status_tail": [
+    "stop reason=controller_status",
+    "stop reason=command_sequence",
+    "ok forwarding",
+    "stop reason=controller_status",
+    "stop reason=command_sequence",
+    "ok forwarding",
+    "stop reason=controller_status",
+    "stop reason=command_sequence",
+    "ok forwarding",
+    "stop reason=controller_status",
+    "stop reason=command_sequence",
+    "ok forwarding"
+  ],
+  "watchdog_stop_counts": {
+    "command_sequence": 9,
+    "controller_status": 8
+  }
+}

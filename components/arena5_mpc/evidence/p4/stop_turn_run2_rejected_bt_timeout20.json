@@ -1,0 +1,123 @@
+{
+  "action_status": 6,
+  "backlog_delay_s": 0.25,
+  "backlog_injections": 0,
+  "controller_failure_counts": {},
+  "controller_mode_counts": {
+    "track": 375
+  },
+  "controller_wait_reason_counts": {},
+  "cycle_ms_max": 67.3732,
+  "cycle_ms_p95": 50.4798,
+  "end": [
+    5.780866622924805,
+    2.9999544620513916,
+    0.0001507988648919135
+  ],
+  "expected_agents": 6,
+  "id_change_injections": 0,
+  "interaction_distance_gate_m": 1.5,
+  "outputs_finite": true,
+  "pass": false,
+  "position_error_m": 2.2191333775424282,
+  "run_metadata": {
+    "config_path": "/home/lpc/workspace/arena5_mpc_ws/src/arena_mpc_bringup/config/hunav/p4_stop_turn.yaml",
+    "config_sha256": "802a78254e8f2d54e8b6dec4bce42b11652c02fd6dd372b00e116e48d91bfc11",
+    "controller_source_sha256": "1eb2905e6fe5eebca8ff051c5722e90feeab65d141b29614190288490b9a1ead",
+    "foxglove_port": 9244,
+    "git_head": "b0a18f0ab89745ec7776c8e0be188471f9a62e73",
+    "gpu_index": 0,
+    "gpu_snapshot_csv": "0, GPU-cff28fa1-3402-3702-126b-d0cb66a69fb6, 24564, 636, 23446",
+    "launch_log": "/home/lpc/workspace/arena5_mpc_ws/evidence/p4/stop_turn_run2_launch.log",
+    "launch_sha256": "0d0aba0fd223a6ee8552525147d54b993b287cf8f56cb479c7319260c5d0712f",
+    "probe_sha256": "f4878cf22bdf927259505814521813c4537862355a69ff6ec5a9b9439c24a8e2",
+    "ros_domain_id": 144,
+    "webrtc_media_port": 48644,
+    "webrtc_signal_port": 49644
+  },
+  "safety": {
+    "aligned_human_samples": 491,
+    "clearance_samples": 2946,
+    "closest_sample": {
+      "human": [
+        5.18645358045993,
+        4.181728945043797,
+        0.4000000059604645
+      ],
+      "human_id": 103,
+      "robot": [
+        4.805747160999991,
+        2.999889731438601,
+        -0.00019768331051750232
+      ],
+      "stamp_ns": 8508333337
+    },
+    "human_speed_bound_mps": 0.25000000000000006,
+    "id_set_change_count": 0,
+    "ids_seen": [
+      101,
+      102,
+      103,
+      104,
+      105,
+      106
+    ],
+    "maximum_human_stamp_gap_s": 0.025,
+    "maximum_odom_bracket_s": 0.016666668000000003,
+    "maximum_step_velocity_heading_change_by_id_rad": {
+      "101": 3.141290254265133,
+      "102": 3.1218538618055853,
+      "103": 0.06765407193142936,
+      "104": 0.2776693763260669,
+      "105": 0.31722394336994375,
+      "106": 2.46346385510014
+    },
+    "maximum_step_velocity_heading_change_rad": 3.141290254265133,
+    "maximum_velocity_heading_excursion_by_id_rad": {
+      "101": 3.1435366438043943,
+      "102": 3.1444225489914523,
+      "103": 0.3695852434103988,
+      "104": 1.4849395472167952,
+      "105": 2.337760290593815,
+      "106": 3.060554992389199
+    },
+    "minimum_clearance_lower_bound_by_id_m": {
+      "101": 18.668333978455745,
+      "102": 20.658082349842903,
+      "103": 0.5517927677492375,
+      "104": 1.207190508104199,
+      "105": 25.822442350541614,
+      "106": 25.24655882053905
+    },
+    "minimum_clearance_lower_bound_m": 0.5517927677492375,
+    "minimum_measured_clearance_by_id_m": {
+      "101": 18.688658487427837,
+      "102": 20.678406858814995,
+      "103": 0.57211727672133,
+      "104": 1.2275150170762914,
+      "105": 25.842766859513706,
+      "106": 25.266883329511142
+    },
+    "minimum_measured_footprint_human_clearance_m": 0.57211727672133,
+    "sampling_alignment_error_bound_m": 0.020324508972092488,
+    "stopped_after_motion_ids": [
+      101,
+      102,
+      103,
+      106
+    ]
+  },
+  "scenario": "stop_turn",
+  "simulation_duration_s": 12.283333974000001,
+  "solver_ms_max": 65.594,
+  "solver_ms_p50": 41.2746,
+  "solver_ms_p95": 48.2092,
+  "solver_samples": 375,
+  "target": [
+    8.0,
+    3.0,
+    0.0
+  ],
+  "wall_duration_s": 37.696841035969555,
+  "yaw_error_rad": 0.0001507988648919135
+}

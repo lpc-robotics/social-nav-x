@@ -1,0 +1,21 @@
+{
+  "run": "20260907_164616_six_behaviors_gpu3",
+  "duration_wall_s": 60.03881666390225,
+  "note": "Fast DDS reported endpoint history/depth as UNKNOWN/0. Source inspection separately establishes create_publisher(..., 1) for human_states.",
+  "endpoints": {
+    "/human_states": {"node": "/hunav_agent_manager", "type": "hunav_msgs/msg/Agents", "reliability": "RELIABLE", "durability": "VOLATILE", "history": "UNKNOWN", "depth": 0},
+    "/odom": {"node": "/_World_arena_robot_odom_publisher_publish_odom_topic", "type": "nav_msgs/msg/Odometry", "reliability": "RELIABLE", "durability": "VOLATILE", "history": "UNKNOWN", "depth": 0},
+    "/lidar": {"node": "/_Render_PostProcess_SDGPipeline_Replicator_01_NodeWriterWriter", "type": "sensor_msgs/msg/LaserScan", "reliability": "RELIABLE", "durability": "VOLATILE", "history": "UNKNOWN", "depth": 0},
+    "/clock": {"node": "/_World_publish_time_publish_clock", "type": "rosgraph_msgs/msg/Clock", "reliability": "RELIABLE", "durability": "VOLATILE", "history": "UNKNOWN", "depth": 0},
+    "/local_costmap/costmap": {"node": "/local_costmap/local_costmap", "type": "nav_msgs/msg/OccupancyGrid", "reliability": "RELIABLE", "durability": "TRANSIENT_LOCAL", "history": "UNKNOWN", "depth": 0},
+    "/global_costmap/costmap": {"node": "/global_costmap/global_costmap", "type": "nav_msgs/msg/OccupancyGrid", "reliability": "RELIABLE", "durability": "TRANSIENT_LOCAL", "history": "UNKNOWN", "depth": 0}
+  },
+  "topics": {
+    "/human_states": {"count": 722, "wall_hz": 12.025553468879332, "wall_interval_p50_s": 0.0815399382263422, "wall_interval_p95_s": 0.14082328602671623, "wall_interval_p99_s": 0.19950300501659513, "stamp_interval_p50_s": 0.025000000000005684, "stamp_non_monotonic": 0, "clock_minus_stamp_p50_s": 0.004172081999996635, "clock_minus_stamp_p95_s": 0.008339124000002585, "clock_minus_stamp_p99_s": 0.008339199999994662, "frame_ids": ["map"], "agent_ids": [1,2,3,4,5,6], "agent_counts": [6]},
+    "/odom": {"count": 1083, "wall_hz": 18.038330203319, "wall_interval_p50_s": 0.05034088669344783, "wall_interval_p95_s": 0.08028736198320985, "wall_interval_p99_s": 0.12995790410786867, "stamp_interval_p50_s": 0.016666667999999163, "stamp_non_monotonic": 0, "clock_minus_stamp_p50_s": 0.0, "clock_minus_stamp_p95_s": 0.0, "clock_minus_stamp_p99_s": 0.0, "frame_ids": ["odom"]},
+    "/lidar": {"count": 181, "wall_hz": 3.0147163128354006, "wall_interval_p50_s": 0.31438677688129246, "wall_interval_p95_s": 0.4319314081221819, "wall_interval_p99_s": 0.5109584429301322, "stamp_interval_p50_s": 0.10000000499999828, "stamp_non_monotonic": 0, "clock_minus_stamp_p50_s": 0.016666667999999163, "clock_minus_stamp_p95_s": 0.016666667999999163, "clock_minus_stamp_p99_s": 0.016666668000013374, "frame_ids": ["lidar_link"]},
+    "/clock": {"count": 1084, "wall_hz": 18.054986094550134, "wall_interval_p50_s": 0.050313828978687525, "wall_interval_p95_s": 0.08027222799137235, "wall_interval_p99_s": 0.12839840818196535, "stamp_interval_p50_s": 0.016666667999999163, "stamp_non_monotonic": 0},
+    "/local_costmap/costmap": {"count": 171, "wall_hz": 2.848157400524052, "wall_interval_p50_s": 0.30242737801745534, "wall_interval_p95_s": 0.40193071495741606, "wall_interval_p99_s": 0.5002582129091024, "stamp_interval_p50_s": 0.10000000500001249, "stamp_non_monotonic": 0, "clock_minus_stamp_p50_s": 0.0, "clock_minus_stamp_p95_s": 0.0, "clock_minus_stamp_p99_s": 0.0, "frame_ids": ["odom"]},
+    "/global_costmap/costmap": {"count": 34, "wall_hz": 0.5663003018585835, "wall_interval_p50_s": 1.6005591349676251, "wall_interval_p95_s": 2.001234682276845, "wall_interval_p99_s": 2.2000123453326523, "stamp_interval_p50_s": 0.5166666940000084, "stamp_non_monotonic": 0, "clock_minus_stamp_p50_s": 0.0, "clock_minus_stamp_p95_s": 0.01666666700000974, "clock_minus_stamp_p99_s": 0.01666666700000974, "frame_ids": ["map"]}
+  }
+}

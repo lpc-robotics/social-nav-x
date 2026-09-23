@@ -1,0 +1,127 @@
+{
+  "action_status": 4,
+  "backlog_delay_s": 0.25,
+  "backlog_injections": 0,
+  "bt_default_server_timeout_ms": 500,
+  "controller_failure_counts": {},
+  "controller_mode_counts": {
+    "track": 541
+  },
+  "controller_wait_reason_counts": {},
+  "cycle_ms_max": 49.9116,
+  "cycle_ms_p95": 40.6602,
+  "end": [
+    7.77938985824585,
+    2.9999961853027344,
+    8.933044178581484e-06
+  ],
+  "expected_agents": 6,
+  "id_change_injections": 0,
+  "interaction_distance_gate_m": 1.5,
+  "outputs_finite": true,
+  "pass": true,
+  "position_error_m": 0.22061014178713145,
+  "run_metadata": {
+    "config_path": "/home/lpc/workspace/arena5_mpc_ws/src/arena_mpc_bringup/config/hunav/p4_head_on.yaml",
+    "config_sha256": "a5ba6dccbe970b4267e5a5e40168f49d6c1b28fe65c3a0f8c521b81860fd8c6d",
+    "controller_config_sha256": "78f27edd6cc997bcabe90cb3b9c398073ea85265a46a96a7e26d65c323400283",
+    "controller_source_sha256": "cc2d2b8088a6cc29cb5c2cf9b67efb9a71990ca877e7c8dd1f522dabb46f979e",
+    "foxglove_port": 9271,
+    "git_head": "b0a18f0ab89745ec7776c8e0be188471f9a62e73",
+    "gpu_index": 0,
+    "gpu_snapshot_csv": "0, GPU-cff28fa1-3402-3702-126b-d0cb66a69fb6, 24564, 45, 24037",
+    "launch_log": "/home/lpc/workspace/arena5_mpc_ws/evidence/p4/head_on_run2_launch.log",
+    "launch_sha256": "0d0aba0fd223a6ee8552525147d54b993b287cf8f56cb479c7319260c5d0712f",
+    "nav2_overrides_sha256": "25e90bff609542a2c2728dcd49ed2a522d9b132825d8db84c825ce88c536cb43",
+    "probe_sha256": "2d481c028e7f73ed413316b1df5233413eb9dcbe760d964196f092dbf49a7391",
+    "ros_domain_id": 171,
+    "webrtc_media_port": 48671,
+    "webrtc_signal_port": 49671
+  },
+  "safety": {
+    "aligned_human_samples": 834,
+    "clearance_samples": 5004,
+    "closest_sample": {
+      "human": [
+        5.716437284717556,
+        4.255348107064999,
+        0.4000000059604645
+      ],
+      "human_id": 101,
+      "robot": [
+        5.361352781509088,
+        2.9998931885002946,
+        -0.00015784811420543874
+      ],
+      "stamp_ns": 11000000020
+    },
+    "human_speed_bound_mps": 0.25000000000000006,
+    "id_set_change_count": 0,
+    "ids_seen": [
+      101,
+      102,
+      103,
+      104,
+      105,
+      106
+    ],
+    "maximum_human_stamp_gap_s": 0.025,
+    "maximum_odom_bracket_s": 0.016666668000000003,
+    "maximum_step_velocity_heading_change_by_id_rad": {
+      "101": 0.003341494630284103,
+      "102": 2.9309434351571455,
+      "103": 2.9149888845125953,
+      "104": 2.835520749140971,
+      "105": 0.9043736127298487,
+      "106": 2.1228716200466597
+    },
+    "maximum_step_velocity_heading_change_rad": 2.9309434351571455,
+    "maximum_velocity_heading_excursion_by_id_rad": {
+      "101": 0.2859545041043954,
+      "102": 3.2094109531638857,
+      "103": 3.2168255082728225,
+      "104": 6.281195862371781,
+      "105": 3.5385289389270813,
+      "106": 4.045636367365209
+    },
+    "minimum_clearance_lower_bound_by_id_m": {
+      "101": 0.6215400639311488,
+      "102": 19.296053890343615,
+      "103": 20.73293040529261,
+      "104": 22.07932067422523,
+      "105": 23.46744853000848,
+      "106": 24.623425681025495
+    },
+    "minimum_clearance_lower_bound_m": 0.6215400639311488,
+    "minimum_measured_clearance_by_id_m": {
+      "101": 0.6418645729032413,
+      "102": 19.316378399315706,
+      "103": 20.7532549142647,
+      "104": 22.09964518319732,
+      "105": 23.48777303898057,
+      "106": 24.643750189997586
+    },
+    "minimum_measured_footprint_human_clearance_m": 0.6418645729032413,
+    "sampling_alignment_error_bound_m": 0.020324508972092488,
+    "stopped_after_motion_ids": [
+      102,
+      103,
+      104,
+      105,
+      106
+    ]
+  },
+  "scenario": "head_on",
+  "simulation_duration_s": 20.850001088000003,
+  "solver_ms_max": 47.4613,
+  "solver_ms_p50": 36.1309,
+  "solver_ms_p95": 39.3669,
+  "solver_samples": 541,
+  "target": [
+    8.0,
+    3.0,
+    0.0
+  ],
+  "wall_duration_s": 55.03605104982853,
+  "yaw_error_rad": 8.933044178581484e-06
+}

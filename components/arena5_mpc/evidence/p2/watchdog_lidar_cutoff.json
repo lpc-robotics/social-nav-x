@@ -1,0 +1,8 @@
+{
+  "first_zero_from_cutoff_s": 0.2799595408141613,
+  "mode": "standalone_watchdog_lidar_cutoff",
+  "nonzero_after_first_zero": 0,
+  "pass": true,
+  "reason_from_cutoff_s": 0.2801264929585159,
+  "ros_age_timeout_s": 0.3
+}

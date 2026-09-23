@@ -1,0 +1,118 @@
+bt_navigator:
+  ros__parameters:
+    # Humble defaults BT action/service acknowledgements to 20 ms. MPC has a
+    # 90 ms complete-cycle deadline, so allow several BT ticks for path-goal
+    # updates without changing the command watchdog deadline.
+    default_server_timeout: 500
+
+controller_server:
+  ros__parameters:
+    controller_frequency: 10.0
+    failure_tolerance: 0.0
+    progress_checker:
+      plugin: "arena_mpc_controller::SafetyAwareProgressChecker"
+      # Count 5 cm as genuine progress. Only fresh MPC human_wait/safety_wait
+      # status pauses the active-tracking timer; an ordinary tracking stall is
+      # still bounded by 120 simulated seconds.
+      required_movement_radius: 0.05
+      required_movement_angle: 0.1
+      movement_time_allowance: 120.0
+      status_topic: "/FollowPath/status"
+      status_timeout: 1.0
+
+local_costmap:
+  local_costmap:
+    ros__parameters:
+      update_frequency: 10.0
+      publish_frequency: 10.0
+      footprint: "[ [0.24, 0.22], [0.24, -0.22], [-0.24, -0.22], [-0.24, 0.22] ]"
+      footprint_padding: 0.0
+      voxel_layer:
+        # The raw RTX scan remains the marking source. Render-depth endpoints
+        # are clearing-only because RTX invalid bins (-1/0/NaN) do not prove
+        # free space and therefore cannot safely be rewritten in /lidar.
+        observation_sources: "lidar depth_clearing"
+        lidar:
+          expected_update_rate: 0.3
+        depth_clearing:
+          topic: /lidar_clearing
+          data_type: PointCloud2
+          marking: false
+          clearing: true
+          min_obstacle_height: 0.0
+          max_obstacle_height: 2.0
+          raytrace_min_range: 0.0
+          raytrace_max_range: 3.0
+          observation_persistence: 0.0
+
+global_costmap:
+  global_costmap:
+    ros__parameters:
+      # Keep transient lidar returns out of global planning.  The raw RTX lidar
+      # stream does not provide reliable free-space rays for clearing, so a
+      # global ObstacleLayer can preserve stale lethal cells and make Navfn
+      # report a false no-path condition.  Static structure remains in the map;
+      # lidar and /human_states avoidance stay active in the local MPC path.
+      plugins: ["static_layer", "inflation_layer"]
+      footprint: "[ [0.24, 0.22], [0.24, -0.22], [-0.24, -0.22], [-0.24, 0.22] ]"
+      footprint_padding: 0.0
+      track_unknown_space: true
+      inflation_layer:
+        inflation_radius: 0.55
+
+planner_server:
+  ros__parameters:
+    GridBased:
+      allow_unknown: false
+
+velocity_smoother:
+  ros__parameters:
+    use_sim_time: true
+    smoothing_frequency: 20.0
+    scale_velocities: false
+    feedback: "OPEN_LOOP"
+    max_velocity: [0.8, 0.0, 1.5]
+    min_velocity: [-0.8, 0.0, -1.5]
+    max_accel: [2.0, 0.0, 3.2]
+    max_decel: [-2.0, 0.0, -3.2]
+    odom_topic: "/odom"
+    odom_duration: 0.1
+    deadband_velocity: [0.0, 0.0, 0.0]
+    velocity_timeout: 0.25
+
+mpc_command_watchdog:
+  ros__parameters:
+    use_sim_time: true
+    raw_topic: "/cmd_vel_nav"
+    smooth_topic: "/cmd_vel_watchdog_in"
+    output_topic: "/cmd_vel"
+    status_topic: "/FollowPath/status"
+    human_topic: "/human_states"
+    odom_topic: "/odom"
+    lidar_topic: "/lidar"
+    costmap_topic: "/local_costmap/costmap_raw"
+    command_lease: 0.25
+    ros_age_timeout: 0.3
+    future_tolerance: 0.05
+    human_wall_timeout: 0.6
+    odom_wall_timeout: 0.4
+    lidar_wall_timeout: 1.55
+    costmap_wall_timeout: 1.55
+
+mpc_visualizer:
+  ros__parameters:
+    use_sim_time: true
+    global_plan_input_topic: "/plan"
+    local_trajectory_input_topic: "/FollowPath/predicted_path"
+    human_input_topic: "/human_states"
+    global_plan_output_topic: "/mpc/global_plan"
+    local_trajectory_output_topic: "/mpc/local_trajectory"
+    human_markers_output_topic: "/mpc/human_markers"
+    prediction_horizon: 2.5
+    prediction_dt: 0.1
+    robot_circumscribed_radius: 0.326
+    safe_distance: 0.35
+    geometry_uncertainty: 0.05
+    human_body_height: 1.7
+    marker_lifetime: 0.6
+    maximum_measurement_age: 0.3

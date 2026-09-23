@@ -1,0 +1,92 @@
+{
+  "action_status": 6,
+  "backlog_delay_s": 0.25,
+  "backlog_injections": 0,
+  "controller_failure_counts": {
+    "input expired before command commit": 1,
+    "latest HuNav update invalidated measured braking trajectory": 1,
+    "measured braking trajectory failed swept HuNav check after MPC solve rejected: Maximum_WallTime_Exceeded": 4
+  },
+  "controller_mode_counts": {
+    "human_wait": 173,
+    "track": 347
+  },
+  "controller_wait_reason_counts": {
+    "dynamic_postcheck": 77,
+    "solver_timeout": 96
+  },
+  "cycle_ms_max": 86.8395,
+  "cycle_ms_p95": 82.4514,
+  "end": [
+    4.663580894470215,
+    3.034041404724121,
+    0.3291777805063306
+  ],
+  "expected_agents": 6,
+  "id_change_injections": 0,
+  "interaction_distance_gate_m": 1.5,
+  "outputs_finite": true,
+  "pass": false,
+  "position_error_m": 3.336592762831533,
+  "safety": {
+    "aligned_human_samples": 474,
+    "clearance_samples": 2844,
+    "closest_sample": {
+      "human": [
+        5.629357731065171,
+        2.6376308808434183,
+        0.4000000059604645
+      ],
+      "human_id": 101,
+      "robot": [
+        4.663580894470215,
+        3.034041404724121,
+        0.32917771256412387
+      ],
+      "stamp_ns": 12233333340
+    },
+    "human_speed_bound_mps": 0.25,
+    "id_set_change_count": 0,
+    "ids_seen": [
+      101,
+      102,
+      103,
+      104,
+      105,
+      106
+    ],
+    "maximum_human_stamp_gap_s": 0.025,
+    "maximum_odom_bracket_s": 0.016666668000000003,
+    "maximum_step_velocity_heading_change_by_id_rad": {
+      "101": 0.009756739392296154,
+      "102": 2.9309434351571455,
+      "103": 2.914988884512595,
+      "104": 1.4706543148495899,
+      "105": 0.012405498283670989,
+      "106": 2.1228716200466597
+    },
+    "maximum_step_velocity_heading_change_rad": 2.9309434351571455,
+    "minimum_clearance_lower_bound_m": 0.2981938412528312,
+    "minimum_measured_footprint_human_clearance_m": 0.3185183502249237,
+    "sampling_alignment_error_bound_m": 0.020324508972092488,
+    "stopped_after_motion_ids": [
+      102,
+      103,
+      104,
+      106
+    ]
+  },
+  "scenario": "head_on",
+  "simulation_duration_s": 11.866667285,
+  "solver_ms_max": 85.8141,
+  "solver_ms_p50": 47.81135,
+  "solver_ms_p95": 81.0785,
+  "solver_samples": 520,
+  "target": [
+    8.0,
+    3.0,
+    0.0
+  ],
+  "wall_duration_s": 53.54179378319532,
+  "yaw_error_rad": 0.3291777805063306
+}

@@ -1,0 +1,87 @@
+{
+  "action_status": 6,
+  "backlog_delay_s": 0.25,
+  "backlog_injections": 0,
+  "controller_failure_counts": {
+    "MPC solve rejected: Maximum_WallTime_Exceeded": 14,
+    "MPC solve rejected: Solve_Succeeded: measured solver budget exceeded": 18
+  },
+  "controller_mode_counts": {
+    "human_wait": 64,
+    "track": 298
+  },
+  "cycle_ms_max": 77.326,
+  "cycle_ms_p95": 72.3236,
+  "end": [
+    4.694771766662598,
+    3.0301148891448975,
+    0.2430516680528753
+  ],
+  "expected_agents": 6,
+  "id_change_injections": 0,
+  "interaction_distance_gate_m": 1.5,
+  "outputs_finite": true,
+  "pass": false,
+  "position_error_m": 3.30536542321706,
+  "safety": {
+    "aligned_human_samples": 411,
+    "clearance_samples": 2466,
+    "closest_sample": {
+      "human": [
+        5.89201401127168,
+        2.7517245433893547,
+        0.4000000059604645
+      ],
+      "human_id": 101,
+      "robot": [
+        4.694771766662598,
+        3.0301148891448975,
+        0.2430516680528753
+      ],
+      "stamp_ns": 10733333340
+    },
+    "human_speed_bound_mps": 0.25,
+    "id_set_change_count": 0,
+    "ids_seen": [
+      101,
+      102,
+      103,
+      104,
+      105,
+      106
+    ],
+    "maximum_human_stamp_gap_s": 0.025,
+    "maximum_odom_bracket_s": 0.016666668000000003,
+    "maximum_step_velocity_heading_change_by_id_rad": {
+      "101": 0.01648281437835264,
+      "102": 2.9309434351571455,
+      "103": 2.914988884512595,
+      "104": 1.4706543148495899,
+      "105": 0.012405498283670989,
+      "106": 2.1228716200466597
+    },
+    "maximum_step_velocity_heading_change_rad": 2.9309434351571455,
+    "minimum_clearance_lower_bound_m": 0.4992369675800019,
+    "minimum_measured_footprint_human_clearance_m": 0.5195614765520944,
+    "sampling_alignment_error_bound_m": 0.020324508972092488,
+    "stopped_after_motion_ids": [
+      102,
+      103,
+      104,
+      106
+    ]
+  },
+  "scenario": "head_on",
+  "simulation_duration_s": 10.266667202,
+  "solver_ms_max": 74.6493,
+  "solver_ms_p50": 46.1815,
+  "solver_ms_p95": 71.2201,
+  "solver_samples": 362,
+  "target": [
+    8.0,
+    3.0,
+    0.0
+  ],
+  "wall_duration_s": 40.30338577600196,
+  "yaw_error_rad": 0.2430516680528753
+}

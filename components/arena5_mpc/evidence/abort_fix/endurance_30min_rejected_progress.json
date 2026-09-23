@@ -1,0 +1,40 @@
+{
+  "classification": "rejected_progress_checker_semantics",
+  "completed_before_interruption": {
+    "failed_to_make_progress": 1,
+    "successful_goals": 2
+  },
+  "disposition": "run stopped after the gate failed; retained to justify safety-aware progress checker",
+  "failed_goal": {
+    "abort_sim_time_s": 1789699351.0954878,
+    "elapsed_sim_time_s": 400.300885681,
+    "last_reported_xy": [
+      3.17,
+      2.84
+    ],
+    "start_sim_time_s": 1789698950.7946022,
+    "start_xy": [
+      3.38,
+      3.0
+    ],
+    "target_xy": [
+      3.0,
+      3.0
+    ]
+  },
+  "pass": false,
+  "reason": "SimpleProgressChecker counted dynamic safety waits against movement_time_allowance",
+  "requested_wall_duration_s": 1800.0,
+  "run_metadata": {
+    "controller_source_sha256": "ee096d55f3238ff8a630263b0c10f56f63c97b12b3a6499d0a77e82c63d9cad5",
+    "gpu_index": 1,
+    "launch_log": "/home/lpc/workspace/arena5_mpc_ws/evidence/abort_fix/endurance_30min_rejected_progress_launch.log",
+    "nav2_overrides_sha256": "84127059ee06e65e103b3fedf6807fcc5e1e23fe6fdf796b18e4bd70ee269bfa",
+    "ros_domain_id": 203
+  },
+  "runtime_parameters": {
+    "movement_time_allowance_s": 120.0,
+    "progress_checker_plugin": "nav2_controller::SimpleProgressChecker",
+    "required_movement_radius_m": 0.05
+  }
+}

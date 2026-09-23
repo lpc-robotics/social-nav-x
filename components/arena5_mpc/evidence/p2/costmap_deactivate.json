@@ -1,0 +1,9 @@
+{
+  "action_status": 0,
+  "deactivate_ack_latency_s": 0.012488368898630142,
+  "deadline_s": 0.35,
+  "first_zero_latency_s": 0.15996501268818974,
+  "mode": "costmap",
+  "nonzero_after_first_zero": 0,
+  "pass": true
+}

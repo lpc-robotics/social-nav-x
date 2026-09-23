@@ -1,0 +1,133 @@
+{
+  "action_status": 6,
+  "backlog_delay_s": 0.25,
+  "backlog_injections": 0,
+  "controller_failure_counts": {
+    "predicted trajectory failed full-footprint costmap check at x=7.91404 y=3.08019 yaw=-0.250236": 1,
+    "predicted trajectory failed full-footprint costmap check at x=7.91405 y=3.06987 yaw=-0.258003": 1,
+    "predicted trajectory failed full-footprint costmap check at x=7.9161 y=3.07726 yaw=-0.249689": 1,
+    "predicted trajectory failed full-footprint costmap check at x=7.91723 y=3.07556 yaw=-0.24942": 1,
+    "predicted trajectory failed full-footprint costmap check at x=7.91902 y=3.07255 yaw=-0.248886": 1
+  },
+  "controller_mode_counts": {
+    "human_wait": 10,
+    "track": 658
+  },
+  "controller_wait_reason_counts": {
+    "dynamic_postcheck": 10
+  },
+  "cycle_ms_max": 66.3642,
+  "cycle_ms_p95": 57.8548,
+  "end": [
+    7.652949333190918,
+    3.2451841831207275,
+    -0.7078032004034853
+  ],
+  "expected_agents": 6,
+  "id_change_injections": 0,
+  "interaction_distance_gate_m": 1.5,
+  "outputs_finite": true,
+  "pass": false,
+  "position_error_m": 0.42492287416095514,
+  "run_metadata": {
+    "config_path": "/home/lpc/workspace/arena5_mpc_ws/install/arena_mpc_bringup/share/arena_mpc_bringup/config/hunav/p4_same_direction.yaml",
+    "config_sha256": "023af1d072df689e0e63e584e195c24331d38af8516e35947a848a04342c0b6a",
+    "controller_source_sha256": "8ffde55ae143cab722deb4bd168b27d53e7a77316bd3edf72c29c172f83770ea",
+    "foxglove_port": 9232,
+    "git_head": "b0a18f0ab89745ec7776c8e0be188471f9a62e73",
+    "gpu_index": 2,
+    "gpu_snapshot_csv": "2, GPU-2d2c45be-6725-97f3-d624-8fe61cd7ef64, 24564, 1147, 22935",
+    "launch_log": "/home/lpc/workspace/arena5_mpc_ws/evidence/p4/same_direction_run1_launch.log",
+    "launch_sha256": "0d0aba0fd223a6ee8552525147d54b993b287cf8f56cb479c7319260c5d0712f",
+    "probe_sha256": "f4878cf22bdf927259505814521813c4537862355a69ff6ec5a9b9439c24a8e2",
+    "ros_domain_id": 132,
+    "webrtc_media_port": 48632,
+    "webrtc_signal_port": 49632
+  },
+  "safety": {
+    "aligned_human_samples": 978,
+    "clearance_samples": 5868,
+    "closest_sample": {
+      "human": [
+        8.05118271147056,
+        2.483906661221174,
+        0.4000000059604645
+      ],
+      "human_id": 101,
+      "robot": [
+        7.421949968478353,
+        3.359990150164222,
+        -0.2245453349360124
+      ],
+      "stamp_ns": 22308333348
+    },
+    "human_speed_bound_mps": 0.2000000029802323,
+    "id_set_change_count": 0,
+    "ids_seen": [
+      101,
+      102,
+      103,
+      104,
+      105,
+      106
+    ],
+    "maximum_human_stamp_gap_s": 0.025,
+    "maximum_odom_bracket_s": 0.016666668000000003,
+    "maximum_step_velocity_heading_change_by_id_rad": {
+      "101": 0.048914662335158066,
+      "102": 2.9309434351571455,
+      "103": 2.914988884512596,
+      "104": 3.0004573715882654,
+      "105": 0.9043736127298487,
+      "106": 2.4549479009758812
+    },
+    "maximum_step_velocity_heading_change_rad": 3.0004573715882654,
+    "maximum_velocity_heading_excursion_by_id_rad": {
+      "101": 0.29196264933618044,
+      "102": 3.2200877614334997,
+      "103": 3.2274442071597638,
+      "104": 9.34001053156424,
+      "105": 6.334201751767385,
+      "106": 4.068164965595184
+    },
+    "minimum_clearance_lower_bound_by_id_m": {
+      "101": 0.33344057815236444,
+      "102": 19.300252631691304,
+      "103": 20.3475996186262,
+      "104": 22.130006444010757,
+      "105": 23.121728518686382,
+      "106": 24.392067718833175
+    },
+    "minimum_clearance_lower_bound_m": 0.33344057815236444,
+    "minimum_measured_clearance_by_id_m": {
+      "101": 0.35314008716170986,
+      "102": 19.31995214070065,
+      "103": 20.367299127635548,
+      "104": 22.149705953020103,
+      "105": 23.141428027695728,
+      "106": 24.41176722784252
+    },
+    "minimum_measured_footprint_human_clearance_m": 0.35314008716170986,
+    "sampling_alignment_error_bound_m": 0.019699509009345393,
+    "stopped_after_motion_ids": [
+      102,
+      103,
+      104,
+      105,
+      106
+    ]
+  },
+  "scenario": "same_direction",
+  "simulation_duration_s": 24.433334608000003,
+  "solver_ms_max": 65.6176,
+  "solver_ms_p50": 41.4136,
+  "solver_ms_p95": 57.1519,
+  "solver_samples": 668,
+  "target": [
+    8.0,
+    3.0,
+    0.0
+  ],
+  "wall_duration_s": 68.25259853573516,
+  "yaw_error_rad": 0.7078032004034853
+}

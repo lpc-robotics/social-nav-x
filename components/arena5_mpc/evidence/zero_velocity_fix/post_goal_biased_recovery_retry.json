@@ -1,0 +1,65 @@
+{
+  "action_status": 4,
+  "controller_failure_counts": {},
+  "controller_status_tail": [
+    "ok generation=143 epoch=2 solve_ms=47.4614 cycle_ms=47.9356 humans=6 mode=track goal_phase=orientation goal_distance=0.0462997",
+    "ok generation=143 epoch=2 solve_ms=49.7594 cycle_ms=50.1384 humans=6 mode=track goal_phase=orientation goal_distance=0.0456867",
+    "ok generation=143 epoch=2 solve_ms=49.5345 cycle_ms=49.9928 humans=6 mode=track goal_phase=orientation goal_distance=0.0453867",
+    "ok generation=143 epoch=2 solve_ms=46.6544 cycle_ms=47.0742 humans=6 mode=track goal_phase=orientation goal_distance=0.0448035",
+    "ok generation=143 epoch=2 solve_ms=47.5172 cycle_ms=48.0356 humans=6 mode=track goal_phase=orientation goal_distance=0.044243",
+    "ok generation=143 epoch=2 solve_ms=44.2284 cycle_ms=44.7919 humans=6 mode=track goal_phase=orientation goal_distance=0.0436835",
+    "ok generation=143 epoch=2 solve_ms=49.3077 cycle_ms=49.7771 humans=6 mode=track goal_phase=orientation goal_distance=0.0431322",
+    "ok generation=143 epoch=2 solve_ms=48.5716 cycle_ms=49.0107 humans=6 mode=track goal_phase=orientation goal_distance=0.042616",
+    "ok generation=143 epoch=2 solve_ms=45.3877 cycle_ms=45.7663 humans=6 mode=track goal_phase=orientation goal_distance=0.042374",
+    "ok generation=143 epoch=2 solve_ms=46.5698 cycle_ms=46.972 humans=6 mode=track goal_phase=orientation goal_distance=0.0416435",
+    "ok generation=143 epoch=2 solve_ms=49.8465 cycle_ms=50.2827 humans=6 mode=track goal_phase=orientation goal_distance=0.0414015",
+    "ok generation=143 epoch=2 solve_ms=49.1491 cycle_ms=49.609 humans=6 mode=track goal_phase=orientation goal_distance=0.0404634"
+  ],
+  "cross_boundary_samples": 380,
+  "cycle_ms_max": 84.0239,
+  "cycle_ms_p95": 81.8499,
+  "displacement_m": 0.5807910462755932,
+  "elapsed_odom_stamp_s": 11.566667269999925,
+  "elapsed_wall_s": 38.605334219988436,
+  "end": [
+    8.158154487609863,
+    5.772064685821533
+  ],
+  "error": null,
+  "final_goal_error_m": 0.03979087913364926,
+  "full_command_ms_max": 84.81109295561313,
+  "full_command_ms_p95": 82.26775989705324,
+  "full_command_ms_p99": 83.98130700492263,
+  "full_command_over_100ms_fraction": 0.0,
+  "goal": [
+    8.1906501,
+    5.7491006
+  ],
+  "minimum_sampled_footprint_human_clearance_m": 0.4613468580239972,
+  "output_interval_p95_s": 0.020444113295525312,
+  "output_linear_max": 0.22704323465104606,
+  "output_nonzero_fraction": 0.6864669421487604,
+  "pass": true,
+  "raw_interval_p95_s": 0.13649267703294754,
+  "raw_linear_max": 0.23130140791607062,
+  "solver_ms_max": 83.5695,
+  "solver_ms_p50": 48.3666,
+  "solver_ms_p95": 81.5321,
+  "start": [
+    7.6896653175354,
+    5.4287919998168945
+  ],
+  "status_to_raw_ms_max": 33.553170040249825,
+  "status_to_raw_ms_p95": 0.7739379070699215,
+  "succeeded": true,
+  "successful_solves": 380,
+  "watchdog_status_tail": [
+    "stop reason=smooth_lease",
+    "ok forwarding",
+    "stop reason=status_lease"
+  ],
+  "watchdog_stop_counts": {
+    "smooth_lease": 1,
+    "status_lease": 1
+  }
+}

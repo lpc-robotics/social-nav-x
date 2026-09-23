@@ -1,0 +1,158 @@
+{
+  "action_status": 6,
+  "backlog_delay_s": 0.25,
+  "backlog_injections": 0,
+  "bt_default_server_timeout_ms": 500,
+  "controller_failure_counts": {
+    "HuNav input changed during final postcheck": 2,
+    "input expired before command commit human_age=0.0200523 odom_age=0.42957 lidar_age=0.0440339": 1,
+    "input expired before command commit human_age=0.0216483 odom_age=0.435009 lidar_age=0.206381": 1,
+    "input expired before command commit human_age=0.0298417 odom_age=0.441884 lidar_age=0.00384518": 1,
+    "input expired before command commit human_age=0.0346374 odom_age=0.40179 lidar_age=0.192577": 1,
+    "input expired before command commit human_age=0.0461143 odom_age=0.417411 lidar_age=0.277232": 1,
+    "input expired before command commit human_age=0.0492346 odom_age=0.401509 lidar_age=0.116588": 1,
+    "input expired before command commit human_age=0.0499822 odom_age=0.405879 lidar_age=0.0772916": 1,
+    "input expired before command commit human_age=0.0563092 odom_age=0.409128 lidar_age=0.285469": 1,
+    "input expired before command commit human_age=0.0780183 odom_age=0.401939 lidar_age=0.148921": 1,
+    "input expired before command commit human_age=0.100855 odom_age=0.450485 lidar_age=0.227039": 1,
+    "input expired before command commit human_age=0.116207 odom_age=0.438233 lidar_age=0.0238561": 1,
+    "latest HuNav update invalidated measured braking trajectory": 1,
+    "measured braking trajectory failed swept HuNav check after MPC solve rejected: Maximum_WallTime_Exceeded": 4,
+    "plugin commit deadline exceeded": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.00583414 odom_age=0.428504 lidar_age=0.0297094": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.0167852 odom_age=0.456742 lidar_age=0.0423645": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.0245028 odom_age=0.411657 lidar_age=0.206788": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.0259328 odom_age=0.417629 lidar_age=0.154815": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.0355845 odom_age=0.433492 lidar_age=0.27256": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.0556989 odom_age=0.418634 lidar_age=0.0255631": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.0557168 odom_age=0.40897 lidar_age=0.232567": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.0741701 odom_age=0.406302 lidar_age=0.145427": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.0750695 odom_age=0.40239 lidar_age=0.263227": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.0845064 odom_age=0.402378 lidar_age=0.241174": 1
+  },
+  "controller_mode_counts": {
+    "human_wait": 135,
+    "track": 422
+  },
+  "controller_wait_reason_counts": {
+    "dynamic_postcheck": 109,
+    "solver_timeout": 26
+  },
+  "cycle_ms_max": 86.4432,
+  "cycle_ms_p95": 72.5115,
+  "end": [
+    4.85889196395874,
+    2.6731960773468018,
+    -0.5411513862317335
+  ],
+  "expected_agents": 6,
+  "id_change_injections": 0,
+  "interaction_distance_gate_m": 1.5,
+  "outputs_finite": true,
+  "pass": false,
+  "position_error_m": 3.158062776124708,
+  "run_metadata": {
+    "config_path": "/home/lpc/workspace/arena5_mpc_ws/src/arena_mpc_bringup/config/hunav/p4_crossing.yaml",
+    "config_sha256": "cf8ffd4714dce884e4ca87e279283dbeb5d4b62d0f585d16e158ac9652106402",
+    "controller_config_sha256": "65973e4d4477928cb224fcdb74341c4eb9736d0c6f8f23a81393caaf3d354119",
+    "controller_source_sha256": "40a54414aa1cc9faa60873e89bda141a07d8a9471fc9c6bcbcd03c4352ca6cd0",
+    "foxglove_port": 9292,
+    "git_head": "b0a18f0ab89745ec7776c8e0be188471f9a62e73",
+    "gpu_index": 0,
+    "gpu_snapshot_csv": "0, GPU-cff28fa1-3402-3702-126b-d0cb66a69fb6, 24564, 636, 23446",
+    "launch_log": "/home/lpc/workspace/arena5_mpc_ws/evidence/p4/crossing_runfootprint_calibration2_launch.log",
+    "launch_sha256": "0d0aba0fd223a6ee8552525147d54b993b287cf8f56cb479c7319260c5d0712f",
+    "nav2_overrides_sha256": "25e90bff609542a2c2728dcd49ed2a522d9b132825d8db84c825ce88c536cb43",
+    "probe_sha256": "2d481c028e7f73ed413316b1df5233413eb9dcbe760d964196f092dbf49a7391",
+    "ros_domain_id": 192,
+    "webrtc_media_port": 48692,
+    "webrtc_signal_port": 49692
+  },
+  "safety": {
+    "aligned_human_samples": 838,
+    "clearance_samples": 5028,
+    "closest_sample": {
+      "human": [
+        5.303110016571566,
+        3.5613525484228683,
+        0.4000000059604645
+      ],
+      "human_id": 101,
+      "robot": [
+        4.85889196395874,
+        2.6731960773468018,
+        -0.5411513862317335
+      ],
+      "stamp_ns": 21950000013
+    },
+    "human_speed_bound_mps": 0.25000000000000006,
+    "id_set_change_count": 0,
+    "ids_seen": [
+      101,
+      102,
+      103,
+      104,
+      105,
+      106
+    ],
+    "maximum_human_stamp_gap_s": 0.025,
+    "maximum_odom_bracket_s": 0.016666668000000003,
+    "maximum_step_velocity_heading_change_by_id_rad": {
+      "101": 1.9868000293572978,
+      "102": 2.9309434351571455,
+      "103": 2.9149888845125953,
+      "104": 2.835520749140971,
+      "105": 0.9043736127298487,
+      "106": 2.1228716200466597
+    },
+    "maximum_step_velocity_heading_change_rad": 2.9309434351571455,
+    "maximum_velocity_heading_excursion_by_id_rad": {
+      "101": 3.740191409631412,
+      "102": 3.2391016318517316,
+      "103": 3.245940944672291,
+      "104": 6.278360061629159,
+      "105": 3.5403857788519706,
+      "106": 4.105439791037847
+    },
+    "minimum_clearance_lower_bound_by_id_m": {
+      "101": 0.34975576151165955,
+      "102": 21.08574237355959,
+      "103": 22.838843598351918,
+      "104": 24.02880559806971,
+      "105": 25.886557821418048,
+      "106": 26.333011768382068
+    },
+    "minimum_clearance_lower_bound_m": 0.34975576151165955,
+    "minimum_measured_clearance_by_id_m": {
+      "101": 0.370080270483752,
+      "102": 21.10606688253168,
+      "103": 22.85916810732401,
+      "104": 24.0491301070418,
+      "105": 25.90688233039014,
+      "106": 26.35333627735416
+    },
+    "minimum_measured_footprint_human_clearance_m": 0.370080270483752,
+    "sampling_alignment_error_bound_m": 0.020324508972092488,
+    "stopped_after_motion_ids": [
+      101,
+      102,
+      103,
+      104,
+      105,
+      106
+    ]
+  },
+  "scenario": "crossing",
+  "simulation_duration_s": 20.933334425,
+  "solver_ms_max": 84.9364,
+  "solver_ms_p50": 44.0212,
+  "solver_ms_p95": 71.2093,
+  "solver_samples": 557,
+  "target": [
+    8.0,
+    3.0,
+    0.0
+  ],
+  "wall_duration_s": 59.525113166775554,
+  "yaw_error_rad": 0.5411513862317335
+}

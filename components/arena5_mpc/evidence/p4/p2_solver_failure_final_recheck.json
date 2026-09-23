@@ -1,0 +1,18 @@
+{
+  "action_status": 6,
+  "controller_failure_statuses": [
+    "stop failure=1 reason=latest HuNav update failed swept postcheck",
+    "stop failure=2 reason=measured braking trajectory failed swept HuNav check after MPC solve rejected: Maximum_WallTime_Exceeded",
+    "stop failure=3 reason=measured braking trajectory failed swept HuNav check after MPC solve rejected: Maximum_WallTime_Exceeded",
+    "stop failure=4 reason=measured braking trajectory failed swept HuNav check after MPC solve rejected: Maximum_WallTime_Exceeded",
+    "stop failure=5 reason=measured braking trajectory failed swept HuNav check after MPC solve rejected: Maximum_WallTime_Exceeded"
+  ],
+  "first_zero_latency_s": 0.057447542902082205,
+  "mode": "forced_overlap_solver_failure",
+  "nonzero_after_first_zero": 0,
+  "pass": true,
+  "physical_stop_sim_time_s": 0.566666696,
+  "watchdog_stop_statuses": [
+    "stop reason=controller_status"
+  ]
+}

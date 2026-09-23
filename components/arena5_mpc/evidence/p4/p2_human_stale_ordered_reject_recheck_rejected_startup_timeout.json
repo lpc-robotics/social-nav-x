@@ -1,0 +1,5 @@
+{
+  "error": "timed out waiting for odom and /cmd_vel",
+  "mode": "stale",
+  "pass": false
+}

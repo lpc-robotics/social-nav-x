@@ -1,0 +1,127 @@
+{
+  "action_status": 4,
+  "backlog_delay_s": 0.25,
+  "backlog_injections": 0,
+  "bt_default_server_timeout_ms": 500,
+  "controller_failure_counts": {},
+  "controller_mode_counts": {
+    "track": 551
+  },
+  "controller_wait_reason_counts": {},
+  "cycle_ms_max": 49.1628,
+  "cycle_ms_p95": 43.9321,
+  "end": [
+    7.773638725280762,
+    2.9999961853027344,
+    8.941044403315495e-06
+  ],
+  "expected_agents": 6,
+  "id_change_injections": 0,
+  "interaction_distance_gate_m": 1.5,
+  "outputs_finite": true,
+  "pass": true,
+  "position_error_m": 0.2263612747513814,
+  "run_metadata": {
+    "config_path": "/home/lpc/workspace/arena5_mpc_ws/src/arena_mpc_bringup/config/hunav/p4_head_on.yaml",
+    "config_sha256": "a5ba6dccbe970b4267e5a5e40168f49d6c1b28fe65c3a0f8c521b81860fd8c6d",
+    "controller_config_sha256": "78f27edd6cc997bcabe90cb3b9c398073ea85265a46a96a7e26d65c323400283",
+    "controller_source_sha256": "cc2d2b8088a6cc29cb5c2cf9b67efb9a71990ca877e7c8dd1f522dabb46f979e",
+    "foxglove_port": 9261,
+    "git_head": "b0a18f0ab89745ec7776c8e0be188471f9a62e73",
+    "gpu_index": 0,
+    "gpu_snapshot_csv": "0, GPU-cff28fa1-3402-3702-126b-d0cb66a69fb6, 24564, 45, 24037",
+    "launch_log": "/home/lpc/workspace/arena5_mpc_ws/evidence/p4/head_on_run1_launch.log",
+    "launch_sha256": "0d0aba0fd223a6ee8552525147d54b993b287cf8f56cb479c7319260c5d0712f",
+    "nav2_overrides_sha256": "25e90bff609542a2c2728dcd49ed2a522d9b132825d8db84c825ce88c536cb43",
+    "probe_sha256": "2d481c028e7f73ed413316b1df5233413eb9dcbe760d964196f092dbf49a7391",
+    "ros_domain_id": 161,
+    "webrtc_media_port": 48661,
+    "webrtc_signal_port": 49661
+  },
+  "safety": {
+    "aligned_human_samples": 830,
+    "clearance_samples": 4980,
+    "closest_sample": {
+      "human": [
+        5.6600102247485236,
+        4.25435859355842,
+        0.4000000059604645
+      ],
+      "human_id": 101,
+      "robot": [
+        5.300896998092185,
+        2.9998838901681424,
+        -0.00012144810634585021
+      ],
+      "stamp_ns": 10908333337
+    },
+    "human_speed_bound_mps": 0.25000000000000006,
+    "id_set_change_count": 0,
+    "ids_seen": [
+      101,
+      102,
+      103,
+      104,
+      105,
+      106
+    ],
+    "maximum_human_stamp_gap_s": 0.025,
+    "maximum_odom_bracket_s": 0.016666668000000003,
+    "maximum_step_velocity_heading_change_by_id_rad": {
+      "101": 0.003329501387430156,
+      "102": 2.9309434351571455,
+      "103": 2.9149888845125953,
+      "104": 2.835520749140971,
+      "105": 0.9043736127298487,
+      "106": 2.1228716200466597
+    },
+    "maximum_step_velocity_heading_change_rad": 2.9309434351571455,
+    "maximum_velocity_heading_excursion_by_id_rad": {
+      "101": 0.28498649524120623,
+      "102": 3.242663393527376,
+      "103": 3.2493095731479666,
+      "104": 6.277788527550667,
+      "105": 3.536490469376809,
+      "106": 4.112473950028958
+    },
+    "minimum_clearance_lower_bound_by_id_m": {
+      "101": 0.6210110783246383,
+      "102": 19.3635480363208,
+      "103": 20.673992631002257,
+      "104": 22.150968686547742,
+      "105": 23.381161027314512,
+      "106": 24.688931691976375
+    },
+    "minimum_clearance_lower_bound_m": 0.6210110783246383,
+    "minimum_measured_clearance_by_id_m": {
+      "101": 0.6413355872967308,
+      "102": 19.383872545292892,
+      "103": 20.69431713997435,
+      "104": 22.171293195519834,
+      "105": 23.401485536286604,
+      "106": 24.709256200948467
+    },
+    "minimum_measured_footprint_human_clearance_m": 0.6413355872967308,
+    "sampling_alignment_error_bound_m": 0.020324508972092488,
+    "stopped_after_motion_ids": [
+      102,
+      103,
+      104,
+      105,
+      106
+    ]
+  },
+  "scenario": "head_on",
+  "simulation_duration_s": 20.750001082,
+  "solver_ms_max": 47.2217,
+  "solver_ms_p50": 36.3528,
+  "solver_ms_p95": 42.6654,
+  "solver_samples": 551,
+  "target": [
+    8.0,
+    3.0,
+    0.0
+  ],
+  "wall_duration_s": 56.12148735392839,
+  "yaw_error_rad": 8.941044403315495e-06
+}

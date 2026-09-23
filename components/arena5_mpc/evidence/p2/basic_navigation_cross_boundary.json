@@ -1,0 +1,61 @@
+{
+  "action_status": 4,
+  "controller_failure_counts": {},
+  "controller_status_tail": [
+    "ok generation=9 epoch=2 solve_ms=41.9096 cycle_ms=42.2992 humans=0",
+    "ok generation=9 epoch=2 solve_ms=42.68 cycle_ms=43.125 humans=0",
+    "ok generation=9 epoch=2 solve_ms=45.1101 cycle_ms=45.4606 humans=0",
+    "ok generation=9 epoch=2 solve_ms=41.9196 cycle_ms=42.2767 humans=0",
+    "ok generation=10 epoch=2 solve_ms=38.6879 cycle_ms=39.0207 humans=0",
+    "ok generation=10 epoch=2 solve_ms=43.2108 cycle_ms=43.5347 humans=0",
+    "ok generation=10 epoch=2 solve_ms=41.9424 cycle_ms=42.2371 humans=0",
+    "ok generation=10 epoch=2 solve_ms=36.5027 cycle_ms=36.8011 humans=0",
+    "ok generation=10 epoch=2 solve_ms=38.1797 cycle_ms=38.4889 humans=0",
+    "ok generation=11 epoch=2 solve_ms=35.7008 cycle_ms=35.9848 humans=0",
+    "ok generation=11 epoch=2 solve_ms=37.0873 cycle_ms=37.4101 humans=0",
+    "ok generation=11 epoch=2 solve_ms=36.7343 cycle_ms=37.0217 humans=0"
+  ],
+  "cross_boundary_samples": 58,
+  "cycle_ms_max": 69.0687,
+  "cycle_ms_p95": 63.57,
+  "displacement_m": 0.8111005500862977,
+  "end": [
+    3.8111002445220947,
+    3.000704050064087
+  ],
+  "full_command_ms_max": 69.36626873846055,
+  "full_command_ms_p95": 63.8203814175725,
+  "full_command_ms_p99": 69.36626873846055,
+  "full_command_over_100ms_fraction": 0.0,
+  "goal": [
+    4.0,
+    3.0
+  ],
+  "minimum_sampled_footprint_human_clearance_m": null,
+  "output_interval_p95_s": 0.02041243389248848,
+  "output_linear_max": 0.25996442231587114,
+  "output_nonzero_fraction": 0.897196261682243,
+  "pass": true,
+  "raw_interval_p95_s": 0.11080311192199588,
+  "raw_linear_max": 0.25996442231587114,
+  "solver_ms_max": 67.2216,
+  "solver_ms_p50": 42.111999999999995,
+  "solver_ms_p95": 63.2494,
+  "start": [
+    3.0,
+    3.0
+  ],
+  "status_to_raw_ms_max": 1.0932721197605133,
+  "status_to_raw_ms_p95": 0.5763000808656216,
+  "succeeded": true,
+  "successful_solves": 58,
+  "watchdog_status_tail": [
+    "stop reason=command_sequence",
+    "ok forwarding",
+    "stop reason=status_lease"
+  ],
+  "watchdog_stop_counts": {
+    "command_sequence": 1,
+    "status_lease": 1
+  }
+}

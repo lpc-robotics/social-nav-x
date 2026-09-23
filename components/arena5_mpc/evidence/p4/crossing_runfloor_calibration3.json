@@ -1,0 +1,135 @@
+{
+  "action_status": 4,
+  "backlog_delay_s": 0.25,
+  "backlog_injections": 0,
+  "bt_default_server_timeout_ms": 500,
+  "controller_failure_counts": {
+    "HuNav input changed during final postcheck": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.4489 odom_age=0.408768 lidar_age=0.518987": 1,
+    "required input exceeded wall-clock freshness limit human_age=0.548925 odom_age=0.508794 lidar_age=0.619013": 1
+  },
+  "controller_mode_counts": {
+    "human_wait": 92,
+    "track": 796
+  },
+  "controller_wait_reason_counts": {
+    "dynamic_postcheck": 92
+  },
+  "cycle_ms_max": 68.5837,
+  "cycle_ms_p95": 55.6679,
+  "end": [
+    7.985273838043213,
+    2.9580941200256348,
+    0.23915689166141638
+  ],
+  "expected_agents": 6,
+  "id_change_injections": 0,
+  "interaction_distance_gate_m": 1.5,
+  "outputs_finite": true,
+  "pass": true,
+  "position_error_m": 0.044418043883127374,
+  "run_metadata": {
+    "config_path": "/home/lpc/workspace/arena5_mpc_ws/src/arena_mpc_bringup/config/hunav/p4_crossing.yaml",
+    "config_sha256": "cf8ffd4714dce884e4ca87e279283dbeb5d4b62d0f585d16e158ac9652106402",
+    "controller_config_sha256": "78f27edd6cc997bcabe90cb3b9c398073ea85265a46a96a7e26d65c323400283",
+    "controller_source_sha256": "9cff9195dc670bbe9845f26b0cb0418f2ac547f8d832d26dfdfbccfd0a343caf",
+    "foxglove_port": 9297,
+    "git_head": "b0a18f0ab89745ec7776c8e0be188471f9a62e73",
+    "gpu_index": 0,
+    "gpu_snapshot_csv": "0, GPU-cff28fa1-3402-3702-126b-d0cb66a69fb6, 24564, 357, 23725",
+    "launch_log": "/home/lpc/workspace/arena5_mpc_ws/evidence/p4/crossing_runfloor_calibration3_launch.log",
+    "launch_sha256": "0d0aba0fd223a6ee8552525147d54b993b287cf8f56cb479c7319260c5d0712f",
+    "nav2_overrides_sha256": "25e90bff609542a2c2728dcd49ed2a522d9b132825d8db84c825ce88c536cb43",
+    "probe_sha256": "2d481c028e7f73ed413316b1df5233413eb9dcbe760d964196f092dbf49a7391",
+    "ros_domain_id": 197,
+    "webrtc_media_port": 48697,
+    "webrtc_signal_port": 49697
+  },
+  "safety": {
+    "aligned_human_samples": 1194,
+    "clearance_samples": 7164,
+    "closest_sample": {
+      "human": [
+        5.302358227463999,
+        3.330012371783281,
+        0.4000000059604645
+      ],
+      "human_id": 101,
+      "robot": [
+        4.15453429550623,
+        3.078827475394395,
+        0.5127067400374693
+      ],
+      "stamp_ns": 9808333340
+    },
+    "human_speed_bound_mps": 0.25000000000000006,
+    "id_set_change_count": 0,
+    "ids_seen": [
+      101,
+      102,
+      103,
+      104,
+      105,
+      106
+    ],
+    "maximum_human_stamp_gap_s": 0.025,
+    "maximum_odom_bracket_s": 0.016666668000000003,
+    "maximum_step_velocity_heading_change_by_id_rad": {
+      "101": 2.973662398101168,
+      "102": 2.9309434351571455,
+      "103": 2.9149888845125957,
+      "104": 3.0004573715882654,
+      "105": 0.9043736127298487,
+      "106": 2.6580624393268706
+    },
+    "maximum_step_velocity_heading_change_rad": 3.0004573715882654,
+    "maximum_velocity_heading_excursion_by_id_rad": {
+      "101": 6.29411797383816,
+      "102": 3.240438946177196,
+      "103": 3.245940944672292,
+      "104": 9.479624354223171,
+      "105": 6.510224512232277,
+      "106": 4.105439791037847
+    },
+    "minimum_clearance_lower_bound_by_id_m": {
+      "101": 0.4718103375991579,
+      "102": 18.764494334373406,
+      "103": 20.969553936649845,
+      "104": 21.533720131869654,
+      "105": 23.74021625667184,
+      "106": 23.628113409757614
+    },
+    "minimum_clearance_lower_bound_m": 0.4718103375991579,
+    "minimum_measured_clearance_by_id_m": {
+      "101": 0.4921348465712504,
+      "102": 18.784818843345498,
+      "103": 20.989878445621937,
+      "104": 21.554044640841745,
+      "105": 23.76054076564393,
+      "106": 23.648437918729705
+    },
+    "minimum_measured_footprint_human_clearance_m": 0.4921348465712504,
+    "sampling_alignment_error_bound_m": 0.020324508972092488,
+    "stopped_after_motion_ids": [
+      101,
+      102,
+      103,
+      104,
+      105,
+      106
+    ]
+  },
+  "scenario": "crossing",
+  "simulation_duration_s": 29.850001557000002,
+  "solver_ms_max": 66.8836,
+  "solver_ms_p50": 41.53155,
+  "solver_ms_p95": 53.7385,
+  "solver_samples": 888,
+  "target": [
+    8.0,
+    3.0,
+    0.0
+  ],
+  "wall_duration_s": 90.0576912118122,
+  "yaw_error_rad": 0.23915689166141638
+}

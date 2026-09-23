@@ -1,0 +1,14 @@
+<library path="arena_mpc_controller">
+  <class
+    name="arena_mpc_controller::MpcController"
+    type="arena_mpc_controller::MpcController"
+    base_class_type="nav2_core::Controller">
+    <description>Arena MPC controller using HuNav ground-truth pedestrian states.</description>
+  </class>
+  <class
+    name="arena_mpc_controller::SafetyAwareProgressChecker"
+    type="arena_mpc_controller::SafetyAwareProgressChecker"
+    base_class_type="nav2_core::ProgressChecker">
+    <description>Pauses progress timeout only while MPC reports a fresh dynamic safety wait.</description>
+  </class>
+</library>

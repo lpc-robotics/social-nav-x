@@ -1,0 +1,79 @@
+{
+  "gate": "PASS",
+  "paths": {
+    "/FollowPath/predicted_path": {
+      "all_pose_frames_match_path": true,
+      "header_frame": "odom",
+      "pose_count": 1,
+      "pose_frames": {
+        "odom": 1
+      }
+    },
+    "/mpc/global_plan": {
+      "all_pose_frames_match_path": true,
+      "header_frame": "map",
+      "pose_count": 23,
+      "pose_frames": {
+        "map": 23
+      }
+    },
+    "/mpc/local_trajectory": {
+      "all_pose_frames_match_path": true,
+      "header_frame": "odom",
+      "pose_count": 1,
+      "pose_frames": {
+        "odom": 1
+      }
+    },
+    "/plan": {
+      "all_pose_frames_match_path": false,
+      "header_frame": "map",
+      "pose_count": 23,
+      "pose_frames": {
+        "<empty>": 23
+      }
+    }
+  },
+  "tf": {
+    "/tf": {
+      "empty_frame_transforms": [],
+      "frames": [
+        "arena_robot",
+        "base_link",
+        "chassis_link",
+        "curious",
+        "front_left_wheel_link",
+        "front_right_wheel_link",
+        "impassive",
+        "map",
+        "odom",
+        "rear_left_wheel_link",
+        "rear_right_wheel_link",
+        "regular",
+        "scared",
+        "surprised",
+        "threatening"
+      ],
+      "message_count": 1996,
+      "transform_count": 2284
+    },
+    "/tf_static": {
+      "empty_frame_transforms": [],
+      "frames": [
+        "base_link",
+        "chassis_link",
+        "front_fender_link",
+        "front_mount",
+        "imu_link",
+        "lidar_link",
+        "mid_mount",
+        "navsat_link",
+        "rear_fender_link",
+        "rear_mount"
+      ],
+      "message_count": 1,
+      "transform_count": 9
+    }
+  },
+  "tf_has_empty_frame": false
+}

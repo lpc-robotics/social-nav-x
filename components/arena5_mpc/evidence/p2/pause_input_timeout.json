@@ -1,0 +1,17 @@
+{
+  "action_status": 5,
+  "cancel_ack_from_pause_request_s": 0.4624304138123989,
+  "first_zero_from_last_odom_s": 0.4777037100866437,
+  "first_zero_from_pause_ack_s": 0.39397484716027975,
+  "first_zero_from_pause_request_s": 0.4599232189357281,
+  "nonzero_commands_after_first_zero_while_paused": 0,
+  "pass_continuous_zero": true,
+  "pass_robot_stop": true,
+  "pass_watchdog_deadline": true,
+  "pass": true,
+  "pause_ack_latency_s": 0.06594837177544832,
+  "pause_service_message": "",
+  "robot_stop_sim_time_after_unpause_s": 0.0,
+  "unpause_service_message": "",
+  "watchdog_stop_reason": "stop reason=odom_input"
+}

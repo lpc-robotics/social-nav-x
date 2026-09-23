@@ -1,0 +1,76 @@
+{
+  "action_status": 4,
+  "controller_failure_counts": {
+    "plugin commit deadline exceeded while waiting": 2
+  },
+  "controller_status_tail": [
+    "ok generation=144 epoch=2 solve_ms=48.9194 cycle_ms=49.4635 humans=6 mode=track goal_phase=orientation goal_distance=0.00527298",
+    "ok generation=144 epoch=2 solve_ms=53.2875 cycle_ms=53.6548 humans=6 mode=track goal_phase=orientation goal_distance=0.00534873",
+    "ok generation=144 epoch=2 solve_ms=45.7785 cycle_ms=46.1113 humans=6 mode=track goal_phase=orientation goal_distance=0.00550594",
+    "ok generation=144 epoch=2 solve_ms=47.8123 cycle_ms=48.1907 humans=6 mode=track goal_phase=orientation goal_distance=0.00558542",
+    "ok generation=144 epoch=2 solve_ms=46.8907 cycle_ms=47.3435 humans=6 mode=track goal_phase=orientation goal_distance=0.00566405",
+    "ok generation=144 epoch=2 solve_ms=50.1097 cycle_ms=50.592 humans=6 mode=track goal_phase=orientation goal_distance=0.00582187",
+    "ok generation=144 epoch=2 solve_ms=48.0532 cycle_ms=48.4223 humans=6 mode=track goal_phase=orientation goal_distance=0.00590513",
+    "ok generation=144 epoch=2 solve_ms=52.5184 cycle_ms=53.022 humans=6 mode=track goal_phase=orientation goal_distance=0.00598915",
+    "ok generation=144 epoch=2 solve_ms=48.9015 cycle_ms=49.2893 humans=6 mode=track goal_phase=orientation goal_distance=0.0061594",
+    "ok generation=144 epoch=2 solve_ms=48.4263 cycle_ms=48.9021 humans=6 mode=track goal_phase=orientation goal_distance=0.00624472",
+    "ok generation=144 epoch=2 solve_ms=47.3929 cycle_ms=47.8013 humans=6 mode=track goal_phase=orientation goal_distance=0.00637259",
+    "ok generation=144 epoch=2 solve_ms=47.3756 cycle_ms=47.8275 humans=6 mode=track goal_phase=orientation goal_distance=0.00641474"
+  ],
+  "cross_boundary_samples": 3597,
+  "cycle_ms_max": 88.4203,
+  "cycle_ms_p95": 82.3796,
+  "displacement_m": 5.880441872309772,
+  "elapsed_odom_stamp_s": 87.033337873,
+  "elapsed_wall_s": 360.917713586241,
+  "end": [
+    8.196266174316406,
+    5.752892017364502
+  ],
+  "error": null,
+  "final_goal_error_m": 0.006776070864391297,
+  "full_command_ms_max": 89.09261617867946,
+  "full_command_ms_p95": 82.88996501765251,
+  "full_command_ms_p99": 84.91733696562648,
+  "full_command_over_100ms_fraction": 0.0,
+  "goal": [
+    8.1906501,
+    5.7491006
+  ],
+  "minimum_sampled_footprint_human_clearance_m": 0.4183355413254044,
+  "output_interval_p95_s": 0.022207500878721476,
+  "output_linear_max": 0.25833408549436543,
+  "output_nonzero_fraction": 0.634953177813487,
+  "pass": true,
+  "raw_interval_p95_s": 0.13130117394030094,
+  "raw_linear_max": 0.27772928901266203,
+  "solver_ms_max": 86.8882,
+  "solver_ms_p50": 51.7276,
+  "solver_ms_p95": 81.3451,
+  "start": [
+    3.0,
+    3.0
+  ],
+  "status_to_raw_ms_max": 4.280664958059788,
+  "status_to_raw_ms_p95": 0.8579720743000507,
+  "succeeded": true,
+  "successful_solves": 3597,
+  "watchdog_status_tail": [
+    "stop reason=command_sequence",
+    "ok forwarding",
+    "stop reason=status_lease",
+    "ok forwarding",
+    "stop reason=controller_status",
+    "stop reason=command_sequence",
+    "ok forwarding",
+    "stop reason=controller_status",
+    "stop reason=command_sequence",
+    "ok forwarding",
+    "stop reason=status_lease"
+  ],
+  "watchdog_stop_counts": {
+    "command_sequence": 3,
+    "controller_status": 2,
+    "status_lease": 2
+  }
+}

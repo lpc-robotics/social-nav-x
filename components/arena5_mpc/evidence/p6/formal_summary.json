@@ -1,0 +1,20 @@
+{
+  "gate": "PASS",
+  "release_id": "20260918-bd63612",
+  "results": {
+    "dwb": {
+      "action_status": 4,
+      "follow_path_plugin": "dwb_core::DWBLocalPlanner",
+      "minimum_clearance_lower_bound_m": 0.48690233878434097,
+      "pass": true,
+      "position_error_m": 0.22651832654838336
+    },
+    "mpc": {
+      "action_status": 4,
+      "follow_path_plugin": "arena_mpc_controller::MpcController",
+      "minimum_clearance_lower_bound_m": 0.522422424043414,
+      "pass": true,
+      "position_error_m": 0.2254436969757081
+    }
+  }
+}

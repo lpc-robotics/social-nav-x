@@ -1,0 +1,126 @@
+{
+  "action_status": 4,
+  "backlog_delay_s": 0.25,
+  "backlog_injections": 0,
+  "bt_default_server_timeout_ms": 500,
+  "controller_failure_counts": {},
+  "controller_mode_counts": {
+    "human_wait": 31,
+    "track": 61
+  },
+  "controller_recoverable_stop_counts": {},
+  "controller_wait_reason_counts": {
+    "solver_timeout": 31
+  },
+  "cycle_ms_max": 86.5894,
+  "cycle_ms_p95": 82.3385,
+  "end": [
+    3.380263566970825,
+    2.999971866607666,
+    0.0001401395411564261
+  ],
+  "expected_agents": 6,
+  "id_change_injections": 0,
+  "interaction_distance_gate_m": 1.5,
+  "outputs_finite": true,
+  "pass": false,
+  "position_error_m": 0.21973643483016836,
+  "progress_movement_time_allowance_s": 30.0,
+  "run_metadata": {
+    "config_path": "/home/lpc/workspace/arena5_ws/install/arena_bringup/share/arena_bringup/configs/hunav_agents/isaac_six_behaviors_warehouse.yaml",
+    "config_sha256": "ac77047d69256d71fadca0aa958848cb9b30a0b15e3fcf91275514fc1a748b67",
+    "controller_config_sha256": "7db5330adb67381e2e7ee3bc4a625350f411fd86bd5561cedd844bfa192ff29b",
+    "controller_source_sha256": "ee096d55f3238ff8a630263b0c10f56f63c97b12b3a6499d0a77e82c63d9cad5",
+    "foxglove_port": 9297,
+    "git_head": "97be364133116a17fab19a645bed2df52530a2de",
+    "gpu_index": 1,
+    "gpu_snapshot_csv": "1, GPU-53d85912-c9ed-9472-9577-51d5871ed813, 24564, 45, 24037",
+    "launch_log": "/home/lpc/workspace/arena5_mpc_ws/evidence/abort_fix/six_behaviors_arrival_attempt2_launch.log",
+    "launch_sha256": "98560dad1fcf17873addf2aae66dc6a22635c86fd0127ae0ab1650523f6809aa",
+    "nav2_overrides_sha256": "e671d0bba13df1c744a2a7272d581c93d504d5f634ee45bca384679fc545da3e",
+    "probe_sha256": "94e24351c06cef6cded16c4a788be2a60cdd5755f02a85e1b6f90bcf5b4fda36",
+    "ros_domain_id": 197,
+    "webrtc_media_port": 48697,
+    "webrtc_signal_port": 49697
+  },
+  "safety": {
+    "aligned_human_samples": 122,
+    "clearance_samples": 732,
+    "closest_sample": {
+      "human": [
+        4.218897450209901,
+        3.0003939989009445,
+        0.4000000059604645
+      ],
+      "human_id": 6,
+      "robot": [
+        3.0,
+        3.0,
+        0.0
+      ],
+      "stamp_ns": 1475000013
+    },
+    "human_speed_bound_mps": 1.9707050229571166,
+    "id_set_change_count": 0,
+    "ids_seen": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "maximum_human_stamp_gap_s": 0.025,
+    "maximum_odom_bracket_s": 0.016666668000000003,
+    "maximum_step_velocity_heading_change_by_id_rad": {
+      "1": 0.00031846434088222964,
+      "2": 0.00032239782671123586,
+      "4": 2.064891381572543,
+      "5": 0.019359369919599745,
+      "6": 3.109160035690083
+    },
+    "maximum_step_velocity_heading_change_rad": 3.109160035690083,
+    "maximum_velocity_heading_excursion_by_id_rad": {
+      "1": 0.008146526680705701,
+      "2": 0.008234839988778457,
+      "4": 3.203921980765796,
+      "5": 0.179603264061015,
+      "6": 3.1714348787627578
+    },
+    "minimum_clearance_lower_bound_by_id_m": {
+      "1": 10.666920812978871,
+      "2": 6.588814379427301,
+      "3": 2.6949448408368264,
+      "4": 1.760703984074192,
+      "5": 3.6208470286954526,
+      "6": 0.5224227010643334
+    },
+    "minimum_clearance_lower_bound_m": 0.5224227010643334,
+    "minimum_measured_clearance_by_id_m": {
+      "1": 10.723395556163974,
+      "2": 6.645289122612404,
+      "3": 2.751419584021929,
+      "4": 1.8171787272592947,
+      "5": 3.677321771880555,
+      "6": 0.5788974442494361
+    },
+    "minimum_measured_footprint_human_clearance_m": 0.5788974442494361,
+    "sampling_alignment_error_bound_m": 0.056474743185102684,
+    "stopped_after_motion_ids": [
+      6
+    ]
+  },
+  "scenario": "six_behaviors",
+  "simulation_duration_s": 3.050000159,
+  "solver_ms_max": 86.2364,
+  "solver_ms_p50": 45.548500000000004,
+  "solver_ms_p95": 82.0079,
+  "solver_samples": 92,
+  "target": [
+    3.6,
+    3.0,
+    0.0
+  ],
+  "wall_duration_s": 10.177357915788889,
+  "yaw_error_rad": 0.0001401395411564261
+}

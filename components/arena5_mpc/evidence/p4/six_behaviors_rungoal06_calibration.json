@@ -1,0 +1,127 @@
+{
+  "action_status": 4,
+  "backlog_delay_s": 0.25,
+  "backlog_injections": 0,
+  "bt_default_server_timeout_ms": 500,
+  "controller_failure_counts": {
+    "plugin commit deadline exceeded": 1
+  },
+  "controller_mode_counts": {
+    "human_wait": 25,
+    "track": 59
+  },
+  "controller_wait_reason_counts": {
+    "solver_timeout": 25
+  },
+  "cycle_ms_max": 82.5167,
+  "cycle_ms_p95": 81.5814,
+  "end": [
+    3.3743083477020264,
+    3.0,
+    -2.980210161054569e-08
+  ],
+  "expected_agents": 6,
+  "id_change_injections": 0,
+  "interaction_distance_gate_m": 1.5,
+  "outputs_finite": true,
+  "pass": true,
+  "position_error_m": 0.22569165229797372,
+  "progress_movement_time_allowance_s": 30.0,
+  "run_metadata": {
+    "config_path": "/home/lpc/workspace/arena5_ws/install/arena_bringup/share/arena_bringup/configs/hunav_agents/isaac_six_behaviors_warehouse.yaml",
+    "config_sha256": "ac77047d69256d71fadca0aa958848cb9b30a0b15e3fcf91275514fc1a748b67",
+    "controller_config_sha256": "78f27edd6cc997bcabe90cb3b9c398073ea85265a46a96a7e26d65c323400283",
+    "controller_source_sha256": "cc2d2b8088a6cc29cb5c2cf9b67efb9a71990ca877e7c8dd1f522dabb46f979e",
+    "foxglove_port": 9206,
+    "git_head": "b0a18f0ab89745ec7776c8e0be188471f9a62e73",
+    "gpu_index": 0,
+    "gpu_snapshot_csv": "0, GPU-cff28fa1-3402-3702-126b-d0cb66a69fb6, 24564, 45, 24037",
+    "launch_log": "/home/lpc/workspace/arena5_mpc_ws/evidence/p4/six_behaviors_rungoal06_calibration_launch.log",
+    "launch_sha256": "0d0aba0fd223a6ee8552525147d54b993b287cf8f56cb479c7319260c5d0712f",
+    "nav2_overrides_sha256": "bc6db58746f264c40567968db07463768de4c0dca16c4159d40081d7eae8b794",
+    "probe_sha256": "8b02a78d97ebb82e2ed361355c2b430a2bf0a805a4be444ba1d87d7ed4bd13f0",
+    "ros_domain_id": 106,
+    "webrtc_media_port": 48606,
+    "webrtc_signal_port": 49606
+  },
+  "safety": {
+    "aligned_human_samples": 141,
+    "clearance_samples": 846,
+    "closest_sample": {
+      "human": [
+        4.218897450209901,
+        3.0003939989009445,
+        0.4000000059604645
+      ],
+      "human_id": 6,
+      "robot": [
+        3.0,
+        3.0,
+        0.0
+      ],
+      "stamp_ns": 1358333340
+    },
+    "human_speed_bound_mps": 1.9707050229571166,
+    "id_set_change_count": 0,
+    "ids_seen": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "maximum_human_stamp_gap_s": 0.025000203000000002,
+    "maximum_odom_bracket_s": 0.016666668000000003,
+    "maximum_step_velocity_heading_change_by_id_rad": {
+      "1": 0.00031846434088222964,
+      "2": 0.00032239782671123586,
+      "4": 2.0677226908038002,
+      "5": 0.018698728169777912,
+      "6": 3.109160035690083
+    },
+    "maximum_step_velocity_heading_change_rad": 3.109160035690083,
+    "maximum_velocity_heading_excursion_by_id_rad": {
+      "1": 0.007159186253474559,
+      "2": 0.007232165860559683,
+      "4": 3.2006955912747483,
+      "5": 0.14910454095272274,
+      "6": 3.1696573187194734
+    },
+    "minimum_clearance_lower_bound_by_id_m": {
+      "1": 10.176856143005896,
+      "2": 6.633889534824911,
+      "3": 2.7150028502363566,
+      "4": 1.804583218363345,
+      "5": 3.4431832643209415,
+      "6": 0.5370638630278141
+    },
+    "minimum_clearance_lower_bound_m": 0.5370638630278141,
+    "minimum_measured_clearance_by_id_m": {
+      "1": 10.218689724227518,
+      "2": 6.675723116046534,
+      "3": 2.7568364314579785,
+      "4": 1.8464167995849672,
+      "5": 3.4850168455425634,
+      "6": 0.5788974442494361
+    },
+    "minimum_measured_footprint_human_clearance_m": 0.5788974442494361,
+    "sampling_alignment_error_bound_m": 0.04183358122162208,
+    "stopped_after_motion_ids": [
+      6
+    ]
+  },
+  "scenario": "six_behaviors",
+  "simulation_duration_s": 3.5333335170000004,
+  "solver_ms_max": 82.225,
+  "solver_ms_p50": 39.677099999999996,
+  "solver_ms_p95": 80.5589,
+  "solver_samples": 84,
+  "target": [
+    3.6,
+    3.0,
+    0.0
+  ],
+  "wall_duration_s": 9.473565934225917,
+  "yaw_error_rad": 2.980210161054569e-08
+}

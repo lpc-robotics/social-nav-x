@@ -1,0 +1,60 @@
+# Values merged into Arena's model substitution dictionary before nav2.yaml is expanded.
+controller_plugins:
+  - FollowPath
+controller_plugins_dict:
+  FollowPath:
+    plugin: "arena_mpc_controller::MpcController"
+    horizon: 25
+    dt: 0.1
+    gamma: 0.2
+    # Enforce 0.35 m internally so the measured 0.30 m net-clearance gate
+    # retains 0.05 m for prediction and command-application uncertainty.
+    safe_distance: 0.35
+    # The odometry-fixed first state may lie just inside the conservative
+    # circumscribed-circle set even while the oriented footprint is safe.
+    # Permit at most 5 cm of that pre-existing mismatch and require every
+    # predicted step to preserve or increase clearance until fully recovered.
+    max_initial_clearance_violation: 0.05
+    clearance_recovery_exit: 0.10
+    clearance_recovery_linear: 0.40
+    clearance_recovery_angular: 1.0
+    clearance_recovery_min_outward_cos: 0.10
+    terminal_weight: 1.0
+    slack_weight: 50.0
+    max_linear: 0.8
+    max_angular: 1.5
+    max_linear_accel: 2.0
+    max_angular_accel: 3.2
+    max_dynamic_obstacles: 32
+    max_nlp_dynamic_obstacles: 8
+    max_iterations: 100
+    solver_budget_ms: 75.0
+    plugin_commit_limit_ms: 90.0
+    # A costmap collision is eligible for this bounded wait only when it also
+    # matches a current HuNav agent. Online evidence showed such cells can need
+    # about 12 wall seconds to clear; keep the action active while stopped, but
+    # retain a finite bound for a genuinely stuck costmap.
+    costmap_obstacle_wait_limit: 120.0
+    transform_tolerance: 0.2
+    ros_age_limit: 0.3
+    human_wall_limit: 0.6
+    odom_wall_limit: 0.4
+    lidar_wall_limit: 1.55
+    # Time-indexed path reference: 0.025 m / 0.1 s = 0.25 m/s, within
+    # a conservative 0.25 m/s nominal reference. The 0.8 m/s bound remains
+    # available to the optimizer without forcing that speed near turns.
+    reference_spacing: 0.025
+    # Queried from the active Nav2 GoalChecker at runtime. This value is used
+    # only if a custom checker cannot report its XY tolerance.
+    goal_position_tolerance_fallback: 0.25
+    geometry_uncertainty: 0.05
+    # Hard floor used only when the safest available response is to brake to
+    # zero; normal planning retains the larger safe_distance above.
+    emergency_safe_distance: 0.3
+    failure_limit: 5
+    humans_topic: "/human_states"
+    odom_topic: "/odom"
+    lidar_topic: "/lidar"
+
+# One geometry source drives both costmaps and the controller's footprint checks.
+footprint: "[ [0.24, 0.22], [0.24, -0.22], [-0.24, -0.22], [-0.24, 0.22] ]"

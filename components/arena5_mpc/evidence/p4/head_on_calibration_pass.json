@@ -1,0 +1,88 @@
+{
+  "action_status": 4,
+  "backlog_delay_s": 0.25,
+  "backlog_injections": 0,
+  "controller_failure_counts": {},
+  "controller_mode_counts": {
+    "human_wait": 1,
+    "track": 774
+  },
+  "controller_wait_reason_counts": {
+    "solver_timeout": 1
+  },
+  "cycle_ms_max": 83.7632,
+  "cycle_ms_p95": 50.1516,
+  "end": [
+    7.772050380706787,
+    2.9999961853027344,
+    8.904612760745866e-06
+  ],
+  "expected_agents": 6,
+  "id_change_injections": 0,
+  "interaction_distance_gate_m": 1.5,
+  "outputs_finite": true,
+  "pass": true,
+  "position_error_m": 0.22794961932513205,
+  "safety": {
+    "aligned_human_samples": 832,
+    "clearance_samples": 4992,
+    "closest_sample": {
+      "human": [
+        5.722756607382171,
+        4.2557725959014014,
+        0.4000000059604645
+      ],
+      "human_id": 101,
+      "robot": [
+        5.370393383813293,
+        2.9999151230016183,
+        -0.00012827409491810145
+      ],
+      "stamp_ns": 10708333340
+    },
+    "human_speed_bound_mps": 0.25000000000000006,
+    "id_set_change_count": 0,
+    "ids_seen": [
+      101,
+      102,
+      103,
+      104,
+      105,
+      106
+    ],
+    "maximum_human_stamp_gap_s": 0.025,
+    "maximum_odom_bracket_s": 0.016666668000000003,
+    "maximum_step_velocity_heading_change_by_id_rad": {
+      "101": 0.003356489670978568,
+      "102": 2.9309434351571455,
+      "103": 2.9149888845125953,
+      "104": 2.835520749140971,
+      "105": 0.9043736127298487,
+      "106": 2.1228716200466597
+    },
+    "maximum_step_velocity_heading_change_rad": 2.9309434351571455,
+    "minimum_clearance_lower_bound_m": 0.6216369246749347,
+    "minimum_measured_footprint_human_clearance_m": 0.6419614336470272,
+    "sampling_alignment_error_bound_m": 0.020324508972092488,
+    "stopped_after_motion_ids": [
+      102,
+      103,
+      104,
+      105,
+      106
+    ]
+  },
+  "scenario": "head_on",
+  "simulation_duration_s": 20.800001085,
+  "solver_ms_max": 80.5423,
+  "solver_ms_p50": 40.379,
+  "solver_ms_p95": 48.8536,
+  "solver_samples": 775,
+  "target": [
+    8.0,
+    3.0,
+    0.0
+  ],
+  "wall_duration_s": 78.52615746902302,
+  "yaw_error_rad": 8.904612760745866e-06
+}
