@@ -1,0 +1,66 @@
+{
+  "name": "depth-clearing-v1",
+  "tag": "baseline/depth-clearing-v1",
+  "created_at": "2026-09-15T16:37:05+08:00",
+  "environment": {
+    "isaac_sim": "5.1.0.0",
+    "isaac_env": "/home/lpc/miniforge3/envs/isaaclab",
+    "ros_distro": "humble",
+    "rclpy": "3.3.16",
+    "numpy": "1.26.4"
+  },
+  "environment_guard": {
+    "isaac_sim_source": {
+      "path": "vendor/IsaacSim",
+      "commit": "47d886f2858d1ceed556b21c88927aa67bc81c12",
+      "expected_status": ""
+    },
+    "conda_history": {
+      "path": "/home/lpc/miniforge3/envs/isaaclab/conda-meta/history",
+      "sha256": "f1592eb7d8b5a5146c1877dee8940542cae9c8a66062e63625acd33e667cb98b"
+    }
+  },
+  "repositories": {
+    ".": "870819fd36905cc5395e1419f61068a6cc3873c6",
+    "src/arena/evaluation": "94762429bea19b84cab50a3d0910a736184738a0",
+    "src/arena/simulation-setup": "388e5464e958547a50035cc29de21c7da66e9d9a",
+    "src/arena/tools": "cbf1d05abd436cdb820da9fd0c35847b06a39ae0",
+    "src/arena-isaac": "be8fefce4fdeb238372da923214e478d92bbbc32",
+    "src/arena-rosnav": "39ca4cab709eb29733422c9afd1e6e1503e96a07",
+    "src/deps/foxglove-sdk": "8339d02ebf13cbb88bef94ab9f2329d6b2ccfd5c",
+    "src/deps/hunav/hunav_sim": "e8f7da39cda61a8005633e9a29d61ec2ca3601ac",
+    "src/deps/hunav/lightsfm": "b30327cca189af2fb90443a5d0040cceb46d7195",
+    "src/deps/hunav/people_msgs": "0ae47f6e0208cedd84d19d066743fdc1d05fcafa",
+    "src/deps/nav2/navigation2": "8e34dcf5790671085a893dc58d2a0940ec80dd1e",
+    "src/deps/robots/jackal": "017b8b581a90873047f7d6fe438bd87513be4a76"
+  },
+  "runtime_files": {
+    "src/arena-isaac/arena_isaac/isaac_utils/graphs/sensors/depth_clearing.py": "9c29e189dbfcae0f225646e6d8b15c9a2d80bca88273d898eb678a4517aab8a3",
+    "src/arena-isaac/arena_isaac/isaac_utils/clearing_geometry.py": "81d62aa505519fa57e9670fbc12a499646ae441d366c7680921baa85320e134b",
+    "src/arena-isaac/arena_isaac/isaac_utils/graphs/sensors/lidar.py": "70af9561f528ee8770d23dfcfffd07f4cb2898bb57e2a3bd9c39d9ef76d1ecc1",
+    "src/arena-isaac/arena_isaac/arena_isaac/run_isaacsim.py": "9e532de960ab2242882ed7bdb2089f3fa214f595ec73d336113c0b73fc4a2bc1"
+  },
+  "bundles": {
+    "arena_evaluation.bundle": "691dfc098f85a81ed52398624234926b25229327357cc193e7e85bf74d9009d7",
+    "arena_isaac.bundle": "4691f1e86be5deb23a8a671de16b7559c72b2da781801ceeedffd769e802901c",
+    "arena_rosnav.bundle": "ad1b2daf906c3553878b7e517b14804ac21a719a84f291e0e7c7947b510c215a",
+    "arena_simulation_setup.bundle": "af7007f2602c4061cc31a2763119b81dbef3edc0b05c21854c3fbf2fbe2e430c",
+    "arena_tools.bundle": "5f494101909914842e90c035dbe75eb3e64ddd50bb224e8720216a58cfd3693e",
+    "foxglove_sdk.bundle": "97f727a93bd99a5f9ba3da6aa0f4069d6ab52cae94ee9a5834aeba5cd9cd9f7f",
+    "hunav_sim.bundle": "d25d21ee1a8def3df1a241dcc79f18452e882788febccae1af6221a632b9b189",
+    "jackal.bundle": "66d2408cc7ca3a239c351e4cafaf8fd6d184a4a52bf1a8bc6708dcdd1d7892b2",
+    "lightsfm.bundle": "c5e6e4a1296a6aba9486e0fcb0a6c5eb894f6adb1334fa1d2b3906953f24cff8",
+    "navigation2.bundle": "116bbc6795ed34fb7d80777e0184bb89c0911422a16d9771f1d27077c80bf713",
+    "people_msgs.bundle": "5f8add9629fed2101c68b8f39af391b5774362f3536a44b45ab3cf1d61dff64b",
+    "root.bundle": "8aeced4738e3748a1dcdea0a1c661957f227be17a17d21e5d1e31acfb0301a40"
+  },
+  "preserved_user_state": {
+    "NvStreamer-20260915-111733.etli": "4d74f12c5788940dd287087ae83c2235d9d1045c6337cee2fd17c3df1d4e413d",
+    "command.txt": "ed2182385bc7dfb1f8c6c4c019157185b00eb7e71eb7cc6c9657c078924b4949",
+    "simulation-setup-before-laserscan.patch": "a612a71bc0f60fb3238d26eb49f8864cb9c589e5f441a4aae1726662c4478f9d"
+  },
+  "runtime": {
+    "ARENA_DEPTH_CLEARING": "true",
+    "ARENA_NORMALIZED_SCAN": "false"
+  }
+}

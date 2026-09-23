@@ -1,0 +1,12 @@
+{
+  "repository": "https://github.com/isaac-sim/IsaacSim",
+  "tag": "v5.1.0",
+  "commit": "47d886f2858d1ceed556b21c88927aa67bc81c12",
+  "files_sha256": {
+    "OgnIsaacComputeRTXLidarFlatScan.cpp": "230da55b82857e5200fb5b4eaa0f55c9826988ac9ce3d740dd443a159dd6fbc8",
+    "OgnIsaacCreateRTXLidarScanBuffer.ogn": "ba7930b0024103e005432f17a0ede32d8aa205480181b82d3a350ca8ab318128",
+    "OgnIsaacCreateRTXLidarScanBuffer.cpp": "5822ea5db91073164072f336d6b7d838a71a72c099ecb7201f58a56fd24a6bf5",
+    "OgnROS2PublishLaserScan.cpp": "220fdb72dfb5bde35c617ab52d603d1bc2d6c1d1cf4ad93e7659ce7e5553e5e9",
+    "IsaacSimSensorsRTXCuda.cu": "75e72c149b987d0d1087bd82361455541887d94bb2a2cbd315c3f999d7cdf339"
+  }
+}

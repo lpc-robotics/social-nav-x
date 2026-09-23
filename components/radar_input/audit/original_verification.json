@@ -1,0 +1,8 @@
+{
+  "passed": true,
+  "files_checked": 11438,
+  "repositories_checked": 11,
+  "changed_files": [],
+  "changed_git_states": [],
+  "scope": "src, scripts, config; Git branch, HEAD, status and both diffs; excludes logs/build/cache and __pycache__"
+}

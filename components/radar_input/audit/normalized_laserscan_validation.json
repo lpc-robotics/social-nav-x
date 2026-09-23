@@ -1,0 +1,151 @@
+{
+  "schema_version": 1,
+  "validated_at": "2026-09-15T21:46:00+08:00",
+  "result": "passed",
+  "baseline": {
+    "tag": "baseline/depth-clearing-v1",
+    "stable_runtime_enabled": true,
+    "normalized_scan_default_enabled": false,
+    "offline_bundles": 12,
+    "preserved_user_artifacts": 3,
+    "runtime_verifier_checks_passed": 49,
+    "full_recovery_verifier_checks_passed": 61
+  },
+  "build_and_static_tests": {
+    "isolated_overlay": ".workspaces/laserscan-v1/install",
+    "packages_built": [
+      "arena_isaac",
+      "arena_humble_compat"
+    ],
+    "geometry_tests_passed": 12,
+    "ament_flake8_files_passed": 8,
+    "ament_pep257_files_passed": 2
+  },
+  "controlled_scene": {
+    "passed": true,
+    "messages": 10,
+    "beams": 640,
+    "sim_frequency_hz": 9.999999500000019,
+    "front_wall_expected_m": 2.9,
+    "front_wall_measured_m": 2.9000000953674316,
+    "moving_obstacle_before_m": 1.799999713897705,
+    "moving_obstacle_after": "+Inf",
+    "confirmed_too_close": "-Inf",
+    "invalid_finite_values": 0,
+    "sensor_offset_z_m": 0.142
+  },
+  "full_jackal_hunav_scene": {
+    "passed": true,
+    "messages": 25,
+    "beams": 640,
+    "frame_id": "lidar_link_normalized",
+    "sim_frequency_hz": 9.999999500000019,
+    "angle_increment_rad": 0.009817477315664291,
+    "time_increment_s": 0.0,
+    "scan_time_s": 0.10000000149011612,
+    "range_min_m": 0.07999999821186066,
+    "range_max_m": 12.0,
+    "last_states": {
+      "hit": 462,
+      "no_return": 178,
+      "too_close": 0,
+      "unknown": 0
+    },
+    "invalid_finite_values": 0,
+    "static_transform": {
+      "parent": "lidar_link",
+      "child": "lidar_link_normalized",
+      "translation_m": [
+        0.0,
+        0.0,
+        0.142
+      ],
+      "rotation_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    "migration_boundary": {
+      "normalized_scan_subscriptions": 0,
+      "depth_clearing_subscriptions": 1,
+      "depth_clearing_consumer": "/local_costmap/local_costmap"
+    }
+  },
+  "v1_1_post_hardening_smoke": {
+    "passed": true,
+    "messages": 10,
+    "beams": 640,
+    "frame_id": "lidar_link_normalized",
+    "sim_frequency_hz": 9.999999500000019,
+    "angle_increment_rad": 0.009817477315664291,
+    "time_increment_s": 0.0,
+    "scan_time_s": 0.10000000149011612,
+    "range_min_m": 0.07999999821186066,
+    "range_max_m": 12.0,
+    "last_states": {
+      "hit": 461,
+      "no_return": 179,
+      "too_close": 0,
+      "unknown": 0
+    },
+    "invalid_finite_values": 0,
+    "static_transform": {
+      "parent": "lidar_link",
+      "child": "lidar_link_normalized",
+      "translation_m": [
+        0.0,
+        0.0,
+        0.142
+      ],
+      "rotation_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    "raw_evidence": ".workspaces/laserscan-v1/log/full_scene_normalized_scan_v1_1.json"
+  },
+  "lifecycle": {
+    "passed": true,
+    "same_path_respawn_messages": 15,
+    "sim_frequency_hz": 9.999999500000019,
+    "instances_after_cleanup": 0,
+    "annotator_teardown_warnings": 0,
+    "render_product_teardown_warnings": 0
+  },
+  "depth_clearing_regression": {
+    "passed": true,
+    "old_lethal_cells_after_clear": 0,
+    "old_max_cost_after_clear": 0,
+    "static_wall_lethal_cells": 20,
+    "occluded_lethal_cells": 2
+  },
+  "isolated_source_scaling": [
+    {
+      "sources": 1,
+      "real_time_factor": 0.8593104338430375,
+      "sim_frequency_hz_per_robot": 9.999999500000019
+    },
+    {
+      "sources": 2,
+      "real_time_factor": 0.5437998132198408,
+      "sim_frequency_hz_per_robot": 9.999999500000019
+    },
+    {
+      "sources": 4,
+      "real_time_factor": 0.368298727879708,
+      "sim_frequency_hz_per_robot": 9.999999500000019
+    }
+  ],
+  "environment_guard": {
+    "isaac_sim_source_commit": "47d886f2858d1ceed556b21c88927aa67bc81c12",
+    "isaac_sim_source_clean": true,
+    "isaac_conda_history_unchanged": true,
+    "nvidia_install_source_modified": false,
+    "conda_packages_modified": false
+  },
+  "raw_evidence_root": ".workspaces/laserscan-v1/log"
+}

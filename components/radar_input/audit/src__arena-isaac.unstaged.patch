@@ -1,0 +1,2262 @@
+diff --git a/arena_humble_compat/arena_humble_compat/__init__.py b/arena_humble_compat/arena_humble_compat/__init__.py
+new file mode 100644
+index 0000000..8b13789
+--- /dev/null
++++ b/arena_humble_compat/arena_humble_compat/__init__.py
+@@ -0,0 +1 @@
++
+diff --git a/arena_humble_compat/arena_humble_compat/hunav_six_behaviors_bridge.py b/arena_humble_compat/arena_humble_compat/hunav_six_behaviors_bridge.py
+new file mode 100644
+index 0000000..efac4fa
+--- /dev/null
++++ b/arena_humble_compat/arena_humble_compat/hunav_six_behaviors_bridge.py
+@@ -0,0 +1,737 @@
++import copy
++import math
++import os
++import time
++
++import rclpy
++import yaml
++from arena_humble_compat.bridge_validation import (
++    STRICT_SIX_BEHAVIOR_TYPES,
++    calculate_runtime_rates,
++    character_model_mapping,
++    format_ready_status,
++    format_runtime_status,
++    require_plain_integer,
++    validate_agent_definitions,
++)
++from arena_people_msgs.msg import Pedestrian, SpawnPedestrian
++from arena_people_msgs.srv import SpawnPedestrians, UpdatePedestrians
++from geometry_msgs.msg import Pose, Twist
++from hunav_msgs.msg import Agent, Agents
++from hunav_msgs.srv import ComputeAgents
++from isaacsim_msgs.msg import Wall
++from isaacsim_msgs.srv import SpawnUrdf, SpawnWalls
++from nav_msgs.msg import Odometry
++from rclpy.clock import Clock, ClockType
++from rclpy.node import Node
++from rclpy.qos import qos_profile_sensor_data
++from rclpy.time import Time
++from sensor_msgs.msg import JointState
++from std_msgs.msg import String
++from std_srvs.srv import Trigger
++
++
++WHEEL_JOINTS = [
++    "front_left_wheel_joint",
++    "rear_left_wheel_joint",
++    "front_right_wheel_joint",
++    "rear_right_wheel_joint",
++]
++
++BEHAVIOR_NAMES = {
++    1: "REGULAR",
++    2: "IMPASSIVE",
++    3: "SURPRISED",
++    4: "SCARED",
++    5: "CURIOUS",
++    6: "THREATENING",
++}
++
++DEFAULT_CHARACTER_MODELS = [
++    "original_female_adult_business_02",
++    "original_female_adult_medical_01",
++    "original_male_adult_medical_01",
++    "original_male_adult_construction_01",
++    "original_male_adult_construction_05",
++    "original_female_adult_police_01",
++]
++
++
++def _yaw_from_quaternion(quaternion) -> float:
++    return math.atan2(
++        2.0 * (quaternion.w * quaternion.z + quaternion.x * quaternion.y),
++        1.0 - 2.0 * (quaternion.y * quaternion.y + quaternion.z * quaternion.z),
++    )
++
++
++def _set_yaw(quaternion, yaw: float):
++    quaternion.x = 0.0
++    quaternion.y = 0.0
++    quaternion.z = math.sin(yaw / 2.0)
++    quaternion.w = math.cos(yaw / 2.0)
++
++
++class ArenaHuNavIsaacBridge(Node):
++    """Adapt HuNav's simulator-agnostic output to Arena Isaac 5.1 services."""
++
++    def __init__(self):
++        super().__init__("arena_hunav_isaac_bridge")
++        self.declare_parameter("agent_config_file", "")
++        self.declare_parameter("urdf_path", "")
++        self.declare_parameter("update_rate", 40.0)
++        self.declare_parameter("display_rate", 5.0)
++        self.declare_parameter("max_integration_step", 0.025)
++        self.declare_parameter("scheduler_rate", 100.0)
++        self.declare_parameter("robot_x", 3.0)
++        self.declare_parameter("robot_y", 3.0)
++        # Match Arena's Jackal diff_drive_controller calibration. The physical
++        # track alone under-commands a four-wheel skid-steer turn because the
++        # tyres must also slide laterally.
++        self.declare_parameter("wheel_radius", 0.098)
++        self.declare_parameter("wheel_separation", 0.36)
++        self.declare_parameter("wheel_separation_multiplier", 1.5)
++        # Isaac PhysX uses isotropic wheel friction. A four-wheel skid-steer
++        # therefore has a yaw-rate dead zone that the Gazebo calibration alone
++        # cannot remove. These measured feed-forward terms preserve the
++        # official effective track while compensating that contact loss.
++        self.declare_parameter("angular_velocity_gain", 1.18)
++        self.declare_parameter("angular_static_compensation", 0.46)
++        self.declare_parameter("angular_compensation_transition", 0.1)
++        self.declare_parameter("character_models", DEFAULT_CHARACTER_MODELS)
++        self.declare_parameter("strict_six_behavior_demo", True)
++        self.declare_parameter("status_topic", "/arena5/six_behaviors/status")
++        self.declare_parameter(
++            "agent_debug_topic", "/arena5/six_behaviors/agents"
++        )
++        self.declare_parameter("ready_marker", "SIX_BEHAVIORS_READY")
++
++        self._strict_six_behavior_demo = bool(
++            self.get_parameter("strict_six_behavior_demo").value
++        )
++        self._ready_marker = str(self.get_parameter("ready_marker").value)
++        if not self._ready_marker:
++            raise RuntimeError("ready_marker must be non-empty")
++
++        self._agents, self._agent_templates = self._load_agents()
++        self._agent_count = len(self._agents.agents)
++        self._models = self._load_character_models()
++
++        self._status_pub = self.create_publisher(
++            String, str(self.get_parameter("status_topic").value), 10
++        )
++        self._agent_debug_pub = self.create_publisher(
++            Agents, str(self.get_parameter("agent_debug_topic").value), 10
++        )
++        self._joint_pub = self.create_publisher(
++            JointState, "/isaac/joint_commands_velocity", 10
++        )
++        self.create_subscription(Twist, "/cmd_vel", self._on_twist, 10)
++        self.create_subscription(
++            Odometry, "/odom", self._on_odom, qos_profile_sensor_data
++        )
++
++        self._walls = self.create_client(SpawnWalls, "/isaac/SpawnWalls")
++        self._robot = self.create_client(SpawnUrdf, "/isaac/SpawnUrdf")
++        self._spawn_people = self.create_client(
++            SpawnPedestrians, "/isaac/SpawnPedestrians"
++        )
++        self._update_people = self.create_client(
++            UpdatePedestrians, "/isaac/UpdatePedestrians"
++        )
++        self._pause = self.create_client(Trigger, "/isaac/PauseSimulation")
++        self._unpause = self.create_client(Trigger, "/isaac/UnpauseSimulation")
++        self._compute = self.create_client(ComputeAgents, "/compute_agents")
++
++        self._last_twist = Twist()
++        self._last_twist_monotonic = 0.0
++        self._odom = None
++        self._odom_time_ns = None
++        self._odom_xy_yaw = None
++        self._robot_velocity = (0.0, 0.0, 0.0)
++        self._compute_future = None
++        self._compute_stamp = None
++        self._compute_stamp_ns = None
++        self._last_integrated_stamp_ns = None
++        self._update_future = None
++        self._display_snapshot = None
++        self._needs_isaac_update = False
++        self._last_display_dispatch_monotonic = 0.0
++        self._compute_count = 0
++        self._update_count = 0
++        self._substep_count = 0
++        self._max_integration_step_seen = 0.0
++        self._metrics_start_monotonic = None
++        self._last_report_monotonic = None
++        self._last_reported_compute_count = 0
++        self._last_reported_update_count = 0
++        self._ready_reported = False
++        self._ideal_chassis = str(
++            os.environ.get("ARENA_IDEAL_CHASSIS", "false")
++        ).lower() in ("true", "1")
++
++        update_rate = float(self.get_parameter("update_rate").value)
++        display_rate = float(self.get_parameter("display_rate").value)
++        max_step = float(self.get_parameter("max_integration_step").value)
++        scheduler_rate = float(self.get_parameter("scheduler_rate").value)
++        if update_rate <= 0.0:
++            raise RuntimeError("update_rate must be positive")
++        if display_rate <= 0.0:
++            raise RuntimeError("display_rate must be positive")
++        if max_step <= 0.0:
++            raise RuntimeError("max_integration_step must be positive")
++        if scheduler_rate < update_rate:
++            raise RuntimeError("scheduler_rate must be at least update_rate")
++
++        self._compute_rate = update_rate
++        self._compute_period_ns = max(1, round(1_000_000_000 / update_rate))
++        self._display_period = 1.0 / display_rate
++        self._max_integration_step_ns = max(1, round(max_step * 1_000_000_000))
++        self._status_interval = max(20, round(update_rate * 5.0))
++
++        # A steady-clock scheduler keeps HuNav service progress independent of
++        # Isaac's render/ROS clock cadence. ROS sim time is still used for every
++        # integration stamp and is split into max_integration_step increments.
++        self._steady_clock = Clock(clock_type=ClockType.STEADY_TIME)
++        self.create_timer(0.05, self._publish_wheels, clock=self._steady_clock)
++        self.create_timer(
++            1.0 / scheduler_rate, self._tick, clock=self._steady_clock
++        )
++        self.get_logger().info(
++            "SIX_BEHAVIORS_SCHEDULER "
++            f"compute_rate={update_rate:.1f} display_rate={display_rate:.1f} "
++            f"max_dt={max_step:.3f} scheduler_rate={scheduler_rate:.1f} "
++            f"ideal_chassis={self._ideal_chassis}"
++        )
++
++    def _load_agents(self):
++        config_path = str(self.get_parameter("agent_config_file").value)
++        if not config_path:
++            raise RuntimeError("agent_config_file parameter is required")
++        with open(config_path, "r", encoding="utf-8") as config_file:
++            document = yaml.safe_load(config_file)
++
++        try:
++            parameters = document["hunav_loader"]["ros__parameters"]
++            agent_names = parameters["agents"]
++        except (KeyError, TypeError) as exc:
++            raise RuntimeError(f"invalid HuNav agent file: {config_path}") from exc
++
++        container = Agents()
++        container.header.frame_id = "map"
++        templates = {}
++        for name in agent_names:
++            spec = parameters[name]
++            behavior_spec = spec["behavior"]
++            init_pose = spec["init_pose"]
++
++            agent_id = require_plain_integer(spec["id"], f"{name}.id")
++            behavior_type = require_plain_integer(
++                behavior_spec["type"], f"{name}.behavior.type"
++            )
++            behavior_configuration = require_plain_integer(
++                behavior_spec["configuration"],
++                f"{name}.behavior.configuration",
++            )
++
++            agent = Agent()
++            agent.id = agent_id
++            agent.type = Agent.PERSON
++            agent.skin = int(spec["skin"])
++            agent.name = str(name)
++            agent.group_id = int(spec["group_id"])
++            agent.position.position.x = float(init_pose["x"])
++            agent.position.position.y = float(init_pose["y"])
++            agent.position.position.z = 0.0
++            agent.yaw = float(init_pose["h"])
++            _set_yaw(agent.position.orientation, agent.yaw)
++            agent.desired_velocity = float(spec["max_vel"])
++            agent.radius = float(spec["radius"])
++
++            agent.behavior.type = behavior_type
++            agent.behavior.state = 0
++            agent.behavior.configuration = behavior_configuration
++            agent.behavior.duration = float(behavior_spec["duration"])
++            agent.behavior.once = bool(behavior_spec["once"])
++            agent.behavior.vel = float(behavior_spec["vel"])
++            agent.behavior.dist = float(behavior_spec["dist"])
++            agent.behavior.goal_force_factor = float(
++                behavior_spec["goal_force_factor"]
++            )
++            agent.behavior.obstacle_force_factor = float(
++                behavior_spec["obstacle_force_factor"]
++            )
++            agent.behavior.social_force_factor = float(
++                behavior_spec["social_force_factor"]
++            )
++            agent.behavior.other_force_factor = float(
++                behavior_spec["other_force_factor"]
++            )
++
++            agent.goal_radius = float(spec["goal_radius"])
++            agent.cyclic_goals = bool(spec["cyclic_goals"])
++            for goal_name in spec["goals"]:
++                goal_spec = spec[goal_name]
++                goal = Pose()
++                goal.position.x = float(goal_spec["x"])
++                goal.position.y = float(goal_spec["y"])
++                goal.position.z = 0.0
++                goal.orientation.w = 1.0
++                agent.goals.append(goal)
++
++            container.agents.append(agent)
++            templates[agent.name] = copy.deepcopy(agent)
++
++        validate_agent_definitions(
++            (
++                (
++                    agent.id,
++                    agent.name,
++                    agent.behavior.type,
++                    agent.behavior.configuration,
++                )
++                for agent in container.agents
++            ),
++            self._strict_six_behavior_demo,
++        )
++        return container, templates
++
++    def _load_character_models(self):
++        model_names = list(self.get_parameter("character_models").value)
++        agent_names = [agent.name for agent in self._agents.agents]
++        return character_model_mapping(agent_names, model_names)
++
++    def _status(self, text: str):
++        self.get_logger().info(text)
++        self._status_pub.publish(String(data=text))
++
++    def _call(self, client, request, name: str, timeout: float = 180.0):
++        if not client.wait_for_service(timeout_sec=timeout):
++            raise RuntimeError(f"timeout waiting for {name}")
++        future = client.call_async(request)
++        rclpy.spin_until_future_complete(self, future, timeout_sec=timeout)
++        if not future.done():
++            raise RuntimeError(f"timeout calling {name}")
++        if future.exception() is not None:
++            raise RuntimeError(f"{name} failed: {future.exception()}")
++        return future.result()
++
++    def spawn_scene(self):
++        pause_result = self._call(
++            self._pause, Trigger.Request(), "/isaac/PauseSimulation"
++        )
++        if not pause_result or not pause_result.success:
++            raise RuntimeError(f"could not pause simulation: {pause_result}")
++
++        walls = SpawnWalls.Request()
++        corners = [
++            ((0.0, 0.0), (30.0, 0.0)),
++            ((30.0, 0.0), (30.0, 23.0)),
++            ((30.0, 23.0), (0.0, 23.0)),
++            ((0.0, 23.0), (0.0, 0.0)),
++        ]
++        for index, (start, end) in enumerate(corners):
++            wall = Wall()
++            wall.name = f"six_behaviors_wall_{index}"
++            wall.start.x, wall.start.y, wall.start.z = start[0], start[1], 0.0
++            wall.end.x, wall.end.y, wall.end.z = end[0], end[1], 2.5
++            wall.thickness = 0.1
++            walls.walls.append(wall)
++        wall_result = self._call(self._walls, walls, "/isaac/SpawnWalls")
++        if not wall_result or not all(wall_result.ret):
++            raise RuntimeError(f"wall spawn failed: {wall_result}")
++        self._status("SIX_BEHAVIORS_WALLS_OK count=4")
++
++        request = SpawnPedestrians.Request()
++        for agent in self._agents.agents:
++            item = SpawnPedestrian()
++            item.model_ref = self._models[agent.name]
++            item.pedestrian.name = agent.name
++            item.pedestrian.pose = copy.deepcopy(agent.position)
++            request.pedestrians.append(item)
++        result = self._call(
++            self._spawn_people,
++            request,
++            "/isaac/SpawnPedestrians",
++            timeout=300.0,
++        )
++        if not result or list(result.results) != [0] * self._agent_count:
++            if self._strict_six_behavior_demo:
++                raise RuntimeError(f"six-pedestrian spawn failed: {result}")
++            raise RuntimeError(f"pedestrian spawn failed: {result}")
++        mapping = ",".join(
++            f"{agent.name}:{agent.behavior.type}"
++            for agent in self._agents.agents
++        )
++        self._status(
++            f"SIX_BEHAVIORS_SPAWN_OK count={self._agent_count} types={mapping}"
++        )
++
++        # SpawnUrdf performs the one World.reset() needed after stage edits.
++        # Keep it last so all Character prims survive that reset.
++        urdf_path = str(self.get_parameter("urdf_path").value)
++        if not urdf_path:
++            raise RuntimeError("urdf_path parameter is required")
++        robot = SpawnUrdf.Request()
++        robot.name = "arena_robot"
++        robot.urdf_path = urdf_path
++        robot.robot_model = "jackal"
++        robot.base_frame = "base_link"
++        robot.odom_frame = "odom"
++        robot.pose.position.x = float(self.get_parameter("robot_x").value)
++        robot.pose.position.y = float(self.get_parameter("robot_y").value)
++        robot.pose.position.z = 0.15
++        robot.pose.orientation.w = 1.0
++        robot.cmd_vel_topic = "/cmd_vel"
++        robot.joint_states_topic = "/joint_states"
++        robot.odom_topic = "/odom"
++        robot.localization = True
++        robot_result = self._call(self._robot, robot, "/isaac/SpawnUrdf")
++        if not robot_result or not robot_result.path:
++            raise RuntimeError(f"robot spawn failed: {robot_result}")
++        self._status(f"SIX_BEHAVIORS_ROBOT_OK path={robot_result.path}")
++
++        if not self._compute.wait_for_service(timeout_sec=60.0):
++            raise RuntimeError("timeout waiting for HuNav /compute_agents")
++        if not self._update_people.wait_for_service(timeout_sec=60.0):
++            raise RuntimeError("timeout waiting for Isaac pedestrian updates")
++
++        unpause_result = self._call(
++            self._unpause, Trigger.Request(), "/isaac/UnpauseSimulation"
++        )
++        if not unpause_result or not unpause_result.success:
++            raise RuntimeError(f"could not unpause simulation: {unpause_result}")
++        self._status("SIX_BEHAVIORS_HUNAV_SERVICE_OK service=/compute_agents")
++
++    def _on_twist(self, msg: Twist):
++        self._last_twist = msg
++        self._last_twist_monotonic = time.monotonic()
++
++    def _publish_wheels(self):
++        command = self._last_twist
++        if time.monotonic() - self._last_twist_monotonic > 0.5:
++            command = Twist()
++        wheel_radius = float(self.get_parameter("wheel_radius").value)
++        wheel_separation = float(self.get_parameter("wheel_separation").value)
++        angular = command.angular.z
++        if self._ideal_chassis:
++            # The D6 chassis follows raw cmd_vel directly. Wheel joints remain
++            # for visualization/state only, so the old skid-steer dead-zone
++            # feed-forward must not be applied a second time.
++            compensated_angular = angular
++        else:
++            wheel_separation *= float(
++                self.get_parameter("wheel_separation_multiplier").value
++            )
++            transition = max(
++                1e-6,
++                float(self.get_parameter("angular_compensation_transition").value),
++            )
++            compensated_angular = (
++                float(self.get_parameter("angular_velocity_gain").value) * angular
++                + float(self.get_parameter("angular_static_compensation").value)
++                * math.tanh(angular / transition)
++            )
++        left = (
++            command.linear.x - compensated_angular * wheel_separation / 2.0
++        ) / wheel_radius
++        right = (
++            command.linear.x + compensated_angular * wheel_separation / 2.0
++        ) / wheel_radius
++        msg = JointState()
++        msg.header.stamp = self.get_clock().now().to_msg()
++        msg.name = WHEEL_JOINTS
++        msg.velocity = [left, left, right, right]
++        self._joint_pub.publish(msg)
++
++    def _on_odom(self, msg: Odometry):
++        stamp_ns = msg.header.stamp.sec * 1_000_000_000 + msg.header.stamp.nanosec
++        x = msg.pose.pose.position.x
++        y = msg.pose.pose.position.y
++        yaw = _yaw_from_quaternion(msg.pose.pose.orientation)
++        # nav_msgs/Odometry expresses twist in child_frame_id (base_link).
++        # Rotate the official Isaac rigid-body velocity into the map/odom frame
++        # expected by HuNav instead of differentiating and filtering pose.
++        body_vx = msg.twist.twist.linear.x
++        body_vy = msg.twist.twist.linear.y
++        cos_yaw = math.cos(yaw)
++        sin_yaw = math.sin(yaw)
++        self._robot_velocity = (
++            cos_yaw * body_vx - sin_yaw * body_vy,
++            sin_yaw * body_vx + cos_yaw * body_vy,
++            msg.twist.twist.angular.z,
++        )
++        self._odom = msg
++        self._odom_time_ns = stamp_ns
++        self._odom_xy_yaw = (x, y, yaw)
++
++    def _robot_agent(self):
++        odom = self._odom
++        robot = Agent()
++        robot.id = 0
++        robot.type = Agent.ROBOT
++        robot.name = "arena_robot"
++        robot.group_id = -1
++        robot.position = copy.deepcopy(odom.pose.pose)
++        robot.yaw = _yaw_from_quaternion(robot.position.orientation)
++        vx, vy, wz = self._robot_velocity
++        robot.velocity.linear.x = vx
++        robot.velocity.linear.y = vy
++        robot.velocity.angular.z = wz
++        robot.linear_vel = math.hypot(vx, vy)
++        robot.angular_vel = wz
++        robot.desired_velocity = 1.0
++        robot.radius = 0.35
++        return robot
++
++    def _restore_static_agent_fields(self, agents: Agents):
++        for agent in agents.agents:
++            template = self._agent_templates.get(agent.name)
++            if template is None:
++                continue
++            agent.skin = template.skin
++            agent.group_id = template.group_id
++            agent.desired_velocity = template.desired_velocity
++            agent.radius = template.radius
++            agent.cyclic_goals = template.cyclic_goals
++            agent.goal_radius = template.goal_radius
++
++    def _finish_isaac_update(self):
++        if self._update_future is None or not self._update_future.done():
++            return
++
++        if self._update_future.exception() is not None:
++            self.get_logger().error(
++                f"Isaac pedestrian update failed: {self._update_future.exception()}"
++            )
++            self._needs_isaac_update = True
++        else:
++            result = self._update_future.result()
++            if result and list(result.results) == [0] * self._agent_count:
++                self._update_count += 1
++            else:
++                self.get_logger().error(
++                    f"Isaac pedestrian update returned errors: {result}"
++                )
++                self._needs_isaac_update = True
++        self._update_future = None
++
++    def _finish_hunav_compute(self):
++        if self._compute_future is None or not self._compute_future.done():
++            return
++
++        if self._compute_future.exception() is not None:
++            self.get_logger().error(
++                f"HuNav compute failed: {self._compute_future.exception()}"
++            )
++            self._compute_future = None
++            self._compute_stamp = None
++            self._compute_stamp_ns = None
++            return
++
++        response = self._compute_future.result()
++        invalid_response = response is None
++        if response is not None:
++            invalid_response = (
++                len(response.updated_agents.agents) != self._agent_count
++            )
++        if invalid_response:
++            self.get_logger().error(
++                f"HuNav compute returned an invalid response: {response}"
++            )
++            self._compute_future = None
++            self._compute_stamp = None
++            self._compute_stamp_ns = None
++            return
++
++        previous_stamp_ns = self._last_integrated_stamp_ns
++        self._last_integrated_stamp_ns = self._compute_stamp_ns
++        if previous_stamp_ns is not None:
++            step = (self._compute_stamp_ns - previous_stamp_ns) * 1e-9
++            self._max_integration_step_seen = max(
++                self._max_integration_step_seen, step
++            )
++
++        self._agents = response.updated_agents
++        self._agents.header.frame_id = "map"
++        self._agents.header.stamp = self._compute_stamp
++        self._restore_static_agent_fields(self._agents)
++        self._compute_count += 1
++        self._compute_future = None
++        self._compute_stamp = None
++        self._compute_stamp_ns = None
++
++        # HuNav state is authoritative. Isaac receives the newest completed
++        # snapshot whenever its independent, lower-rate service is available.
++        self._display_snapshot = copy.deepcopy(self._agents)
++        self._needs_isaac_update = True
++        self._agent_debug_pub.publish(self._agents)
++
++    def _next_integration_stamp_ns(self):
++        now_ns = self.get_clock().now().nanoseconds
++        if now_ns <= 0:
++            return None
++        if self._last_integrated_stamp_ns is None:
++            return now_ns
++
++        lag_ns = now_ns - self._last_integrated_stamp_ns
++        if lag_ns < 0:
++            self.get_logger().warning(
++                "ROS simulation time moved backwards; re-seeding HuNav integration"
++            )
++            self._last_integrated_stamp_ns = None
++            return now_ns
++        if lag_ns < self._compute_period_ns:
++            return None
++
++        step_ns = min(lag_ns, self._max_integration_step_ns)
++        if lag_ns > self._max_integration_step_ns:
++            self._substep_count += 1
++        return self._last_integrated_stamp_ns + step_ns
++
++    def _start_hunav_compute(self):
++        if self._compute_future is not None:
++            return
++        stamp_ns = self._next_integration_stamp_ns()
++        if stamp_ns is None:
++            return
++
++        stamp = Time(nanoseconds=stamp_ns).to_msg()
++        request = ComputeAgents.Request()
++        request.current_agents = copy.deepcopy(self._agents)
++        request.current_agents.header.frame_id = "map"
++        request.current_agents.header.stamp = stamp
++        request.robot = self._robot_agent()
++        self._compute_stamp = stamp
++        self._compute_stamp_ns = stamp_ns
++        self._compute_future = self._compute.call_async(request)
++        if self._metrics_start_monotonic is None:
++            started_at = time.monotonic()
++            self._metrics_start_monotonic = started_at
++            self._last_report_monotonic = started_at
++            self._last_reported_compute_count = self._compute_count
++            self._last_reported_update_count = self._update_count
++
++    def _start_isaac_update(self):
++        if (
++            self._update_future is not None
++            or not self._needs_isaac_update
++            or self._display_snapshot is None
++        ):
++            return
++
++        now_monotonic = time.monotonic()
++        if (
++            now_monotonic - self._last_display_dispatch_monotonic
++            < self._display_period
++        ):
++            return
++
++        snapshot = self._display_snapshot
++        request = UpdatePedestrians.Request()
++        request.stamp = copy.deepcopy(snapshot.header.stamp)
++        for agent in snapshot.agents:
++            pedestrian = Pedestrian()
++            pedestrian.name = agent.name
++            pedestrian.pose = copy.deepcopy(agent.position)
++            pedestrian.pose.position.z = 0.0
++            pedestrian.twist = copy.deepcopy(agent.velocity)
++            request.pedestrians.append(pedestrian)
++        self._update_future = self._update_people.call_async(request)
++        self._last_display_dispatch_monotonic = now_monotonic
++        self._needs_isaac_update = False
++
++    def _report_runtime(self):
++        if (
++            self._metrics_start_monotonic is None
++            or self._last_report_monotonic is None
++            or self._compute_count < self._status_interval
++            or self._compute_count - self._last_reported_compute_count
++            < self._status_interval
++        ):
++            return
++
++        now_monotonic = time.monotonic()
++        compute_count = self._compute_count
++        update_count = self._update_count
++        rates = calculate_runtime_rates(
++            now_monotonic=now_monotonic,
++            metrics_start_monotonic=self._metrics_start_monotonic,
++            compute_count=compute_count,
++            update_count=update_count,
++            previous_report_monotonic=self._last_report_monotonic,
++            previous_compute_count=self._last_reported_compute_count,
++            previous_update_count=self._last_reported_update_count,
++        )
++        now_ns = self.get_clock().now().nanoseconds
++        lag = max(0.0, (now_ns - self._last_integrated_stamp_ns) * 1e-9)
++        states = ",".join(
++            f"{agent.name}:{agent.behavior.type}/{agent.behavior.state}"
++            for agent in sorted(self._agents.agents, key=lambda item: item.id)
++        )
++        self._status(
++            format_runtime_status(
++                compute_count=compute_count,
++                update_count=update_count,
++                rates=rates,
++                max_integration_step=self._max_integration_step_seen,
++                lag=lag,
++                substep_count=self._substep_count,
++                states=states,
++            )
++        )
++        self._last_report_monotonic = now_monotonic
++        self._last_reported_compute_count = compute_count
++        self._last_reported_update_count = update_count
++
++    def _tick(self):
++        if self._odom is None:
++            return
++
++        # Neither slow display futures nor their rate limit can return early
++        # from this scheduler. HuNav always progresses independently.
++        self._finish_isaac_update()
++        self._finish_hunav_compute()
++        self._start_isaac_update()
++        self._start_hunav_compute()
++        self._report_runtime()
++
++        if not self._ready_reported and self._update_count >= 10:
++            types = sorted(agent.behavior.type for agent in self._agents.agents)
++            ready_types = not self._strict_six_behavior_demo
++            if self._strict_six_behavior_demo:
++                ready_types = types == STRICT_SIX_BEHAVIOR_TYPES
++            if ready_types:
++                self._ready_reported = True
++                self._status(
++                    format_ready_status(
++                        self._ready_marker,
++                        self._agent_count,
++                        types,
++                        self._compute_rate,
++                        self._max_integration_step_seen,
++                    )
++                )
++
++
++def main(args=None):
++    rclpy.init(args=args)
++    node = ArenaHuNavIsaacBridge()
++    try:
++        node.spawn_scene()
++        rclpy.spin(node)
++    except KeyboardInterrupt:
++        pass
++    except Exception as exc:
++        # rclpy can raise while its context is being invalidated by SIGINT.
++        # That is normal shutdown, not a bridge failure.
++        if rclpy.ok():
++            node.get_logger().fatal(str(exc))
++            raise
++    finally:
++        if rclpy.ok():
++            try:
++                node.destroy_node()
++            except (KeyboardInterrupt, RuntimeError):
++                pass
++            if rclpy.ok():
++                rclpy.shutdown()
+diff --git a/arena_humble_compat/arena_humble_compat/scene_bridge.py b/arena_humble_compat/arena_humble_compat/scene_bridge.py
+new file mode 100644
+index 0000000..381c2b5
+--- /dev/null
++++ b/arena_humble_compat/arena_humble_compat/scene_bridge.py
+@@ -0,0 +1,215 @@
++import math
++import time
++
++import rclpy
++from arena_people_msgs.msg import Pedestrian, SpawnPedestrian
++from arena_people_msgs.srv import SpawnPedestrians, UpdatePedestrians
++from geometry_msgs.msg import Twist
++from isaacsim_msgs.msg import Wall
++from isaacsim_msgs.srv import SpawnUrdf, SpawnWalls
++from rclpy.node import Node
++from sensor_msgs.msg import JointState
++from std_msgs.msg import String
++from std_srvs.srv import Trigger
++
++
++WHEEL_JOINTS = [
++    "front_left_wheel_joint",
++    "rear_left_wheel_joint",
++    "front_right_wheel_joint",
++    "rear_right_wheel_joint",
++]
++
++
++class ArenaSceneBridge(Node):
++    """Spawn one Arena scene and adapt Nav2 Twist commands to Isaac joints."""
++
++    def __init__(self):
++        super().__init__("arena_humble_compat")
++        self.declare_parameter("urdf_path", "")
++        self.declare_parameter("dynamic_people", True)
++        self.declare_parameter("robot_x", 3.0)
++        self.declare_parameter("robot_y", 3.0)
++        self.declare_parameter("robot_yaw", 0.0)
++
++        self._joint_pub = self.create_publisher(
++            JointState, "/isaac/joint_commands_velocity", 10
++        )
++        self._status_pub = self.create_publisher(String, "/arena5/status", 10)
++        self.create_subscription(Twist, "/cmd_vel", self._on_twist, 10)
++        self._last_twist = Twist()
++        self._last_twist_monotonic = 0.0
++        self.create_timer(0.05, self._publish_wheels)
++
++        self._walls = self.create_client(SpawnWalls, "/isaac/SpawnWalls")
++        self._robot = self.create_client(SpawnUrdf, "/isaac/SpawnUrdf")
++        self._spawn_people = self.create_client(
++            SpawnPedestrians, "/isaac/SpawnPedestrians"
++        )
++        self._update_people = self.create_client(
++            UpdatePedestrians, "/isaac/UpdatePedestrians"
++        )
++        self._pause = self.create_client(Trigger, "/isaac/PauseSimulation")
++        self._unpause = self.create_client(Trigger, "/isaac/UnpauseSimulation")
++        self._ped_start = time.monotonic()
++        self._ped_future = None
++        self._ped_updates = 0
++
++    def _status(self, text: str):
++        self.get_logger().info(text)
++        self._status_pub.publish(String(data=text))
++
++    def _call(self, client, request, name: str, timeout: float = 180.0):
++        if not client.wait_for_service(timeout_sec=timeout):
++            raise RuntimeError(f"timeout waiting for {name}")
++        future = client.call_async(request)
++        rclpy.spin_until_future_complete(self, future, timeout_sec=timeout)
++        if not future.done():
++            raise RuntimeError(f"timeout calling {name}")
++        if future.exception() is not None:
++            raise RuntimeError(f"{name} failed: {future.exception()}")
++        return future.result()
++
++    def spawn_scene(self):
++        pause_result = self._call(
++            self._pause, Trigger.Request(), "/isaac/PauseSimulation"
++        )
++        if not pause_result or not pause_result.success:
++            raise RuntimeError(f"could not pause simulation: {pause_result}")
++
++        walls = SpawnWalls.Request()
++        corners = [
++            ((0.0, 0.0), (30.0, 0.0)),
++            ((30.0, 0.0), (30.0, 23.0)),
++            ((30.0, 23.0), (0.0, 23.0)),
++            ((0.0, 23.0), (0.0, 0.0)),
++        ]
++        for index, (start, end) in enumerate(corners):
++            wall = Wall()
++            wall.name = f"arena_wall_{index}"
++            wall.start.x, wall.start.y, wall.start.z = start[0], start[1], 0.0
++            wall.end.x, wall.end.y, wall.end.z = end[0], end[1], 2.5
++            wall.thickness = 0.1
++            walls.walls.append(wall)
++        wall_result = self._call(self._walls, walls, "/isaac/SpawnWalls")
++        if not wall_result or not all(wall_result.ret):
++            raise RuntimeError(f"wall spawn failed: {wall_result}")
++        self._status("SCENE_WALLS_OK count=4 world=map_empty")
++
++        dynamic_people = bool(self.get_parameter("dynamic_people").value)
++        if dynamic_people:
++            request = SpawnPedestrians.Request()
++            item = SpawnPedestrian()
++            item.model_ref = "original_female_adult_business_02"
++            item.pedestrian.name = "arena_person_0"
++            item.pedestrian.pose.position.x = 9.0
++            item.pedestrian.pose.position.y = 6.0
++            item.pedestrian.pose.orientation.w = 1.0
++            request.pedestrians.append(item)
++            result = self._call(
++                self._spawn_people, request, "/isaac/SpawnPedestrians", timeout=300.0
++            )
++            if not result or list(result.results) != [0]:
++                raise RuntimeError(f"pedestrian spawn failed: {result}")
++            self._status(
++                "SCENE_PEDESTRIAN_OK name=arena_person_0 model=original_female_adult_business_02"
++            )
++
++        # Spawn the physics articulation last. SpawnUrdf performs the single
++        # World.reset() needed to rebuild the tensor view after stage edits.
++        urdf_path = self.get_parameter("urdf_path").value
++        if not urdf_path:
++            raise RuntimeError("urdf_path parameter is required")
++        robot = SpawnUrdf.Request()
++        robot.name = "arena_robot"
++        robot.urdf_path = urdf_path
++        robot.robot_model = "jackal"
++        robot.base_frame = "base_link"
++        robot.odom_frame = "odom"
++        robot.pose.position.x = float(self.get_parameter("robot_x").value)
++        robot.pose.position.y = float(self.get_parameter("robot_y").value)
++        robot.pose.position.z = 0.15
++        robot_yaw = float(self.get_parameter("robot_yaw").value)
++        robot.pose.orientation.z = math.sin(0.5 * robot_yaw)
++        robot.pose.orientation.w = math.cos(0.5 * robot_yaw)
++        robot.cmd_vel_topic = "/cmd_vel"
++        robot.joint_states_topic = "/joint_states"
++        robot.odom_topic = "/odom"
++        robot.localization = True
++        robot_result = self._call(self._robot, robot, "/isaac/SpawnUrdf")
++        if not robot_result or not robot_result.path:
++            raise RuntimeError(f"robot spawn failed: {robot_result}")
++        self._status(f"SCENE_ROBOT_OK path={robot_result.path} model=jackal")
++
++        unpause_result = self._call(
++            self._unpause, Trigger.Request(), "/isaac/UnpauseSimulation"
++        )
++        if not unpause_result or not unpause_result.success:
++            raise RuntimeError(f"could not unpause simulation: {unpause_result}")
++
++        if dynamic_people:
++            self._ped_start = time.monotonic()
++            self.create_timer(0.1, self._update_pedestrian)
++
++    def _on_twist(self, msg: Twist):
++        self._last_twist = msg
++        self._last_twist_monotonic = time.monotonic()
++
++    def _publish_wheels(self):
++        command = self._last_twist
++        if time.monotonic() - self._last_twist_monotonic > 0.5:
++            command = Twist()
++        wheel_radius = 0.098
++        wheel_separation = 0.37559
++        left = (command.linear.x - command.angular.z * wheel_separation / 2.0) / wheel_radius
++        right = (command.linear.x + command.angular.z * wheel_separation / 2.0) / wheel_radius
++        msg = JointState()
++        msg.header.stamp = self.get_clock().now().to_msg()
++        msg.name = WHEEL_JOINTS
++        msg.velocity = [left, left, right, right]
++        self._joint_pub.publish(msg)
++
++    def _update_pedestrian(self):
++        if self._ped_future is not None:
++            if not self._ped_future.done():
++                return
++            if self._ped_future.exception() is not None:
++                self.get_logger().error(
++                    f"pedestrian update failed: {self._ped_future.exception()}"
++                )
++            else:
++                result = self._ped_future.result()
++                if result and list(result.results) == [0]:
++                    self._ped_updates += 1
++                    if self._ped_updates == 10:
++                        self._status("SCENE_PEDESTRIAN_DYNAMIC_OK updates=10")
++            self._ped_future = None
++
++        elapsed = time.monotonic() - self._ped_start
++        omega = 0.35
++        amplitude = 2.0
++        pedestrian = Pedestrian()
++        pedestrian.name = "arena_person_0"
++        pedestrian.pose.position.x = 9.0
++        pedestrian.pose.position.y = 6.0 + amplitude * math.sin(omega * elapsed)
++        pedestrian.pose.orientation.w = 1.0
++        pedestrian.twist.linear.y = amplitude * omega * math.cos(omega * elapsed)
++        request = UpdatePedestrians.Request()
++        request.pedestrians.append(pedestrian)
++        self._ped_future = self._update_people.call_async(request)
++
++
++def main(args=None):
++    rclpy.init(args=args)
++    node = ArenaSceneBridge()
++    try:
++        node.spawn_scene()
++        rclpy.spin(node)
++    except KeyboardInterrupt:
++        pass
++    except Exception as exc:
++        node.get_logger().fatal(str(exc))
++        raise
++    finally:
++        node.destroy_node()
++        rclpy.shutdown()
+diff --git a/arena_humble_compat/arena_humble_compat/verify_runtime.py b/arena_humble_compat/arena_humble_compat/verify_runtime.py
+new file mode 100644
+index 0000000..4efcd22
+--- /dev/null
++++ b/arena_humble_compat/arena_humble_compat/verify_runtime.py
+@@ -0,0 +1,92 @@
++import math
++import sys
++import time
++
++import rclpy
++from action_msgs.msg import GoalStatus
++from nav2_msgs.action import NavigateToPose
++from nav_msgs.msg import Odometry
++from rclpy.action import ActionClient
++from rclpy.node import Node
++from sensor_msgs.msg import LaserScan
++
++
++class RuntimeVerifier(Node):
++    def __init__(self):
++        super().__init__("arena_runtime_verifier")
++        self.odom = None
++        self.scan_count = 0
++        self.create_subscription(Odometry, "/odom", self._on_odom, 10)
++        self.create_subscription(LaserScan, "/lidar", self._on_scan, 10)
++        self.navigation = ActionClient(self, NavigateToPose, "/navigate_to_pose")
++
++    def _on_odom(self, msg):
++        self.odom = msg
++
++    def _on_scan(self, _msg):
++        self.scan_count += 1
++
++    def spin_until(self, predicate, timeout):
++        deadline = time.monotonic() + timeout
++        while rclpy.ok() and time.monotonic() < deadline:
++            rclpy.spin_once(self, timeout_sec=0.1)
++            if predicate():
++                return True
++        return False
++
++    def run(self):
++        if not self.spin_until(lambda: self.odom is not None and self.scan_count >= 3, 90.0):
++            raise RuntimeError("timed out waiting for /odom and /lidar")
++        start_x = self.odom.pose.pose.position.x
++        start_y = self.odom.pose.pose.position.y
++
++        if not self.navigation.wait_for_server(timeout_sec=90.0):
++            raise RuntimeError("timed out waiting for /navigate_to_pose")
++
++        goal = NavigateToPose.Goal()
++        goal.pose.header.frame_id = "map"
++        goal.pose.header.stamp = self.get_clock().now().to_msg()
++        goal.pose.pose.position.x = 5.0
++        goal.pose.pose.position.y = 3.0
++        goal.pose.pose.orientation.w = 1.0
++        send_future = self.navigation.send_goal_async(goal)
++        if not self.spin_until(send_future.done, 30.0):
++            raise RuntimeError("navigation goal was not accepted in time")
++        goal_handle = send_future.result()
++        if goal_handle is None or not goal_handle.accepted:
++            raise RuntimeError("navigation goal was rejected")
++
++        result_future = goal_handle.get_result_async()
++        if not self.spin_until(result_future.done, 150.0):
++            goal_handle.cancel_goal_async()
++            raise RuntimeError("navigation goal timed out")
++        wrapped_result = result_future.result()
++        if wrapped_result.status != GoalStatus.STATUS_SUCCEEDED:
++            raise RuntimeError(f"navigation finished with status={wrapped_result.status}")
++
++        end_x = self.odom.pose.pose.position.x
++        end_y = self.odom.pose.pose.position.y
++        distance = math.hypot(end_x - start_x, end_y - start_y)
++        if distance < 1.0:
++            raise RuntimeError(f"robot did not move far enough: {distance:.3f} m")
++        print(
++            f"SMOKE_NAVIGATION_OK start=({start_x:.3f},{start_y:.3f}) "
++            f"end=({end_x:.3f},{end_y:.3f}) moved={distance:.3f}m "
++            f"lidar_messages={self.scan_count}",
++            flush=True,
++        )
++
++
++def main(args=None):
++    rclpy.init(args=args)
++    node = RuntimeVerifier()
++    status = 0
++    try:
++        node.run()
++    except Exception as exc:
++        print(f"SMOKE_NAVIGATION_FAILED {exc}", file=sys.stderr, flush=True)
++        status = 1
++    finally:
++        node.destroy_node()
++        rclpy.shutdown()
++    raise SystemExit(status)
+diff --git a/arena_humble_compat/arena_humble_compat/verify_six_behaviors.py b/arena_humble_compat/arena_humble_compat/verify_six_behaviors.py
+new file mode 100644
+index 0000000..27364f9
+--- /dev/null
++++ b/arena_humble_compat/arena_humble_compat/verify_six_behaviors.py
+@@ -0,0 +1,156 @@
++import math
++import time
++
++import rclpy
++from geometry_msgs.msg import Twist
++from hunav_msgs.msg import Agent, Agents
++from nav_msgs.msg import Odometry
++from rclpy.node import Node
++from rclpy.qos import qos_profile_sensor_data
++
++
++EXPECTED = {
++    "regular": 1,
++    "impassive": 2,
++    "surprised": 3,
++    "scared": 4,
++    "curious": 5,
++    "threatening": 6,
++}
++
++
++class SixBehaviorsVerifier(Node):
++    def __init__(self):
++        super().__init__("verify_six_behaviors")
++        self._cmd_pub = self.create_publisher(Twist, "/cmd_vel", 10)
++        self.create_subscription(Agents, "/human_states", self._on_agents, 10)
++        self.create_subscription(Agent, "/robot_states", self._on_robot, 10)
++        self.create_subscription(
++            Odometry, "/odom", self._on_odom, qos_profile_sensor_data
++        )
++        self.agent_types = {}
++        self.active_types = set()
++        self.response_types = set()
++        self.agent_positions = {}
++        self.robot_states = 0
++        self.robot = None
++        self.odom_xy = None
++
++    def _on_agents(self, msg: Agents):
++        for agent in msg.agents:
++            self.agent_types[agent.name] = int(agent.behavior.type)
++            self.agent_positions.setdefault(
++                agent.name, (agent.position.position.x, agent.position.position.y)
++            )
++            if agent.behavior.state != 0:
++                self.active_types.add(int(agent.behavior.type))
++                self.response_types.add(int(agent.behavior.type))
++
++            # HuNav v1's ScaredNav and ThreateningNav actions call
++            # computeForces(), which resets behavior.state to zero before the
++            # response is serialized. Verify those two actions by their
++            # official kinematic outcome instead of relying on that transient
++            # state bit.
++            if self.robot is not None and agent.behavior.type == 4:
++                dx = agent.position.position.x - self.robot.position.position.x
++                dy = agent.position.position.y - self.robot.position.position.y
++                radial_velocity = agent.velocity.linear.x * dx + agent.velocity.linear.y * dy
++                if math.hypot(dx, dy) <= 3.5 and radial_velocity > 0.05:
++                    self.response_types.add(4)
++            if self.robot is not None and agent.behavior.type == 6:
++                target_x = self.robot.position.position.x + agent.behavior.dist * math.cos(
++                    self.robot.yaw
++                )
++                target_y = self.robot.position.position.y + agent.behavior.dist * math.sin(
++                    self.robot.yaw
++                )
++                target_distance = math.hypot(
++                    agent.position.position.x - target_x,
++                    agent.position.position.y - target_y,
++                )
++                if target_distance <= 0.8:
++                    self.response_types.add(6)
++
++    def _on_robot(self, msg: Agent):
++        self.robot = msg
++        self.robot_states += 1
++
++    def _on_odom(self, msg: Odometry):
++        self.odom_xy = (msg.pose.pose.position.x, msg.pose.pose.position.y)
++
++    def publish_command(self, linear: float, angular: float = 0.0):
++        msg = Twist()
++        msg.linear.x = linear
++        msg.angular.z = angular
++        self._cmd_pub.publish(msg)
++
++
++def _spin_until(node, predicate, timeout: float) -> bool:
++    deadline = time.monotonic() + timeout
++    while rclpy.ok() and time.monotonic() < deadline:
++        rclpy.spin_once(node, timeout_sec=0.1)
++        if predicate():
++            return True
++    return False
++
++
++def main(args=None):
++    rclpy.init(args=args)
++    node = SixBehaviorsVerifier()
++    try:
++        ready = _spin_until(
++            node,
++            lambda: node.agent_types == EXPECTED
++            and node.robot_states > 2
++            and node.odom_xy is not None,
++            45.0,
++        )
++        if not ready:
++            raise RuntimeError(
++                f"six behavior topics not ready: types={node.agent_types}, "
++                f"robot_states={node.robot_states}, odom={node.odom_xy}"
++            )
++
++        start = node.odom_xy
++        deadline = time.monotonic() + 6.0
++        while rclpy.ok() and time.monotonic() < deadline:
++            node.publish_command(0.45)
++            rclpy.spin_once(node, timeout_sec=0.05)
++        for _ in range(10):
++            node.publish_command(0.0)
++            rclpy.spin_once(node, timeout_sec=0.05)
++
++        # HuNav computation and Isaac display are intentionally asynchronous.
++        # Keep the robot stopped while allowing late special-behavior states to
++        # arrive instead of judging immediately after the motion command.
++        response_deadline = time.monotonic() + 45.0
++        while (
++            rclpy.ok()
++            and time.monotonic() < response_deadline
++            and not {3, 4, 5, 6}.issubset(node.response_types)
++        ):
++            node.publish_command(0.0)
++            rclpy.spin_once(node, timeout_sec=0.1)
++
++        if node.odom_xy is None:
++            raise RuntimeError("odometry disappeared during motion test")
++        distance = math.hypot(node.odom_xy[0] - start[0], node.odom_xy[1] - start[1])
++        missing_responses = {3, 4, 5, 6} - node.response_types
++        if distance < 0.5:
++            raise RuntimeError(f"robot did not move far enough: {distance:.3f} m")
++        if missing_responses:
++            raise RuntimeError(
++                "special HuNav behavior responses were not observed: "
++                f"{sorted(missing_responses)}"
++            )
++        print(
++            "SIX_BEHAVIORS_VERIFY_OK "
++            f"types={','.join(str(EXPECTED[name]) for name in EXPECTED)} "
++            f"active={','.join(str(value) for value in sorted(node.active_types))} "
++            f"responses={','.join(str(value) for value in sorted(node.response_types))} "
++            f"robot_distance={distance:.3f} robot_states={node.robot_states}"
++        )
++    finally:
++        node.publish_command(0.0)
++        node.destroy_node()
++        rclpy.shutdown()
+diff --git a/arena_humble_compat/package.xml b/arena_humble_compat/package.xml
+new file mode 100644
+index 0000000..f1c58dc
+--- /dev/null
++++ b/arena_humble_compat/package.xml
+@@ -0,0 +1,26 @@
++<?xml version="1.0"?>
++<package format="3">
++  <name>arena_humble_compat</name>
++  <version>0.0.0</version>
++  <description>Small ROS 2 Humble adapter for Arena Isaac 5.1 services and Jackal commands.</description>
++  <maintainer email="noreply@example.com">Arena local deployment</maintainer>
++  <license>MIT</license>
++
++  <depend>rclpy</depend>
++  <depend>geometry_msgs</depend>
++  <depend>hunav_msgs</depend>
++  <depend>nav2_msgs</depend>
++  <depend>nav_msgs</depend>
++  <depend>sensor_msgs</depend>
++  <depend>std_msgs</depend>
++  <depend>std_srvs</depend>
++  <depend>isaacsim_msgs</depend>
++  <depend>arena_people_msgs</depend>
++  <exec_depend>python3-yaml</exec_depend>
++
++  <test_depend>python3-pytest</test_depend>
++
++  <export>
++    <build_type>ament_python</build_type>
++  </export>
++</package>
+diff --git a/arena_humble_compat/resource/arena_humble_compat b/arena_humble_compat/resource/arena_humble_compat
+new file mode 100644
+index 0000000..8b13789
+--- /dev/null
++++ b/arena_humble_compat/resource/arena_humble_compat
+@@ -0,0 +1 @@
++
+diff --git a/arena_humble_compat/setup.cfg b/arena_humble_compat/setup.cfg
+new file mode 100644
+index 0000000..bf62b8a
+--- /dev/null
++++ b/arena_humble_compat/setup.cfg
+@@ -0,0 +1,4 @@
++[develop]
++script_dir=$base/lib/arena_humble_compat
++[install]
++install_scripts=$base/lib/arena_humble_compat
+diff --git a/arena_humble_compat/setup.py b/arena_humble_compat/setup.py
+new file mode 100644
+index 0000000..b115671
+--- /dev/null
++++ b/arena_humble_compat/setup.py
+@@ -0,0 +1,29 @@
++from setuptools import setup
++
++
++package_name = "arena_humble_compat"
++
++setup(
++    name=package_name,
++    version="0.0.0",
++    packages=[package_name],
++    data_files=[
++        ("share/ament_index/resource_index/packages", ["resource/" + package_name]),
++        ("share/" + package_name, ["package.xml"]),
++    ],
++    install_requires=["setuptools"],
++    extras_require={"test": ["pytest"]},
++    zip_safe=True,
++    maintainer="Arena local deployment",
++    maintainer_email="noreply@example.com",
++    description="Arena Humble to Isaac Sim 5.1 compatibility helpers",
++    license="MIT",
++    entry_points={
++        "console_scripts": [
++            "hunav_six_behaviors_bridge = arena_humble_compat.hunav_six_behaviors_bridge:main",
++            "scene_bridge = arena_humble_compat.scene_bridge:main",
++            "verify_six_behaviors = arena_humble_compat.verify_six_behaviors:main",
++            "verify_runtime = arena_humble_compat.verify_runtime:main",
++        ],
++    },
++)
+diff --git a/arena_isaac/arena_isaac/run_isaacsim.py b/arena_isaac/arena_isaac/run_isaacsim.py
+index 0a10249..3d89e37 100644
+--- a/arena_isaac/arena_isaac/run_isaacsim.py
++++ b/arena_isaac/arena_isaac/run_isaacsim.py
+@@ -5,25 +5,60 @@
+ import os
+ import sys
+ import arena_simulation_setup
+-import arena_simulation_setup.utils.cattrs
++try:
++    import arena_simulation_setup.utils.cattrs
++except ModuleNotFoundError:
++    # arena-rosnav/humble pins simulation-setup before this helper existed.
++    pass
+ 
+ # Use the isaacsim to import SimulationApp
+ from isaacsim import SimulationApp
+ 
+-def _arg_bool(name: str, default: bool) -> bool:
++def _arg_value(name: str, default):
+     if name in sys.argv:
+         i = sys.argv.index(name)
+         if i + 1 < len(sys.argv):
+-            return sys.argv[i + 1].lower() in ("true", "1")
++            return sys.argv[i + 1]
+     prefix = f"{name.lstrip('-')}:="
+     for arg in sys.argv:
+         if arg.startswith(prefix):
+-            return arg[len(prefix):].lower() in ("true", "1")
++            return arg[len(prefix):]
+     return default
+ 
++def _arg_bool(name: str, default: bool) -> bool:
++    return str(_arg_value(name, default)).lower() in ("true", "1")
++
++LIVESTREAM = _arg_bool("--livestream", False)
++INTERNAL_GPU = int(os.environ.get("ARENA_INTERNAL_GPU", "0"))
++RENDER_GPU = int(os.environ.get("ARENA_RENDER_GPU", str(INTERNAL_GPU)))
++IDEAL_CHASSIS = str(os.environ.get("ARENA_IDEAL_CHASSIS", "false")).lower() in ("true", "1")
++PHYSICS_DT = float(os.environ.get("ARENA_PHYSICS_DT", str(1.0 / 60.0)))
++EXTRA_ARGS = []
++if kit_log := os.environ.get("ARENA_KIT_LOG"):
++    EXTRA_ARGS.append(f"--/log/file={kit_log}")
++if LIVESTREAM:
++    webrtc_ip = _arg_value("--webrtc-ip", os.environ.get("ARENA_WEBRTC_IP", "127.0.0.1"))
++    signal_port = int(_arg_value("--webrtc-signal-port", "49100"))
++    media_port = int(_arg_value("--webrtc-media-port", "47998"))
++    EXTRA_ARGS += [
++        f"--/app/livestream/publicEndpointAddress={webrtc_ip}",
++        f"--/app/livestream/port={signal_port}",
++        f"--/app/livestream/fixedHostPort={media_port}",
++        "--enable",
++        "omni.services.livestream.nvcf",
++    ]
++
+ CONFIG = {
+     "renderer": "Wireframe",
+-    "headless": _arg_bool("--headless", False),
++    "headless": _arg_bool("--headless", False) or LIVESTREAM,
++    "hide_ui": False if LIVESTREAM else None,
++    # Kit/Vulkan keeps the host GPU ordinal while CUDA uses the remapped
++    # ordinal after CUDA_VISIBLE_DEVICES (normally cuda:0).
++    "active_gpu": RENDER_GPU,
++    "physics_gpu": INTERNAL_GPU,
++    "multi_gpu": False,
++    "max_gpu_count": 1,
++    "extra_args": EXTRA_ARGS,
+ }
+ #import parent directory
+ from pathlib import Path
+@@ -35,6 +70,7 @@ sys.path.insert(0,str(parent_dir))
+ # stdlib
+ import queue
+ import random
++import time
+ import traceback
+ 
+ # Import Isaac Sim dependencies
+@@ -50,6 +86,7 @@ from isaacsim.core.utils.extensions import enable_extension
+ enable_extension("isaacsim.asset.importer.urdf")
+ from isaacsim.asset.importer.urdf import _urdf
+ from omni.isaac.core import SimulationContext, World
++from isaacsim.core.prims import SingleArticulation
+ from isaacsim.core.utils import extensions, prims, stage
+ from pxr import Sdf
+ 
+@@ -97,9 +134,9 @@ def enable_extensions_from_kit(kit_path):
+             enable_extension(ext_name)
+ 
+ KIT_FILE_PATH = (
+-    "/isaac-sim/apps/isaacsim.exp.base.kit"
++    os.path.join(os.environ["EXP_PATH"], "isaacsim.exp.base.kit")
+     if CONFIG["headless"]
+-    else "/isaac-sim/apps/isaacsim.exp.full.kit"
++    else os.path.join(os.environ["EXP_PATH"], "isaacsim.exp.full.kit")
+ )
+ enable_extensions_from_kit(KIT_FILE_PATH)
+ 
+@@ -130,9 +167,11 @@ import omni.syntheticdata._syntheticdata as sd
+ import rclpy
+ import rclpy.node
+ import std_srvs.srv
++from geometry_msgs.msg import Twist
+ 
+ # graphs
+ from isaac_utils.graphs.time import PublishTime
++from isaac_utils.managers import entity_lifecycle
+ from isaac_utils.utils.material import Material, PhysicsParams
+ from isaac_utils.utils.path import world_path
+ 
+@@ -152,7 +191,11 @@ plane_material_paths = [
+     # 'https://omniverse-content-production.s3.us-west-2.amazonaws.com/Materials/2023_1/vMaterials_2/Ceramic/Ceramic_Tiles_Glazed_Diamond.mdl',
+     # 'https://omniverse-content-production.s3.us-west-2.amazonaws.com/Materials/2023_1/vMaterials_2/Ceramic/Ceramic_Tiles_Glazed_Diamond.mdl'
+ ]
+-world = World()
++world = (
++    World(physics_dt=PHYSICS_DT, rendering_dt=PHYSICS_DT)
++    if IDEAL_CHASSIS
++    else World()
++)
+ world.scene.add_ground_plane(size=100, z_position=0.0)
+ Material.physics(
+     parent_prim_path=world_path(),
+@@ -232,6 +275,48 @@ class IsaacController(rclpy.node.Node):
+         super().__init__(node_name="isaac", *args, **kwargs)
+         self._running = True
+         self._should_step_once = False
++        self._ideal_command_v = 0.0
++        self._ideal_command_w = 0.0
++        self._ideal_reference_v = 0.0
++        self._ideal_reference_w = 0.0
++        self._ideal_command_time = 0.0
++        self._ideal_articulation_path = ""
++        self._ideal_articulation = None
++
++        self._ideal_max_linear = float(
++            os.environ.get("ARENA_IDEAL_MAX_LINEAR", "1.5")
++        )
++        self._ideal_max_angular = float(
++            os.environ.get("ARENA_IDEAL_MAX_ANGULAR", "2.0")
++        )
++        self._ideal_linear_acceleration = float(
++            os.environ.get("ARENA_IDEAL_LINEAR_ACCELERATION", "2.0")
++        )
++        self._ideal_angular_acceleration = float(
++            os.environ.get("ARENA_IDEAL_ANGULAR_ACCELERATION", "4.0")
++        )
++        self._ideal_command_timeout = float(
++            os.environ.get("ARENA_IDEAL_COMMAND_TIMEOUT", "0.5")
++        )
++
++        if IDEAL_CHASSIS:
++            self._ideal_cmd_subscription = self.create_subscription(
++                Twist,
++                "/cmd_vel",
++                self._cb_ideal_cmd_vel,
++                10,
++            )
++            self.get_logger().info(
++                "Ideal planar chassis enabled: physics_dt=%.6f, "
++                "limits=(%.3f m/s, %.3f rad/s), accelerations=(%.3f m/s^2, %.3f rad/s^2)"
++                % (
++                    PHYSICS_DT,
++                    self._ideal_max_linear,
++                    self._ideal_max_angular,
++                    self._ideal_linear_acceleration,
++                    self._ideal_angular_acceleration,
++                )
++            )
+ 
+         self.__pause_srv = self.create_service(
+             std_srvs.srv.Trigger,
+@@ -274,6 +359,125 @@ class IsaacController(rclpy.node.Node):
+     def running(self):
+         return self._step_once or self._running
+ 
++    @staticmethod
++    def _approach(current: float, target: float, maximum_step: float) -> float:
++        difference = max(-maximum_step, min(maximum_step, target - current))
++        return current + difference
++
++    def _cb_ideal_cmd_vel(self, command: Twist):
++        self._ideal_command_v = max(
++            -self._ideal_max_linear,
++            min(self._ideal_max_linear, float(command.linear.x)),
++        )
++        self._ideal_command_w = max(
++            -self._ideal_max_angular,
++            min(self._ideal_max_angular, float(command.angular.z)),
++        )
++        self._ideal_command_time = time.monotonic()
++
++    def _resolve_ideal_articulation(self):
++        manifests = entity_lifecycle.manifests_snapshot()
++        if not manifests:
++            self._ideal_articulation = None
++            self._ideal_articulation_path = ""
++            return None
++
++        articulation_path = next(iter(manifests.values())).articulation_path
++        if (
++            self._ideal_articulation is not None
++            and articulation_path == self._ideal_articulation_path
++        ):
++            return self._ideal_articulation
++
++        try:
++            articulation = SingleArticulation(
++                prim_path=articulation_path,
++                name="arena_ideal_chassis",
++            )
++            articulation.initialize()
++        except Exception as error:
++            carb.log_warn(
++                f"Ideal chassis waiting for articulation {articulation_path}: {error}"
++            )
++            return None
++
++        self._ideal_articulation = articulation
++        self._ideal_articulation_path = articulation_path
++        self._ideal_reference_v = 0.0
++        self._ideal_reference_w = 0.0
++        carb.log_info(f"Ideal planar chassis attached to {articulation_path}")
++        return articulation
++
++    def apply_ideal_chassis(self, dt: float):
++        """Set planar root twist before PhysX resolves the next step.
++
++        This models an ideal velocity-controlled mobile base without writing
++        pose. A D6 joint authored at spawn owns Z/roll/pitch, while the normal
++        PhysX solver remains responsible for chassis contact and collision.
++        """
++        if not IDEAL_CHASSIS:
++            return
++
++        articulation = self._resolve_ideal_articulation()
++        if articulation is None:
++            return
++
++        command_fresh = (
++            time.monotonic() - self._ideal_command_time
++            <= self._ideal_command_timeout
++        )
++        target_v = self._ideal_command_v if command_fresh else 0.0
++        target_w = self._ideal_command_w if command_fresh else 0.0
++        self._ideal_reference_v = self._approach(
++            self._ideal_reference_v,
++            target_v,
++            self._ideal_linear_acceleration * dt,
++        )
++        self._ideal_reference_w = self._approach(
++            self._ideal_reference_w,
++            target_w,
++            self._ideal_angular_acceleration * dt,
++        )
++
++        try:
++            _, orientation = articulation.get_world_pose()
++            orientation = np.asarray(orientation, dtype=float)
++            quat_w, quat_x, quat_y, quat_z = orientation
++            yaw = np.arctan2(
++                2.0 * (quat_w * quat_z + quat_x * quat_y),
++                1.0 - 2.0 * (quat_y * quat_y + quat_z * quat_z),
++            )
++            current_linear = np.asarray(
++                articulation.get_linear_velocity(), dtype=float
++            )
++            current_angular = np.asarray(
++                articulation.get_angular_velocity(), dtype=float
++            )
++            articulation.set_linear_velocity(
++                np.array(
++                    [
++                        np.cos(yaw) * self._ideal_reference_v,
++                        np.sin(yaw) * self._ideal_reference_v,
++                        current_linear[2],
++                    ],
++                    dtype=np.float32,
++                )
++            )
++            articulation.set_angular_velocity(
++                np.array(
++                    [
++                        current_angular[0],
++                        current_angular[1],
++                        self._ideal_reference_w,
++                    ],
++                    dtype=np.float32,
++                )
++            )
++        except Exception as error:
++            carb.log_warn(f"Ideal chassis articulation view invalidated: {error}")
++            self._ideal_articulation = None
++            self._ideal_articulation_path = ""
++
+     @classmethod
+     def wait_for_bridge(cls):
+         extensions.enable_extension("isaacsim.ros2.bridge")
+@@ -308,6 +512,29 @@ def main(args=None):
+     PublishTime('/World/publish_time')
+     world.reset()
+ 
++    screenshot_path = os.environ.get("ARENA_SCREENSHOT", "")
++    screenshot_after = float(os.environ.get("ARENA_SCREENSHOT_DELAY", "45"))
++    screenshot_started_at = time.monotonic()
++    screenshot_requested = False
++    stream_viewport = None
++    if LIVESTREAM or screenshot_path:
++        try:
++            from omni.kit.viewport.utility import get_active_viewport
++
++            camera_path = "/World/ArenaOverviewCamera"
++            overview_camera = prims.create_prim(
++                camera_path,
++                "Camera",
++                position=np.array([15.0, 11.5, 28.0]),
++            )
++            overview_camera.GetAttribute("focalLength").Set(18.0)
++            stream_viewport = get_active_viewport()
++            if stream_viewport:
++                stream_viewport.set_active_camera(camera_path)
++                carb.log_info(f"Arena livestream camera ready: {camera_path}")
++        except Exception as exc:
++            carb.log_warn(f"Could not configure Arena livestream camera: {exc}")
++
+     # set photoreal settings
+     import isaac_utils.config.photoreal as photoreal
+     if os.environ.get('RENDER_PRESET', 'photoreal') != 'boring':
+@@ -328,6 +555,7 @@ def main(args=None):
+                 if not was_playing:
+                     world.play()
+                     was_playing = True
++                controller.apply_ideal_chassis(PHYSICS_DT)
+                 world.step(render=True)
+                 stepped_this_iteration = True
+             else:
+@@ -337,6 +565,18 @@ def main(args=None):
+                 simulation_app.update()
+ 
+             if stepped_this_iteration:
++                if (
++                    screenshot_path
++                    and not screenshot_requested
++                    and stream_viewport
++                    and time.monotonic() - screenshot_started_at >= screenshot_after
++                ):
++                    from omni.kit.viewport.utility import capture_viewport_to_file
++
++                    capture_viewport_to_file(stream_viewport, file_path=screenshot_path)
++                    screenshot_requested = True
++                    carb.log_info(f"Arena rendered-frame capture requested: {screenshot_path}")
++
+                 pending_actions = run_after_tick_queue.qsize()
+                 for _ in range(pending_actions):
+                     try:
+diff --git a/arena_isaac/arena_isaac/services/SpawnUrdf.py b/arena_isaac/arena_isaac/services/SpawnUrdf.py
+index f1b80d0..7de8d79 100644
+--- a/arena_isaac/arena_isaac/services/SpawnUrdf.py
++++ b/arena_isaac/arena_isaac/services/SpawnUrdf.py
+@@ -17,7 +17,8 @@ from isaac_utils.utils import geom
+ from isaac_utils.utils.material import Material, PhysicsParams
+ from isaac_utils.utils.path import world_path
+ from isaac_utils.utils.prim import ensure_path
+-from pxr import UsdPhysics
++from omni.isaac.core import World
++from pxr import Gf, PhysxSchema, Usd, UsdPhysics
+ 
+ from isaacsim_msgs.srv import SpawnUrdf
+ 
+@@ -82,6 +83,80 @@ def _resolve_body_prim(prim_path: str, base_frame: str) -> str:
+     return prim_path
+ 
+ 
++def _configure_ideal_planar_physics(
++    stage,
++    prim_path: str,
++    articulation_path: str,
++    translation: geom.Translation,
++    rotation: geom.Rotation,
++) -> None:
++    """Author a world-to-base D6 joint before the final World.reset().
++
++    Wheel bodies and joints remain for visualization and state reporting. If
++    wheel CollisionAPI prims are authored below the imported robot hierarchy,
++    disable those four contact patches; some Jackal imports keep their collider
++    prims in referenced assets and therefore report zero matches here. Velocity
++    fidelity does not depend on this optional path. The D6 joint locks
++    Z/roll/pitch and leaves X/Y/yaw free. Chassis collision geometry remains
++    dynamic and is resolved normally by PhysX.
++    """
++    robot_prim = stage.GetPrimAtPath(prim_path)
++    root_body = stage.GetPrimAtPath(articulation_path)
++    if not robot_prim.IsValid() or not root_body.IsValid():
++        raise RuntimeError("ideal planar robot prims are not ready")
++    if not root_body.HasAPI(UsdPhysics.RigidBodyAPI):
++        raise RuntimeError(
++            f"articulation root is not a rigid body: {articulation_path}"
++        )
++
++    wheel_links = {
++        "front_left_wheel_link",
++        "front_right_wheel_link",
++        "rear_left_wheel_link",
++        "rear_right_wheel_link",
++    }
++    disabled_colliders = 0
++    rigid_bodies = 0
++    for prim in Usd.PrimRange(robot_prim):
++        path_parts = set(str(prim.GetPath()).split("/"))
++        if prim.HasAPI(UsdPhysics.CollisionAPI) and path_parts & wheel_links:
++            UsdPhysics.CollisionAPI(prim).GetCollisionEnabledAttr().Set(False)
++            disabled_colliders += 1
++        if prim.HasAPI(UsdPhysics.RigidBodyAPI):
++            PhysxSchema.PhysxRigidBodyAPI.Apply(
++                prim
++            ).CreateDisableGravityAttr(True)
++            rigid_bodies += 1
++
++    joint = UsdPhysics.Joint.Define(stage, f"{prim_path}/ideal_planar_joint")
++    joint.CreateBody1Rel().SetTargets([articulation_path])
++    joint.CreateLocalPos0Attr().Set(
++        Gf.Vec3f(translation.x, translation.y, translation.z)
++    )
++    joint.CreateLocalRot0Attr().Set(
++        Gf.Quatf(rotation.w, rotation.x, rotation.y, rotation.z)
++    )
++    joint.CreateLocalPos1Attr().Set(Gf.Vec3f(0.0))
++    joint.CreateLocalRot1Attr().Set(Gf.Quatf(1.0))
++
++    joint_prim = joint.GetPrim()
++    for axis in (
++        UsdPhysics.Tokens.transZ,
++        UsdPhysics.Tokens.rotX,
++        UsdPhysics.Tokens.rotY,
++    ):
++        limit = UsdPhysics.LimitAPI.Apply(joint_prim, axis)
++        # The official PhysX D6 convention locks an axis when low > high.
++        limit.CreateLowAttr(1.0)
++        limit.CreateHighAttr(-1.0)
++
++    carb.log_info(
++        "Ideal D6 planar physics authored before reset: robot=%s "
++        "rigid_bodies=%d disabled_wheel_colliders=%d"
++        % (prim_path, rigid_bodies, disabled_colliders)
++    )
++
++
+ def sanitize_urdf_for_isaac(urdf_path: str) -> str:
+     # usd hates dashes in names, so i hate usd
+     tree = ET.parse(urdf_path)
+@@ -359,12 +434,40 @@ def spawn_urdf(request: SpawnUrdf.Request) -> str:
+         articulation_prim_path=articulation_path,
+     )
+ 
++    ideal_chassis = str(os.environ.get("ARENA_IDEAL_CHASSIS", "false")).lower() in (
++        "true",
++        "1",
++    )
++    robot_translation = geom.Translation.parse(request.pose.position)
++    robot_rotation = geom.Rotation.parse(request.pose.orientation)
++    if ideal_chassis:
++        # The normal model spawns above the floor and settles onto its wheels.
++        # The D6 model has no settling phase, so start at the measured baseline
++        # Jackal ride height. This is a geometry setting, not speed tuning.
++        robot_translation.z = float(
++            os.environ.get("ARENA_IDEAL_RIDE_HEIGHT", "0.0645")
++        )
++
+     geom.move(
+         prim_path=prim_path,
+-        translation=geom.Translation.parse(request.pose.position),
+-        rotation=geom.Rotation.parse(request.pose.orientation),
++        translation=robot_translation,
++        rotation=robot_rotation,
+     )
+ 
++    if ideal_chassis:
++        _configure_ideal_planar_physics(
++            stage,
++            prim_path,
++            articulation_path,
++            robot_translation,
++            robot_rotation,
++        )
++
++    # The world was initialized before ROS services became available. Adding
++    # an articulation invalidates that original PhysX tensor view; rebuild it
++    # once after the robot, sensors, and action graphs have all been authored.
++    World.instance().reset()
++
+     carb.log_info(f"Added robot: {prim_path}")
+     return prim_path
+ 
+diff --git a/arena_isaac/arena_isaac/services/UpdatePedestrians.py b/arena_isaac/arena_isaac/services/UpdatePedestrians.py
+index f898936..1ab995e 100644
+--- a/arena_isaac/arena_isaac/services/UpdatePedestrians.py
++++ b/arena_isaac/arena_isaac/services/UpdatePedestrians.py
+@@ -19,7 +19,13 @@ def update_pedestrian(pedestrian: Pedestrian, stamp_sec: float) -> int:
+     person.update_command(
+         (pedestrian.pose.position.x, pedestrian.pose.position.y, pedestrian.pose.position.z),
+         (pedestrian.twist.linear.x, pedestrian.twist.linear.y),
+-        stamp_sec,
++        stamp_sec=stamp_sec,
++        orientation=(
++            pedestrian.pose.orientation.x,
++            pedestrian.pose.orientation.y,
++            pedestrian.pose.orientation.z,
++            pedestrian.pose.orientation.w,
++        ),
+     )
+     return UpdatePedestrians.Response.SUCCESS
+ 
+diff --git a/arena_isaac/isaac_utils/config/__init__.py b/arena_isaac/isaac_utils/config/__init__.py
+new file mode 100644
+index 0000000..83a1951
+--- /dev/null
++++ b/arena_isaac/isaac_utils/config/__init__.py
+@@ -0,0 +1 @@
++"""Renderer configuration helpers."""
+diff --git a/arena_isaac/isaac_utils/graphs/odom.py b/arena_isaac/isaac_utils/graphs/odom.py
+index 0ed7bd3..c96e64a 100644
+--- a/arena_isaac/isaac_utils/graphs/odom.py
++++ b/arena_isaac/isaac_utils/graphs/odom.py
+@@ -1,4 +1,5 @@
+ import omni.graph.core as og
++import usdrt
+ 
+ from isaac_utils.graphs import Graph
+ 
+@@ -59,14 +60,22 @@ def odom(
+     publish_map.attribute('rotation', [0., 0., 0., 1.])
+ 
+     if odom_topic:
++        compute_odometry = graph.node(
++            'compute_odometry', 'isaacsim.core.nodes.IsaacComputeOdometry'
++        )
+         publish_odom_topic = graph.node('publish_odom_topic', 'isaacsim.ros2.bridge.ROS2PublishOdometry')
+-        on_playback_tick.connect('tick', publish_odom_topic, 'execIn')
++        compute_odometry.attribute('chassisPrim', [usdrt.Sdf.Path(prim_path)])
++        on_playback_tick.connect('tick', compute_odometry, 'execIn')
++        compute_odometry.connect('execOut', publish_odom_topic, 'execIn')
+         read_simulation_time.connect('simulationTime', publish_odom_topic, 'timeStamp')
+         publish_odom_topic.attribute('topicName', odom_topic)
+         publish_odom_topic.attribute('odomFrameId', odom_frame_id)
+         publish_odom_topic.attribute('chassisFrameId', base_frame_id)
++        publish_odom_topic.attribute('publishRawVelocities', False)
+         extract_translation.connect('translation', publish_odom_topic, 'position')
+         extract_rotation.connect('quaternion', publish_odom_topic, 'orientation')
++        compute_odometry.connect('linearVelocity', publish_odom_topic, 'linearVelocity')
++        compute_odometry.connect('angularVelocity', publish_odom_topic, 'angularVelocity')
+ 
+     graph.load_extensions()
+     return graph.execute(controller)
+diff --git a/arena_isaac/isaac_utils/managers/__init__.py b/arena_isaac/isaac_utils/managers/__init__.py
+new file mode 100644
+index 0000000..0ae488e
+--- /dev/null
++++ b/arena_isaac/isaac_utils/managers/__init__.py
+@@ -0,0 +1 @@
++"""Isaac entity lifecycle managers."""
+diff --git a/arena_isaac/isaac_utils/utils/__init__.py b/arena_isaac/isaac_utils/utils/__init__.py
+new file mode 100644
+index 0000000..f5c146c
+--- /dev/null
++++ b/arena_isaac/isaac_utils/utils/__init__.py
+@@ -0,0 +1 @@
++"""Shared Isaac utility modules."""
+diff --git a/arena_isaac/launch/run_isaacsim.launch.py b/arena_isaac/launch/run_isaacsim.launch.py
+index 5d16890..02f210f 100644
+--- a/arena_isaac/launch/run_isaacsim.launch.py
++++ b/arena_isaac/launch/run_isaacsim.launch.py
+@@ -21,6 +21,26 @@ def generate_launch_description():
+         default_value='False',
+     )
+ 
++    livestream = LaunchArgument(
++        name='livestream',
++        default_value='False',
++    )
++
++    webrtc_ip = LaunchArgument(
++        name='webrtc_ip',
++        default_value=EnvironmentVariable('ARENA_WEBRTC_IP', default_value='127.0.0.1'),
++    )
++
++    webrtc_signal_port = LaunchArgument(
++        name='webrtc_signal_port',
++        default_value='49100',
++    )
++
++    webrtc_media_port = LaunchArgument(
++        name='webrtc_media_port',
++        default_value='47998',
++    )
++
+     run_isaacsim_path = ExecutableInPackage(
+         executable='run_isaacsim',
+         package='arena_isaac',
+@@ -35,10 +55,17 @@ def generate_launch_description():
+         ),
+         ExecuteProcess(
+             cmd=[
+-                PathJoinSubstitution([EnvironmentVariable('ISAAC_PATH'), 'python.sh']),
++                EnvironmentVariable(
++                    'ISAAC_PYTHON',
++                    default_value=PathJoinSubstitution([EnvironmentVariable('ISAAC_PATH'), 'python.sh']),
++                ),
+                 run_isaacsim_path,
+                 '--log-level', logger.substitution,
+                 '--headless', headless.substitution,
++                '--livestream', livestream.substitution,
++                '--webrtc-ip', webrtc_ip.substitution,
++                '--webrtc-signal-port', webrtc_signal_port.substitution,
++                '--webrtc-media-port', webrtc_media_port.substitution,
+             ],
+             output='screen',
+         ),
+diff --git a/arena_isaac/pedestrian/simulator/logic/people/person.py b/arena_isaac/pedestrian/simulator/logic/people/person.py
+index 6a9927c..4e41c1a 100644
+--- a/arena_isaac/pedestrian/simulator/logic/people/person.py
++++ b/arena_isaac/pedestrian/simulator/logic/people/person.py
+@@ -15,6 +15,10 @@ from pxr import Gf, Sdf
+ from scipy.spatial.transform import Rotation
+ 
+ from pedestrian.simulator.logic.people.person_controller import PersonController
++from pedestrian.simulator.logic.people.character_frames import (
++    character_to_ros_quaternion,
++    ros_to_character_quaternion,
++)
+ from pedestrian.simulator.logic.people_manager import PeopleManager
+ 
+ # Extension APIs
+@@ -75,6 +79,7 @@ class Person:
+         # Commanded kinematic state of the character
+         self._command_position: np.ndarray | None = None
+         self._command_velocity = np.zeros(3)
++        self._command_orientation: np.ndarray | None = None
+         self._command_age = 0.0
+ 
+         # Currently seeded locomotion path, refreshed only on heading change
+@@ -121,6 +126,7 @@ class Person:
+             self._world.add_timeline_callback(cb_path, self.sim_start_stop)
+ 
+         self._character_graph = None
++        self._character_graph_setup_requested = False
+ 
+     @property
+     def character_graph(self):
+@@ -130,8 +136,19 @@ class Person:
+             CharacterGraph: The animation graph of the person.
+         """
+         if self._character_graph is None:
+-            self.add_animation_graph_to_agent()
++            # Applying the schema changes the USD stage immediately, but the
++            # animation runtime only sees it after the following Kit update.
++            # Trying ag.get_character() in the same physics callback produces
++            # a false "not a SkelRoot" result on Isaac Sim 5.1.
++            if not self._character_graph_setup_requested:
++                self.add_animation_graph_to_agent()
++                self._character_graph_setup_requested = True
++                return None
+             self._character_graph = ag.get_character(self.character_skel_root_stage_path)
++            if self._character_graph is not None:
++                carb.log_info(
++                    f"Arena dynamic pedestrian animation ready: {self.character_skel_root_stage_path}"
++                )
+         return self._character_graph
+ 
+     @property
+@@ -230,7 +247,16 @@ class Person:
+                 self.character_graph.set_variable("Walk", 0.0)
+                 self.character_graph.set_variable("Action", "Idle")
+ 
+-            rot = self._state.orientation
++            logical_rot = self._state.orientation
++            # A stationary HuNav behavior can still command a changing yaw
++            # (Surprised turns to look at the robot). Locomotion owns heading
++            # while walking; only apply the explicit pose orientation at rest.
++            if speed <= 0.05 and self._command_orientation is not None:
++                logical_rot = self._command_orientation
++            # ROS poses use local +X as forward, while Isaac People assets use
++            # local -Y. Keep _state in ROS semantics and offset only at the
++            # Character Graph boundary.
++            rot = ros_to_character_quaternion(logical_rot)
+             self.character_graph.set_world_transform(
+                 carb.Float3(float(desired[0]), float(desired[1]), float(desired[2])),
+                 carb.Float4(float(rot[0]), float(rot[1]), float(rot[2]), float(rot[3])),
+@@ -243,7 +269,7 @@ class Person:
+         # if self.character_skel_root_stage_path is not None:
+         #     PeopleManager.get_people_manager().add_person(self.character_skel_root_stage_path, self)
+ 
+-    def update_command(self, position, velocity, stamp_sec=0.0):
++    def update_command(self, position, velocity, stamp_sec=0.0, orientation=None):
+         """
+         Set the commanded planar pose and velocity. The position is tracked exactly,
+         the velocity dead-reckons the character between command updates.
+@@ -252,9 +278,17 @@ class Person:
+             position: (x, y, z) commanded world position, z is ignored.
+             velocity: (x, y) commanded world velocity.
+             stamp_sec: sim time the command was computed at, zero = unstamped.
++            orientation: optional commanded (x, y, z, w) ROS quaternion. It is
++                applied only while the character is stationary.
+         """
+         self._command_position = np.array([position[0], position[1], self._state.position[2]])
+         self._command_velocity = np.array([velocity[0], velocity[1], 0.0])
++        self._command_orientation = None
++        if orientation is not None:
++            command_orientation = np.asarray(orientation, dtype=float)
++            norm = float(np.linalg.norm(command_orientation))
++            if norm > 1e-6:
++                self._command_orientation = command_orientation / norm
+         # seed the dead-reckoning age with the pipeline latency, otherwise every
+         # arrival rewinds the character by velocity times the transport delay
+         self._command_age = max(0.0, self._world.current_time - stamp_sec) if stamp_sec > 0.0 else 0.0
+@@ -267,10 +301,18 @@ class Person:
+             position: (x, y, z) world-space position.
+             orientation: (x, y, z, w) quaternion (ROS convention).
+         """
++        character_orientation = ros_to_character_quaternion(orientation)
++        logical_orientation = character_to_ros_quaternion(character_orientation)
++
+         self.prim.GetAttribute("xformOp:translate").Set(
+             Gf.Vec3d(float(position[0]), float(position[1]), float(position[2]))
+         )
+-        quat = Gf.Quatd(float(orientation[3]), float(orientation[0]), float(orientation[1]), float(orientation[2]))
++        quat = Gf.Quatd(
++            float(character_orientation[3]),
++            float(character_orientation[0]),
++            float(character_orientation[1]),
++            float(character_orientation[2]),
++        )
+         orient_attr = self.prim.GetAttribute("xformOp:orient")
+         if type(orient_attr.Get()) == Gf.Quatf:
+             orient_attr.Set(Gf.Quatf(quat))
+@@ -282,15 +324,21 @@ class Person:
+         if self._character_graph:
+             self._character_graph.set_world_transform(
+                 carb.Float3(float(position[0]), float(position[1]), float(position[2])),
+-                carb.Float4(float(orientation[0]), float(orientation[1]), float(orientation[2]), float(orientation[3])),
++                carb.Float4(
++                    float(character_orientation[0]),
++                    float(character_orientation[1]),
++                    float(character_orientation[2]),
++                    float(character_orientation[3]),
++                ),
+             )
+ 
+         self._command_position = None
+         self._command_velocity = np.zeros(3)
++        self._command_orientation = None
+         self._command_age = 0.0
+         self._path_look = None
+         self._state.position = np.array(position)
+-        self._state.orientation = np.array(orientation)
++        self._state.orientation = np.array(logical_orientation)
+ 
+     def update_state(self, dt: float):
+         """
+@@ -312,7 +360,9 @@ class Person:
+ 
+         # Update the current state of the person
+         self._state.position = np.array([pos[0], pos[1], pos[2]])
+-        self._state.orientation = np.array([rot.x, rot.y, rot.z, rot.w])
++        self._state.orientation = np.array(
++            character_to_ros_quaternion([rot.x, rot.y, rot.z, rot.w])
++        )
+ 
+         # Signal the controller the updated state
+         if self._controller:
+@@ -335,10 +385,20 @@ class Person:
+         # Set the initial position and orientation of the person
+         self.prim.GetAttribute("xformOp:translate").Set(Gf.Vec3d(float(init_pos[0]), float(init_pos[1]), float(init_pos[2])))
+ 
++        logical_orientation = Rotation.from_euler(
++            'z', init_yaw, degrees=False
++        ).as_quat()
++        character_orientation = ros_to_character_quaternion(logical_orientation)
++        character_quat = Gf.Quatd(
++            float(character_orientation[3]),
++            float(character_orientation[0]),
++            float(character_orientation[1]),
++            float(character_orientation[2]),
++        )
+         if type(self.prim.GetAttribute("xformOp:orient").Get()) == Gf.Quatf:
+-            self.prim.GetAttribute("xformOp:orient").Set(Gf.Quatf(Gf.Rotation(Gf.Vec3d(0, 0, 1), float(init_yaw)).GetQuat()))
++            self.prim.GetAttribute("xformOp:orient").Set(Gf.Quatf(character_quat))
+         else:
+-            self.prim.GetAttribute("xformOp:orient").Set(Gf.Rotation(Gf.Vec3d(0, 0, 1), float(init_yaw)).GetQuat())
++            self.prim.GetAttribute("xformOp:orient").Set(character_quat)
+ 
+         # Get the Skeleton root of the character
+         self.character_skel_root, root_path = Person._transverse_prim(self._current_stage, self._stage_prefix)
+@@ -354,13 +414,28 @@ class Person:
+         # Get the animation graph that we are going to add to the person
+         animation_graph = self._current_stage.GetPrimAtPath(Person.character_root_prim_path + "/Biped_Setup/CharacterAnimation/AnimationGraph")
+ 
++        # Author the API override in the writable root layer.  Isaac Sim 5.1
++        # can leave the stage edit target on its metrics session layer; the
++        # animation-graph commands then return without applying the schema to
++        # referenced character prims.
++        root_layer = self._current_stage.GetRootLayer()
++
+         # Remove the animation graph attribute if it exists
+         if self.character_skel_root is not None:
+-            omni.kit.commands.execute("RemoveAnimationGraphAPICommand", paths=[Sdf.Path(self.character_skel_root.GetPrimPath())])
++            omni.kit.commands.execute(
++                "RemoveAnimationGraphAPICommand",
++                layer=root_layer,
++                paths=[Sdf.Path(self.character_skel_root.GetPrimPath())],
++            )
+ 
+         # Add the animation graph to the character
+         if self.character_skel_root is not None:
+-            omni.kit.commands.execute("ApplyAnimationGraphAPICommand", paths=[Sdf.Path(self.character_skel_root.GetPrimPath())], animation_graph_path=Sdf.Path(animation_graph.GetPrimPath()))
++            omni.kit.commands.execute(
++                "ApplyAnimationGraphAPICommand",
++                layer=root_layer,
++                paths=[Sdf.Path(self.character_skel_root.GetPrimPath())],
++                animation_graph_path=Sdf.Path(animation_graph.GetPrimPath()),
++            )
+ 
+     @staticmethod
+     def _transverse_prim(stage, stage_prefix):
+diff --git a/arena_people_msgs/CMakeLists.txt b/arena_people_msgs/CMakeLists.txt
+new file mode 100644
+index 0000000..9ff8dea
+--- /dev/null
++++ b/arena_people_msgs/CMakeLists.txt
+@@ -0,0 +1,21 @@
++cmake_minimum_required(VERSION 3.8)
++project(arena_people_msgs)
++
++find_package(ament_cmake REQUIRED)
++find_package(builtin_interfaces REQUIRED)
++find_package(geometry_msgs REQUIRED)
++find_package(rosidl_default_generators REQUIRED)
++find_package(std_msgs REQUIRED)
++
++rosidl_generate_interfaces(${PROJECT_NAME}
++  msg/Pedestrian.msg
++  msg/Pedestrians.msg
++  msg/SpawnPedestrian.msg
++  srv/DeletePedestrians.srv
++  srv/MovePedestrians.srv
++  srv/SpawnPedestrians.srv
++  srv/UpdatePedestrians.srv
++  DEPENDENCIES builtin_interfaces geometry_msgs std_msgs
++)
++
++ament_package()
+diff --git a/arena_people_msgs/msg/Pedestrian.msg b/arena_people_msgs/msg/Pedestrian.msg
+new file mode 100644
+index 0000000..3ddd1e7
+--- /dev/null
++++ b/arena_people_msgs/msg/Pedestrian.msg
+@@ -0,0 +1,4 @@
++string name
++geometry_msgs/Pose pose
++geometry_msgs/Twist twist
++string model_uri
+diff --git a/arena_people_msgs/msg/Pedestrians.msg b/arena_people_msgs/msg/Pedestrians.msg
+new file mode 100644
+index 0000000..0e5f96b
+--- /dev/null
++++ b/arena_people_msgs/msg/Pedestrians.msg
+@@ -0,0 +1,2 @@
++std_msgs/Header header
++Pedestrian[] pedestrians
+diff --git a/arena_people_msgs/msg/SpawnPedestrian.msg b/arena_people_msgs/msg/SpawnPedestrian.msg
+new file mode 100644
+index 0000000..ccae71f
+--- /dev/null
++++ b/arena_people_msgs/msg/SpawnPedestrian.msg
+@@ -0,0 +1,2 @@
++Pedestrian pedestrian
++string model_ref
+diff --git a/arena_people_msgs/package.xml b/arena_people_msgs/package.xml
+new file mode 100644
+index 0000000..4a6a068
+--- /dev/null
++++ b/arena_people_msgs/package.xml
+@@ -0,0 +1,20 @@
++<?xml version="1.0"?>
++<package format="3">
++  <name>arena_people_msgs</name>
++  <version>0.0.0</version>
++  <description>Compatibility interfaces used by Arena Isaac pedestrian services.</description>
++  <maintainer email="noreply@example.com">Arena local deployment</maintainer>
++  <license>MIT</license>
++
++  <buildtool_depend>ament_cmake</buildtool_depend>
++  <build_depend>rosidl_default_generators</build_depend>
++  <depend>builtin_interfaces</depend>
++  <depend>geometry_msgs</depend>
++  <depend>std_msgs</depend>
++  <exec_depend>rosidl_default_runtime</exec_depend>
++  <member_of_group>rosidl_interface_packages</member_of_group>
++
++  <export>
++    <build_type>ament_cmake</build_type>
++  </export>
++</package>
+diff --git a/arena_people_msgs/srv/DeletePedestrians.srv b/arena_people_msgs/srv/DeletePedestrians.srv
+new file mode 100644
+index 0000000..5452e51
+--- /dev/null
++++ b/arena_people_msgs/srv/DeletePedestrians.srv
+@@ -0,0 +1,5 @@
++string[] names
++---
++int8 SUCCESS=0
++int8 NOT_FOUND=1
++int8[] results
+diff --git a/arena_people_msgs/srv/MovePedestrians.srv b/arena_people_msgs/srv/MovePedestrians.srv
+new file mode 100644
+index 0000000..d9dccce
+--- /dev/null
++++ b/arena_people_msgs/srv/MovePedestrians.srv
+@@ -0,0 +1,5 @@
++Pedestrian[] pedestrians
++---
++int8 SUCCESS=0
++int8 NOT_FOUND=1
++int8[] results
+diff --git a/arena_people_msgs/srv/SpawnPedestrians.srv b/arena_people_msgs/srv/SpawnPedestrians.srv
+new file mode 100644
+index 0000000..b6d9493
+--- /dev/null
++++ b/arena_people_msgs/srv/SpawnPedestrians.srv
+@@ -0,0 +1,5 @@
++SpawnPedestrian[] pedestrians
++---
++int8 SUCCESS=0
++int8 FAILED_CREATE=1
++int8[] results
+diff --git a/arena_people_msgs/srv/UpdatePedestrians.srv b/arena_people_msgs/srv/UpdatePedestrians.srv
+new file mode 100644
+index 0000000..082318c
+--- /dev/null
++++ b/arena_people_msgs/srv/UpdatePedestrians.srv
+@@ -0,0 +1,6 @@
++builtin_interfaces/Time stamp
++Pedestrian[] pedestrians
++---
++int8 SUCCESS=0
++int8 NOT_FOUND=1
++int8[] results

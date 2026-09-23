@@ -1,0 +1,440 @@
+diff --git a/arena_bringup/configs/hunav_agents/isaac_six_behaviors_warehouse.yaml b/arena_bringup/configs/hunav_agents/isaac_six_behaviors_warehouse.yaml
+new file mode 100644
+index 00000000..fafe303a
+--- /dev/null
++++ b/arena_bringup/configs/hunav_agents/isaac_six_behaviors_warehouse.yaml
+@@ -0,0 +1,184 @@
++hunav_loader:
++  ros__parameters:
++    map: isaac_six_behaviors_warehouse
++    publish_people: true
++    agents:
++      - regular
++      - impassive
++      - surprised
++      - scared
++      - curious
++      - threatening
++
++    # All six use custom configuration (1), so no random parameter rewrite is
++    # performed by hunav_loader. Behavior values are the HuNav v1 warehouse
++    # defaults, plus the official warehouse custom values for Curious. The
++    # four special behaviors repeat while the robot remains visible so the
++    # reactions can be inspected more than once in an interactive demo.
++    regular:
++      id: 1
++      skin: 0
++      group_id: -1
++      max_vel: 1.5
++      radius: 0.4
++      behavior:
++        type: 1
++        configuration: 1
++        duration: 40.0
++        once: true
++        vel: 0.6
++        dist: 0.0
++        goal_force_factor: 2.0
++        obstacle_force_factor: 10.0
++        social_force_factor: 5.0
++        other_force_factor: 20.0
++      init_pose: {x: 15.0, y: 12.0, z: 0.0, h: 3.1415926536}
++      goal_radius: 0.3
++      cyclic_goals: true
++      goals: [g0, g1]
++      g0: {x: 5.0, y: 12.0, h: 0.0}
++      g1: {x: 15.0, y: 12.0, h: 0.0}
++
++    impassive:
++      id: 2
++      skin: 4
++      group_id: -1
++      max_vel: 1.5
++      radius: 0.4
++      behavior:
++        type: 2
++        configuration: 1
++        duration: 40.0
++        once: true
++        vel: 0.6
++        dist: 0.0
++        goal_force_factor: 2.0
++        obstacle_force_factor: 10.0
++        social_force_factor: 5.0
++        other_force_factor: 20.0
++      init_pose: {x: 5.0, y: 10.0, z: 0.0, h: 0.0}
++      goal_radius: 0.3
++      cyclic_goals: true
++      goals: [g0, g1]
++      g0: {x: 15.0, y: 10.0, h: 0.0}
++      g1: {x: 5.0, y: 10.0, h: 0.0}
++
++    surprised:
++      id: 3
++      skin: 2
++      group_id: -1
++      max_vel: 1.5
++      radius: 0.4
++      behavior:
++        type: 3
++        configuration: 1
++        duration: 30.0
++        once: false
++        vel: 0.6
++        dist: 4.0
++        goal_force_factor: 2.0
++        obstacle_force_factor: 10.0
++        social_force_factor: 5.0
++        other_force_factor: 20.0
++      init_pose: {x: 6.5, y: 4.5, z: 0.0, h: 3.1415926536}
++      goal_radius: 0.3
++      cyclic_goals: true
++      goals: [g0, g1]
++      # A fixed northbound lane which does not cross the robot at (3, 3).
++      g0: {x: 6.5, y: 8.5, h: 0.0}
++      g1: {x: 6.5, y: 4.5, h: 0.0}
++
++    scared:
++      id: 4
++      skin: 0
++      group_id: -1
++      max_vel: 1.5
++      radius: 0.4
++      behavior:
++        type: 4
++        configuration: 1
++        duration: 40.0
++        once: false
++        vel: 0.6
++        dist: 3.0
++        goal_force_factor: 2.0
++        obstacle_force_factor: 10.0
++        social_force_factor: 5.0
++        other_force_factor: 20.0
++      init_pose: {x: 4.5, y: 5.0, z: 0.0, h: -2.2142974356}
++      goal_radius: 0.3
++      cyclic_goals: true
++      goals: [g0, g1]
++      # The waypoint heads away from the robot instead of through its center.
++      g0: {x: 1.5, y: 8.0, h: 0.0}
++      g1: {x: 4.5, y: 5.0, h: 0.0}
++
++    curious:
++      id: 5
++      skin: 3
++      group_id: -1
++      max_vel: 1.5
++      radius: 0.4
++      behavior:
++        type: 5
++        configuration: 1
++        duration: 30.0
++        once: false
++        vel: 0.8
++        dist: 1.5
++        goal_force_factor: 2.0
++        obstacle_force_factor: 10.0
++        social_force_factor: 5.0
++        other_force_factor: 20.0
++      # Approach from the north-west, away from Threatening's front target.
++      init_pose: {x: 1.0, y: 8.0, z: 0.0, h: -1.5707963268}
++      goal_radius: 0.3
++      cyclic_goals: true
++      goals: [g0, g1]
++      # The southbound fallback brings the robot into view without crossing it.
++      g0: {x: 1.0, y: 4.0, h: 0.0}
++      g1: {x: 1.0, y: 8.0, h: 0.0}
++
++    threatening:
++      id: 6
++      skin: 5
++      group_id: -1
++      max_vel: 1.5
++      radius: 0.4
++      behavior:
++        type: 6
++        configuration: 1
++        duration: 40.0
++        once: false
++        vel: 0.6
++        dist: 1.4
++        goal_force_factor: 2.0
++        obstacle_force_factor: 10.0
++        social_force_factor: 5.0
++        other_force_factor: 20.0
++      # Start on the robot's +X axis so the transition to the dynamic front
++      # target cannot cut diagonally through the robot collision envelope.
++      init_pose: {x: 6.0, y: 3.0, z: 0.0, h: 3.1415926536}
++      goal_radius: 0.3
++      cyclic_goals: true
++      goals: [g0, g1]
++      # The fallback lane remains entirely east of the robot.
++      g0: {x: 10.0, y: 3.0, h: 0.0}
++      g1: {x: 6.0, y: 3.0, h: 0.0}
++
++arena_hunav_isaac_bridge:
++  ros__parameters:
++    # HuNav integrates independently from the slower Isaac Character display.
++    # Isaac currently runs at roughly 0.35 real-time factor. A 40 Hz simulated
++    # integration cadence yields about 14 Hz wall-clock HuNav updates.
++    update_rate: 40.0
++    display_rate: 5.0
++    max_integration_step: 0.025
++    scheduler_rate: 100.0
++    character_models:
++      - original_female_adult_business_02
++      - original_female_adult_medical_01
++      - original_male_adult_medical_01
++      - original_male_adult_construction_01
++      - original_male_adult_construction_05
++      - original_female_adult_police_01
+diff --git a/arena_bringup/launch/isaac_six_behaviors.launch.py b/arena_bringup/launch/isaac_six_behaviors.launch.py
+new file mode 100644
+index 00000000..56d1a1fd
+--- /dev/null
++++ b/arena_bringup/launch/isaac_six_behaviors.launch.py
+@@ -0,0 +1,228 @@
++from launch import LaunchDescription
++from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, SetEnvironmentVariable
++from launch.conditions import IfCondition
++from launch.launch_description_sources import PythonLaunchDescriptionSource
++from launch.substitutions import EnvironmentVariable, LaunchConfiguration, PathJoinSubstitution
++from launch_ros.actions import Node
++from launch_ros.parameter_descriptions import ParameterValue
++from launch_ros.substitutions import FindPackageShare
++
++
++def generate_launch_description():
++    agent_config = LaunchConfiguration("agent_config")
++    urdf_path = LaunchConfiguration("urdf_path")
++    headless = LaunchConfiguration("headless")
++    livestream = LaunchConfiguration("livestream")
++    webrtc_ip = LaunchConfiguration("webrtc_ip")
++    webrtc_signal_port = LaunchConfiguration("webrtc_signal_port")
++    webrtc_media_port = LaunchConfiguration("webrtc_media_port")
++    foxglove = LaunchConfiguration("foxglove")
++    foxglove_address = LaunchConfiguration("foxglove_address")
++    foxglove_port = LaunchConfiguration("foxglove_port")
++    navigation = LaunchConfiguration("navigation")
++    map_yaml = LaunchConfiguration("map_yaml")
++
++    isaac_launch = IncludeLaunchDescription(
++        PythonLaunchDescriptionSource(
++            PathJoinSubstitution(
++                [FindPackageShare("arena_isaac"), "launch", "run_isaacsim.launch.py"]
++            )
++        ),
++        launch_arguments={
++            "headless": headless,
++            "livestream": livestream,
++            "webrtc_ip": webrtc_ip,
++            "webrtc_signal_port": webrtc_signal_port,
++            "webrtc_media_port": webrtc_media_port,
++            "log_level": "info",
++        }.items(),
++    )
++
++    map_server = Node(
++        package="nav2_map_server",
++        executable="map_server",
++        name="map_server",
++        output="screen",
++        condition=IfCondition(navigation),
++        remappings=[("map", "/task_generator_node/map")],
++        parameters=[
++            {
++                "use_sim_time": True,
++                "yaml_filename": map_yaml,
++            }
++        ],
++    )
++
++    map_lifecycle_manager = Node(
++        package="nav2_lifecycle_manager",
++        executable="lifecycle_manager",
++        name="lifecycle_manager_map",
++        output="screen",
++        condition=IfCondition(navigation),
++        parameters=[
++            {
++                "use_sim_time": True,
++                "autostart": True,
++                "node_names": ["map_server"],
++            }
++        ],
++    )
++
++    nav2_launch = IncludeLaunchDescription(
++        PythonLaunchDescriptionSource(
++            PathJoinSubstitution(
++                [
++                    FindPackageShare("arena_simulation_setup"),
++                    "launch",
++                    "nav2.launch.py",
++                ]
++            )
++        ),
++        condition=IfCondition(navigation),
++        launch_arguments={
++            "robot": "jackal",
++            "task_generator_node": "/task_generator_node",
++            "use_sim_time": "true",
++            "global_planner": "navfn",
++            "local_planner": "dwb",
++            "inter_planner": "navigate_w_replanning_time",
++            "amcl": "false",
++        }.items(),
++    )
++
++    return LaunchDescription(
++        [
++            DeclareLaunchArgument(
++                "agent_config",
++                default_value=PathJoinSubstitution(
++                    [
++                        FindPackageShare("arena_bringup"),
++                        "configs",
++                        "hunav_agents",
++                        "isaac_six_behaviors_warehouse.yaml",
++                    ]
++                ),
++            ),
++            DeclareLaunchArgument(
++                "urdf_path",
++                default_value=PathJoinSubstitution(
++                    [EnvironmentVariable("ARENA_WS"), "config", "generated", "jackal.urdf"]
++                ),
++            ),
++            DeclareLaunchArgument("headless", default_value="true"),
++            DeclareLaunchArgument("livestream", default_value="true"),
++            DeclareLaunchArgument(
++                "webrtc_ip",
++                default_value=EnvironmentVariable("ARENA_WEBRTC_IP", default_value="127.0.0.1"),
++            ),
++            DeclareLaunchArgument(
++                "webrtc_signal_port",
++                default_value=EnvironmentVariable(
++                    "ARENA_WEBRTC_SIGNAL_PORT", default_value="49100"
++                ),
++            ),
++            DeclareLaunchArgument(
++                "webrtc_media_port",
++                default_value=EnvironmentVariable(
++                    "ARENA_WEBRTC_MEDIA_PORT", default_value="47998"
++                ),
++            ),
++            DeclareLaunchArgument("foxglove", default_value="true"),
++            DeclareLaunchArgument(
++                "foxglove_address",
++                default_value=EnvironmentVariable(
++                    "ARENA_FOXGLOVE_ADDRESS", default_value="127.0.0.1"
++                ),
++            ),
++            DeclareLaunchArgument(
++                "foxglove_port",
++                default_value=EnvironmentVariable("ARENA_FOXGLOVE_PORT", default_value="8765"),
++            ),
++            DeclareLaunchArgument("navigation", default_value="true"),
++            DeclareLaunchArgument(
++                "map_yaml",
++                default_value=PathJoinSubstitution(
++                    [
++                        FindPackageShare("arena_simulation_setup"),
++                        "worlds",
++                        "map_empty",
++                        "map",
++                        "map.yaml",
++                    ]
++                ),
++            ),
++            SetEnvironmentVariable(
++                "CUDA_VISIBLE_DEVICES", EnvironmentVariable("GPU_ID", default_value="0")
++            ),
++            SetEnvironmentVariable(
++                "ARENA_RENDER_GPU", EnvironmentVariable("GPU_ID", default_value="0")
++            ),
++            SetEnvironmentVariable("ARENA_INTERNAL_GPU", "0"),
++            isaac_launch,
++            Node(
++                package="hunav_agent_manager",
++                executable="hunav_loader",
++                name="hunav_loader",
++                output="screen",
++                parameters=[agent_config, {"use_sim_time": True}],
++            ),
++            Node(
++                package="hunav_agent_manager",
++                executable="hunav_agent_manager",
++                name="hunav_agent_manager",
++                output="screen",
++                parameters=[
++                    {
++                        "use_sim_time": True,
++                        "publish_tf": True,
++                        "publish_sfm_forces": True,
++                        "hunav_loader.publish_people": True,
++                    }
++                ],
++            ),
++            Node(
++                package="robot_state_publisher",
++                executable="robot_state_publisher",
++                name="robot_state_publisher",
++                output="screen",
++                arguments=[urdf_path],
++                parameters=[{"use_sim_time": True}],
++            ),
++            Node(
++                package="arena_humble_compat",
++                executable="hunav_six_behaviors_bridge",
++                name="arena_hunav_isaac_bridge",
++                output="screen",
++                parameters=[
++                    agent_config,
++                    {
++                        "agent_config_file": agent_config,
++                        "urdf_path": urdf_path,
++                        "use_sim_time": True,
++                    },
++                ],
++            ),
++            map_server,
++            map_lifecycle_manager,
++            nav2_launch,
++            Node(
++                package="foxglove_bridge",
++                executable="foxglove_bridge",
++                name="foxglove_bridge",
++                output="screen",
++                condition=IfCondition(foxglove),
++                parameters=[
++                    {
++                        "address": foxglove_address,
++                        "port": ParameterValue(foxglove_port, value_type=int),
++                        "use_sim_time": True,
++                        "capabilities": [
++                            "clientPublish",
++                            "connectionGraph",
++                            "assets",
++                        ],
++                    }
++                ],
++            ),
++        ]
++    )
+diff --git a/arena_bringup/package.xml b/arena_bringup/package.xml
+index 6df8b00e..87c6817e 100755
+--- a/arena_bringup/package.xml
++++ b/arena_bringup/package.xml
+@@ -14,6 +14,11 @@
+   <depend>nav2_msgs</depend>
+   <depend>joint_state_publisher</depend>
+   <depend>nav2_map_server</depend>
++  <exec_depend>arena_humble_compat</exec_depend>
++  <exec_depend>arena_isaac</exec_depend>
++  <exec_depend>foxglove_bridge</exec_depend>
++  <exec_depend>hunav_agent_manager</exec_depend>
++  <exec_depend>robot_state_publisher</exec_depend>
+ 
+   <export>
+     <build_type>ament_python</build_type>

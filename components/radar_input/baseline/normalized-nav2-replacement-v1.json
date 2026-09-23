@@ -1,0 +1,26 @@
+{
+  "name": "normalized-nav2-replacement-v1",
+  "status": "validated-experimental",
+  "validated_at": "2026-09-16T16:22:00+08:00",
+  "root_tag": "validated/normalized-nav2-replacement-v1",
+  "stable_baseline_tag": "baseline/depth-clearing-v1",
+  "normalized_scan_tag": "validated/normalized-laserscan-v1.1",
+  "simulation_setup": {
+    "worktree": ".workspaces/laserscan-v1/src/simulation-setup",
+    "branch": "feat/normalized-laserscan-nav2",
+    "commit": "766c435689973dde222d25cde3aef8db4330948b",
+    "tag": "validated/normalized-nav2-replacement-v1"
+  },
+  "overlay": ".workspaces/laserscan-v1/install",
+  "stable_defaults_unchanged": {
+    "ARENA_DEPTH_CLEARING": "true",
+    "ARENA_NORMALIZED_SCAN": "false"
+  },
+  "experimental_defaults": {
+    "ARENA_DEPTH_CLEARING": "false",
+    "ARENA_NORMALIZED_SCAN": "true",
+    "NAVIGATION": "true"
+  },
+  "validation": "audit/normalized_nav2_replacement_validation.json",
+  "report": "NORMALIZED_NAV2_REPLACEMENT_REPORT.md"
+}

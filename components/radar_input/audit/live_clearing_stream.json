@@ -1,0 +1,237 @@
+{
+  "samples": [
+    {
+      "arrival_monotonic": 2698384.532882111,
+      "stamp": 141.066674024,
+      "frame_id": "lidar_link",
+      "points": 1284,
+      "finite_points": 1284,
+      "min_distance": 1.2643462419509888,
+      "max_distance": 12.000000953674316
+    },
+    {
+      "arrival_monotonic": 2698384.940029517,
+      "stamp": 141.166674029,
+      "frame_id": "lidar_link",
+      "points": 1284,
+      "finite_points": 1284,
+      "min_distance": 1.2581379413604736,
+      "max_distance": 12.000000953674316
+    },
+    {
+      "arrival_monotonic": 2698385.336466147,
+      "stamp": 141.266674034,
+      "frame_id": "lidar_link",
+      "points": 1284,
+      "finite_points": 1284,
+      "min_distance": 1.261273741722107,
+      "max_distance": 12.000000953674316
+    },
+    {
+      "arrival_monotonic": 2698385.731317437,
+      "stamp": 141.36667404,
+      "frame_id": "lidar_link",
+      "points": 1284,
+      "finite_points": 1284,
+      "min_distance": 1.269302487373352,
+      "max_distance": 12.000000953674316
+    },
+    {
+      "arrival_monotonic": 2698386.182315203,
+      "stamp": 141.466674045,
+      "frame_id": "lidar_link",
+      "points": 1284,
+      "finite_points": 1284,
+      "min_distance": 1.2798763513565063,
+      "max_distance": 12.000000953674316
+    },
+    {
+      "arrival_monotonic": 2698386.570561539,
+      "stamp": 141.56667405,
+      "frame_id": "lidar_link",
+      "points": 1284,
+      "finite_points": 1284,
+      "min_distance": 1.2832566499710083,
+      "max_distance": 12.000000953674316
+    },
+    {
+      "arrival_monotonic": 2698386.892439549,
+      "stamp": 141.666674055,
+      "frame_id": "lidar_link",
+      "points": 1284,
+      "finite_points": 1284,
+      "min_distance": 1.2851043939590454,
+      "max_distance": 12.000000953674316
+    },
+    {
+      "arrival_monotonic": 2698387.212256051,
+      "stamp": 141.76667406,
+      "frame_id": "lidar_link",
+      "points": 1284,
+      "finite_points": 1284,
+      "min_distance": 1.2909984588623047,
+      "max_distance": 12.000000953674316
+    },
+    {
+      "arrival_monotonic": 2698387.531679962,
+      "stamp": 141.866674066,
+      "frame_id": "lidar_link",
+      "points": 1284,
+      "finite_points": 1284,
+      "min_distance": 1.2921948432922363,
+      "max_distance": 12.000000953674316
+    },
+    {
+      "arrival_monotonic": 2698387.881118024,
+      "stamp": 141.966674071,
+      "frame_id": "lidar_link",
+      "points": 1284,
+      "finite_points": 1284,
+      "min_distance": 1.2966383695602417,
+      "max_distance": 12.000000953674316
+    },
+    {
+      "arrival_monotonic": 2698388.199454697,
+      "stamp": 142.066674076,
+      "frame_id": "lidar_link",
+      "points": 1284,
+      "finite_points": 1284,
+      "min_distance": 1.292696237564087,
+      "max_distance": 12.000000953674316
+    },
+    {
+      "arrival_monotonic": 2698388.542090308,
+      "stamp": 142.166674081,
+      "frame_id": "lidar_link",
+      "points": 1284,
+      "finite_points": 1284,
+      "min_distance": 1.2734341621398926,
+      "max_distance": 12.000000953674316
+    },
+    {
+      "arrival_monotonic": 2698388.87982861,
+      "stamp": 142.266674086,
+      "frame_id": "lidar_link",
+      "points": 1284,
+      "finite_points": 1284,
+      "min_distance": 1.26387619972229,
+      "max_distance": 12.000000953674316
+    },
+    {
+      "arrival_monotonic": 2698389.210336768,
+      "stamp": 142.366674092,
+      "frame_id": "lidar_link",
+      "points": 1284,
+      "finite_points": 1284,
+      "min_distance": 1.2650355100631714,
+      "max_distance": 12.000000953674316
+    },
+    {
+      "arrival_monotonic": 2698389.529482421,
+      "stamp": 142.466674097,
+      "frame_id": "lidar_link",
+      "points": 1284,
+      "finite_points": 1284,
+      "min_distance": 1.2732402086257935,
+      "max_distance": 12.000000953674316
+    },
+    {
+      "arrival_monotonic": 2698389.856783909,
+      "stamp": 142.566674102,
+      "frame_id": "lidar_link",
+      "points": 1284,
+      "finite_points": 1284,
+      "min_distance": 1.2829642295837402,
+      "max_distance": 12.000000953674316
+    },
+    {
+      "arrival_monotonic": 2698390.219468333,
+      "stamp": 142.666674107,
+      "frame_id": "lidar_link",
+      "points": 1284,
+      "finite_points": 1284,
+      "min_distance": 1.2873501777648926,
+      "max_distance": 12.000000953674316
+    },
+    {
+      "arrival_monotonic": 2698390.564372719,
+      "stamp": 142.766674113,
+      "frame_id": "lidar_link",
+      "points": 1284,
+      "finite_points": 1284,
+      "min_distance": 1.2838501930236816,
+      "max_distance": 12.000000953674316
+    },
+    {
+      "arrival_monotonic": 2698390.908780816,
+      "stamp": 142.866674118,
+      "frame_id": "lidar_link",
+      "points": 1284,
+      "finite_points": 1284,
+      "min_distance": 1.284170150756836,
+      "max_distance": 12.000000953674316
+    },
+    {
+      "arrival_monotonic": 2698391.254370877,
+      "stamp": 142.966674123,
+      "frame_id": "lidar_link",
+      "points": 1284,
+      "finite_points": 1284,
+      "min_distance": 1.288662314414978,
+      "max_distance": 12.000000953674316
+    },
+    {
+      "arrival_monotonic": 2698391.583487481,
+      "stamp": 143.066674128,
+      "frame_id": "lidar_link",
+      "points": 1284,
+      "finite_points": 1284,
+      "min_distance": 1.293859839439392,
+      "max_distance": 12.000000953674316
+    },
+    {
+      "arrival_monotonic": 2698391.926640848,
+      "stamp": 143.166674133,
+      "frame_id": "lidar_link",
+      "points": 1284,
+      "finite_points": 1284,
+      "min_distance": 1.2975678443908691,
+      "max_distance": 12.000000953674316
+    },
+    {
+      "arrival_monotonic": 2698392.263507873,
+      "stamp": 143.266674139,
+      "frame_id": "lidar_link",
+      "points": 1284,
+      "finite_points": 1284,
+      "min_distance": 1.2969863414764404,
+      "max_distance": 12.000000953674316
+    },
+    {
+      "arrival_monotonic": 2698392.602915463,
+      "stamp": 143.366674144,
+      "frame_id": "lidar_link",
+      "points": 1284,
+      "finite_points": 1284,
+      "min_distance": 1.2779483795166016,
+      "max_distance": 12.000000953674316
+    },
+    {
+      "arrival_monotonic": 2698392.943882222,
+      "stamp": 143.466674149,
+      "frame_id": "lidar_link",
+      "points": 1284,
+      "finite_points": 1284,
+      "min_distance": 1.2574700117111206,
+      "max_distance": 12.000000953674316
+    }
+  ],
+  "sim_period_median": 0.10000000499999828,
+  "sim_frequency": 9.999999500000197,
+  "wall_frequency": 2.9256773940398073,
+  "lidar_sim_frequency": 9.999999500000197,
+  "lidar_wall_frequency": 2.890210659617903,
+  "all_frames_lidar_link": true,
+  "all_points_finite": true,
+  "all_ranges_safe": true
+}

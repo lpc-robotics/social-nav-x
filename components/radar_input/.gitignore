@@ -1,0 +1,13 @@
+/src/
+/install/
+/build/
+/log/
+/logs/
+/.conda/
+/.cache/
+/vendor/
+/audit/final.diff
+__pycache__/
+*.pyc
+/tools/python_deps/
+/.workspaces/

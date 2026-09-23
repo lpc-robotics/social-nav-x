@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "name": "radar-input-accepted-v1",
+  "status": "user-accepted",
+  "accepted_at": "2026-09-16T16:56:14+08:00",
+  "tag": "accepted/radar-input-v1",
+  "root_parent_commit": "b6cbef619ad1022b42fe04d3b6a80b6863c9e542",
+  "stable_baseline": {
+    "tag": "baseline/depth-clearing-v1",
+    "manifest": "baseline/depth-clearing-v1.json",
+    "entrypoint": "scripts/run_depth_clearing_baseline.sh",
+    "topics": ["/lidar", "/lidar_clearing"],
+    "defaults": {"ARENA_DEPTH_CLEARING": "true", "ARENA_NORMALIZED_SCAN": "false"}
+  },
+  "accepted_normalized_nav2": {
+    "arena_isaac": {
+      "worktree": ".workspaces/laserscan-v1/src/arena-isaac",
+      "commit": "6709da14af280444ac90b616a800439de22b1869",
+      "tag": "accepted/radar-input-v1"
+    },
+    "simulation_setup": {
+      "worktree": ".workspaces/laserscan-v1/src/simulation-setup",
+      "commit": "766c435689973dde222d25cde3aef8db4330948b",
+      "tag": "accepted/radar-input-v1"
+    },
+    "overlay": ".workspaces/laserscan-v1/install",
+    "build_entrypoint": "scripts/build_normalized_nav2_experiment.sh",
+    "run_entrypoint": "scripts/run_normalized_nav2_experiment.sh",
+    "topic": "/lidar_normalized",
+    "defaults": {
+      "NAVIGATION": "true",
+      "ARENA_DEPTH_CLEARING": "false",
+      "ARENA_NORMALIZED_SCAN": "true"
+    }
+  },
+  "evidence": "audit/normalized_nav2_replacement_validation.json",
+  "handoff": "RADAR_INPUT_HANDOFF.md",
+  "offline_bundles": {
+    "directory": "logs/baselines/radar-input-accepted-v1/bundles",
+    "prerequisite": "baseline/depth-clearing-v1",
+    "root_bundle": "root.bundle",
+    "sha256": {
+      "arena_isaac_delta.bundle": "062482d757994c83f482659703640a146122f80dee48605d60726a33c22edd57",
+      "simulation_setup_delta.bundle": "2894bc19cd0d12cf87f6bff674ea7f1168377b1a3c64259d72924580c79a1a20"
+    }
+  },
+  "environment_guard": "baseline/depth-clearing-v1.json"
+}
