@@ -1,0 +1,35 @@
+{
+  "passed": true,
+  "release_id": "20260929-multi-sfm-v1",
+  "release_root": "/home/lpc/workspace/arena5_ws/optional/multirobot/releases/20260929-multi-sfm-v1",
+  "release_source_commit": "4a27d464cf493107d23fb4065343e0336ccdc5e4",
+  "validated_on": "2026-09-29",
+  "release_hash_file_sha256": "8b950615994d302e92f330256067c0fef3440ca4be514af9b2cbd210fadf8e84",
+  "verified_file_hashes": 565,
+  "write_protection_verified": true,
+  "build_checkout_unavailable_during_smoke": true,
+  "cold_start": {
+    "first_attempt_passed": false,
+    "fault": "post_spawn_odometry_timeout",
+    "same_version_retry_passed": true,
+    "timeout_limits_changed": false
+  },
+  "reports": {
+    "prefixes": {
+      "path": "evidence/multi_sfm/release_validation/prefixes.json",
+      "sha256": "6e0d441c62c409513853fa5fc5f303e2fa0eb30efd7cd4dec35ce3c994550305"
+    },
+    "runtime": {
+      "path": "evidence/multi_sfm/release_validation/runtime.json",
+      "sha256": "e12ec5a7dc44644e00edb50c2180416555723e3b1dc192a0c2ff0c68870e9bf6"
+    },
+    "platform": {
+      "path": "evidence/multi_sfm/release_validation/platform.json",
+      "sha256": "0b203b66a88e8c638f645c9ef6f840427c78c4dff3906bffda670d067b5517ff"
+    },
+    "navigation": {
+      "path": "evidence/multi_sfm/release_validation/navigation.json",
+      "sha256": "e5d478b46e8694688d5d966fb598ad99fa245fbc0c1697c9a0c1d91955a1665b"
+    }
+  }
+}

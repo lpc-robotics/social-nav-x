@@ -1,0 +1,18 @@
+{
+  "passed": true,
+  "build_checkout_unavailable": true,
+  "prefixes": {
+    "arena_multi_hunav_msgs": "/home/lpc/workspace/arena5_ws/optional/multirobot/releases/20260929-multi-sfm-v1/install/arena_multi_hunav_msgs",
+    "arena_multi_hunav_core": "/home/lpc/workspace/arena5_ws/optional/multirobot/releases/20260929-multi-sfm-v1/install/arena_multi_hunav_core",
+    "arena_isaac": "/home/lpc/workspace/arena5_ws/optional/multirobot/releases/20260929-multi-sfm-v1/install/arena_isaac",
+    "arena_multi_control": "/home/lpc/workspace/arena5_ws/optional/multirobot/releases/20260929-multi-sfm-v1/install/arena_multi_control",
+    "arena_peer_costmap": "/home/lpc/workspace/arena5_ws/optional/multirobot/releases/20260929-multi-sfm-v1/install/arena_peer_costmap",
+    "arena_multi_bringup": "/home/lpc/workspace/arena5_ws/optional/multirobot/releases/20260929-multi-sfm-v1/install/arena_multi_bringup",
+    "arena_multi_hunav": "/home/lpc/workspace/arena5_ws/optional/multirobot/releases/20260929-multi-sfm-v1/install/arena_multi_hunav"
+  },
+  "module_files": {
+    "arena_multi_hunav.multi_adapter": "/home/lpc/workspace/arena5_ws/optional/multirobot/releases/20260929-multi-sfm-v1/install/arena_multi_hunav/lib/python3.11/site-packages/arena_multi_hunav/multi_adapter.py",
+    "arena_multi_control.scenario": "/home/lpc/workspace/arena5_ws/optional/multirobot/releases/20260929-multi-sfm-v1/install/arena_multi_control/lib/python3.11/site-packages/arena_multi_control/scenario.py",
+    "isaac_utils.simulation_time": "/home/lpc/workspace/arena5_ws/optional/multirobot/releases/20260929-multi-sfm-v1/install/arena_isaac/lib/python3.11/site-packages/isaac_utils/simulation_time.py"
+  }
+}

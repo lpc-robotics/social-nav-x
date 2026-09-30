@@ -1,0 +1,16 @@
+Running main() from /home/lpc/workspace/arena5_ws/.conda/arena_ros/src/gtest_vendor/src/gtest_main.cc
+Note: Google Test filter = Core.AllRobotsHaveIndependentContributions:Core.RobotOrderAndNamesDoNotChangeMotion:Core.AblatingEitherRobotChangesTrajectoryByTenCentimeters
+[==========] Running 3 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 3 tests from Core
+[ RUN      ] Core.AllRobotsHaveIndependentContributions
+[       OK ] Core.AllRobotsHaveIndependentContributions (1 ms)
+[ RUN      ] Core.RobotOrderAndNamesDoNotChangeMotion
+[       OK ] Core.RobotOrderAndNamesDoNotChangeMotion (0 ms)
+[ RUN      ] Core.AblatingEitherRobotChangesTrajectoryByTenCentimeters
+[       OK ] Core.AblatingEitherRobotChangesTrajectoryByTenCentimeters (2 ms)
+[----------] 3 tests from Core (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 3 tests from 1 test suite ran. (3 ms total)
+[  PASSED  ] 3 tests.

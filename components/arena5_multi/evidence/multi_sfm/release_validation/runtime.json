@@ -1,0 +1,120 @@
+{
+  "passed": true,
+  "scope": "runtime health and synchronized rendered geometry; not task acceptance",
+  "duration_wall_s": 60.0,
+  "agent_samples": 1432,
+  "actual_samples": 684,
+  "checked_samples": 684,
+  "skipped_samples": 0,
+  "minimum_actual_clearance_m": 4.216212768351767,
+  "maximum_display_error_m": 0.01875061665134094,
+  "maximum_error_sample": {
+    "stamp_ns": 30300000452,
+    "name": "person_4",
+    "actual": [
+      12.199962615966797,
+      8.815508842468262
+    ],
+    "predicted": [
+      12.199947862866257,
+      8.796758231620837
+    ],
+    "velocity": [
+      -0.0008171917963606219,
+      0.6994776215210071
+    ],
+    "status": {
+      "backend": "multi_sfm",
+      "compute": 1114,
+      "display_lag_s": 0.050000415,
+      "epoch": 12997017261396935218,
+      "fault": "",
+      "healthy": true,
+      "integration_lag_s": 4.15e-07,
+      "interaction_scope": "all_robots",
+      "max_compute_wall_s": 0.03992593102157116,
+      "max_dt": 0.025,
+      "robots": [
+        "robot_1",
+        "robot_2"
+      ],
+      "step": 1114,
+      "updates": 441
+    }
+  },
+  "influence_pairs": [
+    [
+      1,
+      "robot_1"
+    ],
+    [
+      1,
+      "robot_2"
+    ],
+    [
+      2,
+      "robot_1"
+    ],
+    [
+      2,
+      "robot_2"
+    ],
+    [
+      3,
+      "robot_1"
+    ],
+    [
+      3,
+      "robot_2"
+    ],
+    [
+      4,
+      "robot_1"
+    ],
+    [
+      4,
+      "robot_2"
+    ],
+    [
+      5,
+      "robot_1"
+    ],
+    [
+      5,
+      "robot_2"
+    ],
+    [
+      6,
+      "robot_1"
+    ],
+    [
+      6,
+      "robot_2"
+    ]
+  ],
+  "guard_samples": {
+    "robot_1": 58,
+    "robot_2": 59
+  },
+  "real_time_factor": 0.5701982753829797,
+  "last_status": {
+    "backend": "multi_sfm",
+    "compute": 1468,
+    "display_lag_s": 0.050000546,
+    "epoch": 12997017261396935218,
+    "fault": "",
+    "healthy": true,
+    "integration_lag_s": 5.46e-07,
+    "interaction_scope": "all_robots",
+    "max_compute_wall_s": 0.03992593102157116,
+    "max_dt": 0.025,
+    "robots": [
+      "robot_1",
+      "robot_2"
+    ],
+    "step": 1468,
+    "updates": 586
+  },
+  "failures": [],
+  "failure_events": []
+}

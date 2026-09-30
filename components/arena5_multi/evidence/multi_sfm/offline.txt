@@ -1,0 +1,56 @@
+{
+  "passed": true,
+  "checks": 30,
+  "failures": []
+}
+{
+  "passed": true,
+  "checks": 72,
+  "failures": []
+}
+{
+  "passed": true,
+  "checks": 8,
+  "failures": []
+}
+......................................                                   [100%]
+=============================== warnings summary ===============================
+src/arena_multi_hunav/test/test_integration_contracts.py::test_generated_limits_cover_controller_smoother_and_recovery
+  /home/lpc/workspace/arena5_ws/.conda/arena_ros/lib/python3.11/site-packages/lark/utils.py:163: DeprecationWarning: module 'sre_parse' is deprecated
+    import sre_parse
+
+src/arena_multi_hunav/test/test_integration_contracts.py::test_generated_limits_cover_controller_smoother_and_recovery
+  /home/lpc/workspace/arena5_ws/.conda/arena_ros/lib/python3.11/site-packages/lark/utils.py:164: DeprecationWarning: module 'sre_constants' is deprecated
+    import sre_constants
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+38 passed, 2 warnings in 0.61s
+Running main() from /home/lpc/workspace/arena5_ws/.conda/arena_ros/src/gtest_vendor/src/gtest_main.cc
+[==========] Running 9 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 9 tests from Core
+[ RUN      ] Core.AllRobotsHaveIndependentContributions
+[       OK ] Core.AllRobotsHaveIndependentContributions (0 ms)
+[ RUN      ] Core.RobotOrderAndNamesDoNotChangeMotion
+[       OK ] Core.RobotOrderAndNamesDoNotChangeMotion (0 ms)
+[ RUN      ] Core.EmptyRobotsAndModifiers
+[       OK ] Core.EmptyRobotsAndModifiers (0 ms)
+[ RUN      ] Core.GeometryAndInputFailuresAreAtomic
+[       OK ] Core.GeometryAndInputFailuresAreAtomic (0 ms)
+[ RUN      ] Core.CoincidentEntitiesRemainFinite
+[       OK ] Core.CoincidentEntitiesRemainFinite (0 ms)
+[ RUN      ] Core.PsychologyAppliesWithoutMutatingBaseSpeed
+[       OK ] Core.PsychologyAppliesWithoutMutatingBaseSpeed (0 ms)
+[ RUN      ] Core.GoalsAdvanceAndRobotsNeverIntegrated
+[       OK ] Core.GoalsAdvanceAndRobotsNeverIntegrated (0 ms)
+[ RUN      ] Core.ExactHeadOnStaticRobotDoesNotCausePermanentStop
+[       OK ] Core.ExactHeadOnStaticRobotDoesNotCausePermanentStop (1 ms)
+[ RUN      ] Core.AblatingEitherRobotChangesTrajectoryByTenCentimeters
+[       OK ] Core.AblatingEitherRobotChangesTrajectoryByTenCentimeters (2 ms)
+[----------] 9 tests from Core (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 9 tests from 1 test suite ran. (3 ms total)
+[  PASSED  ] 9 tests.
+{"passed": true, "commit": "b30327cca189af2fb90443a5d0040cceb46d7195", "files": 5, "failures": []}
+MULTIROBOT_OFFLINE_VALIDATION_OK

@@ -1,0 +1,49 @@
+{
+  "passed": true,
+  "duration_wall_s": 60.0,
+  "publishers": {
+    "clock": 1,
+    "robot_1/cmd_vel": 1,
+    "robot_2/cmd_vel": 1
+  },
+  "real_time_factor": 0.5693428614159384,
+  "robots": {
+    "robot_1": {
+      "odom_messages": 682,
+      "scan_messages": 342,
+      "joint_state_messages": 682,
+      "scan_sim_hz": 9.999999851026397,
+      "scan_wall_hz": 5.691653704456585,
+      "scan_sim_age_mean_s": -5.043988348534439e-10,
+      "scan_sim_age_max_s": 0.0,
+      "guard_output_wall_hz": 20.099365144302464,
+      "guard_diagnostic_samples": 54,
+      "guard_observation_faults": [],
+      "maximum_lidar_wall_age_s": 0.168206,
+      "maximum_lidar_sim_age_s": 0.1,
+      "idle_drift_m": 0.0,
+      "initial_spawn_error_m": 0.0,
+      "tf_map_to_base_ready": true,
+      "navigate_to_pose_ready": true
+    },
+    "robot_2": {
+      "odom_messages": 682,
+      "scan_messages": 342,
+      "joint_state_messages": 683,
+      "scan_sim_hz": 9.999999851026397,
+      "scan_wall_hz": 5.691602067964867,
+      "scan_sim_age_mean_s": -5.043988348534439e-10,
+      "scan_sim_age_max_s": 0.0,
+      "guard_output_wall_hz": 20.000157860127214,
+      "guard_diagnostic_samples": 54,
+      "guard_observation_faults": [],
+      "maximum_lidar_wall_age_s": 0.184403,
+      "maximum_lidar_sim_age_s": 0.1,
+      "idle_drift_m": 0.0,
+      "initial_spawn_error_m": 0.0,
+      "tf_map_to_base_ready": true,
+      "navigate_to_pose_ready": true
+    }
+  },
+  "failures": []
+}

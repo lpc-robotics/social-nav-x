@@ -1,0 +1,120 @@
+{
+  "passed": true,
+  "scope": "runtime health and synchronized rendered geometry; not task acceptance",
+  "duration_wall_s": 1800.0,
+  "agent_samples": 39491,
+  "actual_samples": 19723,
+  "checked_samples": 19723,
+  "skipped_samples": 0,
+  "minimum_actual_clearance_m": 2.417476846820564,
+  "maximum_display_error_m": 0.03891073941204667,
+  "maximum_error_sample": {
+    "stamp_ns": 764550011393,
+    "name": "person_4",
+    "actual": [
+      12.193153381347656,
+      4.6226887702941895
+    ],
+    "predicted": [
+      12.19328407884222,
+      4.661599290205354
+    ],
+    "velocity": [
+      -0.015489818025339434,
+      0.40998210378314764
+    ],
+    "status": {
+      "backend": "multi_sfm",
+      "compute": 30474,
+      "display_lag_s": 0.100011353,
+      "epoch": 10503766535470824544,
+      "fault": "",
+      "healthy": true,
+      "integration_lag_s": 0.050011353,
+      "interaction_scope": "all_robots",
+      "max_compute_wall_s": 0.039898871909826994,
+      "max_dt": 0.025,
+      "robots": [
+        "robot_1",
+        "robot_2"
+      ],
+      "step": 30475,
+      "updates": 12624
+    }
+  },
+  "influence_pairs": [
+    [
+      1,
+      "robot_1"
+    ],
+    [
+      1,
+      "robot_2"
+    ],
+    [
+      2,
+      "robot_1"
+    ],
+    [
+      2,
+      "robot_2"
+    ],
+    [
+      3,
+      "robot_1"
+    ],
+    [
+      3,
+      "robot_2"
+    ],
+    [
+      4,
+      "robot_1"
+    ],
+    [
+      4,
+      "robot_2"
+    ],
+    [
+      5,
+      "robot_1"
+    ],
+    [
+      5,
+      "robot_2"
+    ],
+    [
+      6,
+      "robot_1"
+    ],
+    [
+      6,
+      "robot_2"
+    ]
+  ],
+  "guard_samples": {
+    "robot_1": 1753,
+    "robot_2": 1751
+  },
+  "real_time_factor": 0.547865484669389,
+  "last_status": {
+    "backend": "multi_sfm",
+    "compute": 39476,
+    "display_lag_s": 0.100014706,
+    "epoch": 10503766535470824544,
+    "fault": "",
+    "healthy": true,
+    "integration_lag_s": 1.4706e-05,
+    "interaction_scope": "all_robots",
+    "max_compute_wall_s": 0.039898871909826994,
+    "max_dt": 0.025,
+    "robots": [
+      "robot_1",
+      "robot_2"
+    ],
+    "step": 39476,
+    "updates": 16363
+  },
+  "failures": [],
+  "failure_events": []
+}

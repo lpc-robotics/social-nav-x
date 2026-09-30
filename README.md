@@ -7,6 +7,9 @@ HuNav six behaviors, Nav2, WebRTC, Foxglove, odometry, TF, and sensor bridge.
 The original snapshot was prepared from `/home/lpc/workspace/arena5_ws` on
 2026-08-29. The repository was consolidated again on 2026-09-23 with the
 subsequent formal-social, MPC, and accepted radar-input development histories.
+The multi-robot core was added on 2026-09-30 from `arena5_multi_ws` as an
+isolated component snapshot; its source and import scope are recorded in
+[`components/arena5_multi/SOURCE_IMPORT.md`](components/arena5_multi/SOURCE_IMPORT.md).
 It preserves project-owned source and local upstream changes without committing
 the Conda, build, install, runtime-log, or binary-release workspaces.
 
@@ -20,6 +23,9 @@ the Conda, build, install, runtime-log, or binary-release workspaces.
   social automata, ROS proxies, configuration, replay, trace, and tests.
 - `components/arena5_mpc/`: full history and source of the validated Arena5 MPC
   controller, Nav2 plugin, launch integration, tests, and compact evidence.
+- `components/arena5_multi/`: multi-robot Isaac/Nav2 bringup, per-robot command
+  guards, peer costmaps, multi-robot social-force pedestrians, configuration,
+  tests, operating documentation, and compact historical evidence.
 - `components/radar_input/`: accepted normalized-LaserScan and depth-clearing
   development history, contracts, validation reports, tools, and incremental
   source patches. These remain opt-in and do not change the stable default.
@@ -60,6 +66,9 @@ MPC releases under `arena5_ws/optional`, colcon products, NvStreamer traces,
 command transcripts, and runtime logs are intentionally excluded; all core MPC
 packages needed to rebuild are stored under `components/arena5_mpc/src/`.
 
+The multi-robot component is a source snapshot of local commit `f330dfc`.
+Its development history and binary releases remain in the local archive.
+
 ## Build and run
 
 The deployment reuses Isaac Sim 5.1 from
@@ -81,6 +90,12 @@ entry points are documented in `FORMAL_SOCIAL_AUTOMATA_DEVELOPMENT_PLAN.md` and
 `components/arena5_mpc/README.md`. Do not copy the accepted normalized-radar
 configuration over the stable default; use the isolated procedure in
 `components/radar_input/RADAR_INPUT_HANDOFF.md`.
+
+For multi-robot development, use the separate overlay in
+[`components/arena5_multi/README.md`](components/arena5_multi/README.md).
+It requires the stable Arena5 underlay and external Isaac/ROS environments.
+The component documentation records the distinct legacy-platform and
+multi-SFM acceptance scopes, including the 8-robot capacity-probe limitation.
 
 ## Licensing
 

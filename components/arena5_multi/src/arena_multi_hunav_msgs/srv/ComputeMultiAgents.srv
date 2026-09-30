@@ -1,0 +1,15 @@
+# All positions and velocities use map. current_agents is the PRE-step state.
+# Its header.stamp is the start time; the response stamp is start + dt.
+uint64 epoch
+uint64 step
+float64 dt
+hunav_msgs/Agents current_agents
+hunav_msgs/Agents robots
+BehaviorModifiers[] modifiers
+---
+uint64 epoch
+uint64 step
+bool success
+string error
+hunav_msgs/Agents updated_agents
+RobotInfluence[] influences

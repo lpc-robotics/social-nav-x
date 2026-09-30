@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>arena_multi_control</name>
+  <version>0.1.0</version>
+  <description>Runtime safety, task, and wheel display tools for Arena5 multi-robot navigation.</description>
+  <maintainer email="lpc-robotics@users.noreply.github.com">lpc-robotics</maintainer>
+  <license>Apache-2.0</license>
+  <depend>rclpy</depend>
+  <depend>action_msgs</depend>
+  <depend>diagnostic_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>nav_msgs</depend>
+  <depend>nav2_msgs</depend>
+  <depend>rosgraph_msgs</depend>
+  <depend>sensor_msgs</depend>
+  <depend>std_srvs</depend>
+  <depend>std_msgs</depend>
+  <exec_depend>python3-yaml</exec_depend>
+  <test_depend>python3-pytest</test_depend>
+  <export><build_type>ament_python</build_type></export>
+</package>

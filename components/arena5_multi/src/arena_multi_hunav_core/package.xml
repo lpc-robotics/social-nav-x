@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>arena_multi_hunav_core</name><version>0.1.0</version>
+  <description>Stateless synchronous multi-robot social-force integration.</description>
+  <maintainer email="lpc-robotics@users.noreply.github.com">lpc-robotics</maintainer><license>Apache-2.0</license>
+  <license>BSD-3-Clause</license>
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <depend>rclcpp</depend><depend>hunav_msgs</depend><depend>arena_multi_hunav_msgs</depend>
+  <test_depend>ament_cmake_gtest</test_depend>
+  <export><build_type>ament_cmake</build_type></export>
+</package>

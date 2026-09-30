@@ -1,0 +1,20 @@
+random_seed: 11
+planner_algorithm: dijkstra
+hunav_profile: none
+pedestrian_backend: multi_sfm
+pedestrian_config: ../hunav/multi_regular_6.yaml
+psychology_model: noop
+max_linear: 0.5
+max_angular: 1.0
+robots:
+- name: robot_1
+  x: 6.0
+  y: 6.0
+  yaw: 0.0
+  control_mode: external
+- name: robot_2
+  x: 10.0
+  y: 8.0
+  yaw: 3.141592653589793
+  control_mode: external
+physics_dt: 0.05

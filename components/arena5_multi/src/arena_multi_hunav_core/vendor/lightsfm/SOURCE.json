@@ -1,0 +1,12 @@
+{
+  "source": "/home/lpc/workspace/arena5_ws/src/deps/hunav/lightsfm",
+  "commit": "b30327cca189af2fb90443a5d0040cceb46d7195",
+  "local_changes": false,
+  "files": {
+    "LICENSE": "d47fefe85fa2d856c769520b0dacbde1f7acd01b66a0518990bca9e9705ec9c0",
+    "include/angle.hpp": "697117842b99acfca8120b05c01e13cb7e83df342fab630f127ed4d3261633e8",
+    "include/map.hpp": "601a58e43671791c228ac8b3c02211561c63b00ba2057720ffb8623e11b60ee1",
+    "include/sfm.hpp": "ec99ee797e5f9b675121a2d7bf92a7fbdbe6b095b65f20fc9a71ce9d46d47f2f",
+    "include/vector2d.hpp": "9d6ec78fcf9af4ca9bdae40510d5a87e4348c7b8938407ffa9d37b4c2bb47c38"
+  }
+}

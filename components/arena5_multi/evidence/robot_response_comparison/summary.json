@@ -1,0 +1,191 @@
+{
+  "symmetric": {
+    "metrics": {
+      "legacy_r1": {
+        "min_clearance_r1_m": 0.137497202054,
+        "min_clearance_r2_m": -0.0378121265335,
+        "arrival_sim_s": 5.95,
+        "max_same_time_difference_from_both_m": 5.517140921770753,
+        "max_lateral_difference_from_both_m": 0.09074546209999923,
+        "path_length_m": 5.720704897912258
+      },
+      "legacy_r2": {
+        "min_clearance_r1_m": -0.0378121265335,
+        "min_clearance_r2_m": 0.137497202054,
+        "arrival_sim_s": 5.95,
+        "max_same_time_difference_from_both_m": 5.517140921770753,
+        "max_lateral_difference_from_both_m": 0.09074546207999923,
+        "path_length_m": 5.720704897914578
+      },
+      "current_r1": {
+        "min_clearance_r1_m": 0.412903106031,
+        "min_clearance_r2_m": -0.451590836522,
+        "arrival_sim_s": 6.3,
+        "max_same_time_difference_from_both_m": 5.509728408816765,
+        "max_lateral_difference_from_both_m": 0.5866079756999998,
+        "path_length_m": 5.871861878232632
+      },
+      "current_r2": {
+        "min_clearance_r1_m": -0.451590836522,
+        "min_clearance_r2_m": 0.412903106031,
+        "arrival_sim_s": 6.3,
+        "max_same_time_difference_from_both_m": 5.509728408816442,
+        "max_lateral_difference_from_both_m": 0.5866079756999998,
+        "path_length_m": 5.87186187823661
+      },
+      "current_nearest": {
+        "min_clearance_r1_m": 0.0464889931075,
+        "min_clearance_r2_m": 0.0468902574232,
+        "arrival_sim_s": 8.15,
+        "max_same_time_difference_from_both_m": 5.505929299317005,
+        "max_lateral_difference_from_both_m": 0.005529757699999749,
+        "path_length_m": 5.740906421833277
+      },
+      "current_both": {
+        "min_clearance_r1_m": 0.342591948411,
+        "min_clearance_r2_m": 0.342591948411,
+        "arrival_sim_s": null,
+        "max_same_time_difference_from_both_m": 0.0,
+        "max_lateral_difference_from_both_m": 0.0,
+        "path_length_m": 0.31363492069999843
+      },
+      "current_none": {
+        "min_clearance_r1_m": 0.0500957125133,
+        "min_clearance_r2_m": 0.0500957125133,
+        "arrival_sim_s": 5.95,
+        "max_same_time_difference_from_both_m": 5.513182156699999,
+        "max_lateral_difference_from_both_m": 0.0,
+        "path_length_m": 5.71125
+      }
+    },
+    "simultaneous_force_above_0_01_duration_s": 30.0,
+    "initial_force_r1": 1.29000856147,
+    "initial_force_r2": 1.29000856147
+  },
+  "staggered": {
+    "metrics": {
+      "legacy_r1": {
+        "min_clearance_r1_m": 0.137497202054,
+        "min_clearance_r2_m": -0.0392258795399,
+        "arrival_sim_s": 5.95,
+        "max_same_time_difference_from_both_m": 5.036867310538534,
+        "max_lateral_difference_from_both_m": 0.3164225207999998,
+        "path_length_m": 5.720704897912258
+      },
+      "legacy_r2": {
+        "min_clearance_r1_m": -0.0521234023349,
+        "min_clearance_r2_m": 0.17356286119,
+        "arrival_sim_s": 5.975,
+        "max_same_time_difference_from_both_m": 5.040703822945825,
+        "max_lateral_difference_from_both_m": 0.5232697503600008,
+        "path_length_m": 5.725699219482991
+      },
+      "current_r1": {
+        "min_clearance_r1_m": 0.412903106031,
+        "min_clearance_r2_m": -0.534690828094,
+        "arrival_sim_s": 6.3,
+        "max_same_time_difference_from_both_m": 5.027068869062579,
+        "max_lateral_difference_from_both_m": 0.25754841250000027,
+        "path_length_m": 5.871861878232632
+      },
+      "current_r2": {
+        "min_clearance_r1_m": -0.219973699422,
+        "min_clearance_r2_m": 0.418477635478,
+        "arrival_sim_s": 6.3,
+        "max_same_time_difference_from_both_m": 5.049917137606494,
+        "max_lateral_difference_from_both_m": 0.9432439550299989,
+        "path_length_m": 5.862334884995732
+      },
+      "current_nearest": {
+        "min_clearance_r1_m": 0.0856173877247,
+        "min_clearance_r2_m": 0.0883083458364,
+        "arrival_sim_s": 8.05,
+        "max_same_time_difference_from_both_m": 5.041164718558231,
+        "max_lateral_difference_from_both_m": 0.6876448472799996,
+        "path_length_m": 6.099900910666388
+      },
+      "current_both": {
+        "min_clearance_r1_m": 0.376459185824,
+        "min_clearance_r2_m": 0.289770816122,
+        "arrival_sim_s": null,
+        "max_same_time_difference_from_both_m": 0.0,
+        "max_lateral_difference_from_both_m": 0.0,
+        "path_length_m": 0.885096472779115
+      },
+      "current_none": {
+        "min_clearance_r1_m": 0.0500957125133,
+        "min_clearance_r2_m": 0.0500804913741,
+        "arrival_sim_s": 5.95,
+        "max_same_time_difference_from_both_m": 5.033282713787945,
+        "max_lateral_difference_from_both_m": 0.40058919149999994,
+        "path_length_m": 5.71125
+      }
+    },
+    "simultaneous_force_above_0_01_duration_s": 30.0,
+    "initial_force_r1": 1.29000856147,
+    "initial_force_r2": 0.121625123464
+  },
+  "wide": {
+    "metrics": {
+      "legacy_r1": {
+        "min_clearance_r1_m": 0.137497202054,
+        "min_clearance_r2_m": 0.360753857973,
+        "arrival_sim_s": 5.95,
+        "max_same_time_difference_from_both_m": 0.8974817161314229,
+        "max_lateral_difference_from_both_m": 0.24522742260000108,
+        "path_length_m": 5.720704897912258
+      },
+      "legacy_r2": {
+        "min_clearance_r1_m": -0.00591783159719,
+        "min_clearance_r2_m": 0.517238862067,
+        "arrival_sim_s": 5.95,
+        "max_same_time_difference_from_both_m": 0.9064360923469478,
+        "max_lateral_difference_from_both_m": 0.4018403090800007,
+        "path_length_m": 5.721450031056068
+      },
+      "current_r1": {
+        "min_clearance_r1_m": 0.412903106031,
+        "min_clearance_r2_m": -0.135117550214,
+        "arrival_sim_s": 6.3,
+        "max_same_time_difference_from_both_m": 0.7422604723441399,
+        "max_lateral_difference_from_both_m": 0.48140561549999994,
+        "path_length_m": 5.871861878232632
+      },
+      "current_r2": {
+        "min_clearance_r1_m": -0.0395396688239,
+        "min_clearance_r2_m": 0.608124207795,
+        "arrival_sim_s": 6.025,
+        "max_same_time_difference_from_both_m": 0.9105954046454884,
+        "max_lateral_difference_from_both_m": 0.5051114997199999,
+        "path_length_m": 5.739648818567598
+      },
+      "current_nearest": {
+        "min_clearance_r1_m": 0.280060627739,
+        "min_clearance_r2_m": 0.263505017728,
+        "arrival_sim_s": 6.55,
+        "max_same_time_difference_from_both_m": 0.30481380529669627,
+        "max_lateral_difference_from_both_m": 0.12893054539999937,
+        "path_length_m": 5.927208013856429
+      },
+      "current_both": {
+        "min_clearance_r1_m": 0.318321199372,
+        "min_clearance_r2_m": 0.267220053059,
+        "arrival_sim_s": 6.85,
+        "max_same_time_difference_from_both_m": 0.0,
+        "max_lateral_difference_from_both_m": 0.0,
+        "path_length_m": 5.836023077491599
+      },
+      "current_none": {
+        "min_clearance_r1_m": 0.0500957125133,
+        "min_clearance_r2_m": 0.450053662416,
+        "arrival_sim_s": 5.95,
+        "max_same_time_difference_from_both_m": 0.8894518729659476,
+        "max_lateral_difference_from_both_m": 0.3353390958000002,
+        "path_length_m": 5.71125
+      }
+    },
+    "simultaneous_force_above_0_01_duration_s": 4.25,
+    "initial_force_r1": 1.29000856147,
+    "initial_force_r2": 0.0483203367448
+  }
+}

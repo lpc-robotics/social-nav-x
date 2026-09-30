@@ -1,0 +1,53 @@
+{
+  "passed": true,
+  "scope": "GPU dual moving robots and rendered pedestrian geometry",
+  "robot_travel_m": {
+    "robot_1": 3.028961181640625,
+    "robot_2": 3.0280922564867843
+  },
+  "first_pedestrian_peak_force_by_robot": {
+    "robot_1": 4.25272043367774,
+    "robot_2": 2.7474812251302287
+  },
+  "people_reached_first_goal": [
+    "person_1"
+  ],
+  "minimum_actual_clearance_m": 0.2890308714181964,
+  "maximum_display_error_m": 0.028125310982916544,
+  "maximum_error_sample": {
+    "stamp_ns": 42150000628,
+    "name": "person_1",
+    "actual": [
+      8.1536865234375,
+      8.888656616210938
+    ],
+    "predicted": [
+      8.159880895378777,
+      8.861221914205286
+    ],
+    "velocity": [
+      -0.2648868918943432,
+      0.5458628785057049
+    ],
+    "status": {
+      "backend": "multi_sfm",
+      "compute": 1518,
+      "display_lag_s": 0.075000565,
+      "epoch": 9651656679788202449,
+      "fault": "",
+      "healthy": true,
+      "integration_lag_s": 5.65e-07,
+      "interaction_scope": "all_robots",
+      "max_compute_wall_s": 0.010668255388736725,
+      "max_dt": 0.025,
+      "robots": [
+        "robot_1",
+        "robot_2"
+      ],
+      "step": 1518,
+      "updates": 518
+    }
+  },
+  "checked_samples": 1199,
+  "failures": []
+}

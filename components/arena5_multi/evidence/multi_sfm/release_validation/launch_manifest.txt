@@ -1,0 +1,7 @@
+source_commit=4a27d464cf493107d23fb4065343e0336ccdc5e4
+scenario=/home/lpc/workspace/arena5_ws/optional/multirobot/releases/20260929-multi-sfm-v1/config/scenarios/two_robots_multi_sfm_6_nav2.yaml
+scenario_sha256=2a1f53bafcb3295c8de7d8deecb50b06aabdd12ac9ccc595567f38f7ade573e9
+gpu_id=3
+gpu_free_mib=24036
+ros_domain_id=75
+random_seed=11

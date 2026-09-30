@@ -1,0 +1,9 @@
+{
+  "passed": true,
+  "python_tests": 38,
+  "cpp_tests": 9,
+  "underlay_checks": 30,
+  "log": "offline.txt",
+  "scenario_checks": 72,
+  "legacy_config_checks": 8
+}

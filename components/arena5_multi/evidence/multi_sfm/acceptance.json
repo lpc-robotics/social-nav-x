@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "passed": true,
+  "validated_on": "2026-09-29",
+  "implementation_commit": "5c2d29bbf23796d9c05597434f6cfaee1bad4c7c",
+  "source_sha256": "8063d8fecbab4783b6622058dc9973a295d66d94b9dbacae2d25daf31c00c099",
+  "scope": {
+    "robots": 2,
+    "pedestrians": [
+      1,
+      6
+    ],
+    "max_linear_mps": 0.26,
+    "max_angular_radps": 1.0,
+    "physics_dt": 0.05,
+    "psychology": "noop"
+  },
+  "reports": {
+    "offline": {
+      "path": "evidence/multi_sfm/offline.json",
+      "sha256": "7ad277fd1e3f8b14437d806a0e803aca2181c8386bc2179d6eda3c034e356656"
+    },
+    "cpu_interactions": {
+      "path": "evidence/multi_sfm/cpu_interactions.json",
+      "sha256": "010eb4bf182a6c1a28b0c9df9f2f7d95980f5eadc4864c2221a4c5baa71885f3"
+    },
+    "faults": {
+      "path": "evidence/multi_sfm/faults.json",
+      "sha256": "cffb047265cc4fa427de65a9a804c5902c712bd0811a7938d7a1db2a73904fe0"
+    },
+    "six_runtime_30min": {
+      "path": "evidence/multi_sfm/six_runtime_30min.json",
+      "sha256": "bf28d8ba3a7be504ad2753db63fe755dad5017e640d71af0f4adfa3dd154389c"
+    },
+    "six_platform_runtime": {
+      "path": "evidence/multi_sfm/six_platform_runtime.json",
+      "sha256": "4f1767ff53da0570916b5cbe713d0d7f569392087a841d845cfaa87412457a81"
+    },
+    "six_navigation": {
+      "path": "evidence/multi_sfm/six_navigation.json",
+      "sha256": "b099fe4345e95241d775ca379221824a62714af3d9bfd7e9366d37044ce14cee"
+    },
+    "six_clearing": {
+      "path": "evidence/multi_sfm/six_clearing.json",
+      "sha256": "e7d534c503d09cdd250a7c57b5cb5755aa0965aaeda5b4cd1515fb07e8ecc240"
+    },
+    "one_interaction": {
+      "path": "evidence/multi_sfm/one_interaction.json",
+      "sha256": "98189a781a93bf387fe028fc26064127a05000008b728c92e41730bcfb34ac59"
+    },
+    "six_interaction": {
+      "path": "evidence/multi_sfm/six_interaction.json",
+      "sha256": "078beefb1147d72c6996c6d9468da85c5e0df5bf605214c332f9a03a71d940ce"
+    },
+    "legacy_six": {
+      "path": "evidence/multi_sfm/legacy_six.json",
+      "sha256": "99373aeb9802bcbb257785e4f5245e170572506e48a7b7e56194cdfd3eb94d88"
+    }
+  }
+}

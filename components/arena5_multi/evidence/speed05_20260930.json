@@ -1,0 +1,78 @@
+{
+  "passed": true,
+  "validation": "installed scenario loader and generated per-robot Nav2 parameters; no GPU run",
+  "results": [
+    {
+      "scenario": "eight_robots_capacity.yaml",
+      "max_linear": 0.5,
+      "max_angular": 1.0,
+      "robots_checked": 8
+    },
+    {
+      "scenario": "four_robots.yaml",
+      "max_linear": 0.5,
+      "max_angular": 1.0,
+      "robots_checked": 4
+    },
+    {
+      "scenario": "one_robot.yaml",
+      "max_linear": 0.5,
+      "max_angular": 1.0,
+      "robots_checked": 1
+    },
+    {
+      "scenario": "two_robots_astar.yaml",
+      "max_linear": 0.5,
+      "max_angular": 1.0,
+      "robots_checked": 2
+    },
+    {
+      "scenario": "two_robots_dijkstra.yaml",
+      "max_linear": 0.5,
+      "max_angular": 1.0,
+      "robots_checked": 2
+    },
+    {
+      "scenario": "two_robots_external.yaml",
+      "max_linear": 0.5,
+      "max_angular": 1.0,
+      "robots_checked": 2
+    },
+    {
+      "scenario": "two_robots_hunav_regular.yaml",
+      "max_linear": 0.5,
+      "max_angular": 1.0,
+      "robots_checked": 2
+    },
+    {
+      "scenario": "two_robots_hunav_six.yaml",
+      "max_linear": 0.5,
+      "max_angular": 1.0,
+      "robots_checked": 2
+    },
+    {
+      "scenario": "two_robots_multi_sfm_1_external.yaml",
+      "max_linear": 0.5,
+      "max_angular": 1.0,
+      "robots_checked": 2
+    },
+    {
+      "scenario": "two_robots_multi_sfm_1_nav2.yaml",
+      "max_linear": 0.5,
+      "max_angular": 1.0,
+      "robots_checked": 2
+    },
+    {
+      "scenario": "two_robots_multi_sfm_6_external.yaml",
+      "max_linear": 0.5,
+      "max_angular": 1.0,
+      "robots_checked": 2
+    },
+    {
+      "scenario": "two_robots_multi_sfm_6_nav2.yaml",
+      "max_linear": 0.26,
+      "max_angular": 1.0,
+      "robots_checked": 2
+    }
+  ]
+}

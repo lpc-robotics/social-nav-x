@@ -1,0 +1,95 @@
+{
+  "passed": false,
+  "scope": "runtime health and synchronized rendered geometry; not task acceptance",
+  "duration_wall_s": 1800.0,
+  "agent_samples": 30970,
+  "actual_samples": 19739,
+  "checked_samples": 15484,
+  "skipped_samples": 4220,
+  "minimum_actual_clearance_m": 2.3901719098488403,
+  "maximum_display_error_m": 0.35000032459123875,
+  "influence_pairs": [
+    [
+      1,
+      "robot_1"
+    ],
+    [
+      1,
+      "robot_2"
+    ],
+    [
+      2,
+      "robot_1"
+    ],
+    [
+      2,
+      "robot_2"
+    ],
+    [
+      3,
+      "robot_1"
+    ],
+    [
+      3,
+      "robot_2"
+    ],
+    [
+      4,
+      "robot_1"
+    ],
+    [
+      4,
+      "robot_2"
+    ],
+    [
+      5,
+      "robot_1"
+    ],
+    [
+      5,
+      "robot_2"
+    ],
+    [
+      6,
+      "robot_1"
+    ],
+    [
+      6,
+      "robot_2"
+    ]
+  ],
+  "guard_samples": {
+    "robot_1": 1753,
+    "robot_2": 1752
+  },
+  "real_time_factor": 0.5482874399679547,
+  "last_status": {
+    "backend": "multi_sfm",
+    "compute": 30970,
+    "display_lag_s": 213.100014712,
+    "epoch": 12037846512454954130,
+    "fault": "robot_stamp_stale:robot_2",
+    "healthy": false,
+    "integration_lag_s": 213.050014712,
+    "interaction_scope": "all_robots",
+    "max_compute_wall_s": 0.030171795282512903,
+    "max_dt": 0.025,
+    "robots": [
+      "robot_1",
+      "robot_2"
+    ],
+    "step": 30970,
+    "updates": 3872
+  },
+  "failures": [
+    "display error above 0.25 m",
+    "geometry timeline unavailable",
+    "robot_1 guard: lidar_stale",
+    "robot_1 guard: pedestrian_unhealthy",
+    "robot_2 guard: pedestrian_unhealthy",
+    "robot_stamp_stale:robot_2",
+    "snapshot outside odometry history",
+    "unhealthy",
+    "unmatched actual samples"
+  ]
+}

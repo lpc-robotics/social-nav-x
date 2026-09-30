@@ -1,0 +1,18 @@
+{
+  "dijkstra": {
+    "passed": true,
+    "rounds_completed": 10,
+    "robot_success_rate": 1.0,
+    "mean_round_wall_s": 29.539056519931183,
+    "mean_path_length_m": 1.7550392659348764,
+    "minimum_center_separation_m": 3.97694942109193
+  },
+  "astar": {
+    "passed": true,
+    "rounds_completed": 10,
+    "robot_success_rate": 1.0,
+    "mean_round_wall_s": 27.749423954216763,
+    "mean_path_length_m": 1.7469700492830504,
+    "minimum_center_separation_m": 3.9430976035679697
+  }
+}

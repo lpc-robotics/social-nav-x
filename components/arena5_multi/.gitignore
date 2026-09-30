@@ -1,0 +1,16 @@
+build/
+install/
+log/
+.cache/
+logs/
+__pycache__/
+*.pyc
+*.etli
+evidence/runs/
+runtime/pids/
+.release_build/
+# Pre-existing generated visualization log; preserve on disk.
+evidence/visualization_20260928/runtime.log
+
+# Rebuildable controlled-comparison executable.
+evidence/robot_response_comparison/compare

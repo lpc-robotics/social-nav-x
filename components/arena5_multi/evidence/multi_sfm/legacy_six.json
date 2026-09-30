@@ -1,0 +1,22 @@
+{
+  "passed": true,
+  "scope": "original shared underlay six-behavior verifier, navigation disabled",
+  "ros_domain": 74,
+  "types": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+  ],
+  "responses": [
+    3,
+    4,
+    5,
+    6
+  ],
+  "robot_distance_m": 0.99,
+  "output": "SIX_BEHAVIORS_VERIFY_OK types=1,2,3,4,5,6 active=3,5 responses=3,4,5,6 robot_distance=0.990 robot_states=655",
+  "runtime_selection": "legacy_runtime_selection.txt"
+}

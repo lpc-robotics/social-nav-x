@@ -4,6 +4,10 @@ Initial archive date: 2026-08-29 (Asia/Shanghai)
 
 Consolidation date: 2026-09-23 (Asia/Shanghai)
 
+Multi-robot source import: 2026-09-30 (Asia/Shanghai), from
+`/home/lpc/workspace/arena5_multi_ws` at
+`f330dfcd29c6a1f711e3f091798e36852fac742d`.
+
 Source workspace: `/home/lpc/workspace/arena5_ws`
 
 Target repository: `https://github.com/lpc-robotics/social-nav-x`
@@ -21,6 +25,9 @@ Target repository: `https://github.com/lpc-robotics/social-nav-x`
   radar-input work, imported below `components/` with merge ancestry preserved.
 - Compact final D6 validation evidence from
   `backups/20260828_162000_d6_final/evidence`.
+- Multi-robot core snapshot under `components/arena5_multi`, including source,
+  configuration, tests, scripts, baseline manifests, documentation, and compact
+  historical evidence. See its `SOURCE_IMPORT.md` for the exact import scope.
 
 ## Recreated from pinned upstreams
 

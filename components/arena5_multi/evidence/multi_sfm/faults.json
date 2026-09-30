@@ -1,0 +1,46 @@
+{
+  "passed": true,
+  "scope": "real ROS nodes, synthetic world",
+  "cases": [
+    {
+      "case": "odom_loss",
+      "passed": true,
+      "fault": "robot_stale:robot_2",
+      "stop_from_injection_s": 0.6319061471149325,
+      "late_response_resumed": false,
+      "failures": []
+    },
+    {
+      "case": "duplicate_odom",
+      "passed": true,
+      "fault": "robot_stale:robot_2",
+      "stop_from_injection_s": 0.6867170492187142,
+      "late_response_resumed": false,
+      "failures": []
+    },
+    {
+      "case": "compute_late",
+      "passed": true,
+      "fault": "compute_timeout",
+      "stop_from_injection_s": 1.086070247925818,
+      "late_response_resumed": true,
+      "failures": []
+    },
+    {
+      "case": "update_failure",
+      "passed": true,
+      "fault": "isaac_update_failed",
+      "stop_from_injection_s": 0.09400239307433367,
+      "late_response_resumed": false,
+      "failures": []
+    },
+    {
+      "case": "clock_rewind",
+      "passed": true,
+      "fault": "clock_rewind",
+      "stop_from_injection_s": 0.04123701108619571,
+      "late_response_resumed": false,
+      "failures": []
+    }
+  ]
+}

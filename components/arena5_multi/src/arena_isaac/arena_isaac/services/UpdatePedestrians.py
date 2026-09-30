@@ -1,0 +1,45 @@
+from pedestrian.simulator.logic.people.person import Person
+from pedestrian.simulator.logic.people_manager import PeopleManager
+
+from isaac_utils.utils.path import world_path
+from arena_people_msgs.msg import Pedestrian
+from arena_people_msgs.srv import UpdatePedestrians
+
+from .utils import Service, on_exception
+
+
+@on_exception(UpdatePedestrians.Response.NOT_FOUND)
+def update_pedestrian(pedestrian: Pedestrian, stamp_sec: float) -> int:
+    usd_path = world_path(pedestrian.name)
+
+    person = PeopleManager.get_people_manager().get_person(usd_path)
+    if not isinstance(person, Person):
+        return UpdatePedestrians.Response.NOT_FOUND
+
+    person.update_command(
+        (pedestrian.pose.position.x, pedestrian.pose.position.y, pedestrian.pose.position.z),
+        (pedestrian.twist.linear.x, pedestrian.twist.linear.y),
+        stamp_sec=stamp_sec,
+        orientation=(
+            pedestrian.pose.orientation.x,
+            pedestrian.pose.orientation.y,
+            pedestrian.pose.orientation.z,
+            pedestrian.pose.orientation.w,
+        ),
+    )
+    return UpdatePedestrians.Response.SUCCESS
+
+
+def update_pedestrians_callback(request: UpdatePedestrians.Request, response: UpdatePedestrians.Response):
+    stamp_sec = request.stamp.sec + request.stamp.nanosec * 1e-9
+    response.results = [update_pedestrian(pedestrian, stamp_sec) for pedestrian in request.pedestrians]
+    return response
+
+
+update_pedestrians_service = Service(
+    srv_type=UpdatePedestrians,
+    srv_name='isaac/UpdatePedestrians',
+    callback=update_pedestrians_callback
+)
+
+__all__ = ['update_pedestrians_service']

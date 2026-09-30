@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
+    echo "Please source this file: source scripts/env.sh" >&2
+    exit 1
+fi
+
+export ARENA_MULTI_WS="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+export ARENA_STABLE_WS="${ARENA_STABLE_WS:-/home/lpc/workspace/arena5_ws}"
+_ARENA_MULTI_DOMAIN="${ROS_DOMAIN_ID:-71}"
+_ARENA_MULTI_SIGNAL_PORT="${ARENA_WEBRTC_SIGNAL_PORT:-49130}"
+_ARENA_MULTI_MEDIA_PORT="${ARENA_WEBRTC_MEDIA_PORT:-48030}"
+_ARENA_MULTI_FOXGLOVE_PORT="${ARENA_FOXGLOVE_PORT:-8795}"
+
+set +u
+source "$ARENA_STABLE_WS/scripts/env.sh" >/dev/null
+if [[ "${ARENA_MULTI_SKIP_OVERLAY:-false}" != "true" && -f "$ARENA_MULTI_WS/install/local_setup.bash" ]]; then
+    source "$ARENA_MULTI_WS/install/local_setup.bash"
+fi
+set -u
+
+export ROS_DOMAIN_ID="$_ARENA_MULTI_DOMAIN"
+export ROS2CLI_DISABLE_DAEMON="${ROS2CLI_DISABLE_DAEMON:-1}"
+export ARENA_WEBRTC_SIGNAL_PORT="$_ARENA_MULTI_SIGNAL_PORT"
+export ARENA_WEBRTC_MEDIA_PORT="$_ARENA_MULTI_MEDIA_PORT"
+export ARENA_FOXGLOVE_PORT="$_ARENA_MULTI_FOXGLOVE_PORT"
+export ARENA_NORMALIZED_SCAN="${ARENA_NORMALIZED_SCAN:-true}"
+export ARENA_DEPTH_CLEARING="${ARENA_DEPTH_CLEARING:-false}"
+export ARENA_IDEAL_CHASSIS="${ARENA_IDEAL_CHASSIS:-true}"
+export ARENA_MULTI_STATE_ROOT="${ARENA_MULTI_STATE_ROOT:-$ARENA_MULTI_WS}"
+export XDG_CACHE_HOME="$ARENA_MULTI_STATE_ROOT/.cache/xdg"
+export XDG_CONFIG_HOME="$ARENA_MULTI_STATE_ROOT/.cache/xdg-config"
+export XDG_DATA_HOME="$ARENA_MULTI_STATE_ROOT/.cache/xdg-data"
+export ROS_LOG_DIR="${ROS_LOG_DIR:-$ARENA_MULTI_STATE_ROOT/logs/ros}"
+mkdir -p "$XDG_CACHE_HOME" "$XDG_CONFIG_HOME" "$XDG_DATA_HOME" "$ROS_LOG_DIR"
+unset _ARENA_MULTI_DOMAIN _ARENA_MULTI_SIGNAL_PORT _ARENA_MULTI_MEDIA_PORT _ARENA_MULTI_FOXGLOVE_PORT
+
+echo "Arena multi workspace: $ARENA_MULTI_WS"
+echo "Stable underlay: $ARENA_STABLE_WS"
+echo "ROS domain: $ROS_DOMAIN_ID"

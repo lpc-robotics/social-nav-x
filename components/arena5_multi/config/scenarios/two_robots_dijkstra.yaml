@@ -1,0 +1,8 @@
+max_angular: 1.0
+max_linear: 0.5
+random_seed: 1
+planner_algorithm: dijkstra
+hunav_profile: none
+robots:
+  - {name: robot_1, x: 3.0, y: 3.0, yaw: 0.0, control_mode: nav2}
+  - {name: robot_2, x: 3.0, y: 7.0, yaw: 0.0, control_mode: nav2}

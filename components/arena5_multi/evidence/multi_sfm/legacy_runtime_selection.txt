@@ -1,0 +1,6 @@
+Arena workspace: /home/lpc/workspace/arena5_ws
+ROS 2: humble (domain 51)
+Isaac Sim: /home/lpc/miniforge3/envs/isaaclab/lib/python3.11/site-packages/isaacsim
+WebRTC endpoint: 10.16.205.165:49100 (UDP 47998)
+Foxglove WebSocket: 127.0.0.1:8765
+SIX_BEHAVIORS_RUNTIME_OK mode=shared arena_isaac=/home/lpc/workspace/arena5_ws/install/arena_isaac compat=/home/lpc/workspace/arena5_ws/install/arena_humble_compat person_sha256=429a25528bb9cc5cd7b16616a6099d0644777e90155e501ff0099c544adfa7f1

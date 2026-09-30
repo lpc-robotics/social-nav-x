@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>arena_multi_hunav</name>
+  <version>0.1.0</version>
+  <description>Single HuNav world adapter using robot_1 as the sole social reference robot.</description>
+  <maintainer email="lpc-robotics@users.noreply.github.com">lpc-robotics</maintainer>
+  <license>Apache-2.0</license>
+  <depend>arena_humble_compat</depend>
+  <depend>arena_people_msgs</depend>
+  <depend>hunav_msgs</depend>
+  <depend>arena_multi_hunav_msgs</depend>
+  <depend>rosgraph_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>nav_msgs</depend>
+  <depend>rclpy</depend>
+  <depend>std_msgs</depend>
+  <exec_depend>python3-yaml</exec_depend>
+  <export><build_type>ament_python</build_type></export>
+</package>

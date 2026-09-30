@@ -1,0 +1,6 @@
+width: 30.0
+height: 23.0
+wall_height: 2.5
+wall_thickness: 0.1
+map_resolution: 0.05
+map_margin: 0.5

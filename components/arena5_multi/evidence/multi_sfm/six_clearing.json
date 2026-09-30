@@ -1,0 +1,22 @@
+{
+  "passed": true,
+  "scope": "actual people and free-ray-conditioned clearing, stationary robots",
+  "robots": {
+    "robot_1": {
+      "marked": 266,
+      "cleared": 190,
+      "timeout": 0,
+      "max_clear_delay_sim_s": 0.10000000100001216,
+      "timeout_examples": [],
+      "unobserved_neighborhood_samples": 3659
+    },
+    "robot_2": {
+      "marked": 369,
+      "cleared": 336,
+      "timeout": 0,
+      "max_clear_delay_sim_s": 0.10000000100001216,
+      "timeout_examples": [],
+      "unobserved_neighborhood_samples": 0
+    }
+  }
+}

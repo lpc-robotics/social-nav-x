@@ -1,0 +1,21 @@
+{
+  "passed": false,
+  "scope": "GPU dual moving robots and rendered pedestrian geometry",
+  "robot_travel_m": {
+    "robot_1": 3.1199569702148438,
+    "robot_2": 3.1190918744136216
+  },
+  "first_pedestrian_peak_force_by_robot": {
+    "robot_1": 3.725899716945725,
+    "robot_2": 1.7297700285112736
+  },
+  "people_reached_first_goal": [
+    "person_1"
+  ],
+  "minimum_actual_clearance_m": 0.37152264019195,
+  "maximum_display_error_m": 0.399999734759779,
+  "checked_samples": 1200,
+  "failures": [
+    "display error above 0.25 m"
+  ]
+}

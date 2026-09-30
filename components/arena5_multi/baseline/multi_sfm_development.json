@@ -1,0 +1,20 @@
+{
+  "base_commit": "511df2fbe52bdbe81ecaa3995958a26b3765bac1",
+  "branch": "feature/multi-sfm-pedestrians",
+  "preserved_untracked": [
+    "evidence/visualization_20260928/runtime.log"
+  ],
+  "underlay_manifest_sha256": "836956a2e4a42e379ff7532758be1c7058983461a8bee665c4aff502256c7484",
+  "underlay_checks": 30,
+  "underlay_passed": true,
+  "acceptance": {
+    "robots": 2,
+    "pedestrians": [
+      1,
+      6
+    ],
+    "robot_max_linear": 0.26,
+    "robot_max_angular": 1.0,
+    "psychology": "noop"
+  }
+}

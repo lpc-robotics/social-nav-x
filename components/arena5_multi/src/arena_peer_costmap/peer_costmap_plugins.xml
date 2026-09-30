@@ -1,0 +1,8 @@
+<library path="arena_peer_costmap">
+  <class name="arena_peer_costmap/PeerObstacleLayer"
+         type="arena_peer_costmap::PeerObstacleLayer"
+         base_class_type="nav2_costmap_2d::Layer">
+    <description>Marks namespaced peer robot truth poses as dynamic rectangular obstacles.</description>
+  </class>
+</library>
+

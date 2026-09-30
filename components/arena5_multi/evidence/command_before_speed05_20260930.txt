@@ -1,0 +1,98 @@
+# 启动环境
+cd ~/workspace/arena5_ws
+source scripts/env.sh
+
+# 清理进程
+./scripts/cleanup.sh
+
+多机启动：
+双机 + 六名普通行人（regular）多机器人社会力避让：
+release_root=/home/lpc/workspace/arena5_ws/optional/multirobot/releases/20260929-multi-sfm-v1
+
+export ARENA_MULTI_STATE_ROOT=/home/lpc/workspace/arena5_ws/.multirobot-multi-sfm
+export ARENA_MULTI_LOG_ROOT="$ARENA_MULTI_STATE_ROOT/logs/runs"
+export ROS_DOMAIN_ID=71
+
+export LIVESTREAM=true
+export FOXGLOVE=true
+export ARENA_WEBRTC_IP=10.16.205.165
+export ARENA_WEBRTC_SIGNAL_PORT=49100
+export ARENA_WEBRTC_MEDIA_PORT=47998
+export ARENA_FOXGLOVE_ADDRESS=127.0.0.1
+export ARENA_FOXGLOVE_PORT=8765
+
+"$release_root/scripts/run_multirobot.sh" \
+  "$release_root/config/scenarios/two_robots_multi_sfm_6_nav2.yaml"
+
+场景：SCENARIOS="$release_root/config/scenarios"
+
+纯双机:
+# GPU_ID=3 "$release_root/scripts/run_multirobot.sh" \
+  "$SCENARIOS/two_robots_dijkstra.yaml"
+# 双机+多人：
+GPU_ID=3 "$release_root/scripts/run_multirobot.sh" \
+  "$SCENARIOS/two_robots_hunav_six.yaml"
+
+# 双机器人：A* 全局规划 + DWB 局部规划：
+GPU_ID=3 "$release_root/scripts/run_multirobot.sh" \
+  "$SCENARIOS/two_robots_astar.yaml"
+
+# 四机器人独立导航：
+GPU_ID=3 "$release_root/scripts/run_multirobot.sh" \
+  "$SCENARIOS/four_robots.yaml"
+
+# 双机器人外部速度控制，不启动两台机器人的 Nav2：
+GPU_ID=3 "$release_root/scripts/run_multirobot.sh" \
+  "$SCENARIOS/two_robots_external.yaml"
+
+手动速度控制：
+source /home/lpc/workspace/arena5_ws/optional/multirobot/releases/20260928-9dbbb36-speedlimits/scripts/env.sh
+export ROS_DOMAIN_ID=71
+
+# robot_1 以 0.15 m/s 前进
+ros2 topic pub -r 10 /robot_1/cmd_vel_external geometry_msgs/msg/Twist \
+  '{linear: {x: 0.15}, angular: {z: 0.0}}'
+
+
+
+# 修改行人参数
+ 行人参数配置yaml:
+    /home/lpc/workspace/arena5_ws/src/arena-rosnav/arena_bringup/configs/hunav_agents
+
+其他行为的主要参数
+行为      	       主要可调参数
+Surprised	   dist 触发距离、duration、once；vel 基本不生效
+Scared	       dist、vel、other_force_factor、duration
+Curious	       vel靠近速度、dist 停止靠近机器人的距离
+Threatening	   dist 挡在机器人前方的目标距离
+Regular	       max_vel、初始位置、waypoint
+Impassive	   max_vel、waypoint、障碍/社会力参数
+
+配置文件不是软链接，永久修改后需要增量更新 arena_bringup：
+    colcon build \
+    --packages-select arena_bringup \
+    --cmake-args -DCMAKE_BUILD_TYPE=Release
+
+# 其余启动命令见/home/lpc/workspace/arena5_ws/scripts
+
+DWA启动：
+GPU_ID=3 ./scripts/run_six_behaviors.sh
+
+GPU_ID=3 ./scripts/run_six_behaviors_dwb_08.sh
+
+MPC启动：
+cd /home/lpc/workspace/arena5_ws
+GPU_ID=0 ./scripts/run_six_behaviors_mpc.sh
+
+
+自动机可视化启动：
+cd /home/lpc/workspace/arena5_ws
+
+GPU_ID=3 NAVIGATION=false \
+FORMAL_OVERLAY_ROOT="$PWD/.colcon-formal-v1" \
+scripts/run_formal_social_demo.sh
+第二终端：
+cd /home/lpc/workspace/arena5_ws
+
+FORMAL_OVERLAY_ROOT="$PWD/.colcon-formal-v1" \
+scripts/run_formal_social_visual_scenario.sh sudden 2.0

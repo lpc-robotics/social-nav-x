@@ -1,0 +1,222 @@
+hunav_loader:
+  ros__parameters:
+    map: multi_sfm_arena
+    agents:
+    - person_1
+    - person_2
+    - person_3
+    - person_4
+    - person_5
+    - person_6
+    person_1:
+      id: 1
+      skin: 0
+      group_id: -1
+      max_vel: 1.0
+      radius: 0.4
+      behavior:
+        type: 1
+        configuration: 1
+        duration: 40.0
+        once: true
+        vel: 0.6
+        dist: 0.0
+        goal_force_factor: 2.0
+        obstacle_force_factor: 10.0
+        social_force_factor: 5.0
+        other_force_factor: 20.0
+      init_pose:
+        x: 8.0
+        y: 4.5
+        h: 1.57079632679
+      goal_radius: 0.3
+      cyclic_goals: true
+      goals:
+      - g0
+      - g1
+      g0:
+        x: 8.0
+        y: 9.0
+        h: 0.0
+      g1:
+        x: 8.0
+        y: 4.5
+        h: 0.0
+    person_2:
+      id: 2
+      skin: 0
+      group_id: -1
+      max_vel: 1.0
+      radius: 0.4
+      behavior:
+        type: 1
+        configuration: 1
+        duration: 40.0
+        once: true
+        vel: 0.6
+        dist: 0.0
+        goal_force_factor: 2.0
+        obstacle_force_factor: 10.0
+        social_force_factor: 5.0
+        other_force_factor: 20.0
+      init_pose:
+        x: 9.4
+        y: 9.0
+        h: -1.57079632679
+      goal_radius: 0.3
+      cyclic_goals: true
+      goals:
+      - g0
+      - g1
+      g0:
+        x: 9.4
+        y: 4.5
+        h: 0.0
+      g1:
+        x: 9.4
+        y: 9.0
+        h: 0.0
+    person_3:
+      id: 3
+      skin: 0
+      group_id: -1
+      max_vel: 1.0
+      radius: 0.4
+      behavior:
+        type: 1
+        configuration: 1
+        duration: 40.0
+        once: true
+        vel: 0.6
+        dist: 0.0
+        goal_force_factor: 2.0
+        obstacle_force_factor: 10.0
+        social_force_factor: 5.0
+        other_force_factor: 20.0
+      init_pose:
+        x: 10.8
+        y: 4.5
+        h: 1.57079632679
+      goal_radius: 0.3
+      cyclic_goals: true
+      goals:
+      - g0
+      - g1
+      g0:
+        x: 10.8
+        y: 9.0
+        h: 0.0
+      g1:
+        x: 10.8
+        y: 4.5
+        h: 0.0
+    person_4:
+      id: 4
+      skin: 0
+      group_id: -1
+      max_vel: 1.0
+      radius: 0.4
+      behavior:
+        type: 1
+        configuration: 1
+        duration: 40.0
+        once: true
+        vel: 0.6
+        dist: 0.0
+        goal_force_factor: 2.0
+        obstacle_force_factor: 10.0
+        social_force_factor: 5.0
+        other_force_factor: 20.0
+      init_pose:
+        x: 12.2
+        y: 9.0
+        h: -1.57079632679
+      goal_radius: 0.3
+      cyclic_goals: true
+      goals:
+      - g0
+      - g1
+      g0:
+        x: 12.2
+        y: 4.5
+        h: 0.0
+      g1:
+        x: 12.2
+        y: 9.0
+        h: 0.0
+    person_5:
+      id: 5
+      skin: 0
+      group_id: -1
+      max_vel: 1.0
+      radius: 0.4
+      behavior:
+        type: 1
+        configuration: 1
+        duration: 40.0
+        once: true
+        vel: 0.6
+        dist: 0.0
+        goal_force_factor: 2.0
+        obstacle_force_factor: 10.0
+        social_force_factor: 5.0
+        other_force_factor: 20.0
+      init_pose:
+        x: 13.6
+        y: 4.5
+        h: 1.57079632679
+      goal_radius: 0.3
+      cyclic_goals: true
+      goals:
+      - g0
+      - g1
+      g0:
+        x: 13.6
+        y: 9.0
+        h: 0.0
+      g1:
+        x: 13.6
+        y: 4.5
+        h: 0.0
+    person_6:
+      id: 6
+      skin: 0
+      group_id: -1
+      max_vel: 1.0
+      radius: 0.4
+      behavior:
+        type: 1
+        configuration: 1
+        duration: 40.0
+        once: true
+        vel: 0.6
+        dist: 0.0
+        goal_force_factor: 2.0
+        obstacle_force_factor: 10.0
+        social_force_factor: 5.0
+        other_force_factor: 20.0
+      init_pose:
+        x: 15.0
+        y: 9.0
+        h: -1.57079632679
+      goal_radius: 0.3
+      cyclic_goals: true
+      goals:
+      - g0
+      - g1
+      g0:
+        x: 15.0
+        y: 4.5
+        h: 0.0
+      g1:
+        x: 15.0
+        y: 9.0
+        h: 0.0
+arena_multi_hunav:
+  character_models:
+  - original_female_adult_business_02
+  - original_female_adult_business_02
+  - original_female_adult_business_02
+  - original_female_adult_business_02
+  - original_female_adult_business_02
+  - original_female_adult_business_02

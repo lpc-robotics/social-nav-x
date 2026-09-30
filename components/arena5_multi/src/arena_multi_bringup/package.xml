@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>arena_multi_bringup</name>
+  <exec_depend>arena_multi_hunav_core</exec_depend>
+  <version>0.1.0</version>
+  <description>Configuration-driven Arena5 Isaac and independent Nav2 multi-robot launch.</description>
+  <maintainer email="lpc-robotics@users.noreply.github.com">lpc-robotics</maintainer>
+  <license>Apache-2.0</license>
+  <depend>arena_multi_control</depend>
+  <depend>arena_peer_costmap</depend>
+  <depend>arena_multi_hunav</depend>
+  <depend>arena_isaac</depend>
+  <depend>isaacsim_msgs</depend>
+  <depend>launch</depend>
+  <depend>launch_ros</depend>
+  <depend>nav2_bringup</depend>
+  <depend>nav2_behaviors</depend>
+  <depend>nav2_bt_navigator</depend>
+  <depend>nav2_controller</depend>
+  <depend>nav2_lifecycle_manager</depend>
+  <depend>nav2_map_server</depend>
+  <depend>nav2_msgs</depend>
+  <depend>nav2_planner</depend>
+  <depend>nav2_velocity_smoother</depend>
+  <depend>nav2_waypoint_follower</depend>
+  <depend>robot_state_publisher</depend>
+  <depend>rclpy</depend>
+  <depend>std_msgs</depend>
+  <depend>std_srvs</depend>
+  <depend>hunav_agent_manager</depend>
+  <exec_depend>foxglove_bridge</exec_depend>
+  <exec_depend>python3-yaml</exec_depend>
+  <export><build_type>ament_python</build_type></export>
+</package>

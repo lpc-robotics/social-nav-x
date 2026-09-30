@@ -1,0 +1,1 @@
+{"ready": false, "status": {"backend": "multi_sfm", "compute": 0, "display_lag_s": null, "epoch": 10743811200794706192, "fault": "post_spawn_odometry_timeout", "healthy": false, "integration_lag_s": null, "interaction_scope": "all_robots", "max_compute_wall_s": 0.0, "max_dt": 0.025, "robots": ["robot_1", "robot_2"], "step": 0, "updates": 0}}

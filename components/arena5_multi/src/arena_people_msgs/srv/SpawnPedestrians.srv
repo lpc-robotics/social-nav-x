@@ -1,0 +1,5 @@
+SpawnPedestrian[] pedestrians
+---
+int8 SUCCESS=0
+int8 FAILED_CREATE=1
+int8[] results

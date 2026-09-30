@@ -1,0 +1,14 @@
+max_angular: 1.0
+max_linear: 0.5
+random_seed: 1
+planner_algorithm: dijkstra
+hunav_profile: none
+robots:
+  - {name: robot_1, x: 3.0, y: 3.0, yaw: 0.0, control_mode: nav2}
+  - {name: robot_2, x: 3.0, y: 7.0, yaw: 0.0, control_mode: nav2}
+  - {name: robot_3, x: 3.0, y: 11.0, yaw: 0.0, control_mode: nav2}
+  - {name: robot_4, x: 3.0, y: 15.0, yaw: 0.0, control_mode: nav2}
+  - {name: robot_5, x: 7.0, y: 3.0, yaw: 1.5708, control_mode: nav2}
+  - {name: robot_6, x: 7.0, y: 7.0, yaw: 1.5708, control_mode: nav2}
+  - {name: robot_7, x: 7.0, y: 11.0, yaw: 1.5708, control_mode: nav2}
+  - {name: robot_8, x: 7.0, y: 15.0, yaw: 1.5708, control_mode: nav2}

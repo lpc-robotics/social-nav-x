@@ -1,0 +1,39 @@
+{
+  "passed": true,
+  "source_commit": "unknown",
+  "scenario": "/home/lpc/workspace/arena5_ws/optional/multirobot/releases/20260929-multi-sfm-v1/config/scenarios/two_robots_multi_sfm_6_nav2.yaml",
+  "scenario_sha256": "2a1f53bafcb3295c8de7d8deecb50b06aabdd12ac9ccc595567f38f7ade573e9",
+  "tasks": "/home/lpc/workspace/.arena5_multi_release_runtime_20260929/evidence/one_round.yaml",
+  "tasks_sha256": "d9687f8ef8c3638d2e30349ed17d4c13566ce344d601dc36389627e5ce76f3f5",
+  "planner_algorithm": "dijkstra",
+  "rounds_requested": 1,
+  "rounds_completed": 1,
+  "minimum_center_separation_m": 3.995808102843993,
+  "results": [
+    {
+      "round": 1,
+      "robots": {
+        "robot_1": {
+          "status": 4,
+          "xy_error_m": 0.19421909642779603,
+          "yaw_error_rad": 0.0027200714594250996,
+          "path_length_m": 1.8058329154169392,
+          "passed": true,
+          "command_samples": 323,
+          "zero_command_samples": 7
+        },
+        "robot_2": {
+          "status": 4,
+          "xy_error_m": 0.19805574417114258,
+          "yaw_error_rad": 0.0,
+          "path_length_m": 1.8019442558288574,
+          "passed": true,
+          "command_samples": 334,
+          "zero_command_samples": 42
+        }
+      },
+      "wall_duration_s": 16.400173739064485
+    }
+  ],
+  "failures": []
+}

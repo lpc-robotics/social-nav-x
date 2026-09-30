@@ -1,0 +1,30 @@
+{
+  "passed": true,
+  "duration_wall_s": 60.0,
+  "publishers": {
+    "clock": 1,
+    "robot_1/cmd_vel": 1
+  },
+  "real_time_factor": 0.5984126816103277,
+  "robots": {
+    "robot_1": {
+      "odom_messages": 2154,
+      "scan_messages": 353,
+      "joint_state_messages": 2154,
+      "scan_sim_hz": 9.99999947840912,
+      "scan_wall_hz": 5.980401457673306,
+      "scan_sim_age_mean_s": 0.08333333717563736,
+      "scan_sim_age_max_s": 0.08333333800000275,
+      "guard_output_wall_hz": 19.99987008560672,
+      "guard_diagnostic_samples": 53,
+      "guard_observation_faults": [],
+      "maximum_lidar_wall_age_s": 0.18446,
+      "maximum_lidar_sim_age_s": 0.183333,
+      "idle_drift_m": 0.0,
+      "initial_spawn_error_m": 0.0,
+      "tf_map_to_base_ready": true,
+      "navigate_to_pose_ready": true
+    }
+  },
+  "failures": []
+}

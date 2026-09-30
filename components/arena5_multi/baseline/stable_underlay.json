@@ -1,0 +1,170 @@
+{
+  "schema_version": 1,
+  "captured_at": "2026-09-23T14:17:44.836559+08:00",
+  "stable_workspace": "/home/lpc/workspace/arena5_ws",
+  "host": {
+    "platform": "Linux-6.8.0-136-generic-x86_64-with-glibc2.35",
+    "python": "3.13.13"
+  },
+  "versions": {
+    "ros": "humble",
+    "nav2": "1.1.18",
+    "isaacsim": "5.1.0.0"
+  },
+  "repositories": [
+    {
+      "path": "src/arena/evaluation",
+      "head": "94762429bea19b84cab50a3d0910a736184738a0",
+      "branch": "humble",
+      "status": []
+    },
+    {
+      "path": "src/arena/simulation-setup",
+      "head": "3f142b25d88ce962c803b57cf20f38985d376dea",
+      "branch": "humble-fix",
+      "status": [
+        " M configs/nav2/nav2.yaml",
+        " M launch/nav2.launch.py"
+      ]
+    },
+    {
+      "path": "src/arena/tools",
+      "head": "cbf1d05abd436cdb820da9fd0c35847b06a39ae0",
+      "branch": "",
+      "status": []
+    },
+    {
+      "path": "src/arena-isaac",
+      "head": "16b8e3416517d8c3dc1b5038df4fe11b9a6df46c",
+      "branch": "arena5-isaac5.1.0",
+      "status": [
+        " A arena_humble_compat/arena_humble_compat/__init__.py",
+        " A arena_humble_compat/arena_humble_compat/hunav_six_behaviors_bridge.py",
+        " A arena_humble_compat/arena_humble_compat/scene_bridge.py",
+        " A arena_humble_compat/arena_humble_compat/verify_runtime.py",
+        " A arena_humble_compat/arena_humble_compat/verify_six_behaviors.py",
+        " A arena_humble_compat/package.xml",
+        " A arena_humble_compat/resource/arena_humble_compat",
+        " A arena_humble_compat/setup.cfg",
+        " A arena_humble_compat/setup.py",
+        " M arena_isaac/arena_isaac/run_isaacsim.py",
+        " M arena_isaac/arena_isaac/services/SpawnUrdf.py",
+        " M arena_isaac/arena_isaac/services/UpdatePedestrians.py",
+        " A arena_isaac/isaac_utils/config/__init__.py",
+        " M arena_isaac/isaac_utils/graphs/odom.py",
+        " A arena_isaac/isaac_utils/managers/__init__.py",
+        " A arena_isaac/isaac_utils/utils/__init__.py",
+        " M arena_isaac/launch/run_isaacsim.launch.py",
+        " M arena_isaac/pedestrian/simulator/logic/people/person.py",
+        " A arena_people_msgs/CMakeLists.txt",
+        " A arena_people_msgs/msg/Pedestrian.msg",
+        " A arena_people_msgs/msg/Pedestrians.msg",
+        " A arena_people_msgs/msg/SpawnPedestrian.msg",
+        " A arena_people_msgs/package.xml",
+        " A arena_people_msgs/srv/DeletePedestrians.srv",
+        " A arena_people_msgs/srv/MovePedestrians.srv",
+        " A arena_people_msgs/srv/SpawnPedestrians.srv",
+        " A arena_people_msgs/srv/UpdatePedestrians.srv",
+        "?? arena_humble_compat/arena_humble_compat/bridge_validation.py",
+        "?? arena_humble_compat/test/test_bridge_validation.py",
+        "?? arena_isaac/pedestrian/simulator/logic/people/character_frames.py",
+        "?? arena_isaac/test/test_character_frames.py"
+      ]
+    },
+    {
+      "path": "src/arena-rosnav",
+      "head": "c2ff4a87e8686013b53f1e9cd8b01b3ab04fbce4",
+      "branch": "humble",
+      "status": [
+        " A arena_bringup/configs/hunav_agents/isaac_six_behaviors_warehouse.yaml",
+        " A arena_bringup/launch/isaac_six_behaviors.launch.py",
+        " M arena_bringup/package.xml"
+      ]
+    },
+    {
+      "path": "src/deps/foxglove-sdk",
+      "head": "05f27efc7e535d9c30c6b0cb4f6aa89de7243870",
+      "branch": "",
+      "status": [
+        " M ros/src/foxglove_bridge/src/message_definition_cache.cpp",
+        " M ros/src/foxglove_bridge/src/ros2_foxglove_bridge_node.cpp"
+      ]
+    },
+    {
+      "path": "src/deps/hunav/hunav_sim",
+      "head": "a69cf96d98b0d40e247f819d7aebab661ac68b3b",
+      "branch": "",
+      "status": [
+        " M hunav_agent_manager/src/agent_manager.cpp"
+      ]
+    },
+    {
+      "path": "src/deps/hunav/lightsfm",
+      "head": "b30327cca189af2fb90443a5d0040cceb46d7195",
+      "branch": "master",
+      "status": []
+    },
+    {
+      "path": "src/deps/hunav/people_msgs",
+      "head": "0ae47f6e0208cedd84d19d066743fdc1d05fcafa",
+      "branch": "",
+      "status": []
+    },
+    {
+      "path": "src/deps/nav2/navigation2",
+      "head": "8e34dcf5790671085a893dc58d2a0940ec80dd1e",
+      "branch": "humble",
+      "status": []
+    },
+    {
+      "path": "src/deps/robots/jackal",
+      "head": "017b8b581a90873047f7d6fe438bd87513be4a76",
+      "branch": "foxy-devel",
+      "status": []
+    }
+  ],
+  "protected_files": {
+    "scripts/run_six_behaviors.sh": {
+      "exists": true,
+      "sha256": "9f8d26eae21348e00e6141f95829e51bf5cbc21e0c57d541bd3c8e9df2530836"
+    },
+    "scripts/run_six_behaviors_dwb_08.sh": {
+      "exists": true,
+      "sha256": "de39443b2105976d08162a34dc47c9c2d6ca61d5c9bcc401da382e467132e465"
+    },
+    "scripts/run_six_behaviors_mpc.sh": {
+      "exists": true,
+      "sha256": "3af18562d9f1b4ebf95c90986dbfdfe93af5a86d14bde5c758161d3e839ec24a"
+    },
+    "src/arena/simulation-setup/configs/nav2/nav2.yaml": {
+      "exists": true,
+      "sha256": "3972e35d43f3b9fda70da365b43761c310209378ea2ab57656a2cd07cd6334ef"
+    },
+    "install/arena_simulation_setup/share/arena_simulation_setup/configs/nav2/nav2.yaml": {
+      "exists": true,
+      "sha256": "1b3e4986da2d049f466fc005f9bf30d55f004e90748a96b4d5ffb02a33c50dc7"
+    },
+    "src/arena-isaac/arena_isaac/arena_isaac/run_isaacsim.py": {
+      "exists": true,
+      "sha256": "b0582da5453ed56bfb54b3d2b58ceec81fe31cfafc72f50e4fe876c903869c2c"
+    },
+    "install/arena_isaac/lib/python3.11/site-packages/arena_isaac/run_isaacsim.py": {
+      "exists": true,
+      "sha256": "b0582da5453ed56bfb54b3d2b58ceec81fe31cfafc72f50e4fe876c903869c2c"
+    },
+    "optional/mpc/releases/20260920-94f4de6/RELEASE": {
+      "exists": true,
+      "sha256": "8dfdd74b15e83b16d9f40e6f6e463dd3b577c948da3a8a3ec214d0c21137d4b1"
+    }
+  },
+  "normalized_scan_source": {
+    "workspace": "/home/lpc/workspace/arena5_ws_costmap_fix",
+    "accepted_commit": "6709da14af280444ac90b616a800439de22b1869",
+    "acceptance_manifest": "baseline/radar-input-accepted-v1.json"
+  },
+  "notes": [
+    "The stable workspace root is not a Git repository.",
+    "Source and installed Nav2 parameter hashes are intentionally recorded separately.",
+    "Status lines are protected user state and must not be cleaned or reset."
+  ]
+}
